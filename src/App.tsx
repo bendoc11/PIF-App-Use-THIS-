@@ -9,6 +9,8 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Courses from "./pages/Courses";
 import CoursePlayer from "./pages/CoursePlayer";
+import Community from "./pages/Community";
+import Progress from "./pages/Progress";
 import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
 
@@ -29,8 +31,8 @@ const App = () => (
             <Route path="/courses/:courseId/:drillIndex" element={<AuthGuard><CoursePlayer /></AuthGuard>} />
             <Route path="/pricing" element={<AuthGuard><Pricing /></AuthGuard>} />
             <Route path="/coaches" element={<AuthGuard><Dashboard /></AuthGuard>} />
-            <Route path="/community" element={<AuthGuard><Dashboard /></AuthGuard>} />
-            <Route path="/progress" element={<AuthGuard><Dashboard /></AuthGuard>} />
+            <Route path="/community" element={<AuthGuard><Community /></AuthGuard>} />
+            <Route path="/progress" element={<AuthGuard><Progress /></AuthGuard>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

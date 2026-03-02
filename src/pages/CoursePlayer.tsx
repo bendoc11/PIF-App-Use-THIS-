@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -269,7 +270,21 @@ export default function CoursePlayer() {
                   </div>
                   <div className="flex items-center gap-2">
                     <button className="p-2 rounded-lg hover:bg-muted transition-colors"><Bookmark className="h-4 w-4 text-muted-foreground" /></button>
-                    <button className="p-2 rounded-lg hover:bg-muted transition-colors"><Share2 className="h-4 w-4 text-muted-foreground" /></button>
+                    <button
+                      className="p-2 rounded-lg hover:bg-muted transition-colors"
+                      onClick={async () => {
+                        if (navigator.share) {
+                          try {
+                            await navigator.share({ title: course.title, url: window.location.href });
+                          } catch {}
+                        } else {
+                          await navigator.clipboard.writeText(window.location.href);
+                          toast.success("Link copied!");
+                        }
+                      }}
+                    >
+                      <Share2 className="h-4 w-4 text-muted-foreground" />
+                    </button>
                   </div>
                 </div>
               </div>

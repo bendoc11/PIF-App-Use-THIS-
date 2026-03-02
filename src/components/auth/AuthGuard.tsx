@@ -6,7 +6,7 @@ const PUBLIC_ROUTES = ["/pricing", "/settings"];
 const ADMIN_PREFIX = "/admin";
 
 export function AuthGuard({ children }: { children: ReactNode }) {
-  const { user, loading, subscription, profile } = useAuth();
+  const { user, loading, subscription, subscriptionLoading, profile } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -25,6 +25,15 @@ export function AuthGuard({ children }: { children: ReactNode }) {
   const isAdminRoute = location.pathname.startsWith(ADMIN_PREFIX);
   const isPublicRoute = PUBLIC_ROUTES.includes(location.pathname);
   const isAdminOrCreator = profile?.role === "admin" || profile?.role === "creator";
+
+  // Don't redirect to pricing while subscription is still loading
+  if (!isPublicRoute && !(isAdminRoute && isAdminOrCreator) && subscriptionLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!subscription.subscribed && !isPublicRoute && !(isAdminRoute && isAdminOrCreator)) {
     return <Navigate to="/pricing" replace />;

@@ -1,4 +1,4 @@
-import { LayoutDashboard, BookOpen, Users, MessageSquare, TrendingUp, Crown, LogOut } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, MessageSquare, TrendingUp, Settings, LogOut } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,6 +20,7 @@ const navItems = [
   { title: "Coaches", url: "/coaches", icon: Users },
   { title: "Community", url: "/community", icon: MessageSquare },
   { title: "My Progress", url: "/progress", icon: TrendingUp },
+  { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -73,17 +74,6 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Upgrade CTA */}
-        <div className="px-3 mt-4">
-          <NavLink
-            to="/pricing"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary text-primary-foreground btn-cta text-sm glow-red-hover transition-all"
-            activeClassName="glow-red"
-          >
-            <Crown className="h-5 w-5 shrink-0" />
-            {!collapsed && <span>Upgrade</span>}
-          </NavLink>
-        </div>
       </SidebarContent>
 
       <SidebarFooter className="p-3">

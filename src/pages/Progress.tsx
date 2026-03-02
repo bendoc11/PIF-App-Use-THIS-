@@ -97,7 +97,7 @@ export default function Progress() {
     { icon: Target, title: "Sharpshooter", description: "Complete 10 drills", earned: totalDrills >= 10, color: "text-secondary" },
     { icon: Zap, title: "On Fire", description: "3-day streak", earned: streakDays >= 3, color: "text-pif-gold" },
     { icon: Star, title: "Dedicated", description: "Complete 25 drills", earned: totalDrills >= 25, color: "text-pif-green" },
-    { icon: Trophy, title: "Course Master", description: "Complete a full course", earned: courseCount >= 1, color: "text-pif-purple" },
+    { icon: Trophy, title: "Workout Master", description: "Complete a full workout", earned: courseCount >= 1, color: "text-pif-purple" },
     { icon: Award, title: "Elite", description: "7-day streak", earned: streakDays >= 7, color: "text-primary" },
   ];
 
@@ -132,7 +132,7 @@ export default function Progress() {
             { label: "Streak", value: `${streakDays}d`, icon: Flame, color: "text-primary" },
             { label: "Drills Done", value: totalDrills, icon: Target, color: "text-secondary" },
             { label: "Hours Trained", value: `${hoursEstimate}h`, icon: Clock, color: "text-pif-green" },
-            { label: "Courses Done", value: courseCount, icon: Trophy, color: "text-pif-gold" },
+            { label: "Workouts Done", value: courseCount, icon: Trophy, color: "text-pif-gold" },
           ].map((stat, i) => (
             <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
               <Card className="bg-card border-border">

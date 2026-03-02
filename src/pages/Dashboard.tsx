@@ -185,10 +185,10 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Courses */}
+        {/* Workouts */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-heading text-foreground">Courses</h2>
+            <h2 className="text-xl font-heading text-foreground">Workouts</h2>
             <Link to="/courses" className="text-sm text-primary hover:underline font-heading tracking-wider flex items-center gap-1">
               View All <ArrowRight className="h-3 w-3" />
             </Link>
@@ -203,7 +203,7 @@ export default function Dashboard() {
                         <Play className="h-8 w-8 text-muted-foreground" />
                       </div>
                       <div className="p-4 space-y-3">
-                        <span className="text-[10px] font-heading tracking-widest text-muted-foreground">COURSE</span>
+                        <span className="text-[10px] font-heading tracking-widest text-muted-foreground">WORKOUT</span>
                         <h3 className="font-heading text-foreground">{course.title}</h3>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <span>{course.coaches?.name}</span>

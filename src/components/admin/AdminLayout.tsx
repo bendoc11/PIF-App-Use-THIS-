@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { BookOpen, Users, Shield, MessageSquare, ArrowLeft } from "lucide-react";
 
 const adminNavItems = [
-  { title: "Courses", url: "/admin/courses", icon: BookOpen, roles: ["admin", "creator"] },
+  { title: "Workouts", url: "/admin/courses", icon: BookOpen, roles: ["admin", "creator"] },
   { title: "Creators", url: "/admin/creators", icon: Shield, roles: ["admin"] },
   { title: "Users", url: "/admin/users", icon: Users, roles: ["admin"] },
   { title: "Moderation", url: "/admin/moderation", icon: MessageSquare, roles: ["admin"] },

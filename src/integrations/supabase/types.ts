@@ -58,6 +58,7 @@ export type Database = {
           body: string
           category: string
           created_at: string
+          hidden: boolean
           id: string
           reply_count: number
           title: string
@@ -68,6 +69,7 @@ export type Database = {
           body: string
           category?: string
           created_at?: string
+          hidden?: boolean
           id?: string
           reply_count?: number
           title: string
@@ -78,6 +80,7 @@ export type Database = {
           body?: string
           category?: string
           created_at?: string
+          hidden?: boolean
           id?: string
           reply_count?: number
           title?: string
@@ -155,6 +158,7 @@ export type Database = {
           is_free: boolean
           level: string | null
           sort_order: number
+          status: string
           thumbnail_url: string | null
           title: string
           total_duration_seconds: number
@@ -169,6 +173,7 @@ export type Database = {
           is_free?: boolean
           level?: string | null
           sort_order?: number
+          status?: string
           thumbnail_url?: string | null
           title: string
           total_duration_seconds?: number
@@ -183,6 +188,7 @@ export type Database = {
           is_free?: boolean
           level?: string | null
           sort_order?: number
+          status?: string
           thumbnail_url?: string | null
           title?: string
           total_duration_seconds?: number
@@ -269,6 +275,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          banned: boolean
           created_at: string
           first_name: string | null
           id: string
@@ -276,6 +283,7 @@ export type Database = {
           last_name: string | null
           plan: string
           position: string | null
+          role: string
           streak_days: number
           stripe_customer_id: string | null
           total_drills_completed: number
@@ -283,6 +291,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          banned?: boolean
           created_at?: string
           first_name?: string | null
           id: string
@@ -290,6 +299,7 @@ export type Database = {
           last_name?: string | null
           plan?: string
           position?: string | null
+          role?: string
           streak_days?: number
           stripe_customer_id?: string | null
           total_drills_completed?: number
@@ -297,6 +307,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          banned?: boolean
           created_at?: string
           first_name?: string | null
           id?: string
@@ -304,6 +315,7 @@ export type Database = {
           last_name?: string | null
           plan?: string
           position?: string | null
+          role?: string
           streak_days?: number
           stripe_customer_id?: string | null
           total_drills_completed?: number

@@ -1,0 +1,530 @@
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { AdminLayout } from "@/components/admin/AdminLayout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ArrowUp, ArrowDown, Plus, Trash2, Loader2, Save, X } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+
+const CATEGORIES = ["Shooting", "Ball Handling", "Defense", "Finishing", "Conditioning", "Mindset"];
+const DRILL_TAGS = ["Shooting", "Ball Handling", "Defense", "Finishing", "Conditioning", "Beginner", "Intermediate", "Advanced"];
+
+interface DrillForm {
+  id?: string;
+  title: string;
+  vimeo_id: string;
+  duration_seconds: number;
+  description: string;
+  coaching_tips: string;
+  equipment_needed: string[];
+  category: string;
+  level: string;
+  sort_order: number;
+}
+
+export default function AdminCourseEditor() {
+  const { courseId } = useParams();
+  const navigate = useNavigate();
+  const { profile } = useAuth();
+  const role = profile?.role || "user";
+  const isNew = courseId === "new";
+
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(!isNew);
+
+  // Course fields
+  const [title, setTitle] = useState("");
+  const [coachName, setCoachName] = useState("");
+  const [coachSchool, setCoachSchool] = useState("");
+  const [category, setCategory] = useState("");
+  const [description, setDescription] = useState("");
+  const [status, setStatus] = useState("draft");
+  const [coachId, setCoachId] = useState<string | null>(null);
+
+  // Drills
+  const [drills, setDrills] = useState<DrillForm[]>([]);
+  const [editingDrill, setEditingDrill] = useState<DrillForm | null>(null);
+  const [equipmentInput, setEquipmentInput] = useState("");
+
+  useEffect(() => {
+    if (isNew) return;
+    const fetch = async () => {
+      const { data: course } = await supabase
+        .from("courses")
+        .select("*, coaches(id, name, school)")
+        .eq("id", courseId)
+        .single();
+      if (course) {
+        setTitle(course.title);
+        setCategory(course.category || "");
+        setDescription(course.description || "");
+        setStatus((course as any).status || "draft");
+        if ((course as any).coaches) {
+          setCoachName((course as any).coaches.name);
+          setCoachSchool((course as any).coaches.school || "");
+          setCoachId((course as any).coaches.id);
+        }
+      }
+      const { data: drillData } = await supabase
+        .from("drills")
+        .select("*")
+        .eq("course_id", courseId)
+        .order("sort_order");
+      if (drillData) {
+        setDrills(
+          drillData.map((d: any) => ({
+            id: d.id,
+            title: d.title,
+            vimeo_id: d.vimeo_id || "",
+            duration_seconds: d.duration_seconds || 0,
+            description: d.description || "",
+            coaching_tips: Array.isArray(d.coaching_tips) ? d.coaching_tips.join("\n") : "",
+            equipment_needed: d.equipment_needed || [],
+            category: d.category || "",
+            level: d.level || "",
+            sort_order: d.sort_order,
+          }))
+        );
+      }
+      setLoading(false);
+    };
+    fetch();
+  }, [courseId, isNew]);
+
+  const extractVimeoId = (url: string) => {
+    const match = url.match(/vimeo\.com\/(\d+)/);
+    return match ? match[1] : url.replace(/\D/g, "");
+  };
+
+  const parseDuration = (input: string): number => {
+    const parts = input.split(":").map(Number);
+    if (parts.length === 2) return (parts[0] || 0) * 60 + (parts[1] || 0);
+    return parts[0] || 0;
+  };
+
+  const formatDuration = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${String(s).padStart(2, "0")}`;
+  };
+
+  const moveDrill = (index: number, direction: "up" | "down") => {
+    const newDrills = [...drills];
+    const swapIdx = direction === "up" ? index - 1 : index + 1;
+    if (swapIdx < 0 || swapIdx >= newDrills.length) return;
+    [newDrills[index], newDrills[swapIdx]] = [newDrills[swapIdx], newDrills[index]];
+    newDrills.forEach((d, i) => (d.sort_order = i + 1));
+    setDrills(newDrills);
+  };
+
+  const addEquipmentItem = () => {
+    if (!equipmentInput.trim() || !editingDrill) return;
+    setEditingDrill({
+      ...editingDrill,
+      equipment_needed: [...editingDrill.equipment_needed, equipmentInput.trim()],
+    });
+    setEquipmentInput("");
+  };
+
+  const removeEquipmentItem = (index: number) => {
+    if (!editingDrill) return;
+    setEditingDrill({
+      ...editingDrill,
+      equipment_needed: editingDrill.equipment_needed.filter((_, i) => i !== index),
+    });
+  };
+
+  const saveDrillToList = () => {
+    if (!editingDrill || !editingDrill.title) return;
+    if (editingDrill.id || drills.find((d) => d === editingDrill)) {
+      setDrills((prev) =>
+        prev.map((d) => (d === editingDrill || (editingDrill.id && d.id === editingDrill.id) ? editingDrill : d))
+      );
+    } else {
+      setDrills((prev) => [...prev, { ...editingDrill, sort_order: prev.length + 1 }]);
+    }
+    setEditingDrill(null);
+  };
+
+  const handleSave = async () => {
+    if (!title.trim()) {
+      toast({ title: "Course title is required", variant: "destructive" });
+      return;
+    }
+    setSaving(true);
+
+    try {
+      // Upsert coach
+      let finalCoachId = coachId;
+      if (coachName.trim()) {
+        if (finalCoachId) {
+          await supabase.from("coaches").update({ name: coachName, school: coachSchool }).eq("id", finalCoachId);
+        } else {
+          const { data: newCoach } = await supabase
+            .from("coaches")
+            .insert({ name: coachName, school: coachSchool, initials: coachName.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2) })
+            .select("id")
+            .single();
+          if (newCoach) finalCoachId = newCoach.id;
+        }
+      }
+
+      const courseData = {
+        title,
+        category: category || null,
+        description: description || null,
+        status: role === "admin" ? status : "draft",
+        coach_id: finalCoachId,
+        drill_count: drills.length,
+        total_duration_seconds: drills.reduce((a, d) => a + d.duration_seconds, 0),
+      };
+
+      let savedCourseId = courseId;
+      if (isNew) {
+        const { data, error } = await supabase.from("courses").insert(courseData).select("id").single();
+        if (error) throw error;
+        savedCourseId = data.id;
+      } else {
+        const { error } = await supabase.from("courses").update(courseData).eq("id", courseId);
+        if (error) throw error;
+      }
+
+      // Save drills
+      for (const drill of drills) {
+        const drillData = {
+          title: drill.title,
+          vimeo_id: drill.vimeo_id,
+          duration_seconds: drill.duration_seconds,
+          description: drill.description || null,
+          coaching_tips: drill.coaching_tips ? drill.coaching_tips.split("\n").filter(Boolean) : null,
+          equipment_needed: drill.equipment_needed.length > 0 ? drill.equipment_needed : null,
+          category: drill.category || category || "Ball Handling",
+          level: drill.level || null,
+          sort_order: drill.sort_order,
+          course_id: savedCourseId,
+          coach_id: finalCoachId,
+        };
+
+        if (drill.id) {
+          await supabase.from("drills").update(drillData).eq("id", drill.id);
+        } else {
+          const { data } = await supabase.from("drills").insert(drillData).select("id").single();
+          if (data) drill.id = data.id;
+        }
+      }
+
+      toast({ title: "Course saved successfully" });
+      if (isNew) navigate(`/admin/courses/${savedCourseId}`);
+    } catch (err: any) {
+      toast({ title: "Error saving", description: err.message, variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  return (
+    <AdminLayout>
+      <div className="space-y-8 max-w-4xl">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-heading text-foreground">{isNew ? "New Course" : "Edit Course"}</h1>
+          <Button onClick={handleSave} disabled={saving} className="btn-cta bg-primary hover:bg-primary/90 glow-red-hover">
+            {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+            Save Course
+          </Button>
+        </div>
+
+        {/* Course Fields */}
+        <div className="space-y-6 p-6 bg-card border border-border rounded-lg">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="font-heading tracking-wider text-sm">Course Title</Label>
+              <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Elite Ball Handling" />
+            </div>
+            <div className="space-y-2">
+              <Label className="font-heading tracking-wider text-sm">Category</Label>
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="font-heading tracking-wider text-sm">Athlete / Creator Name</Label>
+              <Input value={coachName} onChange={(e) => setCoachName(e.target.value)} placeholder="e.g. Jordan Miles" />
+            </div>
+            <div className="space-y-2">
+              <Label className="font-heading tracking-wider text-sm">School / Affiliation</Label>
+              <Input value={coachSchool} onChange={(e) => setCoachSchool(e.target.value)} placeholder="e.g. Duke University" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label className="font-heading tracking-wider text-sm">Description</Label>
+            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Course description..." rows={3} />
+          </div>
+          {role === "admin" && (
+            <div className="space-y-2">
+              <Label className="font-heading tracking-wider text-sm">Status</Label>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="live">Live</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+
+        {/* Drill List */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-heading text-foreground">Drills ({drills.length})</h2>
+            <Button
+              variant="outline"
+              onClick={() =>
+                setEditingDrill({
+                  title: "",
+                  vimeo_id: "",
+                  duration_seconds: 0,
+                  description: "",
+                  coaching_tips: "",
+                  equipment_needed: [],
+                  category: category || "",
+                  level: "",
+                  sort_order: drills.length + 1,
+                })
+              }
+            >
+              <Plus className="h-4 w-4 mr-2" /> Add Drill
+            </Button>
+          </div>
+
+          {drills.length > 0 && (
+            <div className="border border-border rounded-lg overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableHead className="w-16 font-heading tracking-wider">Order</TableHead>
+                    <TableHead className="font-heading tracking-wider">Title</TableHead>
+                    <TableHead className="font-heading tracking-wider">Duration</TableHead>
+                    <TableHead className="font-heading tracking-wider text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {drills.map((drill, i) => (
+                    <TableRow key={drill.id || i} className="border-border">
+                      <TableCell>
+                        <div className="flex flex-col gap-1">
+                          <button
+                            onClick={() => moveDrill(i, "up")}
+                            disabled={i === 0}
+                            className="p-1 rounded hover:bg-muted disabled:opacity-20 transition-colors"
+                          >
+                            <ArrowUp className="h-3 w-3" />
+                          </button>
+                          <button
+                            onClick={() => moveDrill(i, "down")}
+                            disabled={i === drills.length - 1}
+                            className="p-1 rounded hover:bg-muted disabled:opacity-20 transition-colors"
+                          >
+                            <ArrowDown className="h-3 w-3" />
+                          </button>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-medium text-foreground">{drill.title}</TableCell>
+                      <TableCell className="text-muted-foreground">{formatDuration(drill.duration_seconds)}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button variant="ghost" size="sm" onClick={() => setEditingDrill(drill)}>
+                            Edit
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDrills((prev) => prev.filter((_, idx) => idx !== i))}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </div>
+
+        {/* Drill Editor Modal */}
+        {editingDrill && (
+          <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-card border border-border rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-5">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-heading text-foreground">{editingDrill.id ? "Edit Drill" : "New Drill"}</h3>
+                <button onClick={() => setEditingDrill(null)} className="p-2 hover:bg-muted rounded-lg transition-colors">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="font-heading tracking-wider text-sm">Drill Title</Label>
+                <Input
+                  value={editingDrill.title}
+                  onChange={(e) => setEditingDrill({ ...editingDrill, title: e.target.value })}
+                  placeholder="e.g. Crossover Sprint"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="font-heading tracking-wider text-sm">Vimeo URL</Label>
+                  <Input
+                    value={editingDrill.vimeo_id}
+                    onChange={(e) => setEditingDrill({ ...editingDrill, vimeo_id: extractVimeoId(e.target.value) })}
+                    placeholder="https://vimeo.com/123456789"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-heading tracking-wider text-sm">Duration (m:ss)</Label>
+                  <Input
+                    defaultValue={formatDuration(editingDrill.duration_seconds)}
+                    onBlur={(e) =>
+                      setEditingDrill({ ...editingDrill, duration_seconds: parseDuration(e.target.value) })
+                    }
+                    placeholder="5:00"
+                  />
+                </div>
+              </div>
+
+              {/* Vimeo Preview */}
+              {editingDrill.vimeo_id && /^\d+$/.test(editingDrill.vimeo_id) && (
+                <div className="aspect-video bg-background rounded-lg overflow-hidden border border-border">
+                  <iframe
+                    src={`https://player.vimeo.com/video/${editingDrill.vimeo_id}?color=E8453C&title=0&byline=0&portrait=0`}
+                    className="w-full h-full"
+                    allow="autoplay; fullscreen; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="font-heading tracking-wider text-sm">Category</Label>
+                  <Select
+                    value={editingDrill.category}
+                    onValueChange={(v) => setEditingDrill({ ...editingDrill, category: v })}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent>
+                      {DRILL_TAGS.map((t) => (
+                        <SelectItem key={t} value={t}>{t}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-heading tracking-wider text-sm">Level</Label>
+                  <Select
+                    value={editingDrill.level}
+                    onValueChange={(v) => setEditingDrill({ ...editingDrill, level: v })}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Beginner">Beginner</SelectItem>
+                      <SelectItem value="Intermediate">Intermediate</SelectItem>
+                      <SelectItem value="Advanced">Advanced</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="font-heading tracking-wider text-sm">Description</Label>
+                <Textarea
+                  value={editingDrill.description}
+                  onChange={(e) => setEditingDrill({ ...editingDrill, description: e.target.value })}
+                  placeholder="Drill overview..."
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="font-heading tracking-wider text-sm">Coaching Tips (one per line)</Label>
+                <Textarea
+                  value={editingDrill.coaching_tips}
+                  onChange={(e) => setEditingDrill({ ...editingDrill, coaching_tips: e.target.value })}
+                  placeholder="Keep your eyes up&#10;Stay low in your stance&#10;Explode out of each move"
+                  rows={4}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="font-heading tracking-wider text-sm">What You'll Need</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={equipmentInput}
+                    onChange={(e) => setEquipmentInput(e.target.value)}
+                    placeholder="e.g. 1 basketball"
+                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addEquipmentItem())}
+                  />
+                  <Button variant="outline" onClick={addEquipmentItem} type="button">
+                    Add
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {editingDrill.equipment_needed.map((item, i) => (
+                    <Badge key={i} variant="secondary" className="gap-1 pr-1">
+                      {item}
+                      <button onClick={() => removeEquipmentItem(i)} className="ml-1 hover:text-destructive">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <Button variant="outline" onClick={() => setEditingDrill(null)}>
+                  Cancel
+                </Button>
+                <Button onClick={saveDrillToList} className="btn-cta bg-primary hover:bg-primary/90">
+                  {editingDrill.id ? "Update Drill" : "Add Drill"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </AdminLayout>
+  );
+}

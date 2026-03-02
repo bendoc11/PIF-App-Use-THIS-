@@ -8,6 +8,7 @@ interface Profile {
   last_name: string | null;
   position: string | null;
   plan: string;
+  role: string;
   streak_days: number;
   total_drills_completed: number;
   avatar_url: string | null;

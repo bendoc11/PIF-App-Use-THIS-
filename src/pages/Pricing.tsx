@@ -17,7 +17,10 @@ export default function Pricing() {
   const handleCheckout = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout");
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { email: user?.email },
+      });
       if (error) throw error;
       if (data?.url) {
         window.open(data.url, "_blank");

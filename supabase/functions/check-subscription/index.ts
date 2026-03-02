@@ -77,9 +77,12 @@ serve(async (req) => {
 
     if (hasActiveSub) {
       const sub = allSubs[0];
-      subscriptionEnd = new Date(sub.current_period_end * 1000).toISOString();
-      productId = sub.items.data[0].price.product;
-      if (sub.trial_end) {
+      // Use safe timestamp conversion
+      if (sub.current_period_end && typeof sub.current_period_end === "number") {
+        subscriptionEnd = new Date(sub.current_period_end * 1000).toISOString();
+      }
+      productId = sub.items?.data?.[0]?.price?.product ?? null;
+      if (sub.trial_end && typeof sub.trial_end === "number") {
         trialEnd = new Date(sub.trial_end * 1000).toISOString();
       }
       logStep("Active subscription found", { status: sub.status, subscriptionEnd, trialEnd });

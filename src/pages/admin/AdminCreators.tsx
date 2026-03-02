@@ -142,7 +142,7 @@ export default function AdminCreators() {
                 <TableRow className="border-border hover:bg-transparent">
                   <TableHead className="font-heading tracking-wider">Name</TableHead>
                   <TableHead className="font-heading tracking-wider">Email</TableHead>
-                  <TableHead className="font-heading tracking-wider">Courses</TableHead>
+                  <TableHead className="font-heading tracking-wider">Workouts</TableHead>
                   <TableHead className="font-heading tracking-wider">Status</TableHead>
                   <TableHead className="font-heading tracking-wider text-right">Actions</TableHead>
                 </TableRow>
@@ -196,7 +196,7 @@ export default function AdminCreators() {
             <div className="bg-card border border-border rounded-2xl p-6 max-w-xl w-full max-h-[80vh] overflow-y-auto space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-heading text-foreground">
-                  {viewingCreator.first_name} {viewingCreator.last_name}'s Courses
+                  {viewingCreator.first_name} {viewingCreator.last_name}'s Workouts
                 </h3>
                 <button onClick={() => setViewingCreator(null)} className="p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground">
                   ✕
@@ -207,7 +207,7 @@ export default function AdminCreators() {
                   <Loader2 className="h-6 w-6 animate-spin text-primary" />
                 </div>
               ) : creatorCourses.length === 0 ? (
-                <p className="text-muted-foreground text-sm py-4">No courses found for this creator.</p>
+                <p className="text-muted-foreground text-sm py-4">No workouts found for this creator.</p>
               ) : (
                 <Table>
                   <TableHeader>

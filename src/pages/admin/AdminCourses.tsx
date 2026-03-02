@@ -64,7 +64,7 @@ export default function AdminCourses() {
 
     const { data, error } = await query;
     if (error) {
-      toast({ title: "Error loading courses", description: error.message, variant: "destructive" });
+      toast({ title: "Error loading workouts", description: error.message, variant: "destructive" });
     }
     setCourses((data as any) || []);
     setLoading(false);
@@ -76,7 +76,7 @@ export default function AdminCourses() {
 
   const toggleStatus = async (course: CourseRow) => {
     if (role !== "admin") {
-      toast({ title: "Only admins can publish courses", variant: "destructive" });
+      toast({ title: "Only admins can publish workouts", variant: "destructive" });
       return;
     }
     const newStatus = course.status === "live" ? "draft" : "live";
@@ -86,28 +86,28 @@ export default function AdminCourses() {
       return;
     }
     setCourses((prev) => prev.map((c) => (c.id === course.id ? { ...c, status: newStatus } : c)));
-    toast({ title: `Course ${newStatus === "live" ? "published" : "set to draft"}` });
+    toast({ title: `Workout ${newStatus === "live" ? "published" : "set to draft"}` });
   };
 
   const deleteCourse = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this course? This cannot be undone.")) return;
+    if (!confirm("Are you sure you want to delete this workout? This cannot be undone.")) return;
     const { error } = await supabase.from("courses").delete().eq("id", id);
     if (error) {
       toast({ title: "Error deleting course", description: error.message, variant: "destructive" });
       return;
     }
     setCourses((prev) => prev.filter((c) => c.id !== id));
-    toast({ title: "Course deleted" });
+    toast({ title: "Workout deleted" });
   };
 
   return (
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-heading text-foreground">Courses</h1>
+          <h1 className="text-3xl font-heading text-foreground">Workouts</h1>
           <Link to="/admin/courses/new">
             <Button className="btn-cta bg-primary hover:bg-primary/90 glow-red-hover">
-              <Plus className="h-4 w-4 mr-2" /> Create New Course
+              <Plus className="h-4 w-4 mr-2" /> Create New Workout
             </Button>
           </Link>
         </div>
@@ -118,14 +118,14 @@ export default function AdminCourses() {
           </div>
         ) : courses.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
-            <p>No courses yet. Create your first course to get started.</p>
+            <p>No workouts yet. Create your first workout to get started.</p>
           </div>
         ) : (
           <div className="border border-border rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow className="border-border hover:bg-transparent">
-                  <TableHead className="font-heading tracking-wider">Course Title</TableHead>
+                  <TableHead className="font-heading tracking-wider">Workout Title</TableHead>
                   <TableHead className="font-heading tracking-wider">Creator</TableHead>
                   <TableHead className="font-heading tracking-wider">Drills</TableHead>
                   <TableHead className="font-heading tracking-wider">Status</TableHead>

@@ -140,7 +140,7 @@ export default function CoursePlayer() {
         <div className="hidden lg:flex lg:w-80 flex-col bg-card border-r border-border overflow-y-auto shrink-0">
           <div className="p-5 space-y-4 border-b border-border">
             <Link to="/courses" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-              <ArrowLeft className="h-4 w-4" /> Back to Courses
+              <ArrowLeft className="h-4 w-4" /> Back to Workouts
             </Link>
             <h2 className="text-lg font-heading text-foreground">{course.title}</h2>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -375,7 +375,7 @@ export default function CoursePlayer() {
               >
                 <Trophy className="h-10 w-10 text-pif-gold" />
               </motion.div>
-              <h2 className="text-3xl font-heading text-foreground">Course Complete!</h2>
+              <h2 className="text-3xl font-heading text-foreground">Workout Complete!</h2>
               <p className="text-lg text-muted-foreground">{course.title}</p>
               <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
                 <span>{drills.length} drills</span>
@@ -383,7 +383,7 @@ export default function CoursePlayer() {
               </div>
               <Link to="/courses">
                 <Button className="w-full h-12 btn-cta bg-primary hover:bg-primary/90 glow-red-hover">
-                  Browse More Courses →
+                  Browse More Workouts →
                 </Button>
               </Link>
             </motion.div>

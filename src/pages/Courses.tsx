@@ -56,7 +56,7 @@ export default function Courses() {
     <AppLayout>
       <div className="p-4 lg:p-6 max-w-7xl mx-auto space-y-6">
         <div>
-          <h1 className="text-3xl font-heading text-foreground">Courses</h1>
+          <h1 className="text-3xl font-heading text-foreground">Workouts</h1>
           <p className="text-muted-foreground mt-1">Structured training programs from elite coaches</p>
         </div>
 
@@ -64,7 +64,7 @@ export default function Courses() {
         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search courses..." className="pl-10 bg-muted border-border h-10" />
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search workouts..." className="pl-10 bg-muted border-border h-10" />
           </div>
           <div className="flex gap-2 flex-wrap">
             {categories.map((cat) => (
@@ -81,7 +81,7 @@ export default function Courses() {
           </div>
         </div>
 
-        <p className="text-sm text-muted-foreground">{filtered.length} Courses</p>
+        <p className="text-sm text-muted-foreground">{filtered.length} Workouts</p>
 
         {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -97,7 +97,7 @@ export default function Courses() {
                         </div>
                       )}
                       <Play className="h-10 w-10 text-muted-foreground group-hover:text-primary transition-colors" />
-                      <span className="absolute top-3 left-3 text-[10px] font-heading tracking-widest text-muted-foreground bg-background/80 px-2 py-0.5 rounded">COURSE</span>
+                      <span className="absolute top-3 left-3 text-[10px] font-heading tracking-widest text-muted-foreground bg-background/80 px-2 py-0.5 rounded">WORKOUT</span>
                     </div>
                     <div className="p-5 space-y-3">
                       <h3 className="text-lg font-heading text-foreground">{course.title}</h3>
@@ -119,7 +119,7 @@ export default function Courses() {
                         <span className="ml-auto text-[10px] font-heading tracking-wider text-muted-foreground px-2 py-0.5 rounded bg-muted">{course.level}</span>
                       </div>
                       <button className="w-full mt-2 py-2.5 rounded-lg bg-primary text-primary-foreground btn-cta text-sm glow-red-hover transition-all">
-                        {course.is_free ? "Start Course →" : "Start Course →"}
+                        {course.is_free ? "Start Workout →" : "Start Workout →"}
                       </button>
                     </div>
                   </CardContent>

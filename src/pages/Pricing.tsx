@@ -70,7 +70,7 @@ export default function Pricing() {
                 </div>
                 <ul className="space-y-3">
                   {[
-                    "Full access to all drills & courses",
+                    "Full access to all drills & workouts",
                     "All content & new releases",
                     "Live Q&As",
                     "Full community access",

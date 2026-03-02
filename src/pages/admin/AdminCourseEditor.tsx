@@ -183,7 +183,7 @@ export default function AdminCourseEditor() {
 
   const handleSave = async () => {
     if (!title.trim()) {
-      toast({ title: "Course title is required", variant: "destructive" });
+      toast({ title: "Workout title is required", variant: "destructive" });
       return;
     }
     setSaving(true);
@@ -249,7 +249,7 @@ export default function AdminCourseEditor() {
         }
       }
 
-      toast({ title: "Course saved successfully" });
+      toast({ title: "Workout saved successfully" });
       if (isNew) navigate(`/admin/courses/${savedCourseId}`);
     } catch (err: any) {
       toast({ title: "Error saving", description: err.message, variant: "destructive" });
@@ -272,10 +272,10 @@ export default function AdminCourseEditor() {
     <AdminLayout>
       <div className="space-y-8 max-w-4xl">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-heading text-foreground">{isNew ? "New Course" : "Edit Course"}</h1>
+          <h1 className="text-3xl font-heading text-foreground">{isNew ? "New Workout" : "Edit Workout"}</h1>
           <Button onClick={handleSave} disabled={saving} className="btn-cta bg-primary hover:bg-primary/90 glow-red-hover">
             {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-            Save Course
+            Save Workout
           </Button>
         </div>
 
@@ -283,7 +283,7 @@ export default function AdminCourseEditor() {
         <div className="space-y-6 p-6 bg-card border border-border rounded-lg">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="font-heading tracking-wider text-sm">Course Title</Label>
+              <Label className="font-heading tracking-wider text-sm">Workout Title</Label>
               <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Elite Ball Handling" />
             </div>
             <div className="space-y-2">
@@ -310,11 +310,11 @@ export default function AdminCourseEditor() {
           </div>
           <div className="space-y-2">
             <Label className="font-heading tracking-wider text-sm">Description</Label>
-            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Course description..." rows={3} />
+            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Workout description..." rows={3} />
           </div>
           {/* Thumbnail Upload */}
           <div className="space-y-2">
-            <Label className="font-heading tracking-wider text-sm">Course Thumbnail</Label>
+            <Label className="font-heading tracking-wider text-sm">Workout Thumbnail</Label>
             <div className="flex items-start gap-4">
               {thumbnailUrl && (
                 <div className="w-32 h-20 rounded-lg overflow-hidden border border-border bg-muted shrink-0">

@@ -16,7 +16,7 @@ import {
 
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Courses", url: "/courses", icon: BookOpen },
+  { title: "Workouts", url: "/courses", icon: BookOpen },
   { title: "Coaches", url: "/coaches", icon: Users },
   { title: "Community", url: "/community", icon: MessageSquare },
   { title: "My Progress", url: "/progress", icon: TrendingUp },

@@ -27,6 +27,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
+  subscriptionLoading: boolean;
   subscription: SubscriptionStatus;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -45,6 +46,7 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   profile: null,
   loading: true,
+  subscriptionLoading: true,
   subscription: defaultSubscription,
   signOut: async () => {},
   refreshProfile: async () => {},
@@ -59,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState<SubscriptionStatus>(defaultSubscription);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
 
   const fetchProfile = async (userId: string): Promise<boolean> => {
     const { data } = await supabase
@@ -88,6 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkSubscription = useCallback(async () => {
     try {
+      setSubscriptionLoading(true);
       const { data, error } = await supabase.functions.invoke("check-subscription");
       if (error) {
         console.error("check-subscription error:", error);
@@ -103,6 +107,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (err) {
       console.error("Failed to check subscription:", err);
+    } finally {
+      setSubscriptionLoading(false);
     }
   }, []);
 
@@ -157,7 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, subscription, signOut, refreshProfile, refreshSubscription }}>
+    <AuthContext.Provider value={{ user, session, profile, loading, subscriptionLoading, subscription, signOut, refreshProfile, refreshSubscription }}>
       {children}
     </AuthContext.Provider>
   );

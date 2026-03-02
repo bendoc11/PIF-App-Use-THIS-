@@ -14,23 +14,48 @@ export default function ResetPassword() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isRecovery, setIsRecovery] = useState(false);
+  const [linkExpired, setLinkExpired] = useState(false);
   const [done, setDone] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
+
     // Listen for the PASSWORD_RECOVERY event
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY" && mounted) {
+        setIsRecovery(true);
+      }
+      // Also treat SIGNED_IN with a session as recovery ready (token was already exchanged)
+      if (event === "SIGNED_IN" && session && mounted) {
         setIsRecovery(true);
       }
     });
 
-    // Also check hash for type=recovery
+    // Check hash for type=recovery
     const hash = window.location.hash;
     if (hash.includes("type=recovery")) {
       setIsRecovery(true);
     }
 
-    return () => subscription.unsubscribe();
+    // Fallback: if there's already a session (token was exchanged before mount), allow reset
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session && mounted) {
+        setIsRecovery(true);
+      }
+    });
+
+    // Timeout fallback to avoid infinite loading
+    const timeout = setTimeout(() => {
+      if (mounted && !isRecovery) {
+        setLinkExpired(true);
+      }
+    }, 8000);
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   const handleReset = async (e: React.FormEvent) => {
@@ -61,8 +86,20 @@ export default function ResetPassword() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <div className="max-w-md w-full text-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-          <p className="text-muted-foreground">Verifying reset link…</p>
+          {linkExpired ? (
+            <>
+              <p className="text-foreground font-heading text-xl">Reset link expired or invalid</p>
+              <p className="text-muted-foreground">Please request a new password reset from the login page.</p>
+              <Button onClick={() => navigate("/login")} className="mt-4 bg-primary hover:bg-primary/90">
+                Back to Login
+              </Button>
+            </>
+          ) : (
+            <>
+              <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+              <p className="text-muted-foreground">Verifying reset link…</p>
+            </>
+          )}
         </div>
       </div>
     );

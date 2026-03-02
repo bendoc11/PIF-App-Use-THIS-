@@ -272,6 +272,7 @@ export type Database = {
           created_at: string
           first_name: string | null
           id: string
+          last_drill_date: string | null
           last_name: string | null
           plan: string
           position: string | null
@@ -285,6 +286,7 @@ export type Database = {
           created_at?: string
           first_name?: string | null
           id: string
+          last_drill_date?: string | null
           last_name?: string | null
           plan?: string
           position?: string | null
@@ -298,6 +300,7 @@ export type Database = {
           created_at?: string
           first_name?: string | null
           id?: string
+          last_drill_date?: string | null
           last_name?: string | null
           plan?: string
           position?: string | null

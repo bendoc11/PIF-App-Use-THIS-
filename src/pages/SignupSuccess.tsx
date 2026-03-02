@@ -12,7 +12,7 @@ export default function SignupSuccess() {
     const createAccount = async () => {
       const raw = sessionStorage.getItem("pif_signup");
       if (!raw) {
-        // No signup data — they may already have an account (returning subscriber)
+        // No signup data — maybe returning subscriber or refreshed page
         toast.success("Payment successful! Sign in to continue.");
         navigate("/login", { replace: true });
         return;
@@ -21,7 +21,8 @@ export default function SignupSuccess() {
       try {
         const { email, password, firstName, lastName, position } = JSON.parse(raw);
 
-        const { error } = await supabase.auth.signUp({
+        // Try to create account
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -29,14 +30,20 @@ export default function SignupSuccess() {
           },
         });
 
-        if (error) throw error;
+        if (signUpError) {
+          // If user already exists, try signing in instead
+          if (signUpError.message?.includes("already registered") || signUpError.message?.includes("already been registered")) {
+            const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+            if (signInError) throw signInError;
+          } else {
+            throw signUpError;
+          }
+        }
 
         // Clear stored signup data
         sessionStorage.removeItem("pif_signup");
-
         setStatus("done");
 
-        // Short delay then redirect to dashboard
         setTimeout(() => {
           navigate("/dashboard", { replace: true });
         }, 2000);

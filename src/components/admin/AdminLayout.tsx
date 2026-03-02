@@ -1,10 +1,11 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { BookOpen, Users, Shield, MessageSquare, ArrowLeft } from "lucide-react";
+import { BookOpen, Users, Shield, MessageSquare, ArrowLeft, Star } from "lucide-react";
 
 const adminNavItems = [
   { title: "Workouts", url: "/admin/courses", icon: BookOpen, roles: ["admin", "creator"] },
+  { title: "Featured", url: "/admin/featured", icon: Star, roles: ["admin"] },
   { title: "Creators", url: "/admin/creators", icon: Shield, roles: ["admin"] },
   { title: "Users", url: "/admin/users", icon: Users, roles: ["admin"] },
   { title: "Moderation", url: "/admin/moderation", icon: MessageSquare, roles: ["admin"] },

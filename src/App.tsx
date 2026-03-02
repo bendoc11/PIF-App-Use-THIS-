@@ -23,6 +23,7 @@ import AdminCourseEditor from "./pages/admin/AdminCourseEditor";
 import AdminCreators from "./pages/admin/AdminCreators";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminModeration from "./pages/admin/AdminModeration";
+import AdminFeatured from "./pages/admin/AdminFeatured";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/admin" element={<Navigate to="/admin/courses" replace />} />
             <Route path="/admin/courses" element={<AdminGuard><AdminCourses /></AdminGuard>} />
             <Route path="/admin/courses/:courseId" element={<AdminGuard><AdminCourseEditor /></AdminGuard>} />
+            <Route path="/admin/featured" element={<AdminGuard requiredRole="admin"><AdminFeatured /></AdminGuard>} />
             <Route path="/admin/creators" element={<AdminGuard requiredRole="admin"><AdminCreators /></AdminGuard>} />
             <Route path="/admin/users" element={<AdminGuard requiredRole="admin"><AdminUsers /></AdminGuard>} />
             <Route path="/admin/moderation" element={<AdminGuard requiredRole="admin"><AdminModeration /></AdminGuard>} />

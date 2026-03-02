@@ -86,8 +86,8 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       const [coursesRes, drillsRes] = await Promise.all([
-        supabase.from("courses").select("id, title, category, drill_count, level, is_free, coaches(name, school, initials, avatar_color)").order("sort_order").limit(6),
-        supabase.from("drills").select("id, title, category, level, is_free, is_new, duration_seconds, coaches(name, initials, avatar_color)").order("created_at", { ascending: false }).limit(6),
+        supabase.from("courses").select("id, title, category, drill_count, level, is_free, coaches(name, school, initials, avatar_color)").eq("status", "live").eq("is_featured", true).order("sort_order").limit(6),
+        supabase.from("drills").select("id, title, category, level, is_free, is_new, duration_seconds, coaches(name, initials, avatar_color)").eq("is_featured", true).order("created_at", { ascending: false }).limit(6),
       ]);
       if (coursesRes.data) setCourses(coursesRes.data as any);
       if (drillsRes.data) setDrills(drillsRes.data as any);

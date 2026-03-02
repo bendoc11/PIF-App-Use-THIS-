@@ -155,6 +155,7 @@ export type Database = {
           description: string | null
           drill_count: number
           id: string
+          is_featured: boolean
           is_free: boolean
           level: string | null
           sort_order: number
@@ -170,6 +171,7 @@ export type Database = {
           description?: string | null
           drill_count?: number
           id?: string
+          is_featured?: boolean
           is_free?: boolean
           level?: string | null
           sort_order?: number
@@ -185,6 +187,7 @@ export type Database = {
           description?: string | null
           drill_count?: number
           id?: string
+          is_featured?: boolean
           is_free?: boolean
           level?: string | null
           sort_order?: number
@@ -214,6 +217,7 @@ export type Database = {
           duration_seconds: number | null
           equipment_needed: string[] | null
           id: string
+          is_featured: boolean
           is_free: boolean
           is_new: boolean
           level: string | null
@@ -231,6 +235,7 @@ export type Database = {
           duration_seconds?: number | null
           equipment_needed?: string[] | null
           id?: string
+          is_featured?: boolean
           is_free?: boolean
           is_new?: boolean
           level?: string | null
@@ -248,6 +253,7 @@ export type Database = {
           duration_seconds?: number | null
           equipment_needed?: string[] | null
           id?: string
+          is_featured?: boolean
           is_free?: boolean
           is_new?: boolean
           level?: string | null

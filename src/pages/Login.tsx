@@ -10,7 +10,7 @@ import { Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Login() {
-  const { user, loading } = useAuth();
+  const { user, loading, subscription } = useAuth();
   const navigate = useNavigate();
   const [tab, setTab] = useState<"signin" | "signup">("signin");
   const [showPassword, setShowPassword] = useState(false);
@@ -26,10 +26,10 @@ export default function Login() {
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [position, setPosition] = useState("");
-  const [showConfirmation, setShowConfirmation] = useState(false);
 
   if (loading) return null;
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (user && subscription.subscribed) return <Navigate to="/dashboard" replace />;
+  if (user && !subscription.subscribed) return <Navigate to="/pricing" replace />;
 
   const getPasswordStrength = (pw: string) => {
     let score = 0;
@@ -61,19 +61,29 @@ export default function Login() {
     e.preventDefault();
     if (!signupEmail.trim() || !signupPassword.trim() || !firstName.trim()) return;
     setIsLoading(true);
-    const { error } = await supabase.auth.signUp({
+
+    // Store signup details in sessionStorage for after payment
+    sessionStorage.setItem("pif_signup", JSON.stringify({
       email: signupEmail.trim(),
       password: signupPassword,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: { first_name: firstName.trim(), last_name: lastName.trim(), position },
-      },
-    });
-    setIsLoading(false);
-    if (error) {
-      toast.error(error.message);
-    } else {
-      setShowConfirmation(true);
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      position,
+    }));
+
+    try {
+      // Create checkout session (unauthenticated)
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { email: signupEmail.trim() },
+      });
+
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Could not start checkout");
+      setIsLoading(false);
     }
   };
 
@@ -85,26 +95,6 @@ export default function Login() {
   };
 
   const strength = getPasswordStrength(signupPassword);
-
-  if (showConfirmation) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <div className="max-w-md w-full text-center space-y-6">
-          <div className="w-16 h-16 mx-auto rounded-full bg-pif-green/20 flex items-center justify-center">
-            <span className="text-3xl">✉️</span>
-          </div>
-          <h1 className="text-3xl font-heading text-foreground">Check Your Email</h1>
-          <p className="text-muted-foreground">
-            We sent a confirmation link to <strong className="text-foreground">{signupEmail}</strong>.
-            Click the link to activate your account and start training.
-          </p>
-          <Button variant="outline" onClick={() => { setShowConfirmation(false); setTab("signin"); }}>
-            Back to Sign In
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex">
@@ -155,7 +145,7 @@ export default function Login() {
               onClick={() => setTab("signup")}
               className={`flex-1 py-2.5 rounded-lg font-heading text-sm tracking-wider transition-all ${tab === "signup" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}
             >
-              Create Account
+              Start Trial
             </button>
           </div>
 
@@ -195,8 +185,8 @@ export default function Login() {
           ) : (
             <form onSubmit={handleSignUp} className="space-y-6">
               <div>
-                <h2 className="text-3xl font-heading text-foreground">Start Training</h2>
-                <p className="text-muted-foreground mt-1">Create your free account</p>
+                <h2 className="text-3xl font-heading text-foreground">Start Your 7-Day Trial</h2>
+                <p className="text-muted-foreground mt-1">$7 for 7 days, then $27/month. Cancel anytime.</p>
               </div>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
@@ -238,10 +228,10 @@ export default function Login() {
                 </div>
               </div>
               <Button type="submit" disabled={isLoading} className="w-full h-12 btn-cta bg-primary hover:bg-primary/90 glow-red-hover text-base">
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Create Account <ArrowRight className="h-4 w-4 ml-1" /></>}
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Continue to Payment <ArrowRight className="h-4 w-4 ml-1" /></>}
               </Button>
               <p className="text-xs text-center text-muted-foreground">
-                By creating an account, you agree to our Terms of Service and Privacy Policy.
+                By continuing, you agree to our Terms of Service and Privacy Policy.
               </p>
             </form>
           )}

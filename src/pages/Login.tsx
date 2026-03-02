@@ -36,8 +36,7 @@ export default function Login() {
   }, []);
 
   if (loading) return null;
-  if (user && subscription.subscribed) return <Navigate to="/dashboard" replace />;
-  if (user && !subscription.subscribed) return <Navigate to="/pricing" replace />;
+  if (user) return <Navigate to="/dashboard" replace />;
 
   const getPasswordStrength = (pw: string) => {
     let score = 0;

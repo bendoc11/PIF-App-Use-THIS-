@@ -42,7 +42,7 @@ export function DrillActive({ drillTitle, vimeoId, coachingTips, completing, onC
       <div className="flex-1" />
 
       {/* Bottom actions */}
-      <div className="p-4 pb-8 max-w-lg mx-auto w-full space-y-4">
+      <div className="p-4 pb-[calc(2rem+env(safe-area-inset-bottom))] max-w-lg mx-auto w-full space-y-4">
         {/* Coaching Notes — collapsible */}
         {coachingTips && coachingTips.length > 0 && (
           <Collapsible open={tipsOpen} onOpenChange={setTipsOpen}>

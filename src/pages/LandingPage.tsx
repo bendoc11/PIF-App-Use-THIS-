@@ -34,10 +34,12 @@ function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md">
       <nav className="flex items-center justify-between px-6 lg:px-12 h-16">
-        <div className="flex items-center gap-2">
-          <span className="font-body italic text-xl text-foreground">Play it </span>
-          <span className="font-body italic text-xl font-bold text-primary">Forward</span>
-          <span className="bg-primary text-foreground text-[10px] font-heading tracking-wider px-2 py-0.5 rounded-sm ml-1">LEARN FROM THE BEST</span>
+        <div className="flex flex-col">
+          <div className="flex items-baseline gap-0.5 leading-none">
+            <span className="font-body italic text-xl text-foreground">Play it </span>
+            <span className="font-body italic text-xl font-bold text-primary">Forward</span>
+          </div>
+          <span className="bg-primary text-foreground text-[8px] font-heading tracking-[0.15em] px-1.5 py-0.5 rounded-sm w-fit mt-0.5 leading-none">LEARN FROM THE BEST</span>
         </div>
         <div className="hidden md:flex items-center gap-8">
           <a href="#about" className="font-heading text-sm tracking-widest text-muted-foreground hover:text-foreground transition-colors">ABOUT</a>

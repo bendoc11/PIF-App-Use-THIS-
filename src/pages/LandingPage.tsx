@@ -2,6 +2,10 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Play, ChevronRight, Star, Check, Dribbble, Target, Zap, TrendingUp, UserPlus, Crosshair, Dumbbell, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import zacErvinImg from "@/assets/coaches/zac-ervin.png";
+import alexWadeImg from "@/assets/coaches/alex-wade.png";
+import torrenceWatsonImg from "@/assets/coaches/torrence-watson.png";
+import hunterMcintoshImg from "@/assets/coaches/hunter-mcintosh.png";
 import { type Easing } from "framer-motion";
 
 const ease: Easing = [0.25, 0.1, 0.25, 1];
@@ -318,22 +322,22 @@ function HowItWorks() {
 function CoachesSection() {
   const coaches = [
     {
-      name: "ZAC ERVIN", school: "5-YEAR D1 PLAYER · ELON UNIVERSITY", initials: "ZE",
+      name: "ZAC ERVIN", school: "5-YEAR D1 PLAYER · ELON UNIVERSITY", initials: "ZE", img: zacErvinImg,
       bio: "1,000 point scorer and Top 10 all-time scorer in the state of Virginia. Five years of elite D1 experience building the next generation.",
       stats: [{ label: "1,000 PT. SCORER" }, { label: "TOP 10 VA ALL-TIME" }],
     },
     {
-      name: "ALEX WADE", school: "D1 PLAYER · NOTRE DAME · NBA SKILLS TRAINER", initials: "AW",
+      name: "ALEX WADE", school: "D1 PLAYER · NOTRE DAME · NBA SKILLS TRAINER", initials: "AW", img: alexWadeImg,
       bio: "All-time assists leader at Cathedral Catholic HS, D1 player at Notre Dame, and now a certified NBA skills trainer working with players at every level.",
       stats: [{ label: "D1 NOTRE DAME" }, { label: "NBA SKILLS TRAINER" }],
     },
     {
-      name: "TORRENCE WATSON", school: "D1 PLAYER · UNIVERSITY OF MISSOURI", initials: "TW",
+      name: "TORRENCE WATSON", school: "D1 PLAYER · UNIVERSITY OF MISSOURI", initials: "TW", img: torrenceWatsonImg,
       bio: "Mr. Basketball in the state of Missouri and 1,000 point college scorer at Mizzou. One of the most decorated players in Missouri history.",
       stats: [{ label: "MR. BASKETBALL MO" }, { label: "1,000 PT. SCORER" }],
     },
     {
-      name: "HUNTER MCINTOSH", school: "D1 PLAYER · UNIVERSITY OF NEVADA", initials: "HM",
+      name: "HUNTER MCINTOSH", school: "D1 PLAYER · UNIVERSITY OF NEVADA", initials: "HM", img: hunterMcintoshImg,
       bio: "Georgia HS State Player of the Year 2019 and 1,000 point college scorer at Nevada. Elite guard with championship-level IQ.",
       stats: [{ label: "GA STATE POY 2019" }, { label: "1,000 PT. SCORER" }],
     },
@@ -351,8 +355,8 @@ function CoachesSection() {
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {coaches.map((c) => (
           <div key={c.name} className="bg-card border border-border rounded-xl overflow-hidden group hover:border-primary/30 transition-colors">
-            <div className="aspect-[3/4] bg-navy-3 flex items-center justify-center relative">
-              <span className="text-6xl font-heading text-muted-foreground/20">{c.initials}</span>
+            <div className="aspect-[3/4] bg-navy-3 overflow-hidden relative">
+              <img src={c.img} alt={c.name} className="w-full h-full object-cover object-top" />
             </div>
             <div className="p-5">
               <p className="font-heading text-[10px] tracking-widest text-muted-foreground mb-1">{c.school}</p>

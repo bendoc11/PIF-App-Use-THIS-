@@ -1,4 +1,4 @@
-import { LayoutDashboard, BookOpen, Users, MessageSquare, TrendingUp, Settings, LogOut, Shield } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, MessageSquare, TrendingUp, Settings, LogOut, Shield, Download } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -21,6 +21,7 @@ const navItems = [
   { title: "Community", url: "/community", icon: MessageSquare },
   { title: "My Progress", url: "/progress", icon: TrendingUp },
   { title: "Settings", url: "/settings", icon: Settings },
+  { title: "Install App", url: "/install", icon: Download },
 ];
 
 export function AppSidebar() {

@@ -3,8 +3,45 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import { toast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function Pricing() {
+  const { subscription } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleCheckout = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout");
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Could not start checkout", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (subscription.subscribed) {
+    return (
+      <AppLayout>
+        <div className="p-4 lg:p-6 max-w-md mx-auto text-center space-y-4 pt-16">
+          <h1 className="text-3xl font-heading text-foreground">You're a Pro! 🏀</h1>
+          <p className="text-muted-foreground">You have full access to the platform.</p>
+          <Button variant="outline" onClick={() => navigate("/settings")}>
+            Manage Subscription
+          </Button>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
@@ -14,9 +51,6 @@ export default function Pricing() {
           <p className="text-muted-foreground">Unlock the full training experience</p>
         </div>
 
-
-
-
         {/* Pro Plan */}
         <div className="max-w-md mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -25,7 +59,7 @@ export default function Pricing() {
                 <div>
                   <h3 className="text-xl font-heading text-foreground">Pro</h3>
                   <p className="text-3xl font-heading text-foreground mt-2">
-                    $27<span className="text-sm text-muted-foreground font-body">/4 weeks</span>
+                    $27<span className="text-sm text-muted-foreground font-body">/month</span>
                   </p>
                   <p className="text-xs text-primary mt-1 font-heading tracking-wider">
                     Try for $7 for 7 days
@@ -33,7 +67,6 @@ export default function Pricing() {
                 </div>
                 <ul className="space-y-3">
                   {[
-                    "Everything in Free +",
                     "Full access to all drills & courses",
                     "All content & new releases",
                     "Live Q&As",
@@ -46,8 +79,12 @@ export default function Pricing() {
                     </li>
                   ))}
                 </ul>
-                <Button className="w-full h-12 btn-cta bg-primary hover:bg-primary/90 glow-red-hover text-base">
-                  Start 7-Day Trial — $7 →
+                <Button
+                  onClick={handleCheckout}
+                  disabled={loading}
+                  className="w-full h-12 btn-cta bg-primary hover:bg-primary/90 glow-red-hover text-base"
+                >
+                  {loading ? "Loading…" : "Start 7-Day Trial — $7 →"}
                 </Button>
               </CardContent>
             </Card>

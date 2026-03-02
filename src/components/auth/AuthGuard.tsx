@@ -1,9 +1,12 @@
 import { ReactNode } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
+const PUBLIC_ROUTES = ["/pricing", "/settings"];
+
 export function AuthGuard({ children }: { children: ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading, subscription } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -15,6 +18,11 @@ export function AuthGuard({ children }: { children: ReactNode }) {
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Allow pricing and settings pages without subscription
+  if (!subscription.subscribed && !PUBLIC_ROUTES.includes(location.pathname)) {
+    return <Navigate to="/pricing" replace />;
   }
 
   return <>{children}</>;

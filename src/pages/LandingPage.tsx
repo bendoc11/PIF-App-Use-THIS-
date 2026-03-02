@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Play, ChevronRight, Star, Check, Dribbble, Target, Zap, TrendingUp, UserPlus, Crosshair, Dumbbell, BarChart3 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Play, ChevronRight, Star, Check, Dribbble, Target, Zap, TrendingUp, UserPlus, Crosshair, Dumbbell, BarChart3, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import zacErvinImg from "@/assets/coaches/zac-ervin.png";
 import alexWadeImg from "@/assets/coaches/alex-wade.png";
 import torrenceWatsonImg from "@/assets/coaches/torrence-watson.png";
@@ -48,9 +49,17 @@ function CoachTicker() {
 }
 
 function Navbar() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const navLinks = [
+    { label: "ABOUT", href: "#about" },
+    { label: "CONTENT", href: "#content" },
+    { label: "COACHES", href: "#coaches" },
+    { label: "PRICING", href: "#pricing" },
+  ];
+
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md">
-      <nav className="flex items-center justify-between px-6 lg:px-12 h-16">
+      <nav className="flex items-center justify-between px-4 md:px-6 lg:px-12 h-16">
         <div className="flex flex-col">
           <div className="flex items-baseline gap-0.5 leading-none">
             <span className="font-body italic text-xl text-foreground">Play it </span>
@@ -59,20 +68,50 @@ function Navbar() {
           <span className="bg-primary text-foreground text-[8px] font-heading tracking-[0.15em] px-1.5 py-0.5 rounded-sm w-fit mt-0.5 leading-none">LEARN FROM THE BEST</span>
         </div>
         <div className="hidden md:flex items-center gap-8">
-          <a href="#about" className="font-heading text-sm tracking-widest text-muted-foreground hover:text-foreground transition-colors">ABOUT</a>
-          <a href="#content" className="font-heading text-sm tracking-widest text-muted-foreground hover:text-foreground transition-colors">CONTENT</a>
-          <a href="#coaches" className="font-heading text-sm tracking-widest text-muted-foreground hover:text-foreground transition-colors">COACHES</a>
-          <a href="#pricing" className="font-heading text-sm tracking-widest text-muted-foreground hover:text-foreground transition-colors">PRICING</a>
+          {navLinks.map((l) => (
+            <a key={l.label} href={l.href} className="font-heading text-sm tracking-widest text-muted-foreground hover:text-foreground transition-colors">{l.label}</a>
+          ))}
         </div>
-        <div className="flex items-center gap-4">
-          <Link to="/login" className="font-heading text-sm tracking-widest text-muted-foreground hover:text-foreground transition-colors hidden sm:block">SIGN IN</Link>
+        <div className="hidden md:flex items-center gap-4">
+          <Link to="/login" className="font-heading text-sm tracking-widest text-muted-foreground hover:text-foreground transition-colors">SIGN IN</Link>
           <Link to="/login">
             <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg px-5 py-2.5 text-sm glow-red">
               START TODAY →
             </Button>
           </Link>
         </div>
+        {/* Mobile hamburger */}
+        <button
+          className="md:hidden p-2 text-foreground"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Toggle menu"
+        >
+          {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </button>
       </nav>
+      {/* Mobile menu */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden bg-background border-b border-border overflow-hidden"
+          >
+            <div className="flex flex-col px-6 py-6 gap-4">
+              {navLinks.map((l) => (
+                <a key={l.label} href={l.href} onClick={() => setMobileOpen(false)} className="font-heading text-base tracking-widest text-muted-foreground hover:text-foreground transition-colors">{l.label}</a>
+              ))}
+              <Link to="/login" onClick={() => setMobileOpen(false)} className="font-heading text-base tracking-widest text-muted-foreground hover:text-foreground transition-colors">SIGN IN</Link>
+              <Link to="/login" onClick={() => setMobileOpen(false)}>
+                <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full py-3 text-sm glow-red">
+                  START TODAY →
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <CoachTicker />
     </header>
   );
@@ -80,14 +119,14 @@ function Navbar() {
 
 function HeroSection() {
   return (
-    <section className="px-6 lg:px-12 py-20 lg:py-32 max-w-[1400px] mx-auto">
+    <section className="px-4 md:px-6 lg:px-12 py-16 lg:py-32 max-w-[1400px] mx-auto overflow-hidden">
       <div className="grid lg:grid-cols-2 gap-12 items-center">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} variants={staggerContainer}>
           <motion.div variants={fadeUp} className="inline-flex items-center gap-2 bg-primary/15 border border-primary/30 rounded-full px-4 py-1.5 mb-8">
             <span className="w-2 h-2 bg-pif-green rounded-full animate-pulse" />
             <span className="font-heading text-xs tracking-widest text-primary">NOW LIVE — NEW CONTENT EVERY WEEK</span>
           </motion.div>
-          <motion.h1 variants={fadeUp} className="text-6xl sm:text-7xl lg:text-8xl leading-[0.9] mb-8">
+          <motion.h1 variants={fadeUp} className="text-5xl sm:text-7xl lg:text-8xl leading-[0.9] mb-8">
             <span className="text-foreground">LEARN</span><br />
             <span className="text-primary">FROM THE</span><br />
             <span className="text-muted-foreground/40">BEST</span>
@@ -146,7 +185,7 @@ function HeroSection() {
 function SchoolsTicker() {
   return (
     <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="border-y border-border py-6 overflow-hidden">
-      <div className="flex items-center gap-12 justify-center flex-wrap px-6">
+      <div className="flex items-center gap-4 md:gap-12 justify-center flex-wrap px-4 md:px-6">
         <span className="font-heading text-xs tracking-widest text-muted-foreground">COACHES FROM</span>
         {SCHOOLS.map((school) => (
           <span key={school} className="font-heading text-sm tracking-widest text-muted-foreground/60 hover:text-foreground transition-colors">{school}</span>
@@ -165,14 +204,14 @@ function PlatformSection() {
   ];
 
   return (
-    <motion.section id="about" className="px-6 lg:px-12 py-20 lg:py-32 max-w-[1400px] mx-auto" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={staggerContainer}>
+    <motion.section id="about" className="px-4 md:px-6 lg:px-12 py-16 lg:py-32 max-w-[1400px] mx-auto overflow-hidden" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={staggerContainer}>
       <div className="grid lg:grid-cols-2 gap-16 items-start">
         <motion.div variants={fadeUp}>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-8 h-0.5 bg-primary" />
             <span className="font-heading text-xs tracking-widest text-primary">THE PLATFORM</span>
           </div>
-          <h2 className="text-5xl sm:text-6xl lg:text-7xl leading-[0.9] mb-8">
+          <h2 className="text-4xl sm:text-6xl lg:text-7xl leading-[0.9] mb-8">
             THE FUTURE<br />OF <span className="text-primary">BASKETBALL</span><br />
             <span className="text-primary italic">DEVELOPMENT</span>
           </h2>
@@ -250,7 +289,7 @@ function TrainSection() {
   ];
 
   return (
-    <section id="content" className="px-6 lg:px-12 py-20 lg:py-32 max-w-[1400px] mx-auto">
+    <section id="content" className="px-4 md:px-6 lg:px-12 py-16 lg:py-32 max-w-[1400px] mx-auto overflow-hidden">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-8 h-0.5 bg-primary" />
         <span className="font-heading text-xs tracking-widest text-primary">ON DEMAND</span>
@@ -291,9 +330,9 @@ function HowItWorks() {
   ];
 
   return (
-    <section className="px-6 lg:px-12 py-20 lg:py-32">
-      <div className="max-w-[1200px] mx-auto bg-card border border-border rounded-2xl p-10 lg:p-16">
-        <div className="text-center mb-16">
+    <section className="px-4 md:px-6 lg:px-12 py-16 lg:py-32">
+      <div className="max-w-[1200px] mx-auto bg-card border border-border rounded-2xl p-6 md:p-10 lg:p-16">
+        <div className="text-center mb-12 md:mb-16">
           <div className="flex items-center gap-3 justify-center mb-4">
             <div className="w-8 h-0.5 bg-primary" />
             <span className="font-heading text-xs tracking-widest text-primary">SIMPLE PROCESS</span>
@@ -344,7 +383,7 @@ function CoachesSection() {
   ];
 
   return (
-    <section id="coaches" className="px-6 lg:px-12 py-20 lg:py-32 max-w-[1400px] mx-auto">
+    <section id="coaches" className="px-4 md:px-6 lg:px-12 py-16 lg:py-32 max-w-[1400px] mx-auto overflow-hidden">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-8 h-0.5 bg-primary" />
         <span className="font-heading text-xs tracking-widest text-primary">THE NETWORK</span>
@@ -392,14 +431,14 @@ function TestimonialsSection() {
   ];
 
   return (
-    <section className="px-6 lg:px-12 py-20 lg:py-32">
-      <div className="max-w-[1200px] mx-auto bg-card border border-border rounded-2xl p-10 lg:p-16">
+    <section className="px-4 md:px-6 lg:px-12 py-16 lg:py-32">
+      <div className="max-w-[1200px] mx-auto bg-card border border-border rounded-2xl p-6 md:p-10 lg:p-16">
         <div className="text-center mb-12">
           <div className="flex items-center gap-3 justify-center mb-4">
             <div className="w-8 h-0.5 bg-primary" />
             <span className="font-heading text-xs tracking-widest text-primary">REAL RESULTS</span>
           </div>
-          <h2 className="text-5xl sm:text-6xl lg:text-7xl">
+          <h2 className="text-4xl sm:text-6xl lg:text-7xl">
             WHAT PLAYERS <span className="text-primary">SAY</span>
           </h2>
         </div>
@@ -441,19 +480,19 @@ function PricingSection() {
   ];
 
   return (
-    <section id="pricing" className="px-6 lg:px-12 py-20 lg:py-32 max-w-[1400px] mx-auto text-center">
+    <section id="pricing" className="px-4 md:px-6 lg:px-12 py-16 lg:py-32 max-w-[1400px] mx-auto text-center overflow-hidden">
       <div className="flex items-center gap-3 justify-center mb-4">
         <div className="w-8 h-0.5 bg-primary" />
         <span className="font-heading text-xs tracking-widest text-primary">SIMPLE PRICING</span>
       </div>
-      <h2 className="text-5xl sm:text-6xl lg:text-7xl mb-4">
+      <h2 className="text-4xl sm:text-6xl lg:text-7xl mb-4">
         ONE PRICE.<br /><span className="text-primary">EVERYTHING INCLUDED.</span>
       </h2>
       <p className="font-body text-muted-foreground text-lg mb-12">No contracts. Cancel anytime. Full access to every drill, course, and coach from day one.</p>
 
-      <div className="max-w-lg mx-auto bg-card border border-border rounded-2xl p-8 text-left relative">
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-          <span className="bg-primary text-foreground font-heading text-xs tracking-widest px-5 py-2 rounded-full">START TODAY — RISK FREE</span>
+      <div className="max-w-lg mx-auto bg-card border border-border rounded-2xl p-6 md:p-8 text-left relative">
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap">
+          <span className="bg-primary text-foreground font-heading text-[10px] md:text-xs tracking-widest px-3 md:px-5 py-2 rounded-full">START TODAY — RISK FREE</span>
         </div>
         <p className="font-heading text-xs tracking-widest text-pif-blue mt-2">FULL ACCESS</p>
         <p className="font-heading text-2xl text-foreground mb-4">PLAY IT FORWARD</p>
@@ -475,7 +514,7 @@ function PricingSection() {
           ))}
         </div>
         <Link to="/login">
-          <Button className="w-full btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg py-6 text-base glow-red glow-red-hover">
+          <Button className="w-full btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg py-5 md:py-6 text-sm md:text-base glow-red glow-red-hover">
             START MY 7-DAY TRIAL — $7 →
           </Button>
         </Link>
@@ -487,12 +526,12 @@ function PricingSection() {
 
 function FinalCTA() {
   return (
-    <section className="px-6 lg:px-12 py-20 max-w-[1200px] mx-auto">
-      <div className="bg-primary rounded-2xl p-10 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-8 relative overflow-hidden">
+    <section className="px-4 md:px-6 lg:px-12 py-16 lg:py-20 max-w-[1200px] mx-auto">
+      <div className="bg-primary rounded-2xl p-6 md:p-10 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-8 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.05) 20px, rgba(255,255,255,0.05) 40px)" }} />
         <div className="relative z-10">
           <p className="font-heading text-xs tracking-widest text-foreground/80 mb-2">YOUR NEXT LEVEL STARTS TODAY</p>
-          <h2 className="text-4xl sm:text-5xl text-foreground leading-[0.95]">
+          <h2 className="text-3xl sm:text-5xl text-foreground leading-[0.95]">
             THE GAME IS<br />WAITING FOR YOU.
           </h2>
           <p className="font-body text-foreground/80 mt-4 max-w-md">
@@ -514,7 +553,7 @@ function FinalCTA() {
 
 function Footer() {
   return (
-    <footer className="border-t border-border px-6 lg:px-12 py-16 max-w-[1400px] mx-auto">
+    <footer className="border-t border-border px-4 md:px-6 lg:px-12 py-12 md:py-16 max-w-[1400px] mx-auto">
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
         <div>
           <div className="flex items-center gap-1 mb-4">

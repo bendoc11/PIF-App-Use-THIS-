@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Courses from "./pages/Courses";
 import CoursePlayer from "./pages/CoursePlayer";
+import DrillExperience from "./pages/DrillExperience";
 import Community from "./pages/Community";
 import Progress from "./pages/Progress";
 import Pricing from "./pages/Pricing";
@@ -34,6 +35,8 @@ const App = () => (
             <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
             <Route path="/courses" element={<AuthGuard><Courses /></AuthGuard>} />
             <Route path="/courses/:courseId/:drillIndex" element={<AuthGuard><CoursePlayer /></AuthGuard>} />
+            <Route path="/drill/:courseId/:drillIndex" element={<AuthGuard><DrillExperience /></AuthGuard>} />
+            <Route path="/drills/:drillId" element={<AuthGuard><DrillExperience /></AuthGuard>} />
             <Route path="/pricing" element={<AuthGuard><Pricing /></AuthGuard>} />
             <Route path="/settings" element={<AuthGuard><Settings /></AuthGuard>} />
             <Route path="/coaches" element={<AuthGuard><Dashboard /></AuthGuard>} />

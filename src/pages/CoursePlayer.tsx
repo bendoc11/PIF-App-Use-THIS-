@@ -53,7 +53,8 @@ export default function CoursePlayer() {
   const [showMobileDrawer, setShowMobileDrawer] = useState(false);
 
   const currentDrill = drills[currentIndex - 1];
-  const progressPercent = drills.length > 0 ? (completedDrills.size / drills.length) * 100 : 0;
+  const clampedCompleted = Math.min(completedDrills.size, drills.length);
+  const progressPercent = drills.length > 0 ? (clampedCompleted / drills.length) * 100 : 0;
 
   useEffect(() => {
     if (!courseId) return;
@@ -65,12 +66,14 @@ export default function CoursePlayer() {
       if (courseRes.data) setCourse(courseRes.data as any);
       if (drillsRes.data) setDrills(drillsRes.data as any);
 
-      if (user) {
+      if (user && drillsRes.data) {
+        const courseDrillIds = (drillsRes.data as any[]).map((d: any) => d.id);
         const { data: progressData } = await supabase
           .from("user_drill_progress")
           .select("drill_id")
           .eq("user_id", user.id)
-          .eq("completed", true);
+          .eq("completed", true)
+          .in("drill_id", courseDrillIds);
         if (progressData) {
           setCompletedDrills(new Set(progressData.map((p) => p.drill_id)));
         }
@@ -148,7 +151,7 @@ export default function CoursePlayer() {
             </div>
             <div className="space-y-1">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">{completedDrills.size} / {drills.length}</span>
+                <span className="text-muted-foreground">{clampedCompleted} / {drills.length}</span>
                 <span className="text-primary font-heading">{Math.round(progressPercent)}% Complete</span>
               </div>
               <div className="h-2 rounded-full bg-muted overflow-hidden">

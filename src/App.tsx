@@ -14,6 +14,7 @@ import Progress from "./pages/Progress";
 import Pricing from "./pages/Pricing";
 import Settings from "./pages/Settings";
 import SignupSuccess from "./pages/SignupSuccess";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup-success" element={<SignupSuccess />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
             <Route path="/courses" element={<AuthGuard><Courses /></AuthGuard>} />
             <Route path="/courses/:courseId/:drillIndex" element={<AuthGuard><CoursePlayer /></AuthGuard>} />

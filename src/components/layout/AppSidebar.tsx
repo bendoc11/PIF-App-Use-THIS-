@@ -1,4 +1,4 @@
-import { LayoutDashboard, BookOpen, Users, MessageSquare, TrendingUp, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, MessageSquare, TrendingUp, Settings, LogOut, Shield } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,6 +28,7 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const { signOut, profile } = useAuth();
+  const role = profile?.role || "user";
 
   const initials = profile
     ? `${(profile.first_name || "")[0] || ""}${(profile.last_name || "")[0] || ""}`.toUpperCase()
@@ -73,6 +74,28 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Admin Link */}
+        {(role === "admin" || role === "creator") && (
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to="/admin/courses"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors font-heading text-sm tracking-wider"
+                      activeClassName="bg-primary/10 text-primary border border-primary/20"
+                    >
+                      <Shield className="h-5 w-5 shrink-0" />
+                      {!collapsed && <span>Admin</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
       </SidebarContent>
 

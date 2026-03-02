@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AuthGuard } from "@/components/auth/AuthGuard";
+import { AdminGuard } from "@/components/admin/AdminGuard";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Courses from "./pages/Courses";
@@ -17,6 +18,11 @@ import Settings from "./pages/Settings";
 import SignupSuccess from "./pages/SignupSuccess";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import AdminCourses from "./pages/admin/AdminCourses";
+import AdminCourseEditor from "./pages/admin/AdminCourseEditor";
+import AdminCreators from "./pages/admin/AdminCreators";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminModeration from "./pages/admin/AdminModeration";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +48,13 @@ const App = () => (
             <Route path="/coaches" element={<AuthGuard><Dashboard /></AuthGuard>} />
             <Route path="/community" element={<AuthGuard><Community /></AuthGuard>} />
             <Route path="/progress" element={<AuthGuard><Progress /></AuthGuard>} />
+            {/* Admin Routes */}
+            <Route path="/admin" element={<Navigate to="/admin/courses" replace />} />
+            <Route path="/admin/courses" element={<AdminGuard><AdminCourses /></AdminGuard>} />
+            <Route path="/admin/courses/:courseId" element={<AdminGuard><AdminCourseEditor /></AdminGuard>} />
+            <Route path="/admin/creators" element={<AdminGuard requiredRole="admin"><AdminCreators /></AdminGuard>} />
+            <Route path="/admin/users" element={<AdminGuard requiredRole="admin"><AdminUsers /></AdminGuard>} />
+            <Route path="/admin/moderation" element={<AdminGuard requiredRole="admin"><AdminModeration /></AdminGuard>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

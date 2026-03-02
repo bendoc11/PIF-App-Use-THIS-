@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowUp, ArrowDown, Plus, Trash2, Loader2, Save, X } from "lucide-react";
+import { ArrowUp, ArrowDown, Plus, Trash2, Loader2, Save, X, Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const CATEGORIES = ["Shooting", "Ball Handling", "Defense", "Finishing", "Conditioning", "Mindset"];
@@ -54,6 +54,8 @@ export default function AdminCourseEditor() {
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("draft");
   const [coachId, setCoachId] = useState<string | null>(null);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const [uploadingThumb, setUploadingThumb] = useState(false);
 
   // Drills
   const [drills, setDrills] = useState<DrillForm[]>([]);
@@ -73,6 +75,7 @@ export default function AdminCourseEditor() {
         setCategory(course.category || "");
         setDescription(course.description || "");
         setStatus((course as any).status || "draft");
+        setThumbnailUrl(course.thumbnail_url || null);
         if ((course as any).coaches) {
           setCoachName((course as any).coaches.name);
           setCoachSchool((course as any).coaches.school || "");
@@ -160,6 +163,24 @@ export default function AdminCourseEditor() {
     setEditingDrill(null);
   };
 
+  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingThumb(true);
+    const ext = file.name.split(".").pop();
+    const path = `${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage.from("course-thumbnails").upload(path, file);
+    if (error) {
+      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+      setUploadingThumb(false);
+      return;
+    }
+    const { data: urlData } = supabase.storage.from("course-thumbnails").getPublicUrl(path);
+    setThumbnailUrl(urlData.publicUrl);
+    setUploadingThumb(false);
+    toast({ title: "Thumbnail uploaded" });
+  };
+
   const handleSave = async () => {
     if (!title.trim()) {
       toast({ title: "Course title is required", variant: "destructive" });
@@ -187,6 +208,7 @@ export default function AdminCourseEditor() {
         title,
         category: category || null,
         description: description || null,
+        thumbnail_url: thumbnailUrl,
         status: role === "admin" ? status : "draft",
         coach_id: finalCoachId,
         drill_count: drills.length,
@@ -289,6 +311,24 @@ export default function AdminCourseEditor() {
           <div className="space-y-2">
             <Label className="font-heading tracking-wider text-sm">Description</Label>
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Course description..." rows={3} />
+          </div>
+          {/* Thumbnail Upload */}
+          <div className="space-y-2">
+            <Label className="font-heading tracking-wider text-sm">Course Thumbnail</Label>
+            <div className="flex items-start gap-4">
+              {thumbnailUrl && (
+                <div className="w-32 h-20 rounded-lg overflow-hidden border border-border bg-muted shrink-0">
+                  <img src={thumbnailUrl} alt="Thumbnail" className="w-full h-full object-cover" />
+                </div>
+              )}
+              <div className="flex-1">
+                <label className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-border bg-muted hover:bg-muted/80 cursor-pointer transition-colors w-fit">
+                  {uploadingThumb ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                  <span className="text-sm">{uploadingThumb ? "Uploading..." : thumbnailUrl ? "Replace" : "Upload Image"}</span>
+                  <input type="file" accept="image/*" onChange={handleThumbnailUpload} className="hidden" disabled={uploadingThumb} />
+                </label>
+              </div>
+            </div>
           </div>
           {role === "admin" && (
             <div className="space-y-2">

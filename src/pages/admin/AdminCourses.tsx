@@ -28,21 +28,39 @@ interface CourseRow {
 }
 
 export default function AdminCourses() {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const role = profile?.role || "user";
   const [courses, setCourses] = useState<CourseRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchCourses = async () => {
     setLoading(true);
+
+    // For creators, first find their coach_id
+    let creatorCoachId: string | null = null;
+    if (role === "creator" && user) {
+      const { data: coachData } = await supabase
+        .from("coaches")
+        .select("id")
+        .eq("name", `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim())
+        .maybeSingle();
+      creatorCoachId = coachData?.id || null;
+    }
+
     let query = supabase
       .from("courses")
       .select("id, title, category, drill_count, status, created_at, coach_id, coaches(name)")
       .order("sort_order");
 
-    // Creators only see their own courses — matched via coach_id
-    // For now, creators need to have their profile id match a coach_id
-    // This is a simplified approach
+    // Creators only see their own courses
+    if (role === "creator" && creatorCoachId) {
+      query = query.eq("coach_id", creatorCoachId);
+    } else if (role === "creator") {
+      // Creator has no linked coach — show nothing
+      setCourses([]);
+      setLoading(false);
+      return;
+    }
 
     const { data, error } = await query;
     if (error) {
@@ -62,7 +80,7 @@ export default function AdminCourses() {
       return;
     }
     const newStatus = course.status === "live" ? "draft" : "live";
-    const { error } = await supabase.from("courses").update({ status: newStatus }).eq("id", course.id);
+    const { error } = await supabase.from("courses").update({ status: newStatus } as any).eq("id", course.id);
     if (error) {
       toast({ title: "Error updating status", description: error.message, variant: "destructive" });
       return;
@@ -111,6 +129,7 @@ export default function AdminCourses() {
                   <TableHead className="font-heading tracking-wider">Creator</TableHead>
                   <TableHead className="font-heading tracking-wider">Drills</TableHead>
                   <TableHead className="font-heading tracking-wider">Status</TableHead>
+                  <TableHead className="font-heading tracking-wider">Last Updated</TableHead>
                   <TableHead className="font-heading tracking-wider text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -130,6 +149,9 @@ export default function AdminCourses() {
                       >
                         {course.status === "live" ? "Live" : "Draft"}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-sm">
+                      {new Date(course.created_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">

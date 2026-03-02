@@ -12,7 +12,6 @@ export default function SignupSuccess() {
     const createAccount = async () => {
       const raw = sessionStorage.getItem("pif_signup");
       if (!raw) {
-        // No signup data — maybe returning subscriber or refreshed page
         toast.success("Payment successful! Sign in to continue.");
         navigate("/login", { replace: true });
         return;
@@ -21,7 +20,7 @@ export default function SignupSuccess() {
       try {
         const { email, password, firstName, lastName, position } = JSON.parse(raw);
 
-        // Try to create account
+        // Sign up — auto-confirm is enabled so user is immediately confirmed
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
@@ -31,22 +30,27 @@ export default function SignupSuccess() {
         });
 
         if (signUpError) {
-          // If user already exists, try signing in instead
+          // If user already exists, try signing in
           if (signUpError.message?.includes("already registered") || signUpError.message?.includes("already been registered")) {
             const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
             if (signInError) throw signInError;
           } else {
             throw signUpError;
           }
+        } else if (signUpData?.session) {
+          // Auto-confirmed — session is already active, we're good
+        } else {
+          // No session returned even though auto-confirm is on — sign in manually
+          const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+          if (signInError) throw signInError;
         }
 
-        // Clear stored signup data
         sessionStorage.removeItem("pif_signup");
         setStatus("done");
 
         setTimeout(() => {
           navigate("/dashboard", { replace: true });
-        }, 2000);
+        }, 1500);
       } catch (err: any) {
         console.error("Account creation error:", err);
         setStatus("error");

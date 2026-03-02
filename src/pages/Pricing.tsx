@@ -40,7 +40,7 @@ export default function Pricing() {
               <CardContent className="p-6 space-y-6">
                 <div>
                   <h3 className="text-xl font-heading text-foreground">Free</h3>
-                  <p className="text-3xl font-heading text-foreground mt-2">$0<span className="text-sm text-muted-foreground font-body">/month</span></p>
+                  <p className="text-3xl font-heading text-foreground mt-2">$0<span className="text-sm text-muted-foreground font-body">/4 weeks</span></p>
                 </div>
                 <ul className="space-y-3">
                   {["5 free drills", "Progress tracking", "Community read-only", "1 free course"].map((f) => (
@@ -69,7 +69,7 @@ export default function Pricing() {
                 <div>
                   <h3 className="text-xl font-heading text-foreground">Pro</h3>
                   <p className="text-3xl font-heading text-foreground mt-2">
-                    ${price}<span className="text-sm text-muted-foreground font-body">/month</span>
+                    ${price}<span className="text-sm text-muted-foreground font-body">/4 weeks</span>
                   </p>
                   <p className="text-xs text-primary mt-1 font-heading tracking-wider">
                     Try for $7 for 7 days
@@ -78,12 +78,12 @@ export default function Pricing() {
                 <ul className="space-y-3">
                   {[
                     "Everything in Free +",
-                    "500+ drills full access",
-                    "50+ elite coaches",
-                    "Weekly live Q&A",
+                    "Full access to all drills & courses",
+                    "All content & new releases",
+                    "Live Q&As",
                     "Full community access",
-                    "Leaderboard & badges",
-                    "New content every week",
+                    "Leaderboards & badges",
+                    "Special offers & events",
                   ].map((f) => (
                     <li key={f} className="flex items-center gap-2 text-sm text-foreground">
                       <Check className="h-4 w-4 text-pif-green shrink-0" /> {f}

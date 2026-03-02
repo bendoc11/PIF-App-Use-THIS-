@@ -19,6 +19,7 @@ interface UserRow {
   id: string;
   first_name: string | null;
   last_name: string | null;
+  email: string | null;
   plan: string;
   banned: boolean;
   created_at: string;
@@ -37,7 +38,7 @@ export default function AdminUsers() {
     setLoading(true);
     const { data, error } = await (supabase
       .from("profiles")
-      .select("id, first_name, last_name, plan, banned, created_at, last_drill_date") as any)
+      .select("id, first_name, last_name, email, plan, banned, created_at, last_drill_date") as any)
       .eq("role", "user")
       .order("created_at", { ascending: false });
     if (error) {
@@ -73,8 +74,8 @@ export default function AdminUsers() {
     return true;
   }).filter((u) => {
     if (!search) return true;
-    const name = `${u.first_name || ""} ${u.last_name || ""}`.toLowerCase();
-    return name.includes(search.toLowerCase());
+    const searchable = `${u.first_name || ""} ${u.last_name || ""} ${u.email || ""}`.toLowerCase();
+    return searchable.includes(search.toLowerCase());
   });
 
   const filters: { label: string; value: FilterType }[] = [
@@ -91,7 +92,7 @@ export default function AdminUsers() {
         <h1 className="text-3xl font-heading text-foreground">User Management</h1>
 
         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {filters.map((f) => (
               <Button
                 key={f.value}
@@ -109,7 +110,7 @@ export default function AdminUsers() {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search users..."
+              placeholder="Search by name or email..."
               className="pl-9"
             />
           </div>
@@ -125,6 +126,7 @@ export default function AdminUsers() {
               <TableHeader>
                 <TableRow className="border-border hover:bg-transparent">
                   <TableHead className="font-heading tracking-wider">Name</TableHead>
+                  <TableHead className="font-heading tracking-wider">Email</TableHead>
                   <TableHead className="font-heading tracking-wider">Plan</TableHead>
                   <TableHead className="font-heading tracking-wider">Status</TableHead>
                   <TableHead className="font-heading tracking-wider">Joined</TableHead>
@@ -138,6 +140,7 @@ export default function AdminUsers() {
                     <TableCell className="font-medium text-foreground">
                       {user.first_name} {user.last_name}
                     </TableCell>
+                    <TableCell className="text-muted-foreground text-sm">{user.email || "—"}</TableCell>
                     <TableCell>
                       <Badge variant="secondary" className="font-heading tracking-wider text-xs capitalize">
                         {user.plan}
@@ -153,10 +156,10 @@ export default function AdminUsers() {
                         {user.banned ? "Banned" : "Active"}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="text-muted-foreground text-sm">
                       {new Date(user.created_at).toLocaleDateString()}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="text-muted-foreground text-sm">
                       {user.last_drill_date || "—"}
                     </TableCell>
                     <TableCell className="text-right">
@@ -168,7 +171,7 @@ export default function AdminUsers() {
                 ))}
                 {filtered.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                       No users found
                     </TableCell>
                   </TableRow>

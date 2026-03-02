@@ -9,6 +9,7 @@ interface Profile {
   position: string | null;
   plan: string;
   role: string;
+  banned: boolean;
   streak_days: number;
   total_drills_completed: number;
   avatar_url: string | null;
@@ -59,13 +60,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState<SubscriptionStatus>(defaultSubscription);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string): Promise<boolean> => {
     const { data } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", userId)
       .single();
+
+    if (data && (data as any).banned === true) {
+      await supabase.auth.signOut();
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      setSubscription(defaultSubscription);
+      // Dispatch a custom event so the login page can show the message
+      window.dispatchEvent(new CustomEvent("account-banned"));
+      return false;
+    }
+
     setProfile(data);
+    return true;
   };
 
   const refreshProfile = async () => {
@@ -102,7 +116,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          setTimeout(() => fetchProfile(session.user.id), 0);
+          setTimeout(async () => {
+            await fetchProfile(session.user.id);
+          }, 0);
         } else {
           setProfile(null);
           setSubscription(defaultSubscription);
@@ -111,11 +127,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user.id);
+        await fetchProfile(session.user.id);
       }
       setLoading(false);
     });

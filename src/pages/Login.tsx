@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -26,6 +26,14 @@ export default function Login() {
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [position, setPosition] = useState("");
+
+  useEffect(() => {
+    const handleBanned = () => {
+      toast.error("Your account has been suspended. Please contact support.", { duration: 8000 });
+    };
+    window.addEventListener("account-banned", handleBanned);
+    return () => window.removeEventListener("account-banned", handleBanned);
+  }, []);
 
   if (loading) return null;
   if (user && subscription.subscribed) return <Navigate to="/dashboard" replace />;

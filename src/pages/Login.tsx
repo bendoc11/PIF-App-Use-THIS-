@@ -168,7 +168,23 @@ export default function Login() {
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                  <button type="button" className="text-xs text-primary hover:underline">Forgot password?</button>
+                  <button
+                    type="button"
+                    className="text-xs text-primary hover:underline"
+                    onClick={async () => {
+                      if (!email.trim()) {
+                        toast.error("Enter your email first");
+                        return;
+                      }
+                      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+                        redirectTo: `${window.location.origin}/reset-password`,
+                      });
+                      if (error) toast.error(error.message);
+                      else toast.success("Password reset link sent! Check your email.");
+                    }}
+                  >
+                    Forgot password?
+                  </button>
                 </div>
               </div>
               <Button type="submit" disabled={isLoading} className="w-full h-12 btn-cta bg-primary hover:bg-primary/90 glow-red-hover text-base">

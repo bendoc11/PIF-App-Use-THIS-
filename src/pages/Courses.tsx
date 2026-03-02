@@ -39,6 +39,7 @@ export default function Courses() {
     supabase
       .from("courses")
       .select("id, title, category, description, drill_count, total_duration_seconds, level, is_free, coaches(name, school, initials, avatar_color)")
+      .eq("status", "live")
       .order("sort_order")
       .then(({ data }) => {
         if (data) setCourses(data as any);

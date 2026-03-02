@@ -2,6 +2,19 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Play, ChevronRight, Star, Check, Dribbble, Target, Zap, TrendingUp, UserPlus, Crosshair, Dumbbell, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { type Easing } from "framer-motion";
+
+const ease: Easing = [0.25, 0.1, 0.25, 1];
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease } },
+};
+
+const staggerContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.12 } },
+};
 
 const COACH_NAMES = [
   "RYAN LANGBORG", "BEN DAUGHERTY", "MAC MCCLUNG", "JARED WADE",
@@ -65,20 +78,20 @@ function HeroSection() {
   return (
     <section className="px-6 lg:px-12 py-20 lg:py-32 max-w-[1400px] mx-auto">
       <div className="grid lg:grid-cols-2 gap-12 items-center">
-        <div>
-          <div className="inline-flex items-center gap-2 bg-primary/15 border border-primary/30 rounded-full px-4 py-1.5 mb-8">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} variants={staggerContainer}>
+          <motion.div variants={fadeUp} className="inline-flex items-center gap-2 bg-primary/15 border border-primary/30 rounded-full px-4 py-1.5 mb-8">
             <span className="w-2 h-2 bg-pif-green rounded-full animate-pulse" />
             <span className="font-heading text-xs tracking-widest text-primary">NOW LIVE — NEW CONTENT EVERY WEEK</span>
-          </div>
-          <h1 className="text-6xl sm:text-7xl lg:text-8xl leading-[0.9] mb-8">
+          </motion.div>
+          <motion.h1 variants={fadeUp} className="text-6xl sm:text-7xl lg:text-8xl leading-[0.9] mb-8">
             <span className="text-foreground">LEARN</span><br />
             <span className="text-primary">FROM THE</span><br />
             <span className="text-muted-foreground/40">BEST</span>
-          </h1>
-          <p className="font-body text-muted-foreground text-lg max-w-lg mb-10 leading-relaxed">
+          </motion.h1>
+          <motion.p variants={fadeUp} className="font-body text-muted-foreground text-lg max-w-lg mb-10 leading-relaxed">
             Elite former players from across the country — sharing their knowledge, drills, and lived experience to help the next generation dominate on the court.
-          </p>
-          <div className="flex flex-wrap gap-4 mb-12">
+          </motion.p>
+          <motion.div variants={fadeUp} className="flex flex-wrap gap-4 mb-12">
             <Link to="/login">
               <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg px-8 py-6 text-base glow-red glow-red-hover">
                 GET STARTED →
@@ -87,8 +100,8 @@ function HeroSection() {
             <Button variant="outline" className="btn-cta border-border text-foreground rounded-lg px-8 py-6 text-base hover:bg-muted">
               <Play className="h-4 w-4 mr-2" /> WATCH A DRILL
             </Button>
-          </div>
-          <div className="flex gap-10">
+          </motion.div>
+          <motion.div variants={fadeUp} className="flex gap-10">
             <div>
               <span className="text-4xl font-heading text-foreground">2,400<span className="text-primary">+</span></span>
               <p className="font-heading text-xs tracking-widest text-muted-foreground mt-1">ATHLETES ENROLLED</p>
@@ -97,9 +110,9 @@ function HeroSection() {
               <span className="text-4xl font-heading text-foreground">50<span className="text-primary">+</span></span>
               <p className="font-heading text-xs tracking-widest text-muted-foreground mt-1">ELITE COACHES</p>
             </div>
-          </div>
-        </div>
-        <div className="relative">
+          </motion.div>
+        </motion.div>
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, amount: 0.3 }} transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }} className="relative">
           <div className="bg-card rounded-xl border border-border overflow-hidden shadow-2xl">
             <div className="aspect-video bg-navy-3 flex items-center justify-center relative">
               <div className="absolute inset-0 bg-gradient-to-br from-pif-blue/20 to-primary/10" />
@@ -120,7 +133,7 @@ function HeroSection() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
@@ -128,14 +141,14 @@ function HeroSection() {
 
 function SchoolsTicker() {
   return (
-    <div className="border-y border-border py-6 overflow-hidden">
+    <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="border-y border-border py-6 overflow-hidden">
       <div className="flex items-center gap-12 justify-center flex-wrap px-6">
         <span className="font-heading text-xs tracking-widest text-muted-foreground">COACHES FROM</span>
         {SCHOOLS.map((school) => (
           <span key={school} className="font-heading text-sm tracking-widest text-muted-foreground/60 hover:text-foreground transition-colors">{school}</span>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -148,9 +161,9 @@ function PlatformSection() {
   ];
 
   return (
-    <section id="about" className="px-6 lg:px-12 py-20 lg:py-32 max-w-[1400px] mx-auto">
+    <motion.section id="about" className="px-6 lg:px-12 py-20 lg:py-32 max-w-[1400px] mx-auto" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={staggerContainer}>
       <div className="grid lg:grid-cols-2 gap-16 items-start">
-        <div>
+        <motion.div variants={fadeUp}>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-8 h-0.5 bg-primary" />
             <span className="font-heading text-xs tracking-widest text-primary">THE PLATFORM</span>
@@ -173,8 +186,8 @@ function PlatformSection() {
               </div>
             ))}
           </div>
-        </div>
-        <div className="relative">
+        </motion.div>
+        <motion.div variants={fadeUp} className="relative">
           <div className="bg-primary rounded-2xl p-6 w-fit mb-6">
             <span className="text-4xl font-heading text-foreground">50+</span>
             <p className="font-heading text-xs tracking-widest text-foreground/80 mt-1">ELITE COACHES</p>
@@ -218,9 +231,9 @@ function PlatformSection() {
               <span className="font-heading text-xs text-primary">View →</span>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </section>
+    </motion.section>
   );
 }
 
@@ -535,19 +548,32 @@ function Footer() {
   );
 }
 
+function AnimatedSection({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: 0.6, ease }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground scroll-smooth">
       <Navbar />
       <HeroSection />
       <SchoolsTicker />
       <PlatformSection />
-      <TrainSection />
-      <HowItWorks />
-      <CoachesSection />
-      <TestimonialsSection />
-      <PricingSection />
-      <FinalCTA />
+      <AnimatedSection><TrainSection /></AnimatedSection>
+      <AnimatedSection><HowItWorks /></AnimatedSection>
+      <AnimatedSection><CoachesSection /></AnimatedSection>
+      <AnimatedSection><TestimonialsSection /></AnimatedSection>
+      <AnimatedSection><PricingSection /></AnimatedSection>
+      <AnimatedSection><FinalCTA /></AnimatedSection>
       <Footer />
     </div>
   );

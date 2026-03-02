@@ -234,6 +234,7 @@ export default function CoursePlayer() {
               {/* Video */}
               <div className="aspect-video bg-background w-full">
                 <iframe
+                  key={currentDrill.id}
                   src={`https://player.vimeo.com/video/${currentDrill.vimeo_id}?color=E8453C&title=0&byline=0&portrait=0`}
                   className="w-full h-full"
                   allow="autoplay; fullscreen; picture-in-picture"
@@ -273,7 +274,7 @@ export default function CoursePlayer() {
               {/* Tabs */}
               <div className="border-b border-border">
                 <div className="flex px-4 lg:px-6">
-                  {["overview", "tips", "discussion"].map((t) => (
+                  {["overview", "tips"].map((t) => (
                     <button
                       key={t}
                       onClick={() => setActiveTab(t)}
@@ -281,7 +282,7 @@ export default function CoursePlayer() {
                         activeTab === t ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
                       }`}
                     >
-                      {t === "overview" ? "Overview" : t === "tips" ? "Coaching Tips" : "Discussion"}
+                      {t === "overview" ? "Overview" : "Coaching Tips"}
                     </button>
                   ))}
                 </div>
@@ -302,27 +303,6 @@ export default function CoursePlayer() {
                         </div>
                       </div>
                     )}
-                    {!completedDrills.has(currentDrill.id) && (
-                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                        <Button
-                          onClick={handleMarkComplete}
-                          disabled={completing || justCompleted}
-                          className={`w-full h-14 btn-cta text-base transition-all ${
-                            justCompleted ? "bg-pif-green hover:bg-pif-green" : "bg-primary hover:bg-primary/90 glow-red-hover"
-                          }`}
-                        >
-                          {completing ? (
-                            <Loader2 className="h-5 w-5 animate-spin" />
-                          ) : justCompleted ? (
-                            <motion.span initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="flex items-center gap-2">
-                              <Check className="h-5 w-5" /> Completed!
-                            </motion.span>
-                          ) : (
-                            <>Mark Complete & Continue →</>
-                          )}
-                        </Button>
-                      </motion.div>
-                    )}
                   </div>
                 )}
 
@@ -342,10 +322,27 @@ export default function CoursePlayer() {
                   </div>
                 )}
 
-                {activeTab === "discussion" && (
-                  <div className="max-w-2xl">
-                    <p className="text-muted-foreground text-sm">Discussion coming soon. Ask coaches questions and connect with other athletes.</p>
-                  </div>
+                {/* Mark Complete — always visible below tab content */}
+                {!completedDrills.has(currentDrill.id) && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-2xl mt-6">
+                    <Button
+                      onClick={handleMarkComplete}
+                      disabled={completing || justCompleted}
+                      className={`w-full h-14 btn-cta text-base transition-all ${
+                        justCompleted ? "bg-pif-green hover:bg-pif-green" : "bg-primary hover:bg-primary/90 glow-red-hover"
+                      }`}
+                    >
+                      {completing ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                      ) : justCompleted ? (
+                        <motion.span initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="flex items-center gap-2">
+                          <Check className="h-5 w-5" /> Completed!
+                        </motion.span>
+                      ) : (
+                        <>Mark Complete & Continue →</>
+                      )}
+                    </Button>
+                  </motion.div>
                 )}
               </div>
             </div>

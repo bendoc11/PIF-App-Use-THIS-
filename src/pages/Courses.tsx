@@ -128,15 +128,15 @@ export default function Courses() {
                       <span className="absolute top-3 left-3 text-[10px] font-heading tracking-widest text-muted-foreground bg-background/80 px-2 py-0.5 rounded">WORKOUT</span>
                     </div>
                     <div className="p-5 space-y-3">
-                      <h3 className="text-lg font-heading text-foreground">{course.title}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{course.description}</p>
+                      <h3 className="text-lg font-heading font-bold text-white">{course.title}</h3>
+                      <p className="text-sm text-white/75 line-clamp-2">{course.description}</p>
                       <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
                           <span className="text-[10px] font-heading text-muted-foreground">{course.coaches?.initials}</span>
                         </div>
                         <div>
-                          <p className="text-sm text-foreground">{course.coaches?.name}</p>
-                          <p className="text-xs text-muted-foreground">{course.coaches?.school}</p>
+                          <p className="text-[15px] text-white">{course.coaches?.name}</p>
+                          <p className="text-xs text-white/60">{course.coaches?.school}</p>
                         </div>
                       </div>
                       {course.skill_levels && course.skill_levels.length > 0 && (

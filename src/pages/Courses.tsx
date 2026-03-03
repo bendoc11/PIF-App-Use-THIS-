@@ -16,8 +16,16 @@ interface CourseWithCoach {
   total_duration_seconds: number;
   level: string;
   is_free: boolean;
+  skill_levels: string[] | null;
   coaches: { name: string; school: string; initials: string; avatar_color: string } | null;
 }
+
+const skillLevels = ["All", "Beginner", "Intermediate", "Advanced"];
+const skillBadgeColors: Record<string, string> = {
+  Beginner: "bg-green-500/20 text-green-400 border-green-500/30",
+  Intermediate: "bg-amber-500/20 text-amber-400 border-amber-500/30",
+  Advanced: "bg-red-500/20 text-red-400 border-red-500/30",
+};
 
 const categories = ["All", "Ball Handling", "Shooting", "Athletics", "Basketball IQ"];
 const categoryColors: Record<string, string> = {
@@ -34,11 +42,12 @@ export default function Courses() {
   const [courses, setCourses] = useState<CourseWithCoach[]>([]);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
+  const [activeSkillLevel, setActiveSkillLevel] = useState("All");
 
   useEffect(() => {
     supabase
       .from("courses")
-      .select("id, title, category, description, drill_count, total_duration_seconds, level, is_free, coaches(name, school, initials, avatar_color)")
+      .select("id, title, category, description, drill_count, total_duration_seconds, level, is_free, skill_levels, coaches(name, school, initials, avatar_color)")
       .eq("status", "live")
       .order("sort_order")
       .then(({ data }) => {
@@ -49,7 +58,8 @@ export default function Courses() {
   const filtered = courses.filter((c) => {
     const matchSearch = c.title.toLowerCase().includes(search.toLowerCase());
     const matchCategory = activeCategory === "All" || c.category === activeCategory;
-    return matchSearch && matchCategory;
+    const matchSkill = activeSkillLevel === "All" || (c.skill_levels && c.skill_levels.includes(activeSkillLevel.toLowerCase()));
+    return matchSearch && matchCategory && matchSkill;
   });
 
   return (
@@ -76,6 +86,19 @@ export default function Courses() {
                 }`}
               >
                 {cat}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {skillLevels.map((lvl) => (
+              <button
+                key={lvl}
+                onClick={() => setActiveSkillLevel(lvl)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-heading tracking-wider transition-all ${
+                  activeSkillLevel === lvl ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {lvl}
               </button>
             ))}
           </div>
@@ -111,12 +134,23 @@ export default function Courses() {
                           <p className="text-xs text-muted-foreground">{course.coaches?.school}</p>
                         </div>
                       </div>
+                      {course.skill_levels && course.skill_levels.length > 0 && (
+                        <div className="flex gap-1.5 flex-wrap">
+                          {course.skill_levels.map((sl) => {
+                            const label = sl.charAt(0).toUpperCase() + sl.slice(1);
+                            return (
+                              <span key={sl} className={`text-[10px] font-heading tracking-wider px-2 py-0.5 rounded-full border ${skillBadgeColors[label] || "bg-muted text-muted-foreground"}`}>
+                                {label}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      )}
                       <div className="flex items-center gap-3 pt-1">
                         <span className={`w-2 h-2 rounded-full ${categoryColors[course.category] || "bg-muted-foreground"}`} />
                         <span className="text-xs text-muted-foreground">{course.category}</span>
                         <span className="text-xs text-muted-foreground">·</span>
                         <span className="text-xs text-muted-foreground">{course.drill_count} drills</span>
-                        <span className="ml-auto text-[10px] font-heading tracking-wider text-muted-foreground px-2 py-0.5 rounded bg-muted">{course.level}</span>
                       </div>
                       <button className="w-full mt-2 py-2.5 rounded-lg bg-primary text-primary-foreground btn-cta text-sm glow-red-hover transition-all">
                         {course.is_free ? "Start Workout →" : "Start Workout →"}

@@ -70,9 +70,11 @@ export default function Login() {
     setIsLoading(true);
 
     // Store signup details in sessionStorage for after payment
+    // Note: password is temporarily stored here for the payment-first flow.
+    // It is cleared immediately after account creation in SignupSuccess.
     sessionStorage.setItem("pif_signup", JSON.stringify({
       email: signupEmail.trim(),
-      password: signupPassword,
+      password: btoa(signupPassword),
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       position,

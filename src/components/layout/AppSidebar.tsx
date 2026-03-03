@@ -2,6 +2,7 @@ import { LayoutDashboard, BookOpen, Users, MessageSquare, TrendingUp, Settings, 
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+
 import {
   Sidebar,
   SidebarContent,
@@ -28,7 +29,7 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
-  const { signOut, profile } = useAuth();
+  const { signOut, profile, subscription } = useAuth();
   const role = profile?.role || "user";
 
   const initials = profile
@@ -111,7 +112,7 @@ export function AppSidebar() {
               <p className="text-sm font-medium text-foreground truncate">
                 {profile?.first_name} {profile?.last_name}
               </p>
-              <p className="text-xs text-muted-foreground capitalize">{profile?.plan || "free"} plan</p>
+              <p className="text-xs text-muted-foreground capitalize">{subscription.subscribed ? "Pro" : "Free"} plan</p>
             </div>
           </div>
         )}

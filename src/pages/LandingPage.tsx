@@ -361,14 +361,14 @@ function HowItWorks() {
 function CoachesSection() {
   const coaches = [
     {
-      name: "BOB FISHER", school: "SHOOTING SPECIALIST · GUINNESS WORLD RECORD HOLDER", initials: "BF", img: bobFisherImg,
-      bio: "Widely regarded as one of the greatest free-throw shooters in basketball history. Set a Guinness World Record making 50 free throws in one minute. Nationally recognized shooting specialist teaching players confident, repeatable mechanics.",
-      stats: [{ label: "GUINNESS RECORD" }, { label: "SHOOTING SPECIALIST" }],
-    },
-    {
       name: "ALEX WADE", school: "D1 PLAYER · NOTRE DAME · NBA SKILLS TRAINER", initials: "AW", img: alexWadeImg,
       bio: "All-time assists leader at Cathedral Catholic HS, D1 player at Notre Dame, and now a certified NBA skills trainer working with players at every level.",
       stats: [{ label: "D1 NOTRE DAME" }, { label: "NBA SKILLS TRAINER" }],
+    },
+    {
+      name: "BOB FISHER", school: "SHOOTING SPECIALIST · GUINNESS WORLD RECORD HOLDER", initials: "BF", img: bobFisherImg,
+      bio: "Widely regarded as one of the greatest free-throw shooters in basketball history. Set a Guinness World Record making 50 free throws in one minute. Nationally recognized shooting specialist teaching players confident, repeatable mechanics.",
+      stats: [{ label: "GUINNESS RECORD" }, { label: "SHOOTING SPECIALIST" }],
     },
     {
       name: "TORRENCE WATSON", school: "D1 PLAYER · UNIVERSITY OF MISSOURI", initials: "TW", img: torrenceWatsonImg,

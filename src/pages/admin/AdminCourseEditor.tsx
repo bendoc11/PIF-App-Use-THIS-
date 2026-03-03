@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -22,6 +23,7 @@ import { toast } from "@/hooks/use-toast";
 
 const CATEGORIES = ["Shooting", "Ball Handling", "Defense", "Finishing", "Conditioning", "Mindset"];
 const DRILL_TAGS = ["Shooting", "Ball Handling", "Defense", "Finishing", "Conditioning", "Beginner", "Intermediate", "Advanced"];
+const SKILL_LEVELS = ["beginner", "intermediate", "advanced"];
 
 interface DrillForm {
   id?: string;
@@ -56,6 +58,7 @@ export default function AdminCourseEditor() {
   const [coachId, setCoachId] = useState<string | null>(null);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [uploadingThumb, setUploadingThumb] = useState(false);
+  const [skillLevels, setSkillLevels] = useState<string[]>([]);
 
   // Drills
   const [drills, setDrills] = useState<DrillForm[]>([]);
@@ -76,6 +79,7 @@ export default function AdminCourseEditor() {
         setDescription(course.description || "");
         setStatus((course as any).status || "draft");
         setThumbnailUrl(course.thumbnail_url || null);
+        setSkillLevels((course as any).skill_levels || []);
         if ((course as any).coaches) {
           setCoachName((course as any).coaches.name);
           setCoachSchool((course as any).coaches.school || "");
@@ -186,6 +190,10 @@ export default function AdminCourseEditor() {
       toast({ title: "Workout title is required", variant: "destructive" });
       return;
     }
+    if (skillLevels.length === 0) {
+      toast({ title: "At least one skill level is required", variant: "destructive" });
+      return;
+    }
     setSaving(true);
 
     try {
@@ -213,6 +221,7 @@ export default function AdminCourseEditor() {
         coach_id: finalCoachId,
         drill_count: drills.length,
         total_duration_seconds: drills.reduce((a, d) => a + d.duration_seconds, 0),
+        skill_levels: skillLevels,
       };
 
       let savedCourseId = courseId;

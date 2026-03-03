@@ -340,9 +340,9 @@ export default function CoursePlayer() {
                   </div>
                 )}
 
-                {/* Mark Complete — always visible below tab content */}
-                {!completedDrills.has(currentDrill.id) && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-2xl mt-6">
+                {/* Action button — always visible below tab content */}
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-2xl mt-6">
+                  {!completedDrills.has(currentDrill.id) ? (
                     <Button
                       onClick={handleMarkComplete}
                       disabled={completing || justCompleted}
@@ -360,8 +360,21 @@ export default function CoursePlayer() {
                         <>Mark Complete & Continue →</>
                       )}
                     </Button>
-                  </motion.div>
-                )}
+                  ) : currentIndex < drills.length ? (
+                    <Button
+                      onClick={() => navigate(`/courses/${courseId}/${currentIndex + 1}`)}
+                      className="w-full h-14 btn-cta text-base bg-primary hover:bg-primary/90 glow-red-hover"
+                    >
+                      Next Drill →
+                    </Button>
+                  ) : (
+                    <Link to="/courses">
+                      <Button className="w-full h-14 btn-cta text-base bg-primary hover:bg-primary/90 glow-red-hover">
+                        Back to Workouts
+                      </Button>
+                    </Link>
+                  )}
+                </motion.div>
               </div>
             </div>
           )}

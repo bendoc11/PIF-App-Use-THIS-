@@ -293,6 +293,8 @@ export type Database = {
           role: string
           streak_days: number
           stripe_customer_id: string | null
+          subscription_checked_at: string | null
+          subscription_status: string | null
           total_drills_completed: number
           updated_at: string
         }
@@ -310,6 +312,8 @@ export type Database = {
           role?: string
           streak_days?: number
           stripe_customer_id?: string | null
+          subscription_checked_at?: string | null
+          subscription_status?: string | null
           total_drills_completed?: number
           updated_at?: string
         }
@@ -327,6 +331,8 @@ export type Database = {
           role?: string
           streak_days?: number
           stripe_customer_id?: string | null
+          subscription_checked_at?: string | null
+          subscription_status?: string | null
           total_drills_completed?: number
           updated_at?: string
         }

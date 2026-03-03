@@ -18,7 +18,9 @@ export default function SignupSuccess() {
       }
 
       try {
-        const { email, password, firstName, lastName, position } = JSON.parse(raw);
+        const parsed = JSON.parse(raw);
+        const { email, firstName, lastName, position } = parsed;
+        const password = atob(parsed.password);
 
         // Sign up — auto-confirm is enabled so user is immediately confirmed
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({

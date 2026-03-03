@@ -59,6 +59,7 @@ export default function Community() {
     const { data } = await supabase
       .from("community_posts")
       .select("*, profiles(first_name, last_name)")
+      .eq("hidden", false)
       .order("created_at", { ascending: false });
     if (data) setPosts(data as any);
   };

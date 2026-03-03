@@ -89,35 +89,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) await fetchProfile(user.id);
   };
 
-  const checkSubscription = useCallback(async () => {
+  const checkSubscription = useCallback(async (forceRefresh = false) => {
     try {
       setSubscriptionLoading(true);
 
-      // Check if we have a recent cached result in profiles
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("subscription_status, subscription_checked_at")
-        .eq("id", user?.id ?? "")
-        .single();
+      // Skip cache if force refresh requested (e.g. post-checkout)
+      if (!forceRefresh) {
+        // Check if we have a recent cached result in profiles
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("subscription_status, subscription_checked_at")
+          .eq("id", user?.id ?? "")
+          .single();
 
-      const checkedAt = profileData?.subscription_checked_at
-        ? new Date(profileData.subscription_checked_at).getTime()
-        : 0;
-      const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+        const checkedAt = profileData?.subscription_checked_at
+          ? new Date(profileData.subscription_checked_at).getTime()
+          : 0;
+        const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
 
-      // Use cached value if checked within last 5 minutes
-      if (checkedAt > fiveMinutesAgo && profileData?.subscription_status) {
-        try {
-          const cached = JSON.parse(profileData.subscription_status);
-          setSubscription({
-            subscribed: cached.subscribed ?? false,
-            product_id: cached.product_id ?? null,
-            subscription_end: cached.subscription_end ?? null,
-            trial_end: cached.trial_end ?? null,
-          });
-          return;
-        } catch {
-          // Invalid JSON in cache, fall through to live check
+        // Use cached value if checked within last 5 minutes
+        if (checkedAt > fiveMinutesAgo && profileData?.subscription_status) {
+          try {
+            const cached = JSON.parse(profileData.subscription_status);
+            setSubscription({
+              subscribed: cached.subscribed ?? false,
+              product_id: cached.product_id ?? null,
+              subscription_end: cached.subscription_end ?? null,
+              trial_end: cached.trial_end ?? null,
+            });
+            return;
+          } catch {
+            // Invalid JSON in cache, fall through to live check
+          }
         }
       }
 
@@ -153,7 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user?.id]);
 
   const refreshSubscription = useCallback(async () => {
-    await checkSubscription();
+    await checkSubscription(true);
   }, [checkSubscription]);
 
   useEffect(() => {
@@ -188,8 +191,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Check subscription after user is set
   useEffect(() => {
     if (user) {
-      checkSubscription();
-      const interval = setInterval(checkSubscription, 60000);
+      // If returning from checkout, force a fresh check
+      const confirmed = sessionStorage.getItem("pif_subscription_confirmed");
+      const forceRefresh = !!confirmed;
+      if (confirmed) sessionStorage.removeItem("pif_subscription_confirmed");
+      
+      checkSubscription(forceRefresh);
+      const interval = setInterval(() => checkSubscription(), 60000);
       return () => clearInterval(interval);
     }
   }, [user, checkSubscription]);

@@ -321,6 +321,28 @@ export default function AdminCourseEditor() {
             <Label className="font-heading tracking-wider text-sm">Description</Label>
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Workout description..." rows={3} />
           </div>
+          {/* Skill Levels */}
+          <div className="space-y-2">
+            <Label className="font-heading tracking-wider text-sm">Skill Levels *</Label>
+            <div className="flex gap-4">
+              {SKILL_LEVELS.map((level) => {
+                const label = level.charAt(0).toUpperCase() + level.slice(1);
+                const checked = skillLevels.includes(level);
+                return (
+                  <label key={level} className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox
+                      checked={checked}
+                      onCheckedChange={(c) => {
+                        if (c) setSkillLevels((prev) => [...prev, level]);
+                        else setSkillLevels((prev) => prev.filter((l) => l !== level));
+                      }}
+                    />
+                    <span className="text-sm text-foreground">{label}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
           {/* Thumbnail Upload */}
           <div className="space-y-2">
             <Label className="font-heading tracking-wider text-sm">Workout Thumbnail</Label>

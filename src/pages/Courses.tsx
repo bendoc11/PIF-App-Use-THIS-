@@ -72,36 +72,45 @@ export default function Courses() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search workouts..." className="pl-10 bg-muted border-border h-10" />
           </div>
-          <div className="flex gap-2 flex-wrap">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-heading tracking-wider transition-all ${
-                  activeCategory === cat ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            {skillLevels.map((lvl) => (
-              <button
-                key={lvl}
-                onClick={() => setActiveSkillLevel(lvl)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-heading tracking-wider transition-all ${
-                  activeSkillLevel === lvl ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {lvl}
-              </button>
-            ))}
+          <div className="flex gap-4 items-end flex-wrap">
+            <div className="space-y-1.5">
+              <span className="text-[10px] font-heading tracking-widest text-muted-foreground">CATEGORY</span>
+              <div className="flex gap-2 flex-wrap">
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-heading tracking-wider transition-all ${
+                      activeCategory === cat ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="w-px h-8 bg-border hidden sm:block" />
+            <div className="space-y-1.5">
+              <span className="text-[10px] font-heading tracking-widest text-muted-foreground">LEVEL</span>
+              <div className="flex gap-2 flex-wrap">
+                {skillLevels.map((lvl) => (
+                  <button
+                    key={lvl}
+                    onClick={() => setActiveSkillLevel(lvl)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-heading tracking-wider transition-all ${
+                      activeSkillLevel === lvl ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {lvl}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 

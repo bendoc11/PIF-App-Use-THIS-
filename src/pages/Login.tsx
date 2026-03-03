@@ -131,8 +131,6 @@ export default function Login() {
           </div>
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
             <span><strong className="text-foreground">2,400+</strong> Athletes</span>
-            <span><strong className="text-foreground">500+</strong> Drills</span>
-            <span><strong className="text-foreground">50+</strong> Coaches</span>
           </div>
         </div>
       </div>

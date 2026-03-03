@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Play, ChevronRight, Star, Check, Dribbble, Target, Zap, TrendingUp, UserPlus, Crosshair, Dumbbell, BarChart3, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import zacErvinImg from "@/assets/coaches/zac-ervin.png";
+import bobFisherImg from "@/assets/coaches/bob-fisher.png";
 import alexWadeImg from "@/assets/coaches/alex-wade.png";
 import torrenceWatsonImg from "@/assets/coaches/torrence-watson.png";
 import hunterMcintoshImg from "@/assets/coaches/hunter-mcintosh.png";
@@ -361,9 +361,9 @@ function HowItWorks() {
 function CoachesSection() {
   const coaches = [
     {
-      name: "ZAC ERVIN", school: "5-YEAR D1 PLAYER · ELON UNIVERSITY", initials: "ZE", img: zacErvinImg,
-      bio: "1,000 point scorer and Top 10 all-time scorer in the state of Virginia. Five years of elite D1 experience building the next generation.",
-      stats: [{ label: "1,000 PT. SCORER" }, { label: "TOP 10 VA ALL-TIME" }],
+      name: "BOB FISHER", school: "SHOOTING SPECIALIST · GUINNESS WORLD RECORD HOLDER", initials: "BF", img: bobFisherImg,
+      bio: "Widely regarded as one of the greatest free-throw shooters in basketball history. Set a Guinness World Record making 50 free throws in one minute. Nationally recognized shooting specialist teaching players confident, repeatable mechanics.",
+      stats: [{ label: "GUINNESS RECORD" }, { label: "SHOOTING SPECIALIST" }],
     },
     {
       name: "ALEX WADE", school: "D1 PLAYER · NOTRE DAME · NBA SKILLS TRAINER", initials: "AW", img: alexWadeImg,

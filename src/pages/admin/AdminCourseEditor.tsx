@@ -112,9 +112,16 @@ export default function AdminCourseEditor() {
     fetch();
   }, [courseId, isNew]);
 
-  const extractVimeoId = (url: string) => {
-    const match = url.match(/vimeo\.com\/(\d+)/);
-    return match ? match[1] : url.replace(/\D/g, "");
+  const extractVimeoId = (input: string) => {
+    // Match iframe src e.g. player.vimeo.com/video/123456789
+    const iframeMatch = input.match(/player\.vimeo\.com\/video\/(\d+)/);
+    if (iframeMatch) return iframeMatch[1];
+    // Match full URL e.g. vimeo.com/123456789
+    const urlMatch = input.match(/vimeo\.com\/(\d+)/);
+    if (urlMatch) return urlMatch[1];
+    // If it's just digits, return as-is
+    const digitsOnly = input.replace(/\D/g, "");
+    return digitsOnly;
   };
 
   const parseDuration = (input: string): number => {

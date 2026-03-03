@@ -488,7 +488,7 @@ export default function AdminCourseEditor() {
                   <Input
                     value={editingDrill.vimeo_id}
                     onChange={(e) => setEditingDrill({ ...editingDrill, vimeo_id: extractVimeoId(e.target.value) })}
-                    placeholder="https://vimeo.com/123456789"
+                    placeholder="Paste Vimeo URL or iframe embed code"
                   />
                 </div>
                 <div className="space-y-2">

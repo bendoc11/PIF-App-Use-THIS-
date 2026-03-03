@@ -17,6 +17,7 @@ interface CourseWithCoach {
   level: string;
   is_free: boolean;
   skill_levels: string[] | null;
+  thumbnail_url: string | null;
   coaches: { name: string; school: string; initials: string; avatar_color: string } | null;
 }
 

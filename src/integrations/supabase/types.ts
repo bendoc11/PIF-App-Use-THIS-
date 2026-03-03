@@ -158,6 +158,7 @@ export type Database = {
           is_featured: boolean
           is_free: boolean
           level: string | null
+          skill_levels: string[] | null
           sort_order: number
           status: string
           thumbnail_url: string | null
@@ -174,6 +175,7 @@ export type Database = {
           is_featured?: boolean
           is_free?: boolean
           level?: string | null
+          skill_levels?: string[] | null
           sort_order?: number
           status?: string
           thumbnail_url?: string | null
@@ -190,6 +192,7 @@ export type Database = {
           is_featured?: boolean
           is_free?: boolean
           level?: string | null
+          skill_levels?: string[] | null
           sort_order?: number
           status?: string
           thumbnail_url?: string | null

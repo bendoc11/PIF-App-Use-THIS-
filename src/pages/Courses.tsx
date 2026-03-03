@@ -48,7 +48,7 @@ export default function Courses() {
   useEffect(() => {
     supabase
       .from("courses")
-      .select("id, title, category, description, drill_count, total_duration_seconds, level, is_free, skill_levels, coaches(name, school, initials, avatar_color)")
+      .select("id, title, category, description, drill_count, total_duration_seconds, level, is_free, skill_levels, thumbnail_url, coaches(name, school, initials, avatar_color)")
       .eq("status", "live")
       .order("sort_order")
       .then(({ data }) => {
@@ -114,13 +114,17 @@ export default function Courses() {
               <Link to={`/courses/${course.id}/1`}>
                 <Card className="bg-card border-border hover:border-primary/20 transition-all overflow-hidden group">
                   <CardContent className="p-0">
-                    <div className="relative h-40 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
+                    <div className="relative h-40 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center overflow-hidden">
+                      {course.thumbnail_url ? (
+                        <img src={course.thumbnail_url} alt={course.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <Play className="h-10 w-10 text-muted-foreground group-hover:text-primary transition-colors" />
+                      )}
                       {!course.is_free && (
                         <div className="absolute top-3 right-3">
                           <Lock className="h-4 w-4 text-muted-foreground" />
                         </div>
                       )}
-                      <Play className="h-10 w-10 text-muted-foreground group-hover:text-primary transition-colors" />
                       <span className="absolute top-3 left-3 text-[10px] font-heading tracking-widest text-muted-foreground bg-background/80 px-2 py-0.5 rounded">WORKOUT</span>
                     </div>
                     <div className="p-5 space-y-3">

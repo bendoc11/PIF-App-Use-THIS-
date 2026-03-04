@@ -24,6 +24,9 @@ interface Drill {
   equipment_needed: string[] | null;
   sort_order: number;
   course_id: string | null;
+  drill_type: string | null;
+  reps: number | null;
+  sets: number | null;
 }
 
 interface Course {
@@ -167,6 +170,10 @@ export default function DrillExperience() {
           coachingTips={coachingTips}
           completing={completing}
           onComplete={handleComplete}
+          drillType={drill.drill_type}
+          durationSeconds={drill.duration_seconds}
+          reps={drill.reps}
+          sets={drill.sets}
         />
       )}
 

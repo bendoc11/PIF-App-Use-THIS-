@@ -217,6 +217,7 @@ export type Database = {
           course_id: string | null
           created_at: string
           description: string | null
+          drill_type: string | null
           duration_seconds: number | null
           equipment_needed: string[] | null
           id: string
@@ -224,6 +225,8 @@ export type Database = {
           is_free: boolean
           is_new: boolean
           level: string | null
+          reps: number | null
+          sets: number | null
           sort_order: number
           title: string
           vimeo_id: string | null
@@ -235,6 +238,7 @@ export type Database = {
           course_id?: string | null
           created_at?: string
           description?: string | null
+          drill_type?: string | null
           duration_seconds?: number | null
           equipment_needed?: string[] | null
           id?: string
@@ -242,6 +246,8 @@ export type Database = {
           is_free?: boolean
           is_new?: boolean
           level?: string | null
+          reps?: number | null
+          sets?: number | null
           sort_order?: number
           title: string
           vimeo_id?: string | null
@@ -253,6 +259,7 @@ export type Database = {
           course_id?: string | null
           created_at?: string
           description?: string | null
+          drill_type?: string | null
           duration_seconds?: number | null
           equipment_needed?: string[] | null
           id?: string
@@ -260,6 +267,8 @@ export type Database = {
           is_free?: boolean
           is_new?: boolean
           level?: string | null
+          reps?: number | null
+          sets?: number | null
           sort_order?: number
           title?: string
           vimeo_id?: string | null

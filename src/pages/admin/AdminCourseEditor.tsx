@@ -36,6 +36,9 @@ interface DrillForm {
   category: string;
   level: string;
   sort_order: number;
+  drill_type: string;
+  reps: number | null;
+  sets: number | null;
 }
 
 export default function AdminCourseEditor() {
@@ -104,6 +107,9 @@ export default function AdminCourseEditor() {
             category: d.category || "",
             level: d.level || "",
             sort_order: d.sort_order,
+            drill_type: d.drill_type || "",
+            reps: d.reps ?? null,
+            sets: d.sets ?? null,
           }))
         );
       }
@@ -243,7 +249,7 @@ export default function AdminCourseEditor() {
 
       // Save drills
       for (const drill of drills) {
-        const drillData = {
+        const drillData: any = {
           title: drill.title,
           vimeo_id: drill.vimeo_id,
           duration_seconds: drill.duration_seconds,
@@ -255,6 +261,9 @@ export default function AdminCourseEditor() {
           sort_order: drill.sort_order,
           course_id: savedCourseId,
           coach_id: finalCoachId,
+          drill_type: drill.drill_type || null,
+          reps: drill.reps,
+          sets: drill.sets,
         };
 
         if (drill.id) {
@@ -389,7 +398,7 @@ export default function AdminCourseEditor() {
             <Button
               variant="outline"
               onClick={() =>
-                setEditingDrill({
+              setEditingDrill({
                   title: "",
                   vimeo_id: "",
                   duration_seconds: 0,
@@ -399,6 +408,9 @@ export default function AdminCourseEditor() {
                   category: category || "",
                   level: "",
                   sort_order: drills.length + 1,
+                  drill_type: "",
+                  reps: null,
+                  sets: null,
                 })
               }
             >
@@ -512,6 +524,80 @@ export default function AdminCourseEditor() {
                     allow="autoplay; fullscreen; picture-in-picture"
                     allowFullScreen
                   />
+                </div>
+              )}
+
+              {/* Drill Type Selector */}
+              <div className="space-y-2">
+                <Label className="font-heading tracking-wider text-sm">Drill Type</Label>
+                <div className="flex rounded-lg border border-border overflow-hidden">
+                  {[
+                    { value: "", label: "None" },
+                    { value: "timed", label: "Timed" },
+                    { value: "reps", label: "Reps" },
+                    { value: "sets_reps", label: "Sets × Reps" },
+                  ].map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setEditingDrill({ ...editingDrill, drill_type: opt.value, reps: opt.value === "timed" || opt.value === "" ? null : editingDrill.reps, sets: opt.value !== "sets_reps" ? null : editingDrill.sets })}
+                      className={`flex-1 px-3 py-2 text-sm font-medium transition-colors ${editingDrill.drill_type === opt.value ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Drill Type Fields */}
+              {editingDrill.drill_type === "timed" && (
+                <div className="space-y-2">
+                  <Label className="font-heading tracking-wider text-sm">Duration (seconds)</Label>
+                  <Input
+                    type="number"
+                    value={editingDrill.duration_seconds || ""}
+                    onChange={(e) => setEditingDrill({ ...editingDrill, duration_seconds: parseInt(e.target.value) || 0 })}
+                    placeholder="e.g. 30"
+                    className="w-40"
+                  />
+                </div>
+              )}
+
+              {editingDrill.drill_type === "reps" && (
+                <div className="space-y-2">
+                  <Label className="font-heading tracking-wider text-sm">Reps</Label>
+                  <Input
+                    type="number"
+                    value={editingDrill.reps ?? ""}
+                    onChange={(e) => setEditingDrill({ ...editingDrill, reps: e.target.value ? parseInt(e.target.value) : null })}
+                    placeholder="e.g. 10"
+                    className="w-40"
+                  />
+                </div>
+              )}
+
+              {editingDrill.drill_type === "sets_reps" && (
+                <div className="flex gap-4">
+                  <div className="space-y-2">
+                    <Label className="font-heading tracking-wider text-sm">Sets</Label>
+                    <Input
+                      type="number"
+                      value={editingDrill.sets ?? ""}
+                      onChange={(e) => setEditingDrill({ ...editingDrill, sets: e.target.value ? parseInt(e.target.value) : null })}
+                      placeholder="e.g. 3"
+                      className="w-32"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="font-heading tracking-wider text-sm">Reps</Label>
+                    <Input
+                      type="number"
+                      value={editingDrill.reps ?? ""}
+                      onChange={(e) => setEditingDrill({ ...editingDrill, reps: e.target.value ? parseInt(e.target.value) : null })}
+                      placeholder="e.g. 10"
+                      className="w-32"
+                    />
+                  </div>
                 </div>
               )}
 

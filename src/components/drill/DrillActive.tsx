@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, Loader2 } from "lucide-react";
+import { ChevronDown, Clock, Loader2, Repeat } from "lucide-react";
 
 interface DrillActiveProps {
   drillTitle: string;
@@ -10,9 +10,13 @@ interface DrillActiveProps {
   coachingTips: string[] | null;
   completing: boolean;
   onComplete: () => void;
+  drillType?: string | null;
+  durationSeconds?: number | null;
+  reps?: number | null;
+  sets?: number | null;
 }
 
-export function DrillActive({ drillTitle, vimeoId, coachingTips, completing, onComplete }: DrillActiveProps) {
+export function DrillActive({ drillTitle, vimeoId, coachingTips, completing, onComplete, drillType, durationSeconds, reps, sets }: DrillActiveProps) {
   const [tipsOpen, setTipsOpen] = useState(false);
 
   return (
@@ -43,6 +47,25 @@ export function DrillActive({ drillTitle, vimeoId, coachingTips, completing, onC
 
       {/* Bottom actions */}
       <div className="p-4 pb-[calc(2rem+env(safe-area-inset-bottom))] max-w-lg mx-auto w-full space-y-4">
+        {/* Drill metrics badge */}
+        {drillType === "timed" && durationSeconds && (
+          <div className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-muted">
+            <Clock className="h-4 w-4 text-primary" />
+            <span className="text-sm font-heading font-semibold tracking-wider text-foreground">{durationSeconds} sec</span>
+          </div>
+        )}
+        {drillType === "reps" && reps && (
+          <div className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-muted">
+            <Repeat className="h-4 w-4 text-primary" />
+            <span className="text-sm font-heading font-semibold tracking-wider text-foreground">{reps} reps</span>
+          </div>
+        )}
+        {drillType === "sets_reps" && (sets || reps) && (
+          <div className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-muted">
+            <Repeat className="h-4 w-4 text-primary" />
+            <span className="text-sm font-heading font-semibold tracking-wider text-foreground">{sets} sets × {reps} reps</span>
+          </div>
+        )}
         {/* Coaching Notes — collapsible */}
         {coachingTips && coachingTips.length > 0 && (
           <Collapsible open={tipsOpen} onOpenChange={setTipsOpen}>

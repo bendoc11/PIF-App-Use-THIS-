@@ -34,8 +34,9 @@ interface DrillForm {
   drill_type: string;
   reps: number | null;
   sets: number | null;
-  isLinked?: boolean; // true if added via "Add Existing Drill"
-  workoutCount?: number; // how many workouts use this drill
+  isLinked?: boolean;
+  workoutCount?: number;
+  thumbnail_url: string | null;
 }
 
 interface ExistingDrill {
@@ -73,7 +74,7 @@ export default function AdminCourseEditor() {
   const [drills, setDrills] = useState<DrillForm[]>([]);
   const [editingDrill, setEditingDrill] = useState<DrillForm | null>(null);
   const [equipmentInput, setEquipmentInput] = useState("");
-
+  const [uploadingDrillThumb, setUploadingDrillThumb] = useState(false);
   // Add Existing Drill modal
   const [showExistingModal, setShowExistingModal] = useState(false);
   const [existingDrills, setExistingDrills] = useState<ExistingDrill[]>([]);

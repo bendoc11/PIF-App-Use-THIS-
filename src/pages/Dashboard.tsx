@@ -171,9 +171,9 @@ export default function Dashboard() {
         {/* Stats Row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <AnimatedCounter value={profile?.streak_days || 0} label="Day Streak" icon={Flame} delay={0} />
-          <AnimatedCounter value={profile?.total_drills_completed || 0} label="Drills Done" icon={Play} delay={100} />
-          <AnimatedCounter value={Math.round((profile?.total_drills_completed || 0) * 5 / 60)} label="Hours Trained" icon={TrendingUp} delay={200} />
-          <AnimatedCounter value={0} label="Weekly Rank" icon={Trophy} delay={300} />
+          <AnimatedCounter value={statDrillsDone} label="Drills Done" icon={Play} delay={100} />
+          <AnimatedCounter value={statHours} label="Hours Trained" icon={TrendingUp} delay={200} />
+          <AnimatedCounter value={statRank} label="Weekly Rank" icon={Trophy} delay={300} />
         </div>
 
         {/* Continue Where You Left Off */}

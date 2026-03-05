@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           avatar_color: string | null
           avatar_text_color: string | null
+          avatar_url: string | null
           bio: string | null
           created_at: string
           focus_area: string | null
@@ -30,6 +31,7 @@ export type Database = {
         Insert: {
           avatar_color?: string | null
           avatar_text_color?: string | null
+          avatar_url?: string | null
           bio?: string | null
           created_at?: string
           focus_area?: string | null
@@ -42,6 +44,7 @@ export type Database = {
         Update: {
           avatar_color?: string | null
           avatar_text_color?: string | null
+          avatar_url?: string | null
           bio?: string | null
           created_at?: string
           focus_area?: string | null

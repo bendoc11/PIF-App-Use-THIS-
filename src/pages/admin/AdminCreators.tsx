@@ -119,10 +119,13 @@ export default function AdminCreators() {
       return;
     }
 
-    // Also update matching coach record
+    // Also update matching coach record(s)
     const name = `${viewingCreator.first_name || ""} ${viewingCreator.last_name || ""}`.trim();
     if (name) {
-      await supabase.from("coaches").update({ avatar_url: avatarUrl } as any).eq("name", name);
+      const { error: coachError } = await supabase.from("coaches").update({ avatar_url: avatarUrl }).eq("name", name);
+      if (coachError) {
+        console.error("Failed to update coach avatar_url:", coachError);
+      }
     }
 
     setViewingCreator({ ...viewingCreator, avatar_url: avatarUrl });

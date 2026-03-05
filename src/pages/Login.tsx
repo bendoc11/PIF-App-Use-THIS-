@@ -69,29 +69,35 @@ export default function Login() {
     if (!signupEmail.trim() || !signupPassword.trim() || !firstName.trim()) return;
     setIsLoading(true);
 
-    // Store signup details in sessionStorage for after payment
-    // Note: password is temporarily stored here for the payment-first flow.
-    // It is cleared immediately after account creation in SignupSuccess.
-    sessionStorage.setItem("pif_signup", JSON.stringify({
-      email: signupEmail.trim(),
-      password: btoa(signupPassword),
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      
-    }));
-
     try {
-      // Create checkout session (unauthenticated)
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { email: signupEmail.trim() },
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: signupEmail.trim(),
+        password: signupPassword,
+        options: {
+          data: {
+            first_name: firstName.trim(),
+            last_name: lastName.trim(),
+          },
+        },
       });
 
-      if (error) throw error;
-      if (data?.url) {
-        window.location.href = data.url;
+      if (signUpError) throw signUpError;
+
+      // Auto-confirm is enabled, so we should have a session
+      if (!signUpData?.session) {
+        // Try signing in if auto-confirm created the user without a session
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: signupEmail.trim(),
+          password: signupPassword,
+        });
+        if (signInError) throw signInError;
       }
+
+      // Account created — AuthGuard will redirect to /onboarding since onboarding_completed is false
+      navigate("/dashboard");
     } catch (err: any) {
-      toast.error(err.message || "Could not start checkout");
+      toast.error(err.message || "Could not create account");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -240,7 +246,7 @@ export default function Login() {
                 </div>
               </div>
               <Button type="submit" disabled={isLoading} className="w-full h-12 btn-cta bg-primary hover:bg-primary/90 glow-red-hover text-base">
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Continue to Payment <ArrowRight className="h-4 w-4 ml-1" /></>}
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Create Account <ArrowRight className="h-4 w-4 ml-1" /></>}
               </Button>
               <p className="text-xs text-center text-muted-foreground">
                 By continuing, you agree to our Terms of Service and Privacy Policy.

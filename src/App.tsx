@@ -24,6 +24,7 @@ import NotFound from "./pages/NotFound";
 import AdminCourses from "./pages/admin/AdminCourses";
 import AdminCourseEditor from "./pages/admin/AdminCourseEditor";
 import AdminCreators from "./pages/admin/AdminCreators";
+import AdminCoaches from "./pages/admin/AdminCoaches";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminModeration from "./pages/admin/AdminModeration";
 import AdminFeatured from "./pages/admin/AdminFeatured";
@@ -61,6 +62,7 @@ const App = () => (
             <Route path="/admin/drills" element={<AdminGuard><AdminDrills /></AdminGuard>} />
             <Route path="/admin/featured" element={<AdminGuard requiredRole="admin"><AdminFeatured /></AdminGuard>} />
             <Route path="/admin/creators" element={<AdminGuard requiredRole="admin"><AdminCreators /></AdminGuard>} />
+            <Route path="/admin/coaches" element={<AdminGuard requiredRole="admin"><AdminCoaches /></AdminGuard>} />
             <Route path="/admin/users" element={<AdminGuard requiredRole="admin"><AdminUsers /></AdminGuard>} />
             <Route path="/admin/moderation" element={<AdminGuard requiredRole="admin"><AdminModeration /></AdminGuard>} />
             <Route path="*" element={<NotFound />} />

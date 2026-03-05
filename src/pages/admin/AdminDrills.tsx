@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Loader2, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, X, Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const DRILL_TAGS = ["Shooting", "Ball Handling", "Defense", "Finishing", "Conditioning", "Beginner", "Intermediate", "Advanced"];
@@ -47,6 +47,7 @@ interface DrillForm {
   drill_type: string;
   reps: number | null;
   sets: number | null;
+  thumbnail_url: string | null;
 }
 
 export default function AdminDrills() {
@@ -57,6 +58,7 @@ export default function AdminDrills() {
   const [editingDrill, setEditingDrill] = useState<DrillForm | null>(null);
   const [equipmentInput, setEquipmentInput] = useState("");
   const [saving, setSaving] = useState(false);
+  const [uploadingThumb, setUploadingThumb] = useState(false);
 
   const fetchDrills = async () => {
     setLoading(true);
@@ -87,7 +89,7 @@ export default function AdminDrills() {
     setEditingDrill({
       title: "", vimeo_id: "", duration_seconds: 0, description: "",
       coaching_tips: "", equipment_needed: [], category: "", level: "",
-      drill_type: "", reps: null, sets: null,
+      drill_type: "", reps: null, sets: null, thumbnail_url: null,
     });
   };
 
@@ -105,7 +107,26 @@ export default function AdminDrills() {
       drill_type: d.drill_type || "",
       reps: d.reps ?? null,
       sets: d.sets ?? null,
+      thumbnail_url: (d as any).thumbnail_url || null,
     });
+  };
+
+  const handleDrillThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingDrill) return;
+    setUploadingThumb(true);
+    const ext = file.name.split(".").pop();
+    const path = `drills/${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage.from("course-thumbnails").upload(path, file);
+    if (error) {
+      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+      setUploadingThumb(false);
+      return;
+    }
+    const { data: urlData } = supabase.storage.from("course-thumbnails").getPublicUrl(path);
+    setEditingDrill({ ...editingDrill, thumbnail_url: urlData.publicUrl });
+    setUploadingThumb(false);
+    toast({ title: "Thumbnail uploaded" });
   };
 
   const parseDuration = (input: string): number => {
@@ -150,6 +171,7 @@ export default function AdminDrills() {
       reps: editingDrill.reps,
       sets: editingDrill.sets,
       course_id: null, // standalone
+      thumbnail_url: editingDrill.thumbnail_url,
     };
 
     try {

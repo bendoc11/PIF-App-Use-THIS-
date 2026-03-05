@@ -78,24 +78,41 @@ export default function AdminCreators() {
   const viewCreatorCourses = async (creator: Creator) => {
     setViewingCreator(creator);
     setLoadingCourses(true);
+    setBio("");
     const name = `${creator.first_name || ""} ${creator.last_name || ""}`.trim();
     // Find coach by name, then get their courses
-    const { data: coaches } = await supabase
+    const { data: coach } = await supabase
       .from("coaches")
-      .select("id")
+      .select("id, bio")
       .eq("name", name)
       .maybeSingle();
-    if (coaches) {
+    if (coach) {
+      setBio(coach.bio || "");
       const { data: courses } = await supabase
         .from("courses")
         .select("id, title, drill_count, status, created_at")
-        .eq("coach_id", coaches.id)
+        .eq("coach_id", coach.id)
         .order("sort_order");
       setCreatorCourses(courses || []);
     } else {
       setCreatorCourses([]);
     }
     setLoadingCourses(false);
+  };
+
+  const handleSaveBio = async () => {
+    if (!viewingCreator) return;
+    setSavingBio(true);
+    const name = `${viewingCreator.first_name || ""} ${viewingCreator.last_name || ""}`.trim();
+    if (name) {
+      const { error } = await supabase.from("coaches").update({ bio }).eq("name", name);
+      if (error) {
+        toast({ title: "Error saving bio", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Bio updated" });
+      }
+    }
+    setSavingBio(false);
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

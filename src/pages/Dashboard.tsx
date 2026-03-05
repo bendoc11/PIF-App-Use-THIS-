@@ -40,19 +40,23 @@ const categoryColors: Record<string, string> = {
   "Post Game": "bg-pif-orange",
 };
 
-function AnimatedCounter({ value, label, icon: Icon, delay = 0 }: { value: number; label: string; icon: any; delay?: number }) {
-  const [count, setCount] = useState(0);
+function AnimatedCounter({ value, label, icon: Icon, delay = 0 }: { value: number | string; label: string; icon: any; delay?: number }) {
+  const [displayValue, setDisplayValue] = useState<string | number>(typeof value === "string" ? value : 0);
   useEffect(() => {
+    if (typeof value === "string") {
+      const timer = setTimeout(() => setDisplayValue(value), delay);
+      return () => clearTimeout(timer);
+    }
     const timer = setTimeout(() => {
       let start = 0;
       const step = Math.ceil(value / 20);
       const interval = setInterval(() => {
         start += step;
         if (start >= value) {
-          setCount(value);
+          setDisplayValue(value);
           clearInterval(interval);
         } else {
-          setCount(start);
+          setDisplayValue(start);
         }
       }, 40);
       return () => clearInterval(interval);
@@ -69,7 +73,7 @@ function AnimatedCounter({ value, label, icon: Icon, delay = 0 }: { value: numbe
               <Icon className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-heading text-foreground">{count}</p>
+              <p className="text-2xl font-heading text-foreground">{displayValue}</p>
               <p className="text-xs text-muted-foreground font-heading tracking-wider">{label}</p>
             </div>
           </div>

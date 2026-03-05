@@ -83,7 +83,7 @@ export default function SignupSuccess() {
             setStatus("done");
             // Signal to AuthContext to refresh on next mount
             sessionStorage.setItem("pif_subscription_confirmed", "true");
-            setTimeout(() => navigate("/dashboard", { replace: true }), 1500);
+            setTimeout(() => navigate("/onboarding", { replace: true }), 1500);
             return;
           }
         } catch {
@@ -96,7 +96,7 @@ export default function SignupSuccess() {
       // the subscription may take a moment but the user shouldn't be stuck
       setStatus("done");
       sessionStorage.setItem("pif_subscription_confirmed", "true");
-      setTimeout(() => navigate("/dashboard", { replace: true }), 1500);
+      setTimeout(() => navigate("/onboarding", { replace: true }), 1500);
     };
 
     createAccount();

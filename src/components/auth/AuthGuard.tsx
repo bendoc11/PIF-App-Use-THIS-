@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
-const PUBLIC_ROUTES = ["/pricing", "/settings"];
+const PUBLIC_ROUTES = ["/pricing", "/settings", "/onboarding/results"];
 const ADMIN_PREFIX = "/admin";
 
 export function AuthGuard({ children }: { children: ReactNode }) {

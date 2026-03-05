@@ -74,10 +74,10 @@ export default function OnboardingResults() {
       >
         <div className="text-center space-y-2">
           <h1 className="text-3xl md:text-4xl font-heading text-foreground">
-            Your Personal Development Plan is Ready 🏀
+            Your Player Profile Is Ready 🏀
           </h1>
           <p className="text-muted-foreground text-sm">
-            Here's what we've built for you, {firstName}.
+            Here's what we know about your game, {firstName}.
           </p>
         </div>
 

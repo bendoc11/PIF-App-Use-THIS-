@@ -69,14 +69,15 @@ export default function DrillExperience() {
         }
       } else if (courseId && currentIndex) {
         // Course drill
-        const [courseRes, drillsRes] = await Promise.all([
+        const [courseRes, junctionRes] = await Promise.all([
           supabase.from("courses").select("id, title, drill_count").eq("id", courseId).single(),
-          supabase.from("drills").select("*").eq("course_id", courseId).order("sort_order"),
+          supabase.from("workout_drills").select("position, drills(*)").eq("workout_id", courseId).order("position"),
         ]);
         if (courseRes.data) setCourse(courseRes.data);
-        if (drillsRes.data) {
-          setAllCourseDrills(drillsRes.data as any);
-          const d = (drillsRes.data as any)[currentIndex - 1];
+        if (junctionRes.data) {
+          const drillsFromJunction = (junctionRes.data as any[]).map((j: any) => j.drills).filter(Boolean);
+          setAllCourseDrills(drillsFromJunction);
+          const d = drillsFromJunction[currentIndex - 1];
           if (d) setDrill(d);
         }
       }

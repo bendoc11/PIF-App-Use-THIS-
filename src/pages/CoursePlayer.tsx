@@ -60,12 +60,15 @@ export default function CoursePlayer() {
   useEffect(() => {
     if (!courseId) return;
     const fetchData = async () => {
-      const [courseRes, drillsRes] = await Promise.all([
+      const [courseRes, junctionRes] = await Promise.all([
         supabase.from("courses").select("id, title, category, drill_count, coaches(name, school, initials, avatar_color)").eq("id", courseId).single(),
-        supabase.from("drills").select("*").eq("course_id", courseId).order("sort_order"),
+        supabase.from("workout_drills").select("position, drills(*)").eq("workout_id", courseId).order("position"),
       ]);
       if (courseRes.data) setCourse(courseRes.data as any);
-      if (drillsRes.data) setDrills(drillsRes.data as any);
+      if (junctionRes.data) {
+        const drillsFromJunction = (junctionRes.data as any[]).map((j: any) => j.drills).filter(Boolean);
+        setDrills(drillsFromJunction);
+      }
 
       if (user && drillsRes.data) {
         const courseDrillIds = (drillsRes.data as any[]).map((d: any) => d.id);

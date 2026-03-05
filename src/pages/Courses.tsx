@@ -74,6 +74,20 @@ export default function Courses() {
           <p className="text-muted-foreground mt-1">Structured training programs from elite coaches</p>
         </div>
 
+        {coachFilter && (
+          <div className="flex items-center gap-3 bg-muted rounded-lg px-4 py-2">
+            <span className="text-sm text-foreground">
+              Showing workouts by <span className="font-heading font-bold">{coachFilter}</span>
+            </span>
+            <button
+              onClick={() => setSearchParams({})}
+              className="text-xs text-primary hover:text-primary/80 font-heading tracking-wider"
+            >
+              Clear filter
+            </button>
+          </div>
+        )}
+
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
           <div className="relative flex-1 max-w-sm">

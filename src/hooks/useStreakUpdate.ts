@@ -1,14 +1,16 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Streak logic — uses UTC dates consistently to avoid timezone bugs.
- * 
- * - Different date from last_drill_date → increment streak, animate
- * - Same date → no increment, static
- * - More than 1 calendar day gap → reset to 1
+ * Streak logic — uses the user's LOCAL calendar date for comparisons.
+ *
+ * - Same local date as last_drill_date → no increment, static
+ * - Next calendar day → increment streak
+ * - Gap > 1 calendar day → reset to 1
  */
 export async function updateStreak(userId: string): Promise<{ newStreak: number; animated: boolean }> {
-  const todayUTC = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
+  // Use user's local date, formatted as YYYY-MM-DD
+  const now = new Date();
+  const todayLocal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -21,7 +23,7 @@ export async function updateStreak(userId: string): Promise<{ newStreak: number;
   const lastDate = profile.last_drill_date as string | null;
   const currentStreak = profile.streak_days || 0;
 
-  if (lastDate === todayUTC) {
+  if (lastDate === todayLocal) {
     // Same day — no change
     return { newStreak: currentStreak, animated: false };
   }
@@ -32,10 +34,11 @@ export async function updateStreak(userId: string): Promise<{ newStreak: number;
     // First ever drill
     newStreak = 1;
   } else {
-    // Calculate day difference in UTC
-    const last = new Date(lastDate + "T00:00:00Z");
-    const today = new Date(todayUTC + "T00:00:00Z");
-    const diffDays = Math.floor((today.getTime() - last.getTime()) / (1000 * 60 * 60 * 24));
+    // Calculate day difference using local midnight dates
+    const lastParts = lastDate.split("-").map(Number);
+    const lastMidnight = new Date(lastParts[0], lastParts[1] - 1, lastParts[2]);
+    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const diffDays = Math.round((todayMidnight.getTime() - lastMidnight.getTime()) / (1000 * 60 * 60 * 24));
 
     if (diffDays === 1) {
       newStreak = currentStreak + 1;
@@ -47,7 +50,7 @@ export async function updateStreak(userId: string): Promise<{ newStreak: number;
 
   await supabase
     .from("profiles")
-    .update({ streak_days: newStreak, last_drill_date: todayUTC })
+    .update({ streak_days: newStreak, last_drill_date: todayLocal })
     .eq("id", userId);
 
   return { newStreak, animated: true };

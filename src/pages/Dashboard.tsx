@@ -83,6 +83,9 @@ export default function Dashboard() {
   const { profile, user } = useAuth();
   const [courses, setCourses] = useState<CourseWithCoach[]>([]);
   const [drills, setDrills] = useState<DrillWithCoach[]>([]);
+  const [statDrillsDone, setStatDrillsDone] = useState(0);
+  const [statHours, setStatHours] = useState("");
+  const [statRank, setStatRank] = useState("#—");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -95,6 +98,72 @@ export default function Dashboard() {
     };
     fetchData();
   }, []);
+
+  // Fetch live stats for the logged-in user
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchStats = async () => {
+      // 1. Drills Done — count completed drill progress rows
+      const { count: drillCount } = await supabase
+        .from("user_drill_progress")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("completed", true);
+      const done = drillCount ?? 0;
+      setStatDrillsDone(done);
+
+      // 2. Hours Trained — sum duration_seconds from joined drills
+      const { data: progressRows } = await supabase
+        .from("user_drill_progress")
+        .select("drill_id, drills(duration_seconds)")
+        .eq("user_id", user.id)
+        .eq("completed", true);
+      const totalSeconds = (progressRows ?? []).reduce((sum, r: any) => {
+        return sum + (r.drills?.duration_seconds ?? 0);
+      }, 0);
+      const totalMinutes = totalSeconds / 60;
+      if (totalMinutes >= 60) {
+        setStatHours(`${(totalMinutes / 60).toFixed(1)}h`);
+      } else {
+        setStatHours(`${Math.round(totalMinutes)}m`);
+      }
+
+      // 3. Weekly Rank — count users with more drills this week
+      const now = new Date();
+      const dayOfWeek = now.getDay(); // 0=Sun
+      const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - mondayOffset);
+      weekStart.setHours(0, 0, 0, 0);
+      const weekStartISO = weekStart.toISOString();
+
+      // Get current user's drill count this week
+      const { count: myWeekCount } = await supabase
+        .from("user_drill_progress")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("completed", true)
+        .gte("completed_at", weekStartISO);
+      const myCount = myWeekCount ?? 0;
+
+      // Get all users' weekly counts to determine rank
+      const { data: allWeekly } = await supabase
+        .from("user_drill_progress")
+        .select("user_id")
+        .eq("completed", true)
+        .gte("completed_at", weekStartISO);
+
+      const userCounts: Record<string, number> = {};
+      (allWeekly ?? []).forEach((r) => {
+        userCounts[r.user_id] = (userCounts[r.user_id] || 0) + 1;
+      });
+      const usersAbove = Object.values(userCounts).filter((c) => c > myCount).length;
+      setStatRank(`#${usersAbove + 1}`);
+    };
+
+    fetchStats();
+  }, [user]);
 
   return (
     <AppLayout>

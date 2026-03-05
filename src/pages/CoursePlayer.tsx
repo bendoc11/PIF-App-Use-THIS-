@@ -68,18 +68,18 @@ export default function CoursePlayer() {
       if (junctionRes.data) {
         const drillsFromJunction = (junctionRes.data as any[]).map((j: any) => j.drills).filter(Boolean);
         setDrills(drillsFromJunction);
-      }
 
-      if (user && drillsRes.data) {
-        const courseDrillIds = (drillsRes.data as any[]).map((d: any) => d.id);
-        const { data: progressData } = await supabase
-          .from("user_drill_progress")
-          .select("drill_id")
-          .eq("user_id", user.id)
-          .eq("completed", true)
-          .in("drill_id", courseDrillIds);
-        if (progressData) {
-          setCompletedDrills(new Set(progressData.map((p) => p.drill_id)));
+        if (user) {
+          const courseDrillIds = drillsFromJunction.map((d: any) => d.id);
+          const { data: progressData } = await supabase
+            .from("user_drill_progress")
+            .select("drill_id")
+            .eq("user_id", user.id)
+            .eq("completed", true)
+            .in("drill_id", courseDrillIds);
+          if (progressData) {
+            setCompletedDrills(new Set(progressData.map((p) => p.drill_id)));
+          }
         }
       }
     };

@@ -1,21 +1,32 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, CheckCircle } from "lucide-react";
 
 export default function SignupSuccess() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, refreshSubscription } = useAuth();
   const [status, setStatus] = useState<"confirming" | "done">("confirming");
 
+  const sessionId = searchParams.get("session_id");
+
   useEffect(() => {
-    // If no session at all, redirect to login
+    // ONLY show this screen when arriving from Stripe with a session_id
+    if (!sessionId) {
+      console.log("[SignupSuccess] No session_id in URL — redirecting to dashboard");
+      navigate("/dashboard", { replace: true });
+      return;
+    }
+
+    console.log("[SignupSuccess] Triggered by Stripe session_id:", sessionId);
+
     if (!user) {
-      // Wait a moment for auth state to hydrate from localStorage
       const timeout = setTimeout(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
           if (!session) {
+            console.log("[SignupSuccess] No auth session — redirecting to login");
             navigate("/login", { replace: true });
           }
         });
@@ -23,26 +34,25 @@ export default function SignupSuccess() {
       return () => clearTimeout(timeout);
     }
 
-    // User is authenticated — poll for subscription confirmation
     const pollSubscription = async () => {
-      const maxAttempts = 8; // ~16 seconds
+      const maxAttempts = 8;
       const intervalMs = 2000;
 
       for (let attempt = 0; attempt < maxAttempts; attempt++) {
         try {
           const { data, error } = await supabase.functions.invoke("check-subscription");
           if (!error && data?.subscribed) {
-            // Cache the result
             await supabase.from("profiles").update({
               subscription_status: JSON.stringify(data),
               subscription_checked_at: new Date().toISOString(),
             } as any).eq("id", user.id);
 
-            // Signal AuthContext to force refresh
             sessionStorage.setItem("pif_subscription_confirmed", "true");
             await refreshSubscription();
 
             setStatus("done");
+            // Clear the session_id from URL so refresh won't re-trigger
+            window.history.replaceState({}, "", "/signup-success");
             setTimeout(() => navigate("/dashboard", { replace: true }), 1500);
             return;
           }
@@ -52,15 +62,19 @@ export default function SignupSuccess() {
         await new Promise((r) => setTimeout(r, intervalMs));
       }
 
-      // After polling, redirect anyway — subscription may take a moment
+      // After polling, redirect anyway
       sessionStorage.setItem("pif_subscription_confirmed", "true");
       await refreshSubscription();
       setStatus("done");
+      window.history.replaceState({}, "", "/signup-success");
       setTimeout(() => navigate("/dashboard", { replace: true }), 1500);
     };
 
     pollSubscription();
-  }, [user, navigate, refreshSubscription]);
+  }, [user, navigate, refreshSubscription, sessionId]);
+
+  // If no session_id, render nothing (redirect happens in useEffect)
+  if (!sessionId) return null;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">

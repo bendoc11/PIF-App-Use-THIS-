@@ -145,8 +145,9 @@ export default function AdminCourseEditor() {
               drill_type: d.drill_type || "",
               reps: d.reps ?? null,
               sets: d.sets ?? null,
-              isLinked: d.course_id !== courseId, // linked if drill's course_id differs
+              isLinked: d.course_id !== courseId,
               workoutCount: workoutCounts[d.id] || 1,
+              thumbnail_url: d.thumbnail_url || null,
             };
           })
         );
@@ -270,7 +271,8 @@ export default function AdminCourseEditor() {
         reps: null,
         sets: null,
         isLinked: true,
-        workoutCount: 2, // at least 2 since we're adding it to another
+        workoutCount: 2,
+        thumbnail_url: null,
       },
     ]);
     setShowExistingModal(false);
@@ -512,6 +514,7 @@ export default function AdminCourseEditor() {
                     title: "", vimeo_id: "", duration_seconds: 0, description: "",
                     coaching_tips: "", equipment_needed: [], category: category || "",
                     level: "", sort_order: drills.length + 1, drill_type: "", reps: null, sets: null,
+                    thumbnail_url: null,
                   })
                 }
               >

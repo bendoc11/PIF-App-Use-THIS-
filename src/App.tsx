@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { AdminGuard } from "@/components/admin/AdminGuard";
 import LandingPage from "./pages/LandingPage";
+import Coaches from "./pages/Coaches";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Courses from "./pages/Courses";
@@ -50,7 +51,7 @@ const App = () => (
             <Route path="/pricing" element={<AuthGuard><Pricing /></AuthGuard>} />
             <Route path="/settings" element={<AuthGuard><Settings /></AuthGuard>} />
             <Route path="/install" element={<AuthGuard><Install /></AuthGuard>} />
-            <Route path="/coaches" element={<AuthGuard><Dashboard /></AuthGuard>} />
+            <Route path="/coaches" element={<AuthGuard><Coaches /></AuthGuard>} />
             <Route path="/community" element={<AuthGuard><Community /></AuthGuard>} />
             <Route path="/progress" element={<AuthGuard><Progress /></AuthGuard>} />
             {/* Admin Routes */}

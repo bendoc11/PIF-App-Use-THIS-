@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -41,9 +41,11 @@ const categoryColors: Record<string, string> = {
 
 export default function Courses() {
   const [courses, setCourses] = useState<CourseWithCoach[]>([]);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [activeSkillLevel, setActiveSkillLevel] = useState("All");
+  const coachFilter = searchParams.get("coach") || "";
 
   useEffect(() => {
     supabase
@@ -60,7 +62,8 @@ export default function Courses() {
     const matchSearch = c.title.toLowerCase().includes(search.toLowerCase());
     const matchCategory = activeCategory === "All" || c.category === activeCategory;
     const matchSkill = activeSkillLevel === "All" || (c.skill_levels && c.skill_levels.includes(activeSkillLevel.toLowerCase()));
-    return matchSearch && matchCategory && matchSkill;
+    const matchCoach = !coachFilter || c.coaches?.name === coachFilter;
+    return matchSearch && matchCategory && matchSkill && matchCoach;
   });
 
   return (

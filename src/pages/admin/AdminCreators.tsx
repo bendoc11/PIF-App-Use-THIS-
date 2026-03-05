@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Eye, Upload, X } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 
 interface Creator {
@@ -33,6 +34,8 @@ export default function AdminCreators() {
   const [creatorCourses, setCreatorCourses] = useState<any[]>([]);
   const [loadingCourses, setLoadingCourses] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [bio, setBio] = useState("");
+  const [savingBio, setSavingBio] = useState(false);
   const fetchCreators = async () => {
     setLoading(true);
     const { data, error } = await (supabase
@@ -75,24 +78,41 @@ export default function AdminCreators() {
   const viewCreatorCourses = async (creator: Creator) => {
     setViewingCreator(creator);
     setLoadingCourses(true);
+    setBio("");
     const name = `${creator.first_name || ""} ${creator.last_name || ""}`.trim();
     // Find coach by name, then get their courses
-    const { data: coaches } = await supabase
+    const { data: coach } = await supabase
       .from("coaches")
-      .select("id")
+      .select("id, bio")
       .eq("name", name)
       .maybeSingle();
-    if (coaches) {
+    if (coach) {
+      setBio(coach.bio || "");
       const { data: courses } = await supabase
         .from("courses")
         .select("id, title, drill_count, status, created_at")
-        .eq("coach_id", coaches.id)
+        .eq("coach_id", coach.id)
         .order("sort_order");
       setCreatorCourses(courses || []);
     } else {
       setCreatorCourses([]);
     }
     setLoadingCourses(false);
+  };
+
+  const handleSaveBio = async () => {
+    if (!viewingCreator) return;
+    setSavingBio(true);
+    const name = `${viewingCreator.first_name || ""} ${viewingCreator.last_name || ""}`.trim();
+    if (name) {
+      const { error } = await supabase.from("coaches").update({ bio }).eq("name", name);
+      if (error) {
+        toast({ title: "Error saving bio", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Bio updated" });
+      }
+    }
+    setSavingBio(false);
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -278,6 +298,20 @@ export default function AdminCreators() {
                     )}
                   </div>
                 </div>
+              </div>
+              {/* Bio */}
+              <div className="space-y-2">
+                <p className="text-sm font-heading tracking-wider text-muted-foreground">Bio</p>
+                <Textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  placeholder="Write a short bio for this coach..."
+                  rows={3}
+                  className="bg-muted border-border text-sm"
+                />
+                <Button size="sm" onClick={handleSaveBio} disabled={savingBio} className="text-xs">
+                  {savingBio ? <><Loader2 className="h-3 w-3 animate-spin mr-1" /> Saving...</> : "Save Bio"}
+                </Button>
               </div>
               {loadingCourses ? (
                 <div className="flex justify-center py-8">

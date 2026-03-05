@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -41,9 +41,11 @@ const categoryColors: Record<string, string> = {
 
 export default function Courses() {
   const [courses, setCourses] = useState<CourseWithCoach[]>([]);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [activeSkillLevel, setActiveSkillLevel] = useState("All");
+  const coachFilter = searchParams.get("coach") || "";
 
   useEffect(() => {
     supabase
@@ -60,7 +62,8 @@ export default function Courses() {
     const matchSearch = c.title.toLowerCase().includes(search.toLowerCase());
     const matchCategory = activeCategory === "All" || c.category === activeCategory;
     const matchSkill = activeSkillLevel === "All" || (c.skill_levels && c.skill_levels.includes(activeSkillLevel.toLowerCase()));
-    return matchSearch && matchCategory && matchSkill;
+    const matchCoach = !coachFilter || c.coaches?.name === coachFilter;
+    return matchSearch && matchCategory && matchSkill && matchCoach;
   });
 
   return (
@@ -70,6 +73,20 @@ export default function Courses() {
           <h1 className="text-3xl font-heading text-foreground">Workouts</h1>
           <p className="text-muted-foreground mt-1">Structured training programs from elite coaches</p>
         </div>
+
+        {coachFilter && (
+          <div className="flex items-center gap-3 bg-muted rounded-lg px-4 py-2">
+            <span className="text-sm text-foreground">
+              Showing workouts by <span className="font-heading font-bold">{coachFilter}</span>
+            </span>
+            <button
+              onClick={() => setSearchParams({})}
+              className="text-xs text-primary hover:text-primary/80 font-heading tracking-wider"
+            >
+              Clear filter
+            </button>
+          </div>
+        )}
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">

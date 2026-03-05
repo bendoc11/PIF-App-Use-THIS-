@@ -116,18 +116,26 @@ export default function Coaches() {
             {coaches.map((coach) => (
               <Card
                 key={coach.id}
-                className="bg-card border-border hover:border-primary/30 transition-colors cursor-pointer"
+                className="bg-card border-border hover:border-primary/30 transition-colors cursor-pointer overflow-hidden"
                 onClick={() => setSelectedCoach(coach)}
               >
-                <CardContent className="p-6 flex flex-col items-center text-center space-y-3">
-                  <Avatar className="h-20 w-20">
-                    {coach.avatar_url ? (
-                      <AvatarImage src={coach.avatar_url} alt={coach.name} />
-                    ) : null}
-                    <AvatarFallback className="bg-muted text-lg font-heading text-muted-foreground">
-                      {coach.initials || coach.name.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
+                {/* Large rectangular photo */}
+                <div className="w-full h-[220px] bg-muted">
+                  {coach.avatar_url ? (
+                    <img
+                      src={coach.avatar_url}
+                      alt={coach.name}
+                      className="w-full h-full object-cover object-[center_top]"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="text-3xl font-heading text-muted-foreground">
+                        {coach.initials || coach.name.charAt(0)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <CardContent className="p-5 flex flex-col items-center text-center space-y-2">
                   <div>
                     <h3 className="text-lg font-heading font-bold text-foreground">{coach.name}</h3>
                     {coach.school && (
@@ -161,14 +169,17 @@ export default function Coaches() {
             {selectedCoach && (
               <>
                 <DialogHeader className="flex flex-col items-center text-center space-y-3 pt-2">
-                  <Avatar className="h-[120px] w-[120px]">
+                  <div className="h-[120px] w-[120px] rounded-full overflow-hidden bg-muted mx-auto">
                     {selectedCoach.avatar_url ? (
-                      <AvatarImage src={selectedCoach.avatar_url} alt={selectedCoach.name} />
-                    ) : null}
-                    <AvatarFallback className="bg-muted text-2xl font-heading text-muted-foreground">
-                      {selectedCoach.initials || selectedCoach.name.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
+                      <img src={selectedCoach.avatar_url} alt={selectedCoach.name} className="w-full h-full object-cover object-[center_top]" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="text-2xl font-heading text-muted-foreground">
+                          {selectedCoach.initials || selectedCoach.name.charAt(0)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                   <div>
                     <DialogTitle className="text-xl font-heading text-foreground">
                       {selectedCoach.name}

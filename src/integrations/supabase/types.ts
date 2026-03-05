@@ -449,6 +449,45 @@ export type Database = {
           },
         ]
       }
+      workout_drills: {
+        Row: {
+          created_at: string
+          drill_id: string
+          id: string
+          position: number
+          workout_id: string
+        }
+        Insert: {
+          created_at?: string
+          drill_id: string
+          id?: string
+          position?: number
+          workout_id: string
+        }
+        Update: {
+          created_at?: string
+          drill_id?: string
+          id?: string
+          position?: number
+          workout_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_drills_drill_id_fkey"
+            columns: ["drill_id"]
+            isOneToOne: false
+            referencedRelation: "drills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workout_drills_workout_id_fkey"
+            columns: ["workout_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

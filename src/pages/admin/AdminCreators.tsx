@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Eye } from "lucide-react";
+import { Loader2, Eye, Upload, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface Creator {
@@ -20,6 +20,7 @@ interface Creator {
   first_name: string | null;
   last_name: string | null;
   email: string | null;
+  avatar_url: string | null;
   banned: boolean;
   created_at: string;
   courseCount?: number;
@@ -31,12 +32,12 @@ export default function AdminCreators() {
   const [viewingCreator, setViewingCreator] = useState<Creator | null>(null);
   const [creatorCourses, setCreatorCourses] = useState<any[]>([]);
   const [loadingCourses, setLoadingCourses] = useState(false);
-
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fetchCreators = async () => {
     setLoading(true);
     const { data, error } = await (supabase
       .from("profiles")
-      .select("id, first_name, last_name, email, banned, created_at") as any)
+      .select("id, first_name, last_name, email, banned, created_at, avatar_url") as any)
       .eq("role", "creator")
       .order("created_at", { ascending: false });
     if (error) {

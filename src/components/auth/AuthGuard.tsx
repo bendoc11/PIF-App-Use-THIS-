@@ -41,7 +41,7 @@ export function AuthGuard({ children }: { children: ReactNode }) {
   const isAdminOrCreator = profile?.role === "admin" || profile?.role === "creator";
 
   // Don't redirect to pricing while subscription is still loading
-  if (!isPublicRoute && !(isAdminRoute && isAdminOrCreator) && subscriptionLoading) {
+  if (!isPublicRoute && !isOnboardingRoute && !(isAdminRoute && isAdminOrCreator) && subscriptionLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -49,7 +49,7 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     );
   }
 
-  if (!subscription.subscribed && !isPublicRoute && !(isAdminRoute && isAdminOrCreator)) {
+  if (!subscription.subscribed && !isPublicRoute && !isOnboardingRoute && !(isAdminRoute && isAdminOrCreator)) {
     return <Navigate to="/pricing" replace />;
   }
 

@@ -45,20 +45,12 @@ export default function Coaches() {
         return;
       }
 
-      // Get live courses with coach_id
-      const { data: liveCourses } = await supabase
-        .from("courses")
-        .select("id, coach_id")
-        .eq("status", "live");
+      // Get live courses and drills for stats
+      const [{ data: liveCourses }, { data: drills }] = await Promise.all([
+        supabase.from("courses").select("id, coach_id").eq("status", "live"),
+        supabase.from("drills").select("id, coach_id"),
+      ]);
 
-      // Get drills for those courses
-      const { data: drills } = await supabase
-        .from("drills")
-        .select("id, coach_id");
-
-      const liveCoachIds = new Set((liveCourses || []).map((c) => c.coach_id).filter(Boolean));
-
-      // Count workouts and drills per coach
       const workoutCountMap: Record<string, number> = {};
       const drillCountMap: Record<string, number> = {};
 
@@ -74,16 +66,14 @@ export default function Coaches() {
         }
       }
 
-      // Only show coaches with at least one live workout
-      const filtered = coachesData
-        .filter((c) => liveCoachIds.has(c.id))
-        .map((c) => ({
-          ...c,
-          drillCount: drillCountMap[c.id] || 0,
-          workoutCount: workoutCountMap[c.id] || 0,
-        }));
+      // Show ALL coaches
+      const mapped = coachesData.map((c) => ({
+        ...c,
+        drillCount: drillCountMap[c.id] || 0,
+        workoutCount: workoutCountMap[c.id] || 0,
+      }));
 
-      setCoaches(filtered);
+      setCoaches(mapped);
       setLoading(false);
     }
 

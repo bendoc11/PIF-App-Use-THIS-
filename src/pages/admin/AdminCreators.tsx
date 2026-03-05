@@ -119,10 +119,13 @@ export default function AdminCreators() {
       return;
     }
 
-    // Also update matching coach record
+    // Also update matching coach record(s)
     const name = `${viewingCreator.first_name || ""} ${viewingCreator.last_name || ""}`.trim();
     if (name) {
-      await supabase.from("coaches").update({ avatar_url: avatarUrl } as any).eq("name", name);
+      const { error: coachError } = await supabase.from("coaches").update({ avatar_url: avatarUrl }).eq("name", name);
+      if (coachError) {
+        console.error("Failed to update coach avatar_url:", coachError);
+      }
     }
 
     setViewingCreator({ ...viewingCreator, avatar_url: avatarUrl });
@@ -263,7 +266,7 @@ export default function AdminCreators() {
                         onClick={async () => {
                           await supabase.from("profiles").update({ avatar_url: null }).eq("id", viewingCreator.id);
                           const name = `${viewingCreator.first_name || ""} ${viewingCreator.last_name || ""}`.trim();
-                          if (name) await supabase.from("coaches").update({ avatar_url: null } as any).eq("name", name);
+                          if (name) await supabase.from("coaches").update({ avatar_url: null }).eq("name", name);
                           setViewingCreator({ ...viewingCreator, avatar_url: null });
                           setCreators((prev) => prev.map((c) => (c.id === viewingCreator.id ? { ...c, avatar_url: null } : c)));
                           toast({ title: "Photo removed" });

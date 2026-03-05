@@ -318,18 +318,29 @@ export default function AdminCourseEditor() {
     setSaving(true);
 
     try {
-      // Upsert coach
+      // Upsert coach — reuse existing by name to avoid duplicates
       let finalCoachId = coachId;
       if (coachName.trim()) {
         if (finalCoachId) {
           await supabase.from("coaches").update({ name: coachName, school: coachSchool }).eq("id", finalCoachId);
         } else {
-          const { data: newCoach } = await supabase
+          // Check if a coach with this name already exists
+          const { data: existingCoach } = await supabase
             .from("coaches")
-            .insert({ name: coachName, school: coachSchool, initials: coachName.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2) })
             .select("id")
-            .single();
-          if (newCoach) finalCoachId = newCoach.id;
+            .eq("name", coachName.trim())
+            .maybeSingle();
+          if (existingCoach) {
+            finalCoachId = existingCoach.id;
+            await supabase.from("coaches").update({ school: coachSchool }).eq("id", finalCoachId);
+          } else {
+            const { data: newCoach } = await supabase
+              .from("coaches")
+              .insert({ name: coachName.trim(), school: coachSchool, initials: coachName.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2) })
+              .select("id")
+              .single();
+            if (newCoach) finalCoachId = newCoach.id;
+          }
         }
       }
 

@@ -69,6 +69,7 @@ export default function AdminCourseEditor() {
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [uploadingThumb, setUploadingThumb] = useState(false);
   const [skillLevels, setSkillLevels] = useState<string[]>([]);
+  const [coachAvatarUrl, setCoachAvatarUrl] = useState<string | null>(null);
 
   // Drills
   const [drills, setDrills] = useState<DrillForm[]>([]);

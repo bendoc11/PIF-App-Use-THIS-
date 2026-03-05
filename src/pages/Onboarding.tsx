@@ -340,7 +340,7 @@ export default function Onboarding() {
             disabled={!canAdvance() || saving}
             className="w-full h-14 btn-cta bg-primary hover:bg-primary/90 glow-red-hover text-base"
           >
-            {saving ? "Saving…" : step === TOTAL_STEPS ? "See My Plan →" : (
+            {saving ? "Saving…" : step === TOTAL_STEPS ? "Let's Get to Work →" : (
               <span className="flex items-center gap-2">Next <ArrowRight className="h-4 w-4" /></span>
             )}
           </Button>

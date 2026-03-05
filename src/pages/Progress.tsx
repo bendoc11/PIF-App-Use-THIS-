@@ -89,7 +89,30 @@ export default function Progress() {
 
   const totalDrills = profile?.total_drills_completed || drillProgress.length;
   const streakDays = profile?.streak_days || 0;
-  const hoursEstimate = Math.round((totalDrills * 5) / 60);
+
+  // Calculate actual hours from duration_seconds of completed drills
+  const [hoursDisplay, setHoursDisplay] = useState("0m");
+  useEffect(() => {
+    if (!user) return;
+    const fetchHours = async () => {
+      const { data: progressRows } = await supabase
+        .from("user_drill_progress")
+        .select("drill_id, drills(duration_seconds)")
+        .eq("user_id", user.id)
+        .eq("completed", true);
+      const totalSeconds = (progressRows ?? []).reduce((sum, r: any) => {
+        return sum + (r.drills?.duration_seconds ?? 0);
+      }, 0);
+      if (totalSeconds >= 3600) {
+        setHoursDisplay(`${(totalSeconds / 3600).toFixed(1)}h`);
+      } else if (totalSeconds > 0) {
+        setHoursDisplay(`${Math.round(totalSeconds / 60)}m`);
+      } else {
+        setHoursDisplay("0m");
+      }
+    };
+    fetchHours();
+  }, [user, drillProgress]);
 
   // Badges
   const badges: Badge[] = [
@@ -131,7 +154,7 @@ export default function Progress() {
           {[
             { label: "Streak", value: `${streakDays}d`, icon: Flame, color: "text-primary" },
             { label: "Drills Done", value: totalDrills, icon: Target, color: "text-secondary" },
-            { label: "Hours Trained", value: `${hoursEstimate}h`, icon: Clock, color: "text-pif-green" },
+            { label: "Hours Trained", value: hoursDisplay, icon: Clock, color: "text-pif-green" },
             { label: "Workouts Done", value: courseCount, icon: Trophy, color: "text-pif-gold" },
           ].map((stat, i) => (
             <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>

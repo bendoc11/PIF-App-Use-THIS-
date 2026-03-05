@@ -88,7 +88,7 @@ export default function Dashboard() {
   const [courses, setCourses] = useState<CourseWithCoach[]>([]);
   const [drills, setDrills] = useState<DrillWithCoach[]>([]);
   const [statDrillsDone, setStatDrillsDone] = useState(0);
-  const [statHours, setStatHours] = useState("");
+  const [statHours, setStatHours] = useState("0m");
   const [statRank, setStatRank] = useState("#—");
 
   useEffect(() => {
@@ -126,11 +126,12 @@ export default function Dashboard() {
       const totalSeconds = (progressRows ?? []).reduce((sum, r: any) => {
         return sum + (r.drills?.duration_seconds ?? 0);
       }, 0);
-      const totalMinutes = totalSeconds / 60;
-      if (totalMinutes >= 60) {
-        setStatHours(`${(totalMinutes / 60).toFixed(1)}h`);
+      if (totalSeconds >= 3600) {
+        setStatHours(`${(totalSeconds / 3600).toFixed(1)}h`);
+      } else if (totalSeconds > 0) {
+        setStatHours(`${Math.round(totalSeconds / 60)}m`);
       } else {
-        setStatHours(`${Math.round(totalMinutes)}m`);
+        setStatHours("0m");
       }
 
       // 3. Weekly Rank — count users with more drills this week

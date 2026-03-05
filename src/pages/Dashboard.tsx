@@ -217,9 +217,12 @@ export default function Dashboard() {
         <div>
           <h2 className="text-xl font-heading text-foreground mb-4">Featured Drills This Week</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {drills.slice(0, 6).map((drill, i) => (
+            {drills.slice(0, 6).map((drill, i) => {
+              const isAccessible = drill.is_free || subscription.subscribed || profile?.role === "admin" || profile?.role === "creator";
+              const showLock = !isAccessible && !subscriptionLoading;
+              return (
               <motion.div key={drill.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.05 }}>
-                <Link to={drill.is_free ? `/courses` : `/pricing`}>
+                <Link to={isAccessible || subscriptionLoading ? `/courses` : `/pricing`}>
                   <Card className="bg-card border-border hover:border-primary/20 transition-all group overflow-hidden">
                     <CardContent className="p-0">
                       <div className="relative h-36 bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center overflow-hidden">
@@ -231,7 +234,7 @@ export default function Dashboard() {
                         {drill.is_new && (
                           <span className="absolute top-3 left-3 px-2 py-0.5 rounded text-[10px] font-heading tracking-wider bg-primary text-primary-foreground z-10">NEW</span>
                         )}
-                        {!drill.is_free && (
+                        {showLock && (
                           <div className="absolute inset-0 bg-background/60 backdrop-blur-[2px] flex items-center justify-center z-10">
                             <Lock className="h-6 w-6 text-muted-foreground" />
                           </div>

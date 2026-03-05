@@ -88,7 +88,7 @@ export default function Dashboard() {
   const [courses, setCourses] = useState<CourseWithCoach[]>([]);
   const [drills, setDrills] = useState<DrillWithCoach[]>([]);
   const [statDrillsDone, setStatDrillsDone] = useState(0);
-  const [statHours, setStatHours] = useState("");
+  const [statHours, setStatHours] = useState("0m");
   const [statRank, setStatRank] = useState("#—");
 
   useEffect(() => {

@@ -193,6 +193,10 @@ export default function AdminCoaches() {
               </div>
 
               {/* Fields */}
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Name</label>
+                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Coach name" className="bg-muted border-border text-sm" />
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="text-xs text-muted-foreground">School</label>

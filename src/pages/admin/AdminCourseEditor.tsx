@@ -203,6 +203,24 @@ export default function AdminCourseEditor() {
     });
   };
 
+  const handleDrillThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingDrill) return;
+    setUploadingDrillThumb(true);
+    const ext = file.name.split(".").pop();
+    const path = `drills/${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage.from("course-thumbnails").upload(path, file);
+    if (error) {
+      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+      setUploadingDrillThumb(false);
+      return;
+    }
+    const { data: urlData } = supabase.storage.from("course-thumbnails").getPublicUrl(path);
+    setEditingDrill({ ...editingDrill, thumbnail_url: urlData.publicUrl });
+    setUploadingDrillThumb(false);
+    toast({ title: "Thumbnail uploaded" });
+  };
+
   const saveDrillToList = () => {
     if (!editingDrill || !editingDrill.title) return;
     if (editingDrill.id || drills.find((d) => d === editingDrill)) {

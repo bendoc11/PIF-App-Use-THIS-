@@ -97,7 +97,7 @@ export default function Onboarding() {
 
       if (error) throw error;
       await refreshProfile();
-      navigate("/pricing", { replace: true });
+      navigate("/onboarding/results", { replace: true });
     } catch (err: any) {
       console.error("Onboarding save error:", err);
       toast.error("Failed to save. Please try again.");

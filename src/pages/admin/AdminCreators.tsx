@@ -299,6 +299,20 @@ export default function AdminCreators() {
                   </div>
                 </div>
               </div>
+              {/* Bio */}
+              <div className="space-y-2">
+                <p className="text-sm font-heading tracking-wider text-muted-foreground">Bio</p>
+                <Textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  placeholder="Write a short bio for this coach..."
+                  rows={3}
+                  className="bg-muted border-border text-sm"
+                />
+                <Button size="sm" onClick={handleSaveBio} disabled={savingBio} className="text-xs">
+                  {savingBio ? <><Loader2 className="h-3 w-3 animate-spin mr-1" /> Saving...</> : "Save Bio"}
+                </Button>
+              </div>
               {loadingCourses ? (
                 <div className="flex justify-center py-8">
                   <Loader2 className="h-6 w-6 animate-spin text-primary" />

@@ -47,6 +47,7 @@ export default function AdminCoaches() {
   const openEdit = (coach: Coach) => {
     setEditing(coach);
     setForm({
+      name: coach.name,
       school: coach.school || "",
       position: coach.position || "",
       focus_area: coach.focus_area || "",

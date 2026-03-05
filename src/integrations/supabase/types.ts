@@ -228,6 +228,7 @@ export type Database = {
           reps: number | null
           sets: number | null
           sort_order: number
+          thumbnail_url: string | null
           title: string
           vimeo_id: string | null
         }
@@ -249,6 +250,7 @@ export type Database = {
           reps?: number | null
           sets?: number | null
           sort_order?: number
+          thumbnail_url?: string | null
           title: string
           vimeo_id?: string | null
         }
@@ -270,6 +272,7 @@ export type Database = {
           reps?: number | null
           sets?: number | null
           sort_order?: number
+          thumbnail_url?: string | null
           title?: string
           vimeo_id?: string | null
         }

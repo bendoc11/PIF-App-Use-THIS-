@@ -34,8 +34,9 @@ interface DrillForm {
   drill_type: string;
   reps: number | null;
   sets: number | null;
-  isLinked?: boolean; // true if added via "Add Existing Drill"
-  workoutCount?: number; // how many workouts use this drill
+  isLinked?: boolean;
+  workoutCount?: number;
+  thumbnail_url: string | null;
 }
 
 interface ExistingDrill {
@@ -73,7 +74,7 @@ export default function AdminCourseEditor() {
   const [drills, setDrills] = useState<DrillForm[]>([]);
   const [editingDrill, setEditingDrill] = useState<DrillForm | null>(null);
   const [equipmentInput, setEquipmentInput] = useState("");
-
+  const [uploadingDrillThumb, setUploadingDrillThumb] = useState(false);
   // Add Existing Drill modal
   const [showExistingModal, setShowExistingModal] = useState(false);
   const [existingDrills, setExistingDrills] = useState<ExistingDrill[]>([]);
@@ -144,8 +145,9 @@ export default function AdminCourseEditor() {
               drill_type: d.drill_type || "",
               reps: d.reps ?? null,
               sets: d.sets ?? null,
-              isLinked: d.course_id !== courseId, // linked if drill's course_id differs
+              isLinked: d.course_id !== courseId,
               workoutCount: workoutCounts[d.id] || 1,
+              thumbnail_url: d.thumbnail_url || null,
             };
           })
         );
@@ -199,6 +201,24 @@ export default function AdminCourseEditor() {
       ...editingDrill,
       equipment_needed: editingDrill.equipment_needed.filter((_, i) => i !== index),
     });
+  };
+
+  const handleDrillThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingDrill) return;
+    setUploadingDrillThumb(true);
+    const ext = file.name.split(".").pop();
+    const path = `drills/${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage.from("course-thumbnails").upload(path, file);
+    if (error) {
+      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+      setUploadingDrillThumb(false);
+      return;
+    }
+    const { data: urlData } = supabase.storage.from("course-thumbnails").getPublicUrl(path);
+    setEditingDrill({ ...editingDrill, thumbnail_url: urlData.publicUrl });
+    setUploadingDrillThumb(false);
+    toast({ title: "Thumbnail uploaded" });
   };
 
   const saveDrillToList = () => {
@@ -269,7 +289,8 @@ export default function AdminCourseEditor() {
         reps: null,
         sets: null,
         isLinked: true,
-        workoutCount: 2, // at least 2 since we're adding it to another
+        workoutCount: 2,
+        thumbnail_url: null,
       },
     ]);
     setShowExistingModal(false);
@@ -354,6 +375,7 @@ export default function AdminCourseEditor() {
           drill_type: drill.drill_type || null,
           reps: drill.reps,
           sets: drill.sets,
+          thumbnail_url: drill.thumbnail_url,
         };
 
         if (drill.id) {
@@ -511,6 +533,7 @@ export default function AdminCourseEditor() {
                     title: "", vimeo_id: "", duration_seconds: 0, description: "",
                     coaching_tips: "", equipment_needed: [], category: category || "",
                     level: "", sort_order: drills.length + 1, drill_type: "", reps: null, sets: null,
+                    thumbnail_url: null,
                   })
                 }
               >
@@ -587,6 +610,23 @@ export default function AdminCourseEditor() {
               <div className="space-y-2">
                 <Label className="font-heading tracking-wider text-sm">Drill Title</Label>
                 <Input value={editingDrill.title} onChange={(e) => setEditingDrill({ ...editingDrill, title: e.target.value })} placeholder="e.g. Crossover Sprint" />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="font-heading tracking-wider text-sm">Thumbnail</Label>
+                {editingDrill.thumbnail_url && (
+                  <div className="relative w-full max-w-xs">
+                    <img src={editingDrill.thumbnail_url} alt="Drill thumbnail" className="rounded-lg border border-border w-full aspect-video object-cover" />
+                    <button type="button" onClick={() => setEditingDrill({ ...editingDrill, thumbnail_url: null })} className="absolute top-1 right-1 p-1 bg-background/80 rounded-full hover:bg-destructive hover:text-destructive-foreground transition-colors">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
+                <label className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-border bg-muted hover:bg-muted/80 cursor-pointer transition-colors w-fit">
+                  {uploadingDrillThumb ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                  <span className="text-sm">{uploadingDrillThumb ? "Uploading..." : editingDrill.thumbnail_url ? "Replace" : "Upload Image"}</span>
+                  <input type="file" accept="image/*" onChange={handleDrillThumbnailUpload} className="hidden" disabled={uploadingDrillThumb} />
+                </label>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

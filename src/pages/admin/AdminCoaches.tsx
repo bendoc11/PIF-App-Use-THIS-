@@ -25,7 +25,7 @@ export default function AdminCoaches() {
   const [coaches, setCoaches] = useState<Coach[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Coach | null>(null);
-  const [form, setForm] = useState({ school: "", position: "", focus_area: "", bio: "" });
+  const [form, setForm] = useState({ name: "", school: "", position: "", focus_area: "", bio: "" });
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
@@ -47,6 +47,7 @@ export default function AdminCoaches() {
   const openEdit = (coach: Coach) => {
     setEditing(coach);
     setForm({
+      name: coach.name,
       school: coach.school || "",
       position: coach.position || "",
       focus_area: coach.focus_area || "",
@@ -58,6 +59,7 @@ export default function AdminCoaches() {
     if (!editing) return;
     setSaving(true);
     const { error } = await supabase.from("coaches").update({
+      name: form.name,
       school: form.school || null,
       position: form.position || null,
       focus_area: form.focus_area || null,
@@ -191,6 +193,10 @@ export default function AdminCoaches() {
               </div>
 
               {/* Fields */}
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Name</label>
+                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Coach name" className="bg-muted border-border text-sm" />
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="text-xs text-muted-foreground">School</label>

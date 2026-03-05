@@ -27,12 +27,7 @@ export default function OnboardingResults() {
     fetchProfile();
   }, [user]);
 
-  // If already subscribed, go straight to dashboard
-  useEffect(() => {
-    if (subscription.subscribed) {
-      navigate("/dashboard", { replace: true });
-    }
-  }, [subscription.subscribed, navigate]);
+  // No auto-redirect — let user see their results and click checkout
 
   const handleCheckout = async () => {
     setLoading(true);

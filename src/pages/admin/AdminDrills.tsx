@@ -65,7 +65,7 @@ export default function AdminDrills() {
     // Fetch standalone drills (no course_id) + also all drills for admin visibility
     const { data, error } = await supabase
       .from("drills")
-      .select("id, title, category, level, created_at, drill_type, duration_seconds, reps, sets, vimeo_id, description, coaching_tips, equipment_needed, course_id, coaches(name)")
+      .select("id, title, category, level, created_at, drill_type, duration_seconds, reps, sets, vimeo_id, description, coaching_tips, equipment_needed, course_id, thumbnail_url, coaches(name)")
       .is("course_id", null)
       .order("created_at", { ascending: false });
     if (error) {
@@ -124,6 +124,7 @@ export default function AdminDrills() {
       return;
     }
     const { data: urlData } = supabase.storage.from("course-thumbnails").getPublicUrl(path);
+    console.log("[AdminDrills] Thumbnail uploaded, public URL:", urlData.publicUrl);
     setEditingDrill({ ...editingDrill, thumbnail_url: urlData.publicUrl });
     setUploadingThumb(false);
     toast({ title: "Thumbnail uploaded" });
@@ -174,13 +175,16 @@ export default function AdminDrills() {
       thumbnail_url: editingDrill.thumbnail_url,
     };
 
+    console.log("[AdminDrills] Saving drill, thumbnail_url:", drillData.thumbnail_url);
     try {
       if (editingDrill.id) {
-        const { error } = await supabase.from("drills").update(drillData).eq("id", editingDrill.id);
+        const { error, data } = await supabase.from("drills").update(drillData).eq("id", editingDrill.id).select();
+        console.log("[AdminDrills] Update result:", { error, data });
         if (error) throw error;
         toast({ title: "Drill updated" });
       } else {
-        const { error } = await supabase.from("drills").insert(drillData);
+        const { error, data } = await supabase.from("drills").insert(drillData).select();
+        console.log("[AdminDrills] Insert result:", { error, data });
         if (error) throw error;
         toast({ title: "Drill created" });
       }

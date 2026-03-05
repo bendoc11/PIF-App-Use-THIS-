@@ -59,9 +59,16 @@ export default function AdminFeatured() {
 
   const toggleDrillFeatured = async (drill: FeaturedDrill) => {
     const newVal = !drill.is_featured;
-    const { error } = await supabase.from("drills").update({ is_featured: newVal } as any).eq("id", drill.id);
+    console.log("[AdminFeatured] Toggling drill featured:", drill.id, "to:", newVal);
+    const { error, data } = await supabase.from("drills").update({ is_featured: newVal } as any).eq("id", drill.id).select();
+    console.log("[AdminFeatured] Toggle result:", { error, data });
     if (error) {
       toast({ title: "Error updating", description: error.message, variant: "destructive" });
+      return;
+    }
+    if (!data || data.length === 0) {
+      console.warn("[AdminFeatured] Update returned 0 rows — RLS may be blocking the write");
+      toast({ title: "Update may not have saved", description: "No rows were affected. Check permissions.", variant: "destructive" });
       return;
     }
     setDrills((prev) => prev.map((d) => (d.id === drill.id ? { ...d, is_featured: newVal } : d)));

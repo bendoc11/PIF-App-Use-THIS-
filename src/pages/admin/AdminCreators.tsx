@@ -83,15 +83,22 @@ export default function AdminCreators() {
     setViewingCreator(creator);
     setLoadingCourses(true);
     setBio("");
+    setSchool("");
+    setPosition("");
+    setFocusArea("");
+    setCoachId(null);
     const name = `${creator.first_name || ""} ${creator.last_name || ""}`.trim();
-    // Find coach by name, then get their courses
     const { data: coach } = await supabase
       .from("coaches")
-      .select("id, bio")
+      .select("id, bio, school, position, focus_area")
       .eq("name", name)
       .maybeSingle();
     if (coach) {
+      setCoachId(coach.id);
       setBio(coach.bio || "");
+      setSchool(coach.school || "");
+      setPosition(coach.position || "");
+      setFocusArea(coach.focus_area || "");
       const { data: courses } = await supabase
         .from("courses")
         .select("id, title, drill_count, status, created_at")
@@ -104,19 +111,19 @@ export default function AdminCreators() {
     setLoadingCourses(false);
   };
 
-  const handleSaveBio = async () => {
+  const handleSaveCoachInfo = async () => {
     if (!viewingCreator) return;
-    setSavingBio(true);
+    setSavingCoach(true);
     const name = `${viewingCreator.first_name || ""} ${viewingCreator.last_name || ""}`.trim();
     if (name) {
-      const { error } = await supabase.from("coaches").update({ bio }).eq("name", name);
+      const { error } = await supabase.from("coaches").update({ bio, school, position, focus_area: focusArea }).eq("name", name);
       if (error) {
-        toast({ title: "Error saving bio", description: error.message, variant: "destructive" });
+        toast({ title: "Error saving coach info", description: error.message, variant: "destructive" });
       } else {
-        toast({ title: "Bio updated" });
+        toast({ title: "Coach info updated" });
       }
     }
-    setSavingBio(false);
+    setSavingCoach(false);
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -89,7 +89,7 @@ export default function AdminCourseEditor() {
     const fetch = async () => {
       const { data: course } = await supabase
         .from("courses")
-        .select("*, coaches(id, name, school)")
+        .select("*, coaches(id, name, school, avatar_url)")
         .eq("id", courseId)
         .single();
       if (course) {
@@ -103,6 +103,7 @@ export default function AdminCourseEditor() {
           setCoachName((course as any).coaches.name);
           setCoachSchool((course as any).coaches.school || "");
           setCoachId((course as any).coaches.id);
+          setCoachAvatarUrl((course as any).coaches.avatar_url || null);
         }
       }
 

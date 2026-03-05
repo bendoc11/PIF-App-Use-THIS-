@@ -25,7 +25,7 @@ export default function AdminCoaches() {
   const [coaches, setCoaches] = useState<Coach[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Coach | null>(null);
-  const [form, setForm] = useState({ school: "", position: "", focus_area: "", bio: "" });
+  const [form, setForm] = useState({ name: "", school: "", position: "", focus_area: "", bio: "" });
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 

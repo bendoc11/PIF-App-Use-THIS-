@@ -13,6 +13,8 @@ interface Profile {
   streak_days: number;
   total_drills_completed: number;
   avatar_url: string | null;
+  onboarding_completed: boolean;
+  primary_goal: string | null;
 }
 
 interface SubscriptionStatus {

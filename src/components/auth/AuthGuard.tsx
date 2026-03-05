@@ -21,6 +21,20 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     return <Navigate to="/login" replace />;
   }
 
+  // Redirect to onboarding if not completed (skip for pricing/settings/admin/onboarding routes)
+  const isOnboardingRoute = location.pathname.startsWith("/onboarding");
+  if (
+    profile &&
+    !(profile as any).onboarding_completed &&
+    !isOnboardingRoute &&
+    !location.pathname.startsWith("/pricing") &&
+    !location.pathname.startsWith("/settings") &&
+    !location.pathname.startsWith("/admin") &&
+    !location.pathname.startsWith("/signup-success")
+  ) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
   // Allow pricing, settings, and admin routes without subscription check
   const isAdminRoute = location.pathname.startsWith(ADMIN_PREFIX);
   const isPublicRoute = PUBLIC_ROUTES.includes(location.pathname);

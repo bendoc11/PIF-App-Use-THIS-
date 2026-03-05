@@ -174,6 +174,24 @@ export default function Dashboard() {
   return (
     <AppLayout>
       <div className="p-4 lg:p-6 space-y-6 max-w-7xl mx-auto">
+        {/* Personalized Greeting */}
+        {profile?.first_name && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+            <h1 className="text-2xl md:text-3xl font-heading text-foreground">
+              {(profile as any).primary_goal?.toLowerCase().includes("next level")
+                ? `Let's get you to the next level, ${profile.first_name}`
+                : (profile as any).primary_goal?.toLowerCase().includes("starting spot")
+                ? `Let's earn that starting spot, ${profile.first_name}`
+                : (profile as any).primary_goal?.toLowerCase().includes("make the team")
+                ? `Let's make the team, ${profile.first_name}`
+                : (profile as any).primary_goal?.toLowerCase().includes("professionally")
+                ? `Let's go pro, ${profile.first_name}`
+                : `Let's get to work, ${profile.first_name}`
+              } 🏀
+            </h1>
+          </motion.div>
+        )}
+
         {/* Stats Row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <AnimatedCounter value={profile?.streak_days || 0} label="Day Streak" icon={Flame} delay={0} />

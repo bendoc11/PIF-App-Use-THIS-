@@ -21,6 +21,8 @@ import Install from "./pages/Install";
 import SignupSuccess from "./pages/SignupSuccess";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import Onboarding from "./pages/Onboarding";
+import OnboardingResults from "./pages/OnboardingResults";
 import AdminCourses from "./pages/admin/AdminCourses";
 import AdminCourseEditor from "./pages/admin/AdminCourseEditor";
 import AdminCreators from "./pages/admin/AdminCreators";
@@ -44,6 +46,8 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/signup-success" element={<SignupSuccess />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/onboarding" element={<AuthGuard><Onboarding /></AuthGuard>} />
+            <Route path="/onboarding/results" element={<AuthGuard><OnboardingResults /></AuthGuard>} />
             <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
             <Route path="/courses" element={<AuthGuard><Courses /></AuthGuard>} />
             <Route path="/courses/:courseId/:drillIndex" element={<AuthGuard><CoursePlayer /></AuthGuard>} />

@@ -40,19 +40,23 @@ const categoryColors: Record<string, string> = {
   "Post Game": "bg-pif-orange",
 };
 
-function AnimatedCounter({ value, label, icon: Icon, delay = 0 }: { value: number; label: string; icon: any; delay?: number }) {
-  const [count, setCount] = useState(0);
+function AnimatedCounter({ value, label, icon: Icon, delay = 0 }: { value: number | string; label: string; icon: any; delay?: number }) {
+  const [displayValue, setDisplayValue] = useState<string | number>(typeof value === "string" ? value : 0);
   useEffect(() => {
+    if (typeof value === "string") {
+      const timer = setTimeout(() => setDisplayValue(value), delay);
+      return () => clearTimeout(timer);
+    }
     const timer = setTimeout(() => {
       let start = 0;
       const step = Math.ceil(value / 20);
       const interval = setInterval(() => {
         start += step;
         if (start >= value) {
-          setCount(value);
+          setDisplayValue(value);
           clearInterval(interval);
         } else {
-          setCount(start);
+          setDisplayValue(start);
         }
       }, 40);
       return () => clearInterval(interval);
@@ -69,7 +73,7 @@ function AnimatedCounter({ value, label, icon: Icon, delay = 0 }: { value: numbe
               <Icon className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-heading text-foreground">{count}</p>
+              <p className="text-2xl font-heading text-foreground">{displayValue}</p>
               <p className="text-xs text-muted-foreground font-heading tracking-wider">{label}</p>
             </div>
           </div>
@@ -83,6 +87,9 @@ export default function Dashboard() {
   const { profile, user } = useAuth();
   const [courses, setCourses] = useState<CourseWithCoach[]>([]);
   const [drills, setDrills] = useState<DrillWithCoach[]>([]);
+  const [statDrillsDone, setStatDrillsDone] = useState(0);
+  const [statHours, setStatHours] = useState("");
+  const [statRank, setStatRank] = useState("#—");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -96,15 +103,81 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
+  // Fetch live stats for the logged-in user
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchStats = async () => {
+      // 1. Drills Done — count completed drill progress rows
+      const { count: drillCount } = await supabase
+        .from("user_drill_progress")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("completed", true);
+      const done = drillCount ?? 0;
+      setStatDrillsDone(done);
+
+      // 2. Hours Trained — sum duration_seconds from joined drills
+      const { data: progressRows } = await supabase
+        .from("user_drill_progress")
+        .select("drill_id, drills(duration_seconds)")
+        .eq("user_id", user.id)
+        .eq("completed", true);
+      const totalSeconds = (progressRows ?? []).reduce((sum, r: any) => {
+        return sum + (r.drills?.duration_seconds ?? 0);
+      }, 0);
+      const totalMinutes = totalSeconds / 60;
+      if (totalMinutes >= 60) {
+        setStatHours(`${(totalMinutes / 60).toFixed(1)}h`);
+      } else {
+        setStatHours(`${Math.round(totalMinutes)}m`);
+      }
+
+      // 3. Weekly Rank — count users with more drills this week
+      const now = new Date();
+      const dayOfWeek = now.getDay(); // 0=Sun
+      const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - mondayOffset);
+      weekStart.setHours(0, 0, 0, 0);
+      const weekStartISO = weekStart.toISOString();
+
+      // Get current user's drill count this week
+      const { count: myWeekCount } = await supabase
+        .from("user_drill_progress")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("completed", true)
+        .gte("completed_at", weekStartISO);
+      const myCount = myWeekCount ?? 0;
+
+      // Get all users' weekly counts to determine rank
+      const { data: allWeekly } = await supabase
+        .from("user_drill_progress")
+        .select("user_id")
+        .eq("completed", true)
+        .gte("completed_at", weekStartISO);
+
+      const userCounts: Record<string, number> = {};
+      (allWeekly ?? []).forEach((r) => {
+        userCounts[r.user_id] = (userCounts[r.user_id] || 0) + 1;
+      });
+      const usersAbove = Object.values(userCounts).filter((c) => c > myCount).length;
+      setStatRank(`#${usersAbove + 1}`);
+    };
+
+    fetchStats();
+  }, [user]);
+
   return (
     <AppLayout>
       <div className="p-4 lg:p-6 space-y-6 max-w-7xl mx-auto">
         {/* Stats Row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <AnimatedCounter value={profile?.streak_days || 0} label="Day Streak" icon={Flame} delay={0} />
-          <AnimatedCounter value={profile?.total_drills_completed || 0} label="Drills Done" icon={Play} delay={100} />
-          <AnimatedCounter value={Math.round((profile?.total_drills_completed || 0) * 5 / 60)} label="Hours Trained" icon={TrendingUp} delay={200} />
-          <AnimatedCounter value={0} label="Weekly Rank" icon={Trophy} delay={300} />
+          <AnimatedCounter value={statDrillsDone} label="Drills Done" icon={Play} delay={100} />
+          <AnimatedCounter value={statHours} label="Hours Trained" icon={TrendingUp} delay={200} />
+          <AnimatedCounter value={statRank} label="Weekly Rank" icon={Trophy} delay={300} />
         </div>
 
         {/* Continue Where You Left Off */}

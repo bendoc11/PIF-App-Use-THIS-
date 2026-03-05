@@ -298,61 +298,85 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age: number | null
           avatar_url: string | null
           banned: boolean
           created_at: string
           email: string | null
           first_name: string | null
+          height: string | null
           id: string
           last_drill_date: string | null
           last_name: string | null
+          onboarding_completed: boolean
           plan: string
           position: string | null
+          primary_goal: string | null
           role: string
           streak_days: number
+          strengths: string[] | null
           stripe_customer_id: string | null
           subscription_checked_at: string | null
           subscription_status: string | null
           total_drills_completed: number
+          training_days_per_week: number | null
+          training_hours_per_session: string | null
           updated_at: string
+          weaknesses: string[] | null
         }
         Insert: {
+          age?: number | null
           avatar_url?: string | null
           banned?: boolean
           created_at?: string
           email?: string | null
           first_name?: string | null
+          height?: string | null
           id: string
           last_drill_date?: string | null
           last_name?: string | null
+          onboarding_completed?: boolean
           plan?: string
           position?: string | null
+          primary_goal?: string | null
           role?: string
           streak_days?: number
+          strengths?: string[] | null
           stripe_customer_id?: string | null
           subscription_checked_at?: string | null
           subscription_status?: string | null
           total_drills_completed?: number
+          training_days_per_week?: number | null
+          training_hours_per_session?: string | null
           updated_at?: string
+          weaknesses?: string[] | null
         }
         Update: {
+          age?: number | null
           avatar_url?: string | null
           banned?: boolean
           created_at?: string
           email?: string | null
           first_name?: string | null
+          height?: string | null
           id?: string
           last_drill_date?: string | null
           last_name?: string | null
+          onboarding_completed?: boolean
           plan?: string
           position?: string | null
+          primary_goal?: string | null
           role?: string
           streak_days?: number
+          strengths?: string[] | null
           stripe_customer_id?: string | null
           subscription_checked_at?: string | null
           subscription_status?: string | null
           total_drills_completed?: number
+          training_days_per_week?: number | null
+          training_hours_per_session?: string | null
           updated_at?: string
+          weaknesses?: string[] | null
         }
         Relationships: []
       }

@@ -28,7 +28,7 @@ interface Course {
   title: string;
   category: string;
   drill_count: number;
-  coaches: { name: string; school: string; initials: string; avatar_color: string } | null;
+  coaches: { name: string; school: string; initials: string; avatar_color: string; avatar_url: string | null } | null;
 }
 
 const categoryColors: Record<string, string> = {
@@ -61,7 +61,7 @@ export default function CoursePlayer() {
     if (!courseId) return;
     const fetchData = async () => {
       const [courseRes, junctionRes] = await Promise.all([
-        supabase.from("courses").select("id, title, category, drill_count, coaches(name, school, initials, avatar_color)").eq("id", courseId).single(),
+        supabase.from("courses").select("id, title, category, drill_count, coaches(name, school, initials, avatar_color, avatar_url)").eq("id", courseId).single(),
         supabase.from("workout_drills").select("position, drills(*)").eq("workout_id", courseId).order("position"),
       ]);
       if (courseRes.data) setCourse(courseRes.data as any);
@@ -148,8 +148,12 @@ export default function CoursePlayer() {
             </Link>
             <h2 className="text-lg font-heading text-foreground">{course.title}</h2>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
-                <span className="text-[9px] font-heading">{course.coaches?.initials}</span>
+              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                {course.coaches?.avatar_url ? (
+                  <img src={course.coaches.avatar_url} alt={course.coaches.name} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-xs font-heading">{course.coaches?.initials}</span>
+                )}
               </div>
               <span>{course.coaches?.name} · {course.coaches?.school}</span>
             </div>
@@ -262,9 +266,13 @@ export default function CoursePlayer() {
                 </div>
                 <h1 className="text-2xl lg:text-3xl font-heading text-foreground">{currentDrill.title}</h1>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                      <span className="text-xs font-heading text-muted-foreground">{course.coaches?.initials}</span>
+                    <div className="flex items-center gap-2">
+                    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                      {course.coaches?.avatar_url ? (
+                        <img src={course.coaches.avatar_url} alt={course.coaches.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-xs font-heading text-muted-foreground">{course.coaches?.initials}</span>
+                      )}
                     </div>
                     <div>
                       <p className="text-sm text-foreground">{course.coaches?.name}</p>

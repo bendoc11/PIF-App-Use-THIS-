@@ -18,7 +18,7 @@ interface CourseWithCoach {
   is_free: boolean;
   skill_levels: string[] | null;
   thumbnail_url: string | null;
-  coaches: { name: string; school: string; initials: string; avatar_color: string } | null;
+  coaches: { name: string; school: string; initials: string; avatar_color: string; avatar_url: string | null } | null;
 }
 
 const skillLevels = ["All", "Beginner", "Intermediate", "Advanced"];
@@ -48,7 +48,7 @@ export default function Courses() {
   useEffect(() => {
     supabase
       .from("courses")
-      .select("id, title, category, description, drill_count, total_duration_seconds, level, is_free, skill_levels, thumbnail_url, coaches(name, school, initials, avatar_color)")
+      .select("id, title, category, description, drill_count, total_duration_seconds, level, is_free, skill_levels, thumbnail_url, coaches(name, school, initials, avatar_color, avatar_url)")
       .eq("status", "live")
       .order("sort_order")
       .then(({ data }) => {
@@ -140,8 +140,12 @@ export default function Courses() {
                       <h3 className="text-lg font-heading font-bold text-white">{course.title}</h3>
                       <p className="text-sm text-white/75 line-clamp-2">{course.description}</p>
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
-                          <span className="text-[10px] font-heading text-muted-foreground">{course.coaches?.initials}</span>
+                        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                          {course.coaches?.avatar_url ? (
+                            <img src={course.coaches.avatar_url} alt={course.coaches.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-xs font-heading text-muted-foreground">{course.coaches?.initials}</span>
+                          )}
                         </div>
                         <div>
                           <p className="text-[15px] text-white">{course.coaches?.name}</p>

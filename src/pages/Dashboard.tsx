@@ -15,7 +15,7 @@ interface CourseWithCoach {
   drill_count: number;
   level: string;
   is_free: boolean;
-  coaches: { name: string; school: string; initials: string; avatar_color: string } | null;
+  coaches: { name: string; school: string; initials: string; avatar_color: string; avatar_url: string | null } | null;
 }
 
 interface DrillWithCoach {
@@ -26,7 +26,8 @@ interface DrillWithCoach {
   is_free: boolean;
   is_new: boolean;
   duration_seconds: number;
-  coaches: { name: string; initials: string; avatar_color: string } | null;
+  thumbnail_url: string | null;
+  coaches: { name: string; initials: string; avatar_color: string; avatar_url: string | null } | null;
 }
 
 const categoryColors: Record<string, string> = {
@@ -86,8 +87,8 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       const [coursesRes, drillsRes] = await Promise.all([
-        supabase.from("courses").select("id, title, category, drill_count, level, is_free, coaches(name, school, initials, avatar_color)").eq("status", "live").eq("is_featured", true).order("sort_order").limit(6),
-        supabase.from("drills").select("id, title, category, level, is_free, is_new, duration_seconds, coaches(name, initials, avatar_color)").eq("is_featured", true).order("created_at", { ascending: false }).limit(6),
+        supabase.from("courses").select("id, title, category, drill_count, level, is_free, coaches(name, school, initials, avatar_color, avatar_url)").eq("status", "live").eq("is_featured", true).order("sort_order").limit(6),
+        supabase.from("drills").select("id, title, category, level, is_free, is_new, duration_seconds, thumbnail_url, coaches(name, initials, avatar_color, avatar_url)").eq("is_featured", true).order("created_at", { ascending: false }).limit(6),
       ]);
       if (coursesRes.data) setCourses(coursesRes.data as any);
       if (drillsRes.data) setDrills(drillsRes.data as any);
@@ -147,17 +148,21 @@ export default function Dashboard() {
                 <Link to={drill.is_free ? `/courses` : `/pricing`}>
                   <Card className="bg-card border-border hover:border-primary/20 transition-all group overflow-hidden">
                     <CardContent className="p-0">
-                      <div className="relative h-36 bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
+                      <div className="relative h-36 bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center overflow-hidden">
+                        {drill.thumbnail_url ? (
+                          <img src={drill.thumbnail_url} alt={drill.title} className="w-full h-full object-cover" />
+                        ) : (
+                          <Play className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" />
+                        )}
                         {drill.is_new && (
-                          <span className="absolute top-3 left-3 px-2 py-0.5 rounded text-[10px] font-heading tracking-wider bg-primary text-primary-foreground">NEW</span>
+                          <span className="absolute top-3 left-3 px-2 py-0.5 rounded text-[10px] font-heading tracking-wider bg-primary text-primary-foreground z-10">NEW</span>
                         )}
                         {!drill.is_free && (
-                          <div className="absolute inset-0 bg-background/60 backdrop-blur-[2px] flex items-center justify-center">
+                          <div className="absolute inset-0 bg-background/60 backdrop-blur-[2px] flex items-center justify-center z-10">
                             <Lock className="h-6 w-6 text-muted-foreground" />
                           </div>
                         )}
-                        <Play className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" />
-                        <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded text-[10px] bg-background/80 text-foreground font-medium">
+                        <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded text-[10px] bg-background/80 text-foreground font-medium z-10">
                           {Math.floor((drill.duration_seconds || 0) / 60)}:{String((drill.duration_seconds || 0) % 60).padStart(2, "0")}
                         </span>
                       </div>
@@ -169,8 +174,12 @@ export default function Dashboard() {
                         <h3 className="font-heading text-sm text-foreground">{drill.title}</h3>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
-                              <span className="text-[9px] font-heading text-muted-foreground">{drill.coaches?.initials}</span>
+                            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                              {drill.coaches?.avatar_url ? (
+                                <img src={drill.coaches.avatar_url} alt={drill.coaches.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="text-xs font-heading text-muted-foreground">{drill.coaches?.initials}</span>
+                              )}
                             </div>
                             <span className="text-xs text-muted-foreground">{drill.coaches?.name}</span>
                           </div>
@@ -206,6 +215,13 @@ export default function Dashboard() {
                         <span className="text-[10px] font-heading tracking-widest text-muted-foreground">WORKOUT</span>
                         <h3 className="font-heading text-foreground">{course.title}</h3>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                            {course.coaches?.avatar_url ? (
+                              <img src={course.coaches.avatar_url} alt={course.coaches.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="text-xs font-heading text-muted-foreground">{course.coaches?.initials}</span>
+                            )}
+                          </div>
                           <span>{course.coaches?.name}</span>
                           <span>·</span>
                           <span>{course.drill_count} drills</span>

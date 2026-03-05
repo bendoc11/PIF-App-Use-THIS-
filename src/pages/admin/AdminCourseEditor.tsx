@@ -69,6 +69,7 @@ export default function AdminCourseEditor() {
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [uploadingThumb, setUploadingThumb] = useState(false);
   const [skillLevels, setSkillLevels] = useState<string[]>([]);
+  const [coachAvatarUrl, setCoachAvatarUrl] = useState<string | null>(null);
 
   // Drills
   const [drills, setDrills] = useState<DrillForm[]>([]);
@@ -88,7 +89,7 @@ export default function AdminCourseEditor() {
     const fetch = async () => {
       const { data: course } = await supabase
         .from("courses")
-        .select("*, coaches(id, name, school)")
+        .select("*, coaches(id, name, school, avatar_url)")
         .eq("id", courseId)
         .single();
       if (course) {
@@ -102,6 +103,7 @@ export default function AdminCourseEditor() {
           setCoachName((course as any).coaches.name);
           setCoachSchool((course as any).coaches.school || "");
           setCoachId((course as any).coaches.id);
+          setCoachAvatarUrl((course as any).coaches.avatar_url || null);
         }
       }
 
@@ -453,7 +455,14 @@ export default function AdminCourseEditor() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="font-heading tracking-wider text-sm">Athlete / Creator Name</Label>
-              <Input value={coachName} onChange={(e) => setCoachName(e.target.value)} placeholder="e.g. Jordan Miles" />
+              <div className="flex items-center gap-3">
+                {coachAvatarUrl && (
+                  <div className="w-10 h-10 rounded-full bg-muted overflow-hidden border border-border shrink-0">
+                    <img src={coachAvatarUrl} alt="" className="w-full h-full object-cover" />
+                  </div>
+                )}
+                <Input value={coachName} onChange={(e) => setCoachName(e.target.value)} placeholder="e.g. Jordan Miles" className="flex-1" />
+              </div>
             </div>
             <div className="space-y-2">
               <Label className="font-heading tracking-wider text-sm">School / Affiliation</Label>

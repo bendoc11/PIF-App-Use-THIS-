@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Eye } from "lucide-react";
+import { Loader2, Eye, Upload, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface Creator {
@@ -20,6 +20,7 @@ interface Creator {
   first_name: string | null;
   last_name: string | null;
   email: string | null;
+  avatar_url: string | null;
   banned: boolean;
   created_at: string;
   courseCount?: number;
@@ -31,12 +32,12 @@ export default function AdminCreators() {
   const [viewingCreator, setViewingCreator] = useState<Creator | null>(null);
   const [creatorCourses, setCreatorCourses] = useState<any[]>([]);
   const [loadingCourses, setLoadingCourses] = useState(false);
-
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fetchCreators = async () => {
     setLoading(true);
     const { data, error } = await (supabase
       .from("profiles")
-      .select("id, first_name, last_name, email, banned, created_at") as any)
+      .select("id, first_name, last_name, email, banned, created_at, avatar_url") as any)
       .eq("role", "creator")
       .order("created_at", { ascending: false });
     if (error) {
@@ -92,6 +93,42 @@ export default function AdminCreators() {
       setCreatorCourses([]);
     }
     setLoadingCourses(false);
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!viewingCreator) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingAvatar(true);
+    const ext = file.name.split(".").pop();
+    const path = `creators/${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage.from("course-thumbnails").upload(path, file);
+    if (error) {
+      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+      setUploadingAvatar(false);
+      return;
+    }
+    const { data: urlData } = supabase.storage.from("course-thumbnails").getPublicUrl(path);
+    const avatarUrl = urlData.publicUrl;
+
+    // Update profile
+    const { error: updateError } = await supabase.from("profiles").update({ avatar_url: avatarUrl }).eq("id", viewingCreator.id);
+    if (updateError) {
+      toast({ title: "Error saving photo", description: updateError.message, variant: "destructive" });
+      setUploadingAvatar(false);
+      return;
+    }
+
+    // Also update matching coach record
+    const name = `${viewingCreator.first_name || ""} ${viewingCreator.last_name || ""}`.trim();
+    if (name) {
+      await supabase.from("coaches").update({ avatar_url: avatarUrl } as any).eq("name", name);
+    }
+
+    setViewingCreator({ ...viewingCreator, avatar_url: avatarUrl });
+    setCreators((prev) => prev.map((c) => (c.id === viewingCreator.id ? { ...c, avatar_url: avatarUrl } : c)));
+    setUploadingAvatar(false);
+    toast({ title: "Creator photo updated" });
   };
 
   const toggleSuspend = async (creator: Creator) => {
@@ -201,6 +238,43 @@ export default function AdminCreators() {
                 <button onClick={() => setViewingCreator(null)} className="p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground">
                   ✕
                 </button>
+              </div>
+              {/* Creator Photo */}
+              <div className="space-y-3">
+                <p className="text-sm font-heading tracking-wider text-muted-foreground">Creator Photo</p>
+                <div className="flex items-center gap-4">
+                  <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center overflow-hidden border border-border shrink-0">
+                    {viewingCreator.avatar_url ? (
+                      <img src={viewingCreator.avatar_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-lg font-heading text-muted-foreground">
+                        {(viewingCreator.first_name || "").charAt(0)}{(viewingCreator.last_name || "").charAt(0)}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-muted hover:bg-muted/80 cursor-pointer transition-colors w-fit">
+                      {uploadingAvatar ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                      <span className="text-sm">{uploadingAvatar ? "Uploading..." : viewingCreator.avatar_url ? "Replace Photo" : "Upload Photo"}</span>
+                      <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" disabled={uploadingAvatar} />
+                    </label>
+                    {viewingCreator.avatar_url && (
+                      <button
+                        onClick={async () => {
+                          await supabase.from("profiles").update({ avatar_url: null }).eq("id", viewingCreator.id);
+                          const name = `${viewingCreator.first_name || ""} ${viewingCreator.last_name || ""}`.trim();
+                          if (name) await supabase.from("coaches").update({ avatar_url: null } as any).eq("name", name);
+                          setViewingCreator({ ...viewingCreator, avatar_url: null });
+                          setCreators((prev) => prev.map((c) => (c.id === viewingCreator.id ? { ...c, avatar_url: null } : c)));
+                          toast({ title: "Photo removed" });
+                        }}
+                        className="text-xs text-destructive hover:underline w-fit"
+                      >
+                        Remove photo
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
               {loadingCourses ? (
                 <div className="flex justify-center py-8">

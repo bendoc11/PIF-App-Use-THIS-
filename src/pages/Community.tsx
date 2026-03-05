@@ -256,7 +256,7 @@ export default function Community() {
                           {post.category}
                         </span>
                       </div>
-                      <h3 className="text-lg font-heading text-foreground">{post.title}</h3>
+                      <h3 className="text-lg font-heading font-medium normal-case text-foreground">{post.title}</h3>
                       <p className="text-sm text-muted-foreground line-clamp-3">{post.body}</p>
                       <button
                         onClick={() => toggleReplies(post.id)}

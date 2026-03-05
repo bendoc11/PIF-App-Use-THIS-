@@ -222,7 +222,7 @@ export default function Dashboard() {
               const showLock = !isAccessible && !subscriptionLoading;
               return (
               <motion.div key={drill.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.05 }}>
-                <Link to={isAccessible || subscriptionLoading ? `/courses` : `/pricing`}>
+                <Link to={isAccessible || subscriptionLoading ? `/drills/${drill.id}` : `/pricing`}>
                   <Card className="bg-card border-border hover:border-primary/20 transition-all group overflow-hidden">
                     <CardContent className="p-0">
                       <div className="relative h-36 bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center overflow-hidden">

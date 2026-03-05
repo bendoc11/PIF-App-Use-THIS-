@@ -84,7 +84,7 @@ function AnimatedCounter({ value, label, icon: Icon, delay = 0 }: { value: numbe
 }
 
 export default function Dashboard() {
-  const { profile, user } = useAuth();
+  const { profile, user, subscription, subscriptionLoading } = useAuth();
   const [courses, setCourses] = useState<CourseWithCoach[]>([]);
   const [drills, setDrills] = useState<DrillWithCoach[]>([]);
   const [statDrillsDone, setStatDrillsDone] = useState(0);

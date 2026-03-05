@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Eye, Upload, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 
@@ -310,18 +311,29 @@ export default function AdminCreators() {
                   </div>
                 </div>
               </div>
-              {/* Bio */}
-              <div className="space-y-2">
-                <p className="text-sm font-heading tracking-wider text-muted-foreground">Bio</p>
-                <Textarea
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  placeholder="Write a short bio for this coach..."
-                  rows={3}
-                  className="bg-muted border-border text-sm"
-                />
-                <Button size="sm" onClick={handleSaveBio} disabled={savingBio} className="text-xs">
-                  {savingBio ? <><Loader2 className="h-3 w-3 animate-spin mr-1" /> Saving...</> : "Save Bio"}
+              {/* Coach Info */}
+              <div className="space-y-3">
+                <p className="text-sm font-heading tracking-wider text-muted-foreground">Coach Info</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs text-muted-foreground">School</label>
+                    <Input value={school} onChange={(e) => setSchool(e.target.value)} placeholder="e.g. Duke University" className="bg-muted border-border text-sm" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs text-muted-foreground">Position</label>
+                    <Input value={position} onChange={(e) => setPosition(e.target.value)} placeholder="e.g. Point Guard" className="bg-muted border-border text-sm" />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs text-muted-foreground">Focus Area</label>
+                  <Input value={focusArea} onChange={(e) => setFocusArea(e.target.value)} placeholder="e.g. Ball Handling, Shooting" className="bg-muted border-border text-sm" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs text-muted-foreground">Bio</label>
+                  <Textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Write a short bio for this coach..." rows={3} className="bg-muted border-border text-sm" />
+                </div>
+                <Button size="sm" onClick={handleSaveCoachInfo} disabled={savingCoach} className="text-xs">
+                  {savingCoach ? <><Loader2 className="h-3 w-3 animate-spin mr-1" /> Saving...</> : "Save Coach Info"}
                 </Button>
               </div>
               {loadingCourses ? (

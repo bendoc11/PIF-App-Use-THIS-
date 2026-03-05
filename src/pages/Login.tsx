@@ -25,7 +25,7 @@ export default function Login() {
   const [lastName, setLastName] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
-  const [position, setPosition] = useState("");
+  
 
   useEffect(() => {
     const handleBanned = () => {
@@ -77,7 +77,7 @@ export default function Login() {
       password: btoa(signupPassword),
       firstName: firstName.trim(),
       lastName: lastName.trim(),
-      position,
+      
     }));
 
     try {
@@ -237,17 +237,6 @@ export default function Login() {
                       <p className="text-xs text-muted-foreground">{strength.level}</p>
                     </div>
                   )}
-                </div>
-                <div className="space-y-2">
-                  <Label className="font-heading text-xs tracking-wider text-muted-foreground">Position</Label>
-                  <select value={position} onChange={(e) => setPosition(e.target.value)} className="flex h-12 w-full rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground">
-                    <option value="">Select position</option>
-                    <option value="pg">Point Guard (PG)</option>
-                    <option value="sg">Shooting Guard (SG)</option>
-                    <option value="sf">Small Forward (SF)</option>
-                    <option value="pf">Power Forward (PF)</option>
-                    <option value="c">Center (C)</option>
-                  </select>
                 </div>
               </div>
               <Button type="submit" disabled={isLoading} className="w-full h-12 btn-cta bg-primary hover:bg-primary/90 glow-red-hover text-base">

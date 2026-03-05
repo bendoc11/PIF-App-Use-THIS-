@@ -99,8 +99,8 @@ export function DrillComplete({
                   Back to Library
                 </Button>
               </Link>
-              <Link to="/courses" className="block text-sm text-muted-foreground hover:text-foreground transition-colors font-heading tracking-wider">
-                Find Another Drill
+              <Link to="/progress" className="block text-sm text-muted-foreground hover:text-foreground transition-colors font-heading tracking-wider">
+                Track My Progress
               </Link>
             </>
           )}

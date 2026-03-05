@@ -35,7 +35,11 @@ export default function AdminCreators() {
   const [loadingCourses, setLoadingCourses] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [bio, setBio] = useState("");
-  const [savingBio, setSavingBio] = useState(false);
+  const [school, setSchool] = useState("");
+  const [position, setPosition] = useState("");
+  const [focusArea, setFocusArea] = useState("");
+  const [coachId, setCoachId] = useState<string | null>(null);
+  const [savingCoach, setSavingCoach] = useState(false);
   const fetchCreators = async () => {
     setLoading(true);
     const { data, error } = await (supabase

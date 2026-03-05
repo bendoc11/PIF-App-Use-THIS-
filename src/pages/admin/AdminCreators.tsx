@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Eye, Upload, X } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 
 interface Creator {
@@ -33,6 +34,8 @@ export default function AdminCreators() {
   const [creatorCourses, setCreatorCourses] = useState<any[]>([]);
   const [loadingCourses, setLoadingCourses] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [bio, setBio] = useState("");
+  const [savingBio, setSavingBio] = useState(false);
   const fetchCreators = async () => {
     setLoading(true);
     const { data, error } = await (supabase

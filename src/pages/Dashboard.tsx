@@ -267,7 +267,8 @@ export default function Dashboard() {
                   </Card>
                 </Link>
               </motion.div>
-            ))}
+              );
+            })}
           </div>
         </div>
 

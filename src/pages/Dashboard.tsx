@@ -15,6 +15,7 @@ interface CourseWithCoach {
   drill_count: number;
   level: string;
   is_free: boolean;
+  thumbnail_url: string | null;
   coaches: { name: string; school: string; initials: string; avatar_color: string; avatar_url: string | null } | null;
 }
 
@@ -94,7 +95,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       const [coursesRes, drillsRes] = await Promise.all([
-        supabase.from("courses").select("id, title, category, drill_count, level, is_free, coaches(name, school, initials, avatar_color, avatar_url)").eq("status", "live").eq("is_featured", true).order("sort_order").limit(6),
+        supabase.from("courses").select("id, title, category, drill_count, level, is_free, thumbnail_url, coaches(name, school, initials, avatar_color, avatar_url)").eq("status", "live").eq("is_featured", true).order("sort_order").limit(6),
         supabase.from("drills").select("id, title, category, level, is_free, is_new, duration_seconds, thumbnail_url, coaches(name, initials, avatar_color, avatar_url)").eq("is_featured", true).order("created_at", { ascending: false }).limit(6),
       ]);
       if (coursesRes.data) setCourses(coursesRes.data as any);
@@ -286,8 +287,12 @@ export default function Dashboard() {
                 <Link to={`/courses/${course.id}/1`}>
                   <Card className="bg-card border-border hover:border-primary/20 transition-all overflow-hidden">
                     <CardContent className="p-0">
-                      <div className="h-32 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
-                        <Play className="h-8 w-8 text-muted-foreground" />
+                      <div className="h-32 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center overflow-hidden">
+                        {course.thumbnail_url ? (
+                          <img src={course.thumbnail_url} alt={course.title} className="w-full h-full object-cover" />
+                        ) : (
+                          <Play className="h-8 w-8 text-muted-foreground" />
+                        )}
                       </div>
                       <div className="p-4 space-y-3">
                         <span className="text-[10px] font-heading tracking-widest text-muted-foreground">WORKOUT</span>

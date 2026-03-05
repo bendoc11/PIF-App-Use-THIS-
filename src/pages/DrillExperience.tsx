@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -7,9 +7,10 @@ import { DrillIntro } from "@/components/drill/DrillIntro";
 import { DrillActive } from "@/components/drill/DrillActive";
 import { DrillComplete } from "@/components/drill/DrillComplete";
 import { updateStreak } from "@/hooks/useStreakUpdate";
-import { Loader2 } from "lucide-react";
+import { Loader2, Check } from "lucide-react";
+import { motion } from "framer-motion";
 
-type ScreenState = "intro" | "active" | "complete";
+type ScreenState = "intro" | "active" | "flash" | "complete";
 
 interface Drill {
   id: string;
@@ -36,10 +37,8 @@ interface Course {
 }
 
 export default function DrillExperience() {
-  // Supports two route patterns:
-  // /drills/:drillId (standalone)
-  // /drill/:courseId/:drillIndex (course context)
   const { drillId, courseId, drillIndex } = useParams();
+  const navigate = useNavigate();
 
   const { user, profile, refreshProfile } = useAuth();
   const [screen, setScreen] = useState<ScreenState>("intro");
@@ -57,18 +56,15 @@ export default function DrillExperience() {
       setLoading(true);
 
       if (drillId) {
-        // Standalone drill
         const { data } = await supabase.from("drills").select("*").eq("id", drillId).single();
         if (data) {
           setDrill(data as any);
-          // If drill belongs to a course, fetch course info
           if (data.course_id) {
             const { data: courseData } = await supabase.from("courses").select("id, title, drill_count").eq("id", data.course_id).single();
             if (courseData) setCourse(courseData);
           }
         }
       } else if (courseId && currentIndex) {
-        // Course drill
         const [courseRes, junctionRes] = await Promise.all([
           supabase.from("courses").select("id, title, drill_count").eq("id", courseId).single(),
           supabase.from("workout_drills").select("position, drills(*)").eq("workout_id", courseId).order("position"),
@@ -87,11 +83,13 @@ export default function DrillExperience() {
     fetchData();
   }, [drillId, courseId, currentIndex]);
 
+  const isInCourse = !!courseId && !!currentIndex;
+  const isLastDrill = isInCourse && currentIndex >= allCourseDrills.length;
+
   const handleComplete = async () => {
     if (!drill || !user) return;
     setCompleting(true);
 
-    // Mark drill complete
     await supabase.from("user_drill_progress").upsert({
       user_id: user.id,
       drill_id: drill.id,
@@ -99,9 +97,7 @@ export default function DrillExperience() {
       completed_at: new Date().toISOString(),
     }, { onConflict: "user_id,drill_id" });
 
-    // Update course progress if in course context
     if (courseId && currentIndex) {
-      const isLastDrill = currentIndex >= allCourseDrills.length;
       await supabase.from("user_course_progress").upsert({
         user_id: user.id,
         course_id: courseId,
@@ -112,19 +108,38 @@ export default function DrillExperience() {
       }, { onConflict: "user_id,course_id" });
     }
 
-    // Update streak
     const result = await updateStreak(user.id);
     setStreakResult(result);
 
-    // Increment total drills on profile
     await supabase.from("profiles").update({
       total_drills_completed: (profile?.total_drills_completed || 0) + 1,
     }).eq("id", user.id);
 
     await refreshProfile();
     setCompleting(false);
-    setScreen("complete");
+
+    // Last drill in course → show full completion screen
+    if (isLastDrill) {
+      setScreen("complete");
+      return;
+    }
+
+    // Otherwise → flash and auto-advance
+    setScreen("flash");
   };
+
+  // Auto-advance after flash
+  useEffect(() => {
+    if (screen !== "flash") return;
+    const timer = setTimeout(() => {
+      if (isInCourse && currentIndex) {
+        navigate(`/drill/${courseId}/${currentIndex + 1}`, { replace: true });
+      } else {
+        navigate("/courses", { replace: true });
+      }
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [screen, isInCourse, courseId, currentIndex, navigate]);
 
   const athleteName = profile
     ? `${profile.first_name || ""} ${profile.last_name || ""}`.trim() || "Athlete"
@@ -140,8 +155,6 @@ export default function DrillExperience() {
     );
   }
 
-  const isInCourse = !!courseId && !!currentIndex;
-  const isLastDrill = isInCourse && currentIndex >= allCourseDrills.length;
   const coachingTips = Array.isArray(drill.coaching_tips) ? drill.coaching_tips as string[] : null;
 
   return (
@@ -178,6 +191,29 @@ export default function DrillExperience() {
         />
       )}
 
+      {screen === "flash" && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-pif-green/10">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: [0, 1.2, 1] }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="w-20 h-20 rounded-full bg-pif-green/20 flex items-center justify-center"
+          >
+            <Check className="h-12 w-12 text-pif-green" strokeWidth={3} />
+          </motion.div>
+          {streakResult.animated && streakResult.newStreak > 0 && (
+            <motion.p
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="mt-4 text-sm text-pif-green font-heading"
+            >
+              {streakResult.newStreak} day streak
+            </motion.p>
+          )}
+        </div>
+      )}
+
       {screen === "complete" && (
         <DrillComplete
           drillTitle={drill.title}
@@ -186,7 +222,7 @@ export default function DrillExperience() {
           streakAnimated={streakResult.animated}
           courseId={isInCourse ? courseId : null}
           courseName={course?.title}
-          nextDrillIndex={isInCourse && !isLastDrill ? currentIndex + 1 : null}
+          nextDrillIndex={null}
           totalDrills={allCourseDrills.length}
           isLastDrill={isLastDrill}
         />

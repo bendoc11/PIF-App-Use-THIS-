@@ -88,7 +88,7 @@ export function DrillActive({ drillTitle, vimeoId, coachingTips, completing, onC
             disabled={completing}
             className="w-full h-16 text-lg btn-cta bg-primary hover:bg-primary/90 glow-red-hover"
           >
-            {completing ? <Loader2 className="h-5 w-5 animate-spin" /> : "Complete Drill"}
+            {completing ? <Loader2 className="h-5 w-5 animate-spin" /> : "Mark Complete & Continue"}
           </Button>
         </motion.div>
       </div>

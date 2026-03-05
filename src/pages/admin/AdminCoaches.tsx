@@ -59,6 +59,7 @@ export default function AdminCoaches() {
     if (!editing) return;
     setSaving(true);
     const { error } = await supabase.from("coaches").update({
+      name: form.name,
       school: form.school || null,
       position: form.position || null,
       focus_area: form.focus_area || null,

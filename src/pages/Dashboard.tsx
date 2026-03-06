@@ -176,8 +176,13 @@ export default function Dashboard() {
       <div className="p-4 lg:p-6 space-y-6 max-w-7xl mx-auto">
         {/* Personalized Greeting */}
         {profile?.first_name && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-            <h1 className="text-2xl md:text-3xl font-heading text-foreground">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative"
+          >
+            <div className="absolute -top-8 -left-8 w-72 h-48 rounded-full bg-[radial-gradient(ellipse_at_top_left,hsl(var(--pif-red)/0.09),transparent_70%)] pointer-events-none" />
+            <h1 className="text-2xl md:text-3xl font-heading text-foreground relative z-10">
               {(profile as any).primary_goal?.toLowerCase().includes("next level")
                 ? `Let's get you to the next level, ${profile.first_name}`
                 : (profile as any).primary_goal?.toLowerCase().includes("starting spot")

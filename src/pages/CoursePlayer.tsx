@@ -23,6 +23,8 @@ interface Drill {
   coaching_tips: string[] | null;
   equipment_needed: string[] | null;
   sort_order: number;
+  enable_shot_tracking?: boolean;
+  shot_attempts?: number | null;
 }
 
 interface Course {

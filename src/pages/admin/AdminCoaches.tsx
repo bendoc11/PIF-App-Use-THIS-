@@ -11,7 +11,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Upload, Pencil, X, Plus, Trash2 } from "lucide-react";
+import { Loader2, Upload, Pencil, X, Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface Coach {
@@ -40,13 +40,24 @@ export default function AdminCoaches() {
     setLoading(true);
     const { data, error } = await supabase
       .from("coaches")
-      .select("id, name, school, position, focus_area, bio, avatar_url, initials")
+      .select("id, name, school, position, focus_area, bio, avatar_url, initials, sort_order")
+      .order("sort_order")
       .order("name");
     if (error) {
       toast({ title: "Error loading coaches", description: error.message, variant: "destructive" });
     }
-    setCoaches((data as Coach[]) || []);
+    setCoaches((data as any[]) || []);
     setLoading(false);
+  };
+
+  const handleReorder = async (index: number, direction: "up" | "down") => {
+    const swapIndex = direction === "up" ? index - 1 : index + 1;
+    if (swapIndex < 0 || swapIndex >= coaches.length) return;
+    const updated = [...coaches];
+    [updated[index], updated[swapIndex]] = [updated[swapIndex], updated[index]];
+    setCoaches(updated);
+    const updates = updated.map((c, i) => supabase.from("coaches").update({ sort_order: i }).eq("id", c.id));
+    await Promise.all(updates);
   };
 
   useEffect(() => { fetchCoaches(); }, []);
@@ -198,6 +209,7 @@ export default function AdminCoaches() {
                   <TableHead className="font-heading tracking-wider">School</TableHead>
                   <TableHead className="font-heading tracking-wider">Position</TableHead>
                   <TableHead className="font-heading tracking-wider">Focus</TableHead>
+                  <TableHead className="font-heading tracking-wider">Order</TableHead>
                   <TableHead className="font-heading tracking-wider text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -217,6 +229,16 @@ export default function AdminCoaches() {
                     <TableCell className="text-muted-foreground text-sm">{coach.school || "—"}</TableCell>
                     <TableCell className="text-muted-foreground text-sm">{coach.position || "—"}</TableCell>
                     <TableCell className="text-muted-foreground text-sm">{coach.focus_area || "—"}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Button variant="ghost" size="sm" onClick={() => handleReorder(coaches.indexOf(coach), "up")} disabled={coaches.indexOf(coach) === 0}>
+                          <ArrowUp className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleReorder(coaches.indexOf(coach), "down")} disabled={coaches.indexOf(coach) === coaches.length - 1}>
+                          <ArrowDown className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
                     <TableCell className="text-right space-x-1">
                       <Button variant="ghost" size="sm" onClick={() => openEdit(coach)}>
                         <Pencil className="h-4 w-4" />

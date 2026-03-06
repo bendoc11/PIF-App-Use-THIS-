@@ -230,6 +230,54 @@ export type Database = {
           },
         ]
       }
+      drill_shot_results: {
+        Row: {
+          completed_at: string
+          drill_id: string
+          id: string
+          shooting_percentage: number
+          shots_attempted: number
+          shots_made: number
+          user_id: string
+          workout_id: string | null
+        }
+        Insert: {
+          completed_at?: string
+          drill_id: string
+          id?: string
+          shooting_percentage: number
+          shots_attempted: number
+          shots_made: number
+          user_id: string
+          workout_id?: string | null
+        }
+        Update: {
+          completed_at?: string
+          drill_id?: string
+          id?: string
+          shooting_percentage?: number
+          shots_attempted?: number
+          shots_made?: number
+          user_id?: string
+          workout_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drill_shot_results_drill_id_fkey"
+            columns: ["drill_id"]
+            isOneToOne: false
+            referencedRelation: "drills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "drill_shot_results_workout_id_fkey"
+            columns: ["workout_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       drills: {
         Row: {
           category: string
@@ -240,6 +288,7 @@ export type Database = {
           description: string | null
           drill_type: string | null
           duration_seconds: number | null
+          enable_shot_tracking: boolean
           equipment_needed: string[] | null
           id: string
           is_featured: boolean
@@ -248,6 +297,7 @@ export type Database = {
           level: string | null
           reps: number | null
           sets: number | null
+          shot_attempts: number | null
           sort_order: number
           thumbnail_url: string | null
           title: string
@@ -262,6 +312,7 @@ export type Database = {
           description?: string | null
           drill_type?: string | null
           duration_seconds?: number | null
+          enable_shot_tracking?: boolean
           equipment_needed?: string[] | null
           id?: string
           is_featured?: boolean
@@ -270,6 +321,7 @@ export type Database = {
           level?: string | null
           reps?: number | null
           sets?: number | null
+          shot_attempts?: number | null
           sort_order?: number
           thumbnail_url?: string | null
           title: string
@@ -284,6 +336,7 @@ export type Database = {
           description?: string | null
           drill_type?: string | null
           duration_seconds?: number | null
+          enable_shot_tracking?: boolean
           equipment_needed?: string[] | null
           id?: string
           is_featured?: boolean
@@ -292,6 +345,7 @@ export type Database = {
           level?: string | null
           reps?: number | null
           sets?: number | null
+          shot_attempts?: number | null
           sort_order?: number
           thumbnail_url?: string | null
           title?: string

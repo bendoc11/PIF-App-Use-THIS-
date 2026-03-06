@@ -5,6 +5,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { Flame, Target, Clock, Trophy, Zap, Star, Award } from "lucide-react";
+import { ShootingTracker } from "@/components/progress/ShootingTracker";
 import { format, subDays, startOfDay, eachDayOfInterval } from "date-fns";
 
 interface DrillProgress {
@@ -203,6 +204,9 @@ export default function Progress() {
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* Shooting Tracker */}
+        <ShootingTracker />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Skill Breakdown */}

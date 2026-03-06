@@ -6,13 +6,13 @@
 
 @layer base {
   :root {
-    --background: 220 40% 13%;
+    --background: 222 47% 8%;
     --foreground: 0 0% 100%;
 
-    --card: 218 50% 9%;
+    --card: 220 40% 13%;
     --card-foreground: 0 0% 100%;
 
-    --popover: 218 50% 9%;
+    --popover: 220 40% 13%;
     --popover-foreground: 0 0% 100%;
 
     --primary: 5 78% 55%;
@@ -21,8 +21,8 @@
     --secondary: 217 74% 57%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 30% 15%;
-    --muted-foreground: 0 0% 100% / 0.5;
+    --muted: 220 30% 17%;
+    --muted-foreground: 0 0% 100% / 0.65;
 
     --accent: 217 74% 57%;
     --accent-foreground: 0 0% 100%;
@@ -30,16 +30,16 @@
     --destructive: 5 78% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 100% / 0.08;
-    --input: 0 0% 100% / 0.08;
+    --border: 0 0% 100% / 0.10;
+    --input: 0 0% 100% / 0.10;
     --ring: 5 78% 55%;
 
     --radius: 0.875rem;
 
     /* Custom PIF tokens */
-    --navy: 220 50% 7%;
-    --navy-2: 218 50% 9%;
-    --navy-3: 222 60% 15%;
+    --navy: 222 47% 8%;
+    --navy-2: 220 40% 13%;
+    --navy-3: 222 60% 17%;
     --pif-red: 5 78% 55%;
     --pif-blue: 217 74% 57%;
     --pif-green: 142 69% 58%;
@@ -47,13 +47,13 @@
     --pif-purple: 263 70% 66%;
     --pif-orange: 25 95% 53%;
 
-    --sidebar-background: 218 50% 9%;
+    --sidebar-background: 220 40% 13%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 5 78% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 222 60% 15%;
+    --sidebar-accent: 222 60% 17%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 100% / 0.08;
+    --sidebar-border: 0 0% 100% / 0.10;
     --sidebar-ring: 5 78% 55%;
   }
 }

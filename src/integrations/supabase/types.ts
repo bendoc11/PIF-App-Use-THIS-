@@ -27,6 +27,7 @@ export type Database = {
           name: string
           position: string | null
           school: string | null
+          sort_order: number
         }
         Insert: {
           avatar_color?: string | null
@@ -40,6 +41,7 @@ export type Database = {
           name: string
           position?: string | null
           school?: string | null
+          sort_order?: number
         }
         Update: {
           avatar_color?: string | null
@@ -53,6 +55,7 @@ export type Database = {
           name?: string
           position?: string | null
           school?: string | null
+          sort_order?: number
         }
         Relationships: []
       }

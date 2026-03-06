@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Check, Lock, Play, Bookmark, Share2, Loader2, Trophy } from "lucide-react";
+import { ShotInputScreen } from "@/components/drill/ShotInputScreen";
+import { ShotResultFlash } from "@/components/drill/ShotResultFlash";
 
 interface Drill {
   id: string;
@@ -21,6 +23,8 @@ interface Drill {
   coaching_tips: string[] | null;
   equipment_needed: string[] | null;
   sort_order: number;
+  enable_shot_tracking?: boolean;
+  shot_attempts?: number | null;
 }
 
 interface Course {
@@ -52,6 +56,9 @@ export default function CoursePlayer() {
   const [showCompletion, setShowCompletion] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [showMobileDrawer, setShowMobileDrawer] = useState(false);
+  const [showShotInput, setShowShotInput] = useState(false);
+  const [showShotResult, setShowShotResult] = useState(false);
+  const [shotResultPct, setShotResultPct] = useState<number | null>(null);
 
   const currentDrill = drills[currentIndex - 1];
   const clampedCompleted = Math.min(completedDrills.size, drills.length);
@@ -86,7 +93,18 @@ export default function CoursePlayer() {
     fetchData();
   }, [courseId, user]);
 
+  const hasShotTracking = !!(currentDrill as any)?.enable_shot_tracking && ((currentDrill as any)?.shot_attempts ?? 0) > 0;
+
   const handleMarkComplete = async () => {
+    if (!currentDrill || !user) return;
+    if (hasShotTracking) {
+      setShowShotInput(true);
+      return;
+    }
+    await doComplete();
+  };
+
+  const doComplete = async () => {
     if (!currentDrill || !user) return;
     setCompleting(true);
 
@@ -118,6 +136,36 @@ export default function CoursePlayer() {
         navigate(`/courses/${courseId}/${currentIndex + 1}`);
       }, 2000);
     }
+  };
+
+  const handleShotSave = async (shotsMade: number) => {
+    if (!currentDrill || !user) return;
+    const shotAttempts = (currentDrill as any).shot_attempts || 0;
+    const pct = shotAttempts > 0 ? Math.round((shotsMade / shotAttempts) * 100) : 0;
+
+    await supabase.from("drill_shot_results").insert({
+      user_id: user.id,
+      drill_id: currentDrill.id,
+      workout_id: courseId || null,
+      shots_made: shotsMade,
+      shots_attempted: shotAttempts,
+      shooting_percentage: pct,
+    });
+
+    setShowShotInput(false);
+    setShotResultPct(pct);
+    setShowShotResult(true);
+
+    setTimeout(() => {
+      setShowShotResult(false);
+      setShotResultPct(null);
+      doComplete();
+    }, 800);
+  };
+
+  const handleShotSkip = async () => {
+    setShowShotInput(false);
+    await doComplete();
   };
 
   const getDrillStatus = (drill: Drill, index: number) => {
@@ -429,6 +477,18 @@ export default function CoursePlayer() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {showShotInput && currentDrill && (
+        <ShotInputScreen
+          shotAttempts={(currentDrill as any).shot_attempts || 0}
+          onSave={handleShotSave}
+          onSkip={handleShotSkip}
+        />
+      )}
+
+      {showShotResult && shotResultPct !== null && (
+        <ShotResultFlash percentage={shotResultPct} />
+      )}
     </AppLayout>
   );
 }

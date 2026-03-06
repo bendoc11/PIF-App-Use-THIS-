@@ -6,11 +6,13 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { DrillIntro } from "@/components/drill/DrillIntro";
 import { DrillActive } from "@/components/drill/DrillActive";
 import { DrillComplete } from "@/components/drill/DrillComplete";
+import { ShotInputScreen } from "@/components/drill/ShotInputScreen";
+import { ShotResultFlash } from "@/components/drill/ShotResultFlash";
 import { updateStreak } from "@/hooks/useStreakUpdate";
 import { Loader2, Check } from "lucide-react";
 import { motion } from "framer-motion";
 
-type ScreenState = "intro" | "active" | "flash" | "complete";
+type ScreenState = "intro" | "active" | "shot-input" | "shot-result" | "flash" | "complete";
 
 interface Drill {
   id: string;
@@ -28,6 +30,8 @@ interface Drill {
   drill_type: string | null;
   reps: number | null;
   sets: number | null;
+  enable_shot_tracking?: boolean;
+  shot_attempts?: number | null;
 }
 
 interface Course {
@@ -48,6 +52,7 @@ export default function DrillExperience() {
   const [completing, setCompleting] = useState(false);
   const [streakResult, setStreakResult] = useState({ newStreak: 0, animated: false });
   const [loading, setLoading] = useState(true);
+  const [shotResultPct, setShotResultPct] = useState<number | null>(null);
 
   const currentIndex = drillIndex ? parseInt(drillIndex) : null;
 
@@ -86,7 +91,48 @@ export default function DrillExperience() {
   const isInCourse = !!courseId && !!currentIndex;
   const isLastDrill = isInCourse && currentIndex >= allCourseDrills.length;
 
-  const handleComplete = async () => {
+  const hasShotTracking = !!(drill as any)?.enable_shot_tracking && (drill as any)?.shot_attempts > 0;
+
+  const handleMarkComplete = async () => {
+    if (hasShotTracking) {
+      setScreen("shot-input");
+      return;
+    }
+    await completeAndAdvance();
+  };
+
+  const handleShotSave = async (shotsMade: number) => {
+    if (!drill || !user) return;
+    const shotAttempts = (drill as any).shot_attempts || 0;
+    const pct = shotAttempts > 0 ? Math.round((shotsMade / shotAttempts) * 100) : 0;
+
+    await supabase.from("drill_shot_results" as any).insert({
+      user_id: user.id,
+      drill_id: drill.id,
+      workout_id: courseId || null,
+      shots_made: shotsMade,
+      shots_attempted: shotAttempts,
+      shooting_percentage: pct,
+    } as any);
+
+    setShotResultPct(pct);
+    setScreen("shot-result");
+  };
+
+  const handleShotSkip = async () => {
+    await completeAndAdvance();
+  };
+
+  // Show shot result for 800ms then proceed
+  useEffect(() => {
+    if (screen !== "shot-result") return;
+    const timer = setTimeout(() => {
+      completeAndAdvance();
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [screen]);
+
+  const completeAndAdvance = async () => {
     if (!drill || !user) return;
     setCompleting(true);
 
@@ -118,13 +164,11 @@ export default function DrillExperience() {
     await refreshProfile();
     setCompleting(false);
 
-    // Last drill in course → show full completion screen
     if (isLastDrill) {
       setScreen("complete");
       return;
     }
 
-    // Otherwise → flash and auto-advance
     setScreen("flash");
   };
 
@@ -183,12 +227,24 @@ export default function DrillExperience() {
           vimeoId={drill.vimeo_id}
           coachingTips={coachingTips}
           completing={completing}
-          onComplete={handleComplete}
+          onComplete={handleMarkComplete}
           drillType={drill.drill_type}
           durationSeconds={drill.duration_seconds}
           reps={drill.reps}
           sets={drill.sets}
         />
+      )}
+
+      {screen === "shot-input" && hasShotTracking && (
+        <ShotInputScreen
+          shotAttempts={(drill as any).shot_attempts}
+          onSave={handleShotSave}
+          onSkip={handleShotSkip}
+        />
+      )}
+
+      {screen === "shot-result" && shotResultPct !== null && (
+        <ShotResultFlash percentage={shotResultPct} />
       )}
 
       {screen === "flash" && (

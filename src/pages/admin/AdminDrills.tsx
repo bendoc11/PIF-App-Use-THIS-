@@ -48,6 +48,8 @@ interface DrillForm {
   reps: number | null;
   sets: number | null;
   thumbnail_url: string | null;
+  enable_shot_tracking: boolean;
+  shot_attempts: number | null;
 }
 
 export default function AdminDrills() {
@@ -90,6 +92,7 @@ export default function AdminDrills() {
       title: "", vimeo_id: "", duration_seconds: 0, description: "",
       coaching_tips: "", equipment_needed: [], category: "", level: "",
       drill_type: "", reps: null, sets: null, thumbnail_url: null,
+      enable_shot_tracking: false, shot_attempts: null,
     });
   };
 
@@ -108,6 +111,8 @@ export default function AdminDrills() {
       reps: d.reps ?? null,
       sets: d.sets ?? null,
       thumbnail_url: (d as any).thumbnail_url || null,
+      enable_shot_tracking: (d as any).enable_shot_tracking || false,
+      shot_attempts: (d as any).shot_attempts ?? null,
     });
   };
 
@@ -173,6 +178,8 @@ export default function AdminDrills() {
       sets: editingDrill.sets,
       course_id: null, // standalone
       thumbnail_url: editingDrill.thumbnail_url,
+      enable_shot_tracking: editingDrill.enable_shot_tracking,
+      shot_attempts: editingDrill.enable_shot_tracking ? editingDrill.shot_attempts : null,
     };
 
     console.log("[AdminDrills] Saving drill, thumbnail_url:", drillData.thumbnail_url);
@@ -382,6 +389,27 @@ export default function AdminDrills() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            {/* Shot Tracking */}
+            <div className="space-y-3 p-4 rounded-lg border border-border bg-muted/30">
+              <div className="flex items-center justify-between">
+                <Label className="font-heading tracking-wider text-sm">Shot Tracking</Label>
+                <button
+                  type="button"
+                  onClick={() => setEditingDrill({ ...editingDrill, enable_shot_tracking: !editingDrill.enable_shot_tracking, shot_attempts: !editingDrill.enable_shot_tracking ? editingDrill.shot_attempts : null })}
+                  className={`relative w-11 h-6 rounded-full transition-colors ${editingDrill.enable_shot_tracking ? "bg-primary" : "bg-muted"}`}
+                >
+                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${editingDrill.enable_shot_tracking ? "translate-x-5" : ""}`} />
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground">Enable shot tracking for this drill</p>
+              {editingDrill.enable_shot_tracking && (
+                <div className="space-y-2 pt-1">
+                  <Label className="font-heading tracking-wider text-sm">Total shots to attempt</Label>
+                  <Input type="number" value={editingDrill.shot_attempts ?? ""} onChange={(e) => setEditingDrill({ ...editingDrill, shot_attempts: e.target.value ? parseInt(e.target.value) : null })} placeholder="e.g. 20" className="w-40" />
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">

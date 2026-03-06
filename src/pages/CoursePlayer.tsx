@@ -56,6 +56,9 @@ export default function CoursePlayer() {
   const [showCompletion, setShowCompletion] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [showMobileDrawer, setShowMobileDrawer] = useState(false);
+  const [showShotInput, setShowShotInput] = useState(false);
+  const [showShotResult, setShowShotResult] = useState(false);
+  const [shotResultPct, setShotResultPct] = useState<number | null>(null);
 
   const currentDrill = drills[currentIndex - 1];
   const clampedCompleted = Math.min(completedDrills.size, drills.length);

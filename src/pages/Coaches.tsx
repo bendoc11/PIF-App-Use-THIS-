@@ -38,6 +38,7 @@ export default function Coaches() {
       const { data: coachesData } = await supabase
         .from("coaches")
         .select("id, name, school, bio, avatar_url, initials, focus_area")
+        .order("sort_order")
         .order("name");
 
       if (!coachesData) {

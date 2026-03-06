@@ -93,7 +93,18 @@ export default function CoursePlayer() {
     fetchData();
   }, [courseId, user]);
 
+  const hasShotTracking = !!(currentDrill as any)?.enable_shot_tracking && ((currentDrill as any)?.shot_attempts ?? 0) > 0;
+
   const handleMarkComplete = async () => {
+    if (!currentDrill || !user) return;
+    if (hasShotTracking) {
+      setShowShotInput(true);
+      return;
+    }
+    await doComplete();
+  };
+
+  const doComplete = async () => {
     if (!currentDrill || !user) return;
     setCompleting(true);
 
@@ -125,6 +136,36 @@ export default function CoursePlayer() {
         navigate(`/courses/${courseId}/${currentIndex + 1}`);
       }, 2000);
     }
+  };
+
+  const handleShotSave = async (shotsMade: number) => {
+    if (!currentDrill || !user) return;
+    const shotAttempts = (currentDrill as any).shot_attempts || 0;
+    const pct = shotAttempts > 0 ? Math.round((shotsMade / shotAttempts) * 100) : 0;
+
+    await supabase.from("drill_shot_results").insert({
+      user_id: user.id,
+      drill_id: currentDrill.id,
+      workout_id: courseId || null,
+      shots_made: shotsMade,
+      shots_attempted: shotAttempts,
+      shooting_percentage: pct,
+    });
+
+    setShowShotInput(false);
+    setShotResultPct(pct);
+    setShowShotResult(true);
+
+    setTimeout(() => {
+      setShowShotResult(false);
+      setShotResultPct(null);
+      doComplete();
+    }, 800);
+  };
+
+  const handleShotSkip = async () => {
+    setShowShotInput(false);
+    await doComplete();
   };
 
   const getDrillStatus = (drill: Drill, index: number) => {

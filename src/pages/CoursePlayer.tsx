@@ -477,6 +477,18 @@ export default function CoursePlayer() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {showShotInput && currentDrill && (
+        <ShotInputScreen
+          shotAttempts={(currentDrill as any).shot_attempts || 0}
+          onSave={handleShotSave}
+          onSkip={handleShotSkip}
+        />
+      )}
+
+      {showShotResult && shotResultPct !== null && (
+        <ShotResultFlash percentage={shotResultPct} />
+      )}
     </AppLayout>
   );
 }

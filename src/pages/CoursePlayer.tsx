@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Check, Lock, Play, Bookmark, Share2, Loader2, Trophy } from "lucide-react";
+import { ShotInputScreen } from "@/components/drill/ShotInputScreen";
+import { ShotResultFlash } from "@/components/drill/ShotResultFlash";
 
 interface Drill {
   id: string;

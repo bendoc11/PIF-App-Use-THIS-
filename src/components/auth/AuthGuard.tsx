@@ -49,7 +49,7 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     );
   }
 
-  if (!subscription.subscribed && !isPublicRoute && !isOnboardingRoute && !(isAdminRoute && isAdminOrCreator)) {
+  if (!subscription.subscribed && !isPublicRoute && !isOnboardingRoute && !isAdminOrCreator) {
     return <Navigate to="/pricing" replace />;
   }
 

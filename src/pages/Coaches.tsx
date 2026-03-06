@@ -90,7 +90,7 @@ export default function Coaches() {
     <AppLayout>
       <div className="p-4 lg:p-6 max-w-7xl mx-auto space-y-6">
         <div>
-          <h1 className="text-3xl font-heading text-foreground">FEATURED COACHES</h1>
+          <h1 className="text-3xl font-heading text-foreground">COACHES</h1>
           <p className="text-muted-foreground mt-1">
             Elite players sharing what got them to the next level.
           </p>

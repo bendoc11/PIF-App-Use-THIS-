@@ -40,9 +40,20 @@ serve(async (req) => {
     logStep("User authenticated", { email: user.email });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    // Fetch ALL customers for this email (handles duplicate customer records)
+    const allCustomers = [];
+    let hasMore = true;
+    let startingAfter: string | undefined;
+    while (hasMore) {
+      const params: any = { email: user.email, limit: 100 };
+      if (startingAfter) params.starting_after = startingAfter;
+      const batch = await stripe.customers.list(params);
+      allCustomers.push(...batch.data);
+      hasMore = batch.has_more;
+      if (batch.data.length > 0) startingAfter = batch.data[batch.data.length - 1].id;
+    }
 
-    if (customers.data.length === 0) {
+    if (allCustomers.length === 0) {
       logStep("No Stripe customer found");
       return new Response(JSON.stringify({ subscribed: false }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -50,26 +61,31 @@ serve(async (req) => {
       });
     }
 
-    const customerId = customers.data[0].id;
-    logStep("Found customer", { customerId });
+    logStep("Found customers", { count: allCustomers.length, ids: allCustomers.map(c => c.id) });
 
-    // Check active or trialing subscriptions
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      status: "active",
-      limit: 1,
-    });
-
-    let trialingSubs: any = { data: [] };
-    if (subscriptions.data.length === 0) {
-      trialingSubs = await stripe.subscriptions.list({
-        customer: customerId,
+    // Check ALL customers for active or trialing subscriptions
+    let allSubs: any[] = [];
+    for (const customer of allCustomers) {
+      const activeSubs = await stripe.subscriptions.list({
+        customer: customer.id,
+        status: "active",
+        limit: 1,
+      });
+      if (activeSubs.data.length > 0) {
+        allSubs = activeSubs.data;
+        break;
+      }
+      const trialSubs = await stripe.subscriptions.list({
+        customer: customer.id,
         status: "trialing",
         limit: 1,
       });
+      if (trialSubs.data.length > 0) {
+        allSubs = trialSubs.data;
+        break;
+      }
     }
 
-    const allSubs = [...subscriptions.data, ...trialingSubs.data];
     const hasActiveSub = allSubs.length > 0;
     let subscriptionEnd = null;
     let productId = null;

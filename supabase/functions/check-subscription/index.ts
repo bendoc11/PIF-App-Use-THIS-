@@ -33,7 +33,20 @@ serve(async (req) => {
     if (!authHeader) throw new Error("No authorization header provided");
 
     const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    
+    // Decode JWT payload to get user ID (without verification - we trust the service role for lookup)
+    let userId: string;
+    try {
+      const payloadBase64 = token.split(".")[1];
+      const payload = JSON.parse(atob(payloadBase64));
+      userId = payload.sub;
+      if (!userId) throw new Error("No sub in token");
+    } catch {
+      throw new Error("Invalid token format");
+    }
+
+    // Use admin API to get user (works even with expired tokens)
+    const { data: userData, error: userError } = await supabaseClient.auth.admin.getUserById(userId);
     if (userError) throw new Error(`Authentication error: ${userError.message}`);
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");

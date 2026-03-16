@@ -26,7 +26,7 @@ const GOAL_OPTIONS = [
 ];
 
 const DAYS_OPTIONS = [1, 2, 3, 4, 5, 6, 7];
-const HOURS_OPTIONS = ["30 min", "1 hour", "1.5 hours", "2+ hours"];
+const HOURS_OPTIONS = ["1", "2", "3", "4"];
 
 const TOTAL_STEPS = 5;
 

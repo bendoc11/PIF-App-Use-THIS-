@@ -7,6 +7,7 @@ import bobFisherImg from "@/assets/coaches/bob-fisher.png";
 import alexWadeImg from "@/assets/coaches/alex-wade.png";
 import torrenceWatsonImg from "@/assets/coaches/torrence-watson.png";
 import hunterMcintoshImg from "@/assets/coaches/hunter-mcintosh.png";
+import heroDrillThumb from "@/assets/hero-drill-thumbnail.jpg";
 import { type Easing } from "framer-motion";
 
 const ease: Easing = [0.25, 0.1, 0.25, 1];

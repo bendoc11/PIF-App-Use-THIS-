@@ -452,6 +452,68 @@ export type Database = {
         }
         Relationships: []
       }
+      practice_shot_logs: {
+        Row: {
+          created_at: string
+          ft_attempts: number | null
+          ft_makes: number | null
+          id: string
+          log_date: string
+          midrange_attempts: number | null
+          midrange_makes: number | null
+          off_dribble_attempts: number | null
+          off_dribble_makes: number | null
+          three_attempts: number | null
+          three_makes: number | null
+          total_attempts: number | null
+          total_makes: number | null
+          training_log_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ft_attempts?: number | null
+          ft_makes?: number | null
+          id?: string
+          log_date?: string
+          midrange_attempts?: number | null
+          midrange_makes?: number | null
+          off_dribble_attempts?: number | null
+          off_dribble_makes?: number | null
+          three_attempts?: number | null
+          three_makes?: number | null
+          total_attempts?: number | null
+          total_makes?: number | null
+          training_log_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ft_attempts?: number | null
+          ft_makes?: number | null
+          id?: string
+          log_date?: string
+          midrange_attempts?: number | null
+          midrange_makes?: number | null
+          off_dribble_attempts?: number | null
+          off_dribble_makes?: number | null
+          three_attempts?: number | null
+          three_makes?: number | null
+          total_attempts?: number | null
+          total_makes?: number | null
+          training_log_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practice_shot_logs_training_log_id_fkey"
+            columns: ["training_log_id"]
+            isOneToOne: false
+            referencedRelation: "training_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           age: number | null
@@ -469,6 +531,7 @@ export type Database = {
           position: string | null
           primary_goal: string | null
           role: string
+          schedule_setup_completed: boolean
           streak_days: number
           strengths: string[] | null
           stripe_customer_id: string | null
@@ -496,6 +559,7 @@ export type Database = {
           position?: string | null
           primary_goal?: string | null
           role?: string
+          schedule_setup_completed?: boolean
           streak_days?: number
           strengths?: string[] | null
           stripe_customer_id?: string | null
@@ -523,6 +587,7 @@ export type Database = {
           position?: string | null
           primary_goal?: string | null
           role?: string
+          schedule_setup_completed?: boolean
           streak_days?: number
           strengths?: string[] | null
           stripe_customer_id?: string | null
@@ -561,6 +626,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      training_logs: {
+        Row: {
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          intensity: string | null
+          log_date: string
+          notes: string | null
+          session_type: string
+          status: string
+          user_id: string
+          workout_type: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          intensity?: string | null
+          log_date?: string
+          notes?: string | null
+          session_type: string
+          status?: string
+          user_id: string
+          workout_type?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          intensity?: string | null
+          log_date?: string
+          notes?: string | null
+          session_type?: string
+          status?: string
+          user_id?: string
+          workout_type?: string | null
+        }
+        Relationships: []
       }
       user_course_progress: {
         Row: {
@@ -634,6 +738,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      weekly_schedule_templates: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          id: string
+          order_index: number
+          session_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          id?: string
+          order_index?: number
+          session_type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          id?: string
+          order_index?: number
+          session_type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       workout_drills: {
         Row: {

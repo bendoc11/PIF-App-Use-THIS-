@@ -10,7 +10,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CalendarIcon, Plus, Basketball, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { CalendarIcon, Plus, CircleDot, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { toast } from "@/hooks/use-toast";
 

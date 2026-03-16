@@ -131,7 +131,7 @@ export function GameLog() {
         <Card className="bg-card border-border">
           <CardContent className="p-8 flex flex-col items-center text-center">
             <div className="p-4 rounded-full bg-muted mb-4">
-              <Basketball className="h-8 w-8 text-muted-foreground" />
+              <CircleDot className="h-8 w-8 text-muted-foreground" />
             </div>
             <h3 className="font-heading text-foreground text-lg">Track Your Real Game</h3>
             <p className="text-sm text-muted-foreground mt-1 max-w-xs">

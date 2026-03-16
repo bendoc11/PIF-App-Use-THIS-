@@ -176,16 +176,12 @@ function HeroSection() {
               <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center z-10">
                 <Play className="h-7 w-7 text-foreground ml-1" />
               </div>
-              <div className="absolute top-4 left-4 z-10">
-                <p className="font-heading text-xs tracking-wider text-navy-1 drop-shadow-sm">PLAY IT FORWARD BASKETBALL</p>
-                <p className="font-heading text-2xl text-navy-1 mt-1 drop-shadow-sm">2-BALL STATIONARY COURSE</p>
-              </div>
             </div>
             <div className="p-4">
-              <p className="font-heading text-xs tracking-widest text-primary">HAND-EYE COORDINATION COURSE</p>
-              <p className="font-heading text-base text-foreground mt-1">FINGERTIPS DRILL — DRILL 2 OF 6</p>
+              <p className="font-heading text-xs tracking-widest text-primary">BALL SCREEN READS COURSE</p>
+              <p className="font-heading text-base text-foreground mt-1">SPLITTING THE SCREEN — DRILL 2 OF 6</p>
               <div className="flex items-center gap-2 mt-3">
-                <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-[10px] font-heading text-foreground">ZE</div>
+                <img src={zacErvinImg} alt="Zac Ervin" className="w-7 h-7 rounded-full object-cover object-top" />
                 <span className="font-heading text-sm tracking-wider text-foreground">ZAC ERVIN · ELON UNIVERSITY</span>
               </div>
             </div>

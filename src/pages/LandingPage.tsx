@@ -177,8 +177,8 @@ function HeroSection() {
                 <Play className="h-7 w-7 text-foreground ml-1" />
               </div>
               <div className="absolute top-4 left-4 z-10">
-                <p className="font-heading text-xs tracking-wider text-foreground/80">PLAY IT FORWARD BASKETBALL</p>
-                <p className="font-heading text-2xl text-foreground mt-1">2-BALL STATIONARY COURSE</p>
+                <p className="font-heading text-xs tracking-wider text-navy-1 drop-shadow-sm">PLAY IT FORWARD BASKETBALL</p>
+                <p className="font-heading text-2xl text-navy-1 mt-1 drop-shadow-sm">2-BALL STATIONARY COURSE</p>
               </div>
             </div>
             <div className="p-4">

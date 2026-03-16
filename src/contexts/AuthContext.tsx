@@ -67,19 +67,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [subscriptionLoading, setSubscriptionLoading] = useState(true);
 
   const fetchProfile = async (userId: string): Promise<boolean> => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", userId)
       .single();
 
-    if (data && (data as any).banned === true) {
+    // If profile not found (deleted user), sign them out
+    if (!data || error) {
       await supabase.auth.signOut();
       setUser(null);
       setSession(null);
       setProfile(null);
       setSubscription(defaultSubscription);
-      // Dispatch a custom event so the login page can show the message
+      return false;
+    }
+
+    if ((data as any).banned === true) {
+      await supabase.auth.signOut();
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      setSubscription(defaultSubscription);
       window.dispatchEvent(new CustomEvent("account-banned"));
       return false;
     }

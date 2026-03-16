@@ -374,11 +374,11 @@ export type Database = {
           blocks: number
           created_at: string
           efficiency: number | null
+          fg_attempted: number
           fg_made: number
-          fg_missed: number
           fg_percentage: number | null
+          ft_attempted: number
           ft_made: number
-          ft_missed: number
           ft_percentage: number | null
           game_date: string
           game_rating: number | null
@@ -390,8 +390,8 @@ export type Database = {
           rebounds: number
           result: string
           steals: number
+          three_attempted: number
           three_made: number
-          three_missed: number
           three_percentage: number | null
           turnovers: number
           user_id: string
@@ -401,11 +401,11 @@ export type Database = {
           blocks?: number
           created_at?: string
           efficiency?: number | null
+          fg_attempted?: number
           fg_made?: number
-          fg_missed?: number
           fg_percentage?: number | null
+          ft_attempted?: number
           ft_made?: number
-          ft_missed?: number
           ft_percentage?: number | null
           game_date?: string
           game_rating?: number | null
@@ -417,8 +417,8 @@ export type Database = {
           rebounds?: number
           result?: string
           steals?: number
+          three_attempted?: number
           three_made?: number
-          three_missed?: number
           three_percentage?: number | null
           turnovers?: number
           user_id: string
@@ -428,11 +428,11 @@ export type Database = {
           blocks?: number
           created_at?: string
           efficiency?: number | null
+          fg_attempted?: number
           fg_made?: number
-          fg_missed?: number
           fg_percentage?: number | null
+          ft_attempted?: number
           ft_made?: number
-          ft_missed?: number
           ft_percentage?: number | null
           game_date?: string
           game_rating?: number | null
@@ -444,8 +444,8 @@ export type Database = {
           rebounds?: number
           result?: string
           steals?: number
+          three_attempted?: number
           three_made?: number
-          three_missed?: number
           three_percentage?: number | null
           turnovers?: number
           user_id?: string

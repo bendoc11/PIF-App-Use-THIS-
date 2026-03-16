@@ -198,13 +198,14 @@ export default function Dashboard() {
         {/* Section 2: Today's Training */}
         {!training.loading && (
           <TodaysTraining
-            todaySession={training.getTodaySession()}
-            isComplete={training.isTodayComplete()}
+            todaySessions={training.getTodaySessions()}
+            todaysLogs={training.todaysLogs}
             schedule={training.schedule}
             todayDow={training.todayDow}
             onLogged={training.refresh}
             needsSetup={training.needsSetup}
             onSetup={() => setSetupModalOpen(true)}
+            allComplete={training.isTodayComplete()}
           />
         )}
 
@@ -348,8 +349,7 @@ export default function Dashboard() {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className={`w-2 h-2 rounded-full ${categoryColors[course.category] || "bg-muted-foreground"}`} />
-                          <span className="text-xs text-muted-foreground">{course.category}</span>
-                          <span className="ml-auto text-[10px] font-heading tracking-wider text-muted-foreground px-2 py-0.5 rounded bg-muted">{course.level}</span>
+                          <span className="text-xs text-muted-foreground font-heading tracking-wider">{course.category}</span>
                         </div>
                       </div>
                     </CardContent>
@@ -359,15 +359,16 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Schedule Setup Modal */}
-      <ScheduleSetupModal
-        open={setupModalOpen}
-        onOpenChange={setSetupModalOpen}
-        recommended={training.generateRecommended()}
-        onSave={training.saveSchedule}
-      />
+        {/* Schedule Setup Modal */}
+        <ScheduleSetupModal
+          open={setupModalOpen}
+          onOpenChange={setSetupModalOpen}
+          recommended={training.generateRecommended()}
+          primaryGoal={profile?.primary_goal || null}
+          onSave={training.saveSchedule}
+        />
+      </div>
     </AppLayout>
   );
 }

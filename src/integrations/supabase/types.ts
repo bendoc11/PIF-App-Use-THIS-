@@ -368,6 +368,90 @@ export type Database = {
           },
         ]
       }
+      game_logs: {
+        Row: {
+          assists: number
+          blocks: number
+          created_at: string
+          efficiency: number | null
+          fg_made: number
+          fg_missed: number
+          fg_percentage: number | null
+          ft_made: number
+          ft_missed: number
+          ft_percentage: number | null
+          game_date: string
+          game_rating: number | null
+          game_type: string
+          id: string
+          minutes_played: number
+          opponent: string | null
+          points: number
+          rebounds: number
+          result: string
+          steals: number
+          three_made: number
+          three_missed: number
+          three_percentage: number | null
+          turnovers: number
+          user_id: string
+        }
+        Insert: {
+          assists?: number
+          blocks?: number
+          created_at?: string
+          efficiency?: number | null
+          fg_made?: number
+          fg_missed?: number
+          fg_percentage?: number | null
+          ft_made?: number
+          ft_missed?: number
+          ft_percentage?: number | null
+          game_date?: string
+          game_rating?: number | null
+          game_type?: string
+          id?: string
+          minutes_played?: number
+          opponent?: string | null
+          points?: number
+          rebounds?: number
+          result?: string
+          steals?: number
+          three_made?: number
+          three_missed?: number
+          three_percentage?: number | null
+          turnovers?: number
+          user_id: string
+        }
+        Update: {
+          assists?: number
+          blocks?: number
+          created_at?: string
+          efficiency?: number | null
+          fg_made?: number
+          fg_missed?: number
+          fg_percentage?: number | null
+          ft_made?: number
+          ft_missed?: number
+          ft_percentage?: number | null
+          game_date?: string
+          game_rating?: number | null
+          game_type?: string
+          id?: string
+          minutes_played?: number
+          opponent?: string | null
+          points?: number
+          rebounds?: number
+          result?: string
+          steals?: number
+          three_made?: number
+          three_missed?: number
+          three_percentage?: number | null
+          turnovers?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age: number | null

@@ -7,6 +7,7 @@ import bobFisherImg from "@/assets/coaches/bob-fisher.png";
 import alexWadeImg from "@/assets/coaches/alex-wade.png";
 import torrenceWatsonImg from "@/assets/coaches/torrence-watson.png";
 import hunterMcintoshImg from "@/assets/coaches/hunter-mcintosh.png";
+import heroDrillThumb from "@/assets/hero-drill-thumbnail.jpg";
 import { type Easing } from "framer-motion";
 
 const ease: Easing = [0.25, 0.1, 0.25, 1];
@@ -155,15 +156,28 @@ function HeroSection() {
             </div>
           </motion.div>
         </motion.div>
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, amount: 0.3 }} transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }} className="relative">
-          <div className="bg-card rounded-xl border border-border overflow-hidden shadow-2xl">
-            <div className="aspect-video bg-navy-3 flex items-center justify-center relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-pif-blue/20 to-primary/10" />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+          animate={{ y: [0, -10, 0] }}
+          style={{ animationDelay: "0s" }}
+          className="relative"
+        >
+          <motion.div
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            className="bg-card rounded-xl border border-border overflow-hidden shadow-2xl"
+          >
+            <div className="aspect-video bg-navy-3 flex items-center justify-center relative overflow-hidden">
+              <img src={heroDrillThumb} alt="Basketball drill training" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
               <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center z-10">
                 <Play className="h-7 w-7 text-foreground ml-1" />
               </div>
               <div className="absolute top-4 left-4 z-10">
-                <p className="font-heading text-xs tracking-wider text-muted-foreground">PLAY IT FORWARD BASKETBALL</p>
+                <p className="font-heading text-xs tracking-wider text-foreground/80">PLAY IT FORWARD BASKETBALL</p>
                 <p className="font-heading text-2xl text-foreground mt-1">2-BALL STATIONARY COURSE</p>
               </div>
             </div>
@@ -175,7 +189,7 @@ function HeroSection() {
                 <span className="font-heading text-sm tracking-wider text-foreground">ZAC ERVIN · ELON UNIVERSITY</span>
               </div>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
       </div>
     </section>

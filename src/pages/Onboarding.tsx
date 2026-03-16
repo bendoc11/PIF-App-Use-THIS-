@@ -308,7 +308,7 @@ export default function Onboarding() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-heading tracking-wider text-muted-foreground mb-3 block">Hours Per Session</label>
+                    <label className="text-xs font-heading tracking-wider text-muted-foreground mb-3 block">Average Training Sessions Per Day</label>
                     <div className="flex flex-wrap gap-3">
                       {HOURS_OPTIONS.map((h) => (
                         <button

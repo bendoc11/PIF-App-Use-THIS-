@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
+import { generateMultiSessionSchedule } from "@/lib/schedule-utils";
 
 const POSITIONS = ["Point Guard", "Shooting Guard", "Small Forward", "Power Forward", "Center"];
 const FEET_OPTIONS = [4, 5, 6, 7];

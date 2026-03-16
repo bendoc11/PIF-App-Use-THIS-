@@ -166,27 +166,29 @@ function HeroSection() {
           style={{ animationDelay: "0s" }}
           className="relative"
         >
-          <motion.div
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="bg-card rounded-xl border border-border overflow-hidden shadow-2xl"
-          >
-            <div className="aspect-video bg-navy-3 flex items-center justify-center relative overflow-hidden">
-              <img src={heroDrillThumb} alt="Basketball drill training" className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
-              <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center z-10">
-                <Play className="h-7 w-7 text-foreground ml-1" />
+          <Link to="/login">
+            <motion.div
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="bg-card rounded-xl border border-border overflow-hidden shadow-2xl cursor-pointer hover:shadow-primary/20 hover:border-primary/30 transition-all duration-300"
+            >
+              <div className="aspect-video bg-navy-3 flex items-center justify-center relative overflow-hidden">
+                <img src={heroDrillThumb} alt="Basketball drill training" className="absolute inset-0 w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
+                <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center z-10">
+                  <Play className="h-7 w-7 text-foreground ml-1" />
+                </div>
               </div>
-            </div>
-            <div className="p-4">
-              <p className="font-heading text-xs tracking-widest text-primary">BALL SCREEN READS COURSE</p>
-              <p className="font-heading text-base text-foreground mt-1">SPLITTING THE SCREEN — DRILL 2 OF 6</p>
-              <div className="flex items-center gap-2 mt-3">
-                <img src={zacErvinImg} alt="Zac Ervin" className="w-7 h-7 rounded-full object-cover object-top" />
-                <span className="font-heading text-sm tracking-wider text-foreground">ZAC ERVIN · ELON UNIVERSITY</span>
+              <div className="p-4">
+                <p className="font-heading text-xs tracking-widest text-primary">BALL SCREEN READS COURSE</p>
+                <p className="font-heading text-base text-foreground mt-1">SPLITTING THE SCREEN — DRILL 2 OF 6</p>
+                <div className="flex items-center gap-2 mt-3">
+                  <img src={zacErvinImg} alt="Zac Ervin" className="w-7 h-7 rounded-full object-cover object-top" />
+                  <span className="font-heading text-sm tracking-wider text-foreground">ZAC ERVIN · ELON UNIVERSITY</span>
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </Link>
         </motion.div>
       </div>
     </section>

@@ -79,6 +79,13 @@ export default function Onboarding() {
   const handleFinish = async () => {
     if (!user) return;
     setSaving(true);
+
+    // Timeout fallback — force navigate after 10 seconds no matter what
+    const timeout = setTimeout(() => {
+      setSaving(false);
+      navigate("/onboarding/results", { replace: true });
+    }, 10000);
+
     try {
       const heightStr = `${feet}'${inches}`;
       const { error } = await supabase
@@ -93,13 +100,34 @@ export default function Onboarding() {
           training_days_per_week: trainingDays,
           training_hours_per_session: trainingHours,
           onboarding_completed: true,
+          schedule_setup_completed: true,
         } as any)
         .eq("id", user.id);
 
       if (error) throw error;
-      await refreshProfile();
+
+      // Generate weekly schedule — don't let it block navigation
+      try {
+        const rows = generateMultiSessionSchedule(primaryGoal);
+        await supabase.from("weekly_schedule_templates").delete().eq("user_id", user.id);
+        await supabase.from("weekly_schedule_templates").insert(
+          rows.map((r) => ({
+            user_id: user.id,
+            day_of_week: r.day_of_week,
+            session_type: r.session_type,
+            order_index: r.order_index,
+          }))
+        );
+      } catch (schedErr) {
+        console.error("Schedule generation error (non-blocking):", schedErr);
+      }
+
+      clearTimeout(timeout);
+      // Refresh profile without awaiting to avoid blocking
+      refreshProfile().catch(() => {});
       navigate("/onboarding/results", { replace: true });
     } catch (err: any) {
+      clearTimeout(timeout);
       console.error("Onboarding save error:", err);
       toast.error("Failed to save. Please try again.");
     } finally {

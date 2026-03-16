@@ -1,12 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { generateSchedule, type SessionType } from "@/lib/schedule-utils";
+import {
+  generateMultiSessionSchedule,
+  getSessionsForDay,
+  getNonRestSessionsForDay,
+  type SessionType,
+  type ScheduleRow,
+} from "@/lib/schedule-utils";
 
 export interface ScheduleEntry {
   id?: string;
   day_of_week: number;
   session_type: SessionType;
+  order_index: number;
 }
 
 export interface TrainingLog {
@@ -30,11 +37,9 @@ export function useTrainingSchedule() {
 
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
-  // JS getDay: 0=Sun. We want 0=Mon
   const jsDow = today.getDay();
   const todayDow = jsDow === 0 ? 6 : jsDow - 1;
 
-  // Get Monday of current week
   const mondayDate = new Date(today);
   mondayDate.setDate(today.getDate() - todayDow);
   const mondayStr = mondayDate.toISOString().split("T")[0];
@@ -49,9 +54,10 @@ export function useTrainingSchedule() {
     const [schedRes, todayLogsRes, weekLogsRes] = await Promise.all([
       supabase
         .from("weekly_schedule_templates")
-        .select("id, day_of_week, session_type")
+        .select("id, day_of_week, session_type, order_index")
         .eq("user_id", user.id)
-        .order("day_of_week"),
+        .order("day_of_week")
+        .order("order_index"),
       supabase
         .from("training_logs")
         .select("*")
@@ -66,16 +72,18 @@ export function useTrainingSchedule() {
     ]);
 
     const schedData = (schedRes.data || []) as any[];
-    setSchedule(schedData.map((r: any) => ({
-      id: r.id,
-      day_of_week: r.day_of_week,
-      session_type: r.session_type as SessionType,
-    })));
+    setSchedule(
+      schedData.map((r: any) => ({
+        id: r.id,
+        day_of_week: r.day_of_week,
+        session_type: r.session_type as SessionType,
+        order_index: r.order_index ?? 0,
+      }))
+    );
 
     setTodaysLogs((todayLogsRes.data || []) as TrainingLog[]);
     setWeekLogs((weekLogsRes.data || []) as TrainingLog[]);
 
-    // Check if needs setup
     const hasSchedule = schedData.length > 0;
     const setupDone = (profile as any)?.schedule_setup_completed === true;
     setNeedsSetup(!hasSchedule && !setupDone);
@@ -87,57 +95,111 @@ export function useTrainingSchedule() {
     fetchSchedule();
   }, [fetchSchedule]);
 
+  const getTodaySessions = (): ScheduleEntry[] => {
+    return schedule
+      .filter((s) => s.day_of_week === todayDow)
+      .sort((a, b) => a.order_index - b.order_index);
+  };
+
   const getTodaySession = (): SessionType => {
-    const entry = schedule.find((s) => s.day_of_week === todayDow);
-    return (entry?.session_type as SessionType) || "rest";
+    const sessions = getTodaySessions();
+    if (sessions.length === 0) return "rest";
+    return sessions[0].session_type;
+  };
+
+  const isSessionComplete = (sessionType: string, date?: string): boolean => {
+    const logs = date ? weekLogs.filter((l) => l.log_date === date) : todaysLogs;
+    return logs.some(
+      (l) => l.status === "completed" && l.session_type === sessionType
+    );
   };
 
   const isTodayComplete = (): boolean => {
-    return todaysLogs.some((l) => l.status === "completed");
+    const sessions = getTodaySessions();
+    const nonRest = sessions.filter((s) => s.session_type !== "rest");
+    if (nonRest.length === 0) return true;
+    return nonRest.every((s) =>
+      todaysLogs.some(
+        (l) => l.status === "completed" && l.session_type === s.session_type
+      )
+    );
   };
 
-  const getWeekCompletionMap = (): Record<number, boolean> => {
-    const map: Record<number, boolean> = {};
-    weekLogs.forEach((l) => {
-      if (l.status === "completed") {
-        const d = new Date(l.log_date + "T00:00:00");
-        const dow = d.getDay();
-        const mappedDow = dow === 0 ? 6 : dow - 1;
-        map[mappedDow] = true;
+  const getWeekCompletionMap = (): Record<number, "complete" | "partial" | "none"> => {
+    const map: Record<number, "complete" | "partial" | "none"> = {};
+    for (let dow = 0; dow < 7; dow++) {
+      const daySessions = schedule.filter((s) => s.day_of_week === dow);
+      const nonRest = daySessions.filter((s) => s.session_type !== "rest");
+
+      if (nonRest.length === 0) {
+        map[dow] = "complete"; // rest days are "complete"
+        continue;
       }
-    });
+
+      // Get date for this dow
+      const dayDate = new Date(mondayDate);
+      dayDate.setDate(mondayDate.getDate() + dow);
+      const dayStr = dayDate.toISOString().split("T")[0];
+
+      const completedTypes = new Set(
+        weekLogs
+          .filter((l) => l.log_date === dayStr && l.status === "completed")
+          .map((l) => l.session_type)
+      );
+
+      const completedCount = nonRest.filter((s) =>
+        completedTypes.has(s.session_type)
+      ).length;
+
+      if (completedCount === 0) map[dow] = "none";
+      else if (completedCount >= nonRest.length) map[dow] = "complete";
+      else map[dow] = "partial";
+    }
     return map;
   };
 
   const sessionsLeftThisWeek = (): number => {
     const completionMap = getWeekCompletionMap();
     let count = 0;
-    schedule.forEach((s) => {
-      if (s.session_type !== "rest" && s.day_of_week >= todayDow && !completionMap[s.day_of_week]) {
-        count++;
-      }
-    });
+    for (let dow = todayDow; dow < 7; dow++) {
+      const daySessions = schedule.filter((s) => s.day_of_week === dow);
+      const nonRest = daySessions.filter((s) => s.session_type !== "rest");
+
+      const dayDate = new Date(mondayDate);
+      dayDate.setDate(mondayDate.getDate() + dow);
+      const dayStr = dayDate.toISOString().split("T")[0];
+
+      const completedTypes = new Set(
+        weekLogs
+          .filter((l) => l.log_date === dayStr && l.status === "completed")
+          .map((l) => l.session_type)
+      );
+
+      nonRest.forEach((s) => {
+        if (!completedTypes.has(s.session_type)) count++;
+      });
+    }
     return count;
   };
 
-  const generateRecommended = (): SessionType[] => {
-    return generateSchedule(profile?.primary_goal || null, profile?.training_days_per_week || null);
+  const generateRecommended = (): ScheduleRow[] => {
+    return generateMultiSessionSchedule(profile?.primary_goal || null);
   };
 
-  const saveSchedule = async (sessions: SessionType[]) => {
+  const saveSchedule = async (rows: ScheduleRow[]) => {
     if (!user) return;
-    // Delete existing
     await supabase.from("weekly_schedule_templates").delete().eq("user_id", user.id);
-    // Insert new
-    const rows = sessions.map((s, i) => ({
+    const insertRows = rows.map((r) => ({
       user_id: user.id,
-      day_of_week: i,
-      session_type: s,
-      order_index: i,
+      day_of_week: r.day_of_week,
+      session_type: r.session_type,
+      order_index: r.order_index,
     }));
-    await supabase.from("weekly_schedule_templates").insert(rows);
-    // Mark setup complete
-    await supabase.from("profiles").update({ schedule_setup_completed: true } as any).eq("id", user.id);
+    await supabase.from("weekly_schedule_templates").insert(insertRows);
+    await supabase
+      .from("profiles")
+      .update({ schedule_setup_completed: true } as any)
+      .eq("id", user.id);
     await fetchSchedule();
   };
 
@@ -150,16 +212,20 @@ export function useTrainingSchedule() {
     workoutType?: string;
   }) => {
     if (!user) return;
-    const { data } = await supabase.from("training_logs").insert({
-      user_id: user.id,
-      log_date: params.logDate || todayStr,
-      session_type: params.sessionType,
-      status: "completed",
-      duration_minutes: params.durationMinutes || null,
-      intensity: params.intensity || null,
-      notes: params.notes || null,
-      workout_type: params.workoutType || null,
-    } as any).select().single();
+    const { data } = await supabase
+      .from("training_logs")
+      .insert({
+        user_id: user.id,
+        log_date: params.logDate || todayStr,
+        session_type: params.sessionType,
+        status: "completed",
+        duration_minutes: params.durationMinutes || null,
+        intensity: params.intensity || null,
+        notes: params.notes || null,
+        workout_type: params.workoutType || null,
+      } as any)
+      .select()
+      .single();
     await fetchSchedule();
     return data;
   };
@@ -172,6 +238,8 @@ export function useTrainingSchedule() {
     needsSetup,
     todayDow,
     getTodaySession,
+    getTodaySessions,
+    isSessionComplete,
     isTodayComplete,
     getWeekCompletionMap,
     sessionsLeftThisWeek,

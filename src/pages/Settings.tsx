@@ -5,63 +5,116 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { CreditCard, User, RefreshCw, Calendar } from "lucide-react";
+import { CreditCard, User, RefreshCw, Calendar, X, Plus } from "lucide-react";
 import {
   type SessionType,
+  type ScheduleRow,
   SESSION_TYPE_LABELS,
   SESSION_TYPE_ICONS,
-  DAY_LABELS,
+  SESSION_TYPE_COLORS,
+  DAY_LABELS_FULL,
   ALL_SESSION_TYPES,
+  getSessionsForDay,
+  generateMultiSessionSchedule,
 } from "@/lib/schedule-utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function Settings() {
   const { profile, user, subscription, refreshSubscription } = useAuth();
   const [loadingPortal, setLoadingPortal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [schedule, setSchedule] = useState<SessionType[]>(Array(7).fill("rest"));
+  const [schedule, setSchedule] = useState<ScheduleRow[]>([]);
   const [scheduleLoaded, setScheduleLoaded] = useState(false);
+  const [editingDay, setEditingDay] = useState<number | null>(null);
 
-  // Load schedule
   useEffect(() => {
     if (!user) return;
     supabase
       .from("weekly_schedule_templates")
-      .select("day_of_week, session_type")
+      .select("day_of_week, session_type, order_index")
       .eq("user_id", user.id)
       .order("day_of_week")
+      .order("order_index")
       .then(({ data }) => {
         if (data && data.length > 0) {
-          const s: SessionType[] = Array(7).fill("rest");
-          (data as any[]).forEach((r) => {
-            s[r.day_of_week] = r.session_type as SessionType;
-          });
-          setSchedule(s);
+          setSchedule(
+            (data as any[]).map((r) => ({
+              day_of_week: r.day_of_week,
+              session_type: r.session_type as SessionType,
+              order_index: r.order_index ?? 0,
+            }))
+          );
         }
         setScheduleLoaded(true);
       });
   }, [user]);
 
-  const handleScheduleChange = async (dayIndex: number, value: SessionType) => {
+  const persistSchedule = async (newSchedule: ScheduleRow[]) => {
     if (!user) return;
-    const next = [...schedule];
-    next[dayIndex] = value;
-    setSchedule(next);
+    await supabase.from("weekly_schedule_templates").delete().eq("user_id", user.id);
+    if (newSchedule.length > 0) {
+      await supabase.from("weekly_schedule_templates").insert(
+        newSchedule.map((r) => ({
+          user_id: user.id,
+          day_of_week: r.day_of_week,
+          session_type: r.session_type,
+          order_index: r.order_index,
+        }))
+      );
+    }
+  };
 
-    // Upsert: delete old + insert new for this day
-    await supabase
-      .from("weekly_schedule_templates")
-      .delete()
-      .eq("user_id", user.id)
-      .eq("day_of_week", dayIndex);
-
-    await supabase.from("weekly_schedule_templates").insert({
-      user_id: user.id,
-      day_of_week: dayIndex,
-      session_type: value,
-      order_index: dayIndex,
+  const handleRemoveSession = async (dow: number, orderIndex: number) => {
+    let next = schedule.filter(
+      (r) => !(r.day_of_week === dow && r.order_index === orderIndex)
+    );
+    let idx = 0;
+    next = next.map((r) => {
+      if (r.day_of_week === dow) return { ...r, order_index: idx++ };
+      return r;
     });
+    setSchedule(next);
+    await persistSchedule(next);
+    toast({ title: `${DAY_LABELS_FULL[dow]} updated` });
+  };
 
-    toast({ title: `${DAY_LABELS[dayIndex]} updated` });
+  const handleAddSession = async (dow: number, type: SessionType) => {
+    const daySessions = getSessionsForDay(schedule, dow);
+    if (daySessions.length >= 4) return;
+
+    let next = [...schedule];
+    if (type !== "rest") {
+      const onlyRest = daySessions.length === 1 && daySessions[0].session_type === "rest";
+      if (onlyRest) {
+        next = next.filter((r) => r.day_of_week !== dow);
+        next.push({ day_of_week: dow, session_type: type, order_index: 0 });
+        setSchedule(next);
+        await persistSchedule(next);
+        toast({ title: `${DAY_LABELS_FULL[dow]} updated` });
+        return;
+      }
+    }
+    next.push({ day_of_week: dow, session_type: type, order_index: daySessions.length });
+    setSchedule(next);
+    await persistSchedule(next);
+    toast({ title: `${DAY_LABELS_FULL[dow]} updated` });
+  };
+
+  const handleResetSchedule = async () => {
+    const recommended = generateMultiSessionSchedule(profile?.primary_goal || null);
+    setSchedule(recommended);
+    await persistSchedule(recommended);
+    toast({ title: "Schedule reset to recommended plan" });
   };
 
   const handleManageBilling = async () => {
@@ -116,25 +169,100 @@ export default function Settings() {
                 <Calendar className="h-5 w-5 text-primary" /> Training Schedule
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              {DAY_LABELS.map((day, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <span className="w-10 text-sm font-heading text-muted-foreground">{day}</span>
-                  <div className="flex-1">
-                    <select
-                      value={schedule[i]}
-                      onChange={(e) => handleScheduleChange(i, e.target.value as SessionType)}
-                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    >
-                      {ALL_SESSION_TYPES.map((type) => (
-                        <option key={type} value={type}>
-                          {SESSION_TYPE_ICONS[type]} {SESSION_TYPE_LABELS[type]}
-                        </option>
-                      ))}
-                    </select>
+            <CardContent className="space-y-2">
+              {Array.from({ length: 7 }, (_, dow) => {
+                const daySessions = getSessionsForDay(schedule, dow);
+                const isEditing = editingDay === dow;
+
+                return (
+                  <div key={dow} className="rounded-lg border border-border p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <span className="text-sm font-heading font-bold text-foreground w-10 shrink-0">
+                          {DAY_LABELS_FULL[dow]}
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {daySessions.length === 0 ? (
+                            <span className="px-2.5 py-1 rounded-md text-xs font-medium bg-muted text-muted-foreground">
+                              {SESSION_TYPE_ICONS.rest} Rest
+                            </span>
+                          ) : (
+                            daySessions.map((s) => (
+                              <span
+                                key={`${s.day_of_week}-${s.order_index}`}
+                                className={`px-2.5 py-1 rounded-md text-xs font-medium ${SESSION_TYPE_COLORS[s.session_type]}`}
+                              >
+                                {SESSION_TYPE_ICONS[s.session_type]} {SESSION_TYPE_LABELS[s.session_type]}
+                              </span>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs text-muted-foreground shrink-0"
+                        onClick={() => setEditingDay(isEditing ? null : dow)}
+                      >
+                        {isEditing ? "Done" : "Edit"}
+                      </Button>
+                    </div>
+
+                    {isEditing && (
+                      <div className="mt-3 pt-3 border-t border-border space-y-3">
+                        <div className="flex flex-wrap gap-1.5">
+                          {daySessions.map((s) => (
+                            <button
+                              key={`edit-${s.day_of_week}-${s.order_index}`}
+                              onClick={() => handleRemoveSession(dow, s.order_index)}
+                              className={`px-2.5 py-1.5 rounded-md text-xs font-medium flex items-center gap-1 ${SESSION_TYPE_COLORS[s.session_type]}`}
+                            >
+                              {SESSION_TYPE_ICONS[s.session_type]} {SESSION_TYPE_LABELS[s.session_type]}
+                              <X className="h-3 w-3 ml-1" />
+                            </button>
+                          ))}
+                        </div>
+                        {daySessions.length < 4 && (
+                          <div className="flex flex-wrap gap-1.5">
+                            {ALL_SESSION_TYPES.filter(
+                              (t) => !daySessions.some((s) => s.session_type === t)
+                            ).map((type) => (
+                              <button
+                                key={type}
+                                onClick={() => handleAddSession(dow, type)}
+                                className="px-2.5 py-1.5 rounded-md text-xs font-medium bg-muted/50 text-muted-foreground hover:bg-muted transition-colors flex items-center gap-1"
+                              >
+                                <Plus className="h-3 w-3" />
+                                {SESSION_TYPE_ICONS[type]} {SESSION_TYPE_LABELS[type]}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" className="w-full mt-3">
+                    Reset to Recommended Schedule
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Reset Schedule?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will reset your schedule to the recommended plan for your goal. Continue?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleResetSchedule}>Reset</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </CardContent>
           </Card>
         )}

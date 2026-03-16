@@ -28,11 +28,11 @@ interface GameLogRow {
   blocks: number;
   turnovers: number;
   fg_made: number;
-  fg_missed: number;
+  fg_attempted: number;
   three_made: number;
-  three_missed: number;
+  three_attempted: number;
   ft_made: number;
-  ft_missed: number;
+  ft_attempted: number;
   fg_percentage: number;
   three_percentage: number;
   ft_percentage: number;
@@ -40,14 +40,13 @@ interface GameLogRow {
   game_rating: number;
 }
 
-const GAME_TYPES = ["School Team", "Rec League", "Pickup", "Tournament"];
+const GAME_TYPES = ["School", "AAU", "Rec", "Pickup"];
 
-function calcPct(made: number, missed: number): number {
-  const total = made + missed;
-  return total > 0 ? Math.round((made / total) * 1000) / 10 : 0;
+function calcPct(made: number, attempted: number): number {
+  return attempted > 0 ? Math.round((made / attempted) * 1000) / 10 : 0;
 }
 
-function calcRating(g: Omit<GameLogRow, "id" | "game_date" | "opponent" | "game_type" | "result" | "fg_percentage" | "three_percentage" | "ft_percentage" | "efficiency" | "game_rating" | "fg_made" | "fg_missed" | "three_made" | "three_missed" | "ft_made" | "ft_missed">): number | null {
+function calcRating(g: { minutes_played: number; points: number; rebounds: number; assists: number; steals: number; blocks: number; turnovers: number }): number | null {
   if (g.minutes_played === 0) return null;
   const raw = (g.points * 0.4 + g.assists * 0.7 + g.rebounds * 0.5 + g.steals * 1.0 + g.blocks * 1.0 - g.turnovers * 0.8) / (g.minutes_played * 0.1);
   return Math.round(Math.min(10, Math.max(1, raw)) * 10) / 10;
@@ -84,18 +83,18 @@ export function GameLog() {
     const n = games.length;
     const sum = (key: keyof GameLogRow) => games.reduce((s, g) => s + (Number(g[key]) || 0), 0);
     const wins = games.filter(g => g.result === "W").length;
-    const fgm = sum("fg_made"), fgmiss = sum("fg_missed");
-    const tpm = sum("three_made"), tpmiss = sum("three_missed");
-    const ftm = sum("ft_made"), ftmiss = sum("ft_missed");
+    const fgm = sum("fg_made"), fga = sum("fg_attempted");
+    const tpm = sum("three_made"), tpa = sum("three_attempted");
+    const ftm = sum("ft_made"), fta = sum("ft_attempted");
     return {
       ppg: (sum("points") / n).toFixed(1),
       rpg: (sum("rebounds") / n).toFixed(1),
       apg: (sum("assists") / n).toFixed(1),
       spg: (sum("steals") / n).toFixed(1),
       bpg: (sum("blocks") / n).toFixed(1),
-      fg: calcPct(fgm, fgmiss),
-      tp: calcPct(tpm, tpmiss),
-      ft: calcPct(ftm, ftmiss),
+      fg: calcPct(fgm, fga),
+      tp: calcPct(tpm, tpa),
+      ft: calcPct(ftm, fta),
       record: `${wins}-${n - wins}`,
       gamesPlayed: n,
     };
@@ -258,9 +257,9 @@ export function GameLog() {
                     {expanded && (
                       <div className="mt-3 pt-3 border-t border-border">
                         <div className="grid grid-cols-3 gap-2 text-xs text-center">
-                          <div><p className="text-foreground font-heading">{g.fg_made}/{g.fg_made + g.fg_missed}</p><p className="text-muted-foreground">FG</p></div>
-                          <div><p className="text-foreground font-heading">{g.three_made}/{g.three_made + g.three_missed}</p><p className="text-muted-foreground">3PT</p></div>
-                          <div><p className="text-foreground font-heading">{g.ft_made}/{g.ft_made + g.ft_missed}</p><p className="text-muted-foreground">FT</p></div>
+                          <div><p className="text-foreground font-heading">{g.fg_made}/{g.fg_attempted}</p><p className="text-muted-foreground">FG</p></div>
+                          <div><p className="text-foreground font-heading">{g.three_made}/{g.three_attempted}</p><p className="text-muted-foreground">3PT</p></div>
+                          <div><p className="text-foreground font-heading">{g.ft_made}/{g.ft_attempted}</p><p className="text-muted-foreground">FT</p></div>
                           <div><p className="text-foreground font-heading">{g.minutes_played}</p><p className="text-muted-foreground">MIN</p></div>
                           <div><p className="text-foreground font-heading">{g.efficiency}</p><p className="text-muted-foreground">EFF</p></div>
                           <div><p className="text-foreground font-heading">{g.game_rating > 0 ? g.game_rating : "N/A"}</p><p className="text-muted-foreground">RATING</p></div>
@@ -291,30 +290,40 @@ function LogGameModal({ open, onClose, onSaved }: { open: boolean; onClose: () =
   const [opponent, setOpponent] = useState("");
   const [gameType, setGameType] = useState("Pickup");
   const [result, setResult] = useState<"W" | "L">("W");
-  const [minutes, setMinutes] = useState(0);
-  const [points, setPoints] = useState(0);
-  const [rebounds, setRebounds] = useState(0);
-  const [assists, setAssists] = useState(0);
-  const [steals, setSteals] = useState(0);
-  const [blocks, setBlocks] = useState(0);
-  const [turnovers, setTurnovers] = useState(0);
-  const [fgMade, setFgMade] = useState(0);
-  const [fgMissed, setFgMissed] = useState(0);
-  const [threeMade, setThreeMade] = useState(0);
-  const [threeMissed, setThreeMissed] = useState(0);
-  const [ftMade, setFtMade] = useState(0);
-  const [ftMissed, setFtMissed] = useState(0);
+  const [minutes, setMinutes] = useState("");
+  const [points, setPoints] = useState("");
+  const [rebounds, setRebounds] = useState("");
+  const [assists, setAssists] = useState("");
+  const [steals, setSteals] = useState("");
+  const [blocks, setBlocks] = useState("");
+  const [turnovers, setTurnovers] = useState("");
+  const [fgMade, setFgMade] = useState("");
+  const [fgAttempted, setFgAttempted] = useState("");
+  const [threeMade, setThreeMade] = useState("");
+  const [threeAttempted, setThreeAttempted] = useState("");
+  const [ftMade, setFtMade] = useState("");
+  const [ftAttempted, setFtAttempted] = useState("");
 
-  const fgPct = calcPct(fgMade, fgMissed);
-  const tpPct = calcPct(threeMade, threeMissed);
-  const ftPct = calcPct(ftMade, ftMissed);
-  const efficiency = (points + assists + rebounds + steals + blocks) - turnovers;
-  const ratingVal = calcRating({ minutes_played: minutes, points, rebounds, assists, steals, blocks, turnovers });
+  const toNum = (v: string) => parseInt(v) || 0;
+
+  const fgPct = calcPct(toNum(fgMade), toNum(fgAttempted));
+  const tpPct = calcPct(toNum(threeMade), toNum(threeAttempted));
+  const ftPct = calcPct(toNum(ftMade), toNum(ftAttempted));
+  const efficiency = (toNum(points) + toNum(assists) + toNum(rebounds) + toNum(steals) + toNum(blocks)) - toNum(turnovers);
+  const ratingVal = calcRating({
+    minutes_played: toNum(minutes),
+    points: toNum(points),
+    rebounds: toNum(rebounds),
+    assists: toNum(assists),
+    steals: toNum(steals),
+    blocks: toNum(blocks),
+    turnovers: toNum(turnovers),
+  });
 
   const resetForm = () => {
     setDate(new Date()); setOpponent(""); setGameType("Pickup"); setResult("W");
-    setMinutes(0); setPoints(0); setRebounds(0); setAssists(0); setSteals(0); setBlocks(0); setTurnovers(0);
-    setFgMade(0); setFgMissed(0); setThreeMade(0); setThreeMissed(0); setFtMade(0); setFtMissed(0);
+    setMinutes(""); setPoints(""); setRebounds(""); setAssists(""); setSteals(""); setBlocks(""); setTurnovers("");
+    setFgMade(""); setFgAttempted(""); setThreeMade(""); setThreeAttempted(""); setFtMade(""); setFtAttempted("");
   };
 
   const handleSave = async () => {
@@ -326,11 +335,19 @@ function LogGameModal({ open, onClose, onSaved }: { open: boolean; onClose: () =
       opponent: opponent || null,
       game_type: gameType,
       result,
-      minutes_played: minutes,
-      points, rebounds, assists, steals, blocks, turnovers,
-      fg_made: fgMade, fg_missed: fgMissed,
-      three_made: threeMade, three_missed: threeMissed,
-      ft_made: ftMade, ft_missed: ftMissed,
+      minutes_played: toNum(minutes),
+      points: toNum(points),
+      rebounds: toNum(rebounds),
+      assists: toNum(assists),
+      steals: toNum(steals),
+      blocks: toNum(blocks),
+      turnovers: toNum(turnovers),
+      fg_made: toNum(fgMade),
+      fg_attempted: toNum(fgAttempted),
+      three_made: toNum(threeMade),
+      three_attempted: toNum(threeAttempted),
+      ft_made: toNum(ftMade),
+      ft_attempted: toNum(ftAttempted),
       fg_percentage: fgPct,
       three_percentage: tpPct,
       ft_percentage: ftPct,
@@ -348,15 +365,22 @@ function LogGameModal({ open, onClose, onSaved }: { open: boolean; onClose: () =
     }
   };
 
-  const numInput = (label: string, value: number, setter: (v: number) => void) => (
+  const numInput = (label: string, value: string, setter: (v: string) => void) => (
     <div>
       <Label className="text-xs text-muted-foreground">{label}</Label>
       <Input
         type="number"
+        inputMode="numeric"
         min={0}
         value={value}
-        onChange={e => setter(Math.max(0, parseInt(e.target.value) || 0))}
-        className="h-12 text-center text-lg font-heading bg-muted border-border"
+        placeholder="0"
+        onChange={e => {
+          const raw = e.target.value;
+          if (raw === "") { setter(""); return; }
+          const n = parseInt(raw);
+          if (!isNaN(n) && n >= 0) setter(String(n));
+        }}
+        className="h-12 text-center text-lg font-heading bg-muted border-border placeholder:text-muted-foreground/40"
       />
     </div>
   );
@@ -450,15 +474,15 @@ function LogGameModal({ open, onClose, onSaved }: { open: boolean; onClose: () =
             <div className="space-y-2 mt-1">
               <div className="grid grid-cols-2 gap-3">
                 {numInput("FG Made", fgMade, setFgMade)}
-                {numInput("FG Missed", fgMissed, setFgMissed)}
+                {numInput("FG Attempted", fgAttempted, setFgAttempted)}
               </div>
               <div className="grid grid-cols-2 gap-3">
-                {numInput("3PM Made", threeMade, setThreeMade)}
-                {numInput("3PM Missed", threeMissed, setThreeMissed)}
+                {numInput("3PM", threeMade, setThreeMade)}
+                {numInput("3PA", threeAttempted, setThreeAttempted)}
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {numInput("FT Made", ftMade, setFtMade)}
-                {numInput("FT Missed", ftMissed, setFtMissed)}
+                {numInput("FTA", ftAttempted, setFtAttempted)}
               </div>
             </div>
           </div>

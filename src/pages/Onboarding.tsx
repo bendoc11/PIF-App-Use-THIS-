@@ -26,7 +26,7 @@ const GOAL_OPTIONS = [
 ];
 
 const DAYS_OPTIONS = [1, 2, 3, 4, 5, 6, 7];
-const HOURS_OPTIONS = ["30 min", "1 hour", "1.5 hours", "2+ hours"];
+const HOURS_OPTIONS = ["1", "2", "3", "4"];
 
 const TOTAL_STEPS = 5;
 
@@ -308,7 +308,7 @@ export default function Onboarding() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-heading tracking-wider text-muted-foreground mb-3 block">Hours Per Session</label>
+                    <label className="text-xs font-heading tracking-wider text-muted-foreground mb-3 block">Average Training Sessions Per Day</label>
                     <div className="flex flex-wrap gap-3">
                       {HOURS_OPTIONS.map((h) => (
                         <button

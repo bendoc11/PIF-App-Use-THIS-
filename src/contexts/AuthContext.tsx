@@ -172,6 +172,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [checkSubscription]);
 
   useEffect(() => {
+    // Safety timeout: never let loading stay true for more than 8 seconds
+    const loadingTimeout = setTimeout(() => {
+      setLoading(false);
+      setSubscriptionLoading(false);
+    }, 8000);
+
     const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         setSession(session);
@@ -193,9 +199,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await fetchProfile(session.user.id);
       }
       setLoading(false);
+    }).catch(() => {
+      setLoading(false);
     });
 
-    return () => authSub.unsubscribe();
+    return () => {
+      clearTimeout(loadingTimeout);
+      authSub.unsubscribe();
+    };
   }, []);
 
   // Check subscription after user is set

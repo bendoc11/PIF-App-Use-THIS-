@@ -28,51 +28,58 @@ serve(async (req) => {
       apiVersion: "2025-08-27.basil",
     });
 
-    const customers = await stripe.customers.list({ email, limit: 1 });
-    let customerId: string | undefined;
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
-    } else {
-      // Create a new Stripe customer so we have an ID to store
-      const newCustomer = await stripe.customers.create({ email });
-      customerId = newCustomer.id;
-      logStep("Created new Stripe customer", { customerId });
-    }
-    logStep("Customer lookup", { customerId });
-
-    // Save stripe_customer_id to profiles table
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { persistSession: false } }
-    );
-
-    const { error: updateError } = await supabase
-      .from("profiles")
-      .update({ stripe_customer_id: customerId })
-      .eq("email", email);
-
-    if (updateError) {
-      logStep("Failed to save stripe_customer_id", { error: updateError.message });
-    } else {
-      logStep("Saved stripe_customer_id to profile", { customerId, email });
-    }
+    const withTimeout = async <T>(promise: Promise<T>, ms: number, timeoutMessage: string): Promise<T> => {
+      return await Promise.race([
+        promise,
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error(timeoutMessage)), ms)
+        ),
+      ]);
+    };
 
     const origin = req.headers.get("origin") || "http://localhost:3000";
 
-    const session = await stripe.checkout.sessions.create({
-      customer: customerId,
-      line_items: [
-        { price: "price_1T6WwJBPEetonI9eZgTrNOwK", quantity: 1 },
-        { price: "price_1T6XK6BPEetonI9eSK1U48vs", quantity: 1 },
-      ],
-      mode: "subscription",
-      subscription_data: {
-        trial_period_days: 7,
-      },
-      success_url: `${origin}/signup-success?session_id={CHECKOUT_SESSION_ID}&verified=true`,
-      cancel_url: `${origin}/login?checkout=cancelled`,
-    });
+    const session = await withTimeout(
+      stripe.checkout.sessions.create({
+        customer_email: email,
+        line_items: [
+          { price: "price_1T6WwJBPEetonI9eZgTrNOwK", quantity: 1 },
+          { price: "price_1T6XK6BPEetonI9eSK1U48vs", quantity: 1 },
+        ],
+        mode: "subscription",
+        subscription_data: {
+          trial_period_days: 7,
+        },
+        success_url: `${origin}/signup-success?session_id={CHECKOUT_SESSION_ID}&verified=true`,
+        cancel_url: `${origin}/login?checkout=cancelled`,
+      }),
+      9000,
+      "Stripe checkout request timed out"
+    );
+
+    const sessionCustomerId = typeof session.customer === "string" ? session.customer : undefined;
+    if (sessionCustomerId) {
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+        { auth: { persistSession: false } }
+      );
+
+      const { error: updateError } = await withTimeout(
+        supabase
+          .from("profiles")
+          .update({ stripe_customer_id: sessionCustomerId })
+          .eq("email", email),
+        2000,
+        "Saving customer id timed out"
+      );
+
+      if (updateError) {
+        logStep("Failed to save stripe_customer_id", { error: updateError.message });
+      } else {
+        logStep("Saved stripe_customer_id to profile", { customerId: sessionCustomerId, email });
+      }
+    }
 
     logStep("Checkout session created", { sessionId: session.id });
 

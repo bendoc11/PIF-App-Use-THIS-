@@ -300,4 +300,19 @@ async function handlePaymentFailed(supabase: any, invoice: any) {
     ...existing,
     payment_failed: true,
   });
+
+  // Notify GHL — payment failed
+  const { data: fullProfile } = await supabase
+    .from("profiles")
+    .select("email, first_name")
+    .eq("id", profile.id)
+    .maybeSingle();
+
+  if (fullProfile) {
+    notifyGHL({
+      event: "payment_failed",
+      email: fullProfile.email || "",
+      first_name: fullProfile.first_name || "",
+    });
+  }
 }

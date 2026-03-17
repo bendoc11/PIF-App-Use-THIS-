@@ -42,10 +42,6 @@ export default function SignupSuccess() {
         try {
           const { data, error } = await supabase.functions.invoke("check-subscription");
           if (!error && data?.subscribed) {
-            await supabase.from("profiles").update({
-              subscription_status: JSON.stringify(data),
-              subscription_checked_at: new Date().toISOString(),
-            } as any).eq("id", user.id);
 
             sessionStorage.setItem("pif_subscription_confirmed", "true");
             await refreshSubscription();

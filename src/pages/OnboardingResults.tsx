@@ -150,6 +150,8 @@ export default function OnboardingResults() {
           >
             {loading ? (
               <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Loading…</span>
+            ) : errorMsg ? (
+              errorMsg
             ) : (
               "Start My 7-Day Trial →"
             )}

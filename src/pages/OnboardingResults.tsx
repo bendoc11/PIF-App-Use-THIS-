@@ -47,8 +47,21 @@ export default function OnboardingResults() {
       const { data, error } = await Promise.race([checkoutPromise, timeoutPromise]) as any;
       if (error) throw error;
       if (data?.url) {
+        // Save session & state before external redirect to Stripe
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          localStorage.setItem("pif_pre_checkout_session", JSON.stringify({
+            access_token: session.access_token,
+            refresh_token: session.refresh_token,
+          }));
+        }
+        localStorage.setItem("pif_post_checkout", JSON.stringify({
+          userId: authUser?.id,
+          onboardingCompleted: true,
+          returnTime: Date.now(),
+        }));
         window.location.href = data.url;
-        return; // don't reset loading — we're navigating away
+        return;
       }
       throw new Error("No checkout URL returned");
     } catch (err: any) {

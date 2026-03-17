@@ -527,6 +527,7 @@ export type Database = {
           last_drill_date: string | null
           last_name: string | null
           onboarding_completed: boolean
+          phone: string | null
           plan: string
           position: string | null
           primary_goal: string | null
@@ -555,6 +556,7 @@ export type Database = {
           last_drill_date?: string | null
           last_name?: string | null
           onboarding_completed?: boolean
+          phone?: string | null
           plan?: string
           position?: string | null
           primary_goal?: string | null
@@ -583,6 +585,7 @@ export type Database = {
           last_drill_date?: string | null
           last_name?: string | null
           onboarding_completed?: boolean
+          phone?: string | null
           plan?: string
           position?: string | null
           primary_goal?: string | null

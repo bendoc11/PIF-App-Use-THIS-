@@ -1,60 +1,64 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  format,
-  startOfMonth,
-  endOfMonth,
-  eachDayOfInterval,
-  startOfWeek,
-  endOfWeek,
-  addMonths,
-  subMonths,
-  isSameDay,
-  isSameMonth,
-  isAfter,
-  startOfDay,
-} from "date-fns";
-import { Flame, Trophy, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { format, startOfWeek, eachDayOfInterval, subWeeks, isSameWeek } from "date-fns";
+import { Flame, Trophy, Calendar } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface TrainingCalendarProps {
   drillCompletedDates: string[];
   streakDays: number;
 }
 
+interface WeekData {
+  weekStart: Date;
+  daysTrained: number;
+  goalMet: boolean;
+  isCurrent: boolean;
+  pct: number; // 0–1
+}
+
 export function TrainingCalendar({ drillCompletedDates, streakDays }: TrainingCalendarProps) {
-  const today = startOfDay(new Date());
-  const minMonth = subMonths(startOfMonth(today), 5);
-  const [currentMonth, setCurrentMonth] = useState(startOfMonth(today));
+  const { profile } = useAuth();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const today = new Date();
+  const goal = profile?.training_days_per_week ?? 3;
 
-  const canGoBack = isAfter(currentMonth, minMonth) || currentMonth.getTime() === minMonth.getTime() ? currentMonth.getTime() > minMonth.getTime() : false;
-  const canGoForward = currentMonth.getTime() < startOfMonth(today).getTime();
-
-  const { calendarDays, trainedDaysSet, totalTrainingDays, longestStreak, monthTrainingCount } = useMemo(() => {
+  const { weeks, longestStreak, totalTrainingDays } = useMemo(() => {
+    // Build set of trained dates
     const trainedSet = new Set<string>();
     drillCompletedDates.forEach((d) => {
       trainedSet.add(format(new Date(d), "yyyy-MM-dd"));
     });
 
-    // Build calendar grid for currentMonth
-    const monthStart = startOfMonth(currentMonth);
-    const monthEnd = endOfMonth(currentMonth);
-    const calStart = startOfWeek(monthStart, { weekStartsOn: 1 });
-    const calEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
-    const days = eachDayOfInterval({ start: calStart, end: calEnd });
+    // Build 12 weeks of data (oldest → newest)
+    const weeksList: WeekData[] = [];
+    for (let i = 11; i >= 0; i--) {
+      const ws = startOfWeek(subWeeks(today, i), { weekStartsOn: 1 });
+      const we = new Date(ws);
+      we.setDate(we.getDate() + 6);
+      const days = eachDayOfInterval({ start: ws, end: we });
+      let count = 0;
+      days.forEach((day) => {
+        if (day <= today && trainedSet.has(format(day, "yyyy-MM-dd"))) count++;
+      });
+      const pct = goal > 0 ? Math.min(count / goal, 1) : 0;
+      weeksList.push({
+        weekStart: ws,
+        daysTrained: count,
+        goalMet: pct >= 0.8,
+        isCurrent: isSameWeek(ws, today, { weekStartsOn: 1 }),
+        pct,
+      });
+    }
 
-    // Count training days this month
-    let monthCount = 0;
-    eachDayOfInterval({ start: monthStart, end: monthEnd }).forEach((d) => {
-      if (trainedSet.has(format(d, "yyyy-MM-dd"))) monthCount++;
-    });
-
-    // Longest streak calculation
+    // Longest streak from all trained dates
     const sortedDays = [...trainedSet].sort();
     let longest = 0;
     let current = 0;
     let prevDate: Date | null = null;
     sortedDays.forEach((ds) => {
-      const d = new Date(ds);
+      const d = new Date(ds + "T00:00:00");
       if (prevDate && d.getTime() - prevDate.getTime() === 86400000) {
         current++;
       } else {
@@ -64,98 +68,47 @@ export function TrainingCalendar({ drillCompletedDates, streakDays }: TrainingCa
       prevDate = d;
     });
 
-    return {
-      calendarDays: days,
-      trainedDaysSet: trainedSet,
-      totalTrainingDays: trainedSet.size,
-      longestStreak: longest,
-      monthTrainingCount: monthCount,
-    };
-  }, [drillCompletedDates, currentMonth]);
+    return { weeks: weeksList, longestStreak: longest, totalTrainingDays: trainedSet.size };
+  }, [drillCompletedDates, goal]);
 
-  const dayLabels = ["M", "T", "W", "T", "F", "S", "S"];
+  // Auto-scroll to rightmost (current week)
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
+    }
+  }, [weeks]);
+
+  if (drillCompletedDates.length === 0) {
+    return (
+      <Card className="bg-card border-border">
+        <CardContent className="p-5">
+          <h2 className="text-lg font-heading text-foreground mb-2">Training Consistency</h2>
+          <p className="text-sm text-muted-foreground py-8 text-center">
+            Complete your first drill to start tracking your consistency
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="bg-card border-border">
       <CardContent className="p-5">
-        {/* Header row */}
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setCurrentMonth((m) => subMonths(m, 1))}
-              disabled={!canGoBack}
-              className="h-8 w-8 flex items-center justify-center rounded-md bg-muted text-foreground disabled:opacity-30 hover:bg-muted/80 transition-colors"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <h2 className="text-lg font-heading text-foreground tracking-wider">
-              {format(currentMonth, "MMMM yyyy").toUpperCase()}
-            </h2>
-            <button
-              onClick={() => setCurrentMonth((m) => addMonths(m, 1))}
-              disabled={!canGoForward}
-              className="h-8 w-8 flex items-center justify-center rounded-md bg-muted text-foreground disabled:opacity-30 hover:bg-muted/80 transition-colors"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-          <span className="text-xs font-heading tracking-wider bg-primary/15 text-primary px-3 py-1.5 rounded-full">
-            {monthTrainingCount} training day{monthTrainingCount !== 1 ? "s" : ""}
-          </span>
-        </div>
+        <h2 className="text-lg font-heading text-foreground mb-4">Training Consistency</h2>
 
-        {/* Day of week headers */}
-        <div className="grid grid-cols-7 gap-[3px] mb-[3px]">
-          {dayLabels.map((label, i) => (
-            <div
-              key={i}
-              className="h-8 flex items-center justify-center text-[11px] font-semibold text-muted-foreground tracking-wider"
-            >
-              {label}
-            </div>
+        {/* Scrollable rings row */}
+        <div
+          ref={scrollRef}
+          className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide"
+          style={{ scrollBehavior: "smooth" }}
+        >
+          {weeks.map((w, idx) => (
+            <WeekRing key={idx} week={w} goal={goal} index={idx} />
           ))}
         </div>
 
-        {/* Calendar grid */}
-        <div className="grid grid-cols-7 gap-[3px]">
-          {calendarDays.map((day) => {
-            const dateStr = format(day, "yyyy-MM-dd");
-            const inMonth = isSameMonth(day, currentMonth);
-            const isFuture = isAfter(day, today);
-            const isToday = isSameDay(day, today);
-            const trained = trainedDaysSet.has(dateStr);
-
-            if (!inMonth) {
-              return <div key={dateStr} className="aspect-square min-h-[36px]" />;
-            }
-
-            let cellClasses =
-              "aspect-square min-h-[36px] rounded-lg flex items-center justify-center text-xs font-body transition-all relative ";
-
-            if (isFuture) {
-              cellClasses += "text-muted-foreground/25";
-            } else if (trained && isToday) {
-              cellClasses +=
-                "bg-primary text-primary-foreground font-bold shadow-[inset_0_1px_8px_hsl(var(--primary)/0.4),0_0_12px_hsl(var(--primary)/0.3)]";
-            } else if (trained) {
-              cellClasses +=
-                "bg-primary text-primary-foreground font-bold shadow-[inset_0_1px_6px_hsl(var(--primary)/0.3)]";
-            } else if (isToday) {
-              cellClasses += "text-foreground ring-1 ring-foreground/50";
-            } else {
-              cellClasses += "bg-muted/50 text-muted-foreground/50";
-            }
-
-            return (
-              <div key={dateStr} className={cellClasses}>
-                {day.getDate()}
-              </div>
-            );
-          })}
-        </div>
-
         {/* Stats row */}
-        <div className="flex items-center gap-6 mt-5 pt-4 border-t border-border">
+        <div className="flex items-center gap-6 mt-4 pt-4 border-t border-border">
           <div className="flex items-center gap-2">
             <Flame className="h-4 w-4 text-primary" />
             <div>
@@ -180,5 +133,62 @@ export function TrainingCalendar({ drillCompletedDates, streakDays }: TrainingCa
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function WeekRing({ week, goal, index }: { week: WeekData; goal: number; index: number }) {
+  const size = week.isCurrent ? 64 : 56;
+  const stroke = 6;
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const filled = circumference * week.pct;
+
+  return (
+    <div className="flex flex-col items-center shrink-0" style={{ minWidth: size + 8 }}>
+      <div
+        className={`relative ${week.isCurrent ? "ring-2 ring-foreground/20 rounded-full" : ""}`}
+        style={{ width: size, height: size }}
+      >
+        <svg width={size} height={size} className="-rotate-90">
+          {/* Background track */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke="hsl(var(--muted))"
+            strokeWidth={stroke}
+          />
+          {/* Animated fill */}
+          <motion.circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke="hsl(var(--primary))"
+            strokeWidth={stroke}
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            initial={{ strokeDashoffset: circumference }}
+            animate={{ strokeDashoffset: circumference - filled }}
+            transition={{ duration: 0.8, ease: "easeOut", delay: index * 0.05 }}
+          />
+        </svg>
+        {/* Center number */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className={`font-heading text-foreground ${week.isCurrent ? "text-lg" : "text-base"}`}>
+            {week.daysTrained}
+          </span>
+        </div>
+      </div>
+      <span className="text-[10px] text-muted-foreground mt-1.5">
+        {format(week.weekStart, "MMM d")}
+      </span>
+      {week.goalMet && (
+        <span className="text-[9px] font-heading text-primary tracking-wider mt-0.5">
+          GOAL MET
+        </span>
+      )}
+    </div>
   );
 }

@@ -92,71 +92,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) await fetchProfile(user.id);
   };
 
-  const checkSubscription = useCallback(async (forceRefresh = false) => {
+  const checkSubscription = useCallback(async (_forceRefresh = false) => {
+    if (_forceRefresh) {
+      // Kept for API compatibility; profile cache writes are intentionally disabled.
+    }
+
     try {
       setSubscriptionLoading(true);
 
-      // Skip cache if force refresh requested (e.g. post-checkout)
-      if (!forceRefresh) {
-        // Check if we have a recent cached result in profiles
-        const { data: profileData } = await supabase
-          .from("profiles")
-          .select("subscription_status, subscription_checked_at")
-          .eq("id", user?.id ?? "")
-          .single();
-
-        const checkedAt = profileData?.subscription_checked_at
-          ? new Date(profileData.subscription_checked_at).getTime()
-          : 0;
-        const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
-
-        // Use cached value if checked within last 5 minutes
-        if (checkedAt > fiveMinutesAgo && profileData?.subscription_status) {
-          try {
-            const cached = JSON.parse(profileData.subscription_status);
-            setSubscription({
-              subscribed: cached.subscribed ?? false,
-              product_id: cached.product_id ?? null,
-              subscription_end: cached.subscription_end ?? null,
-              trial_end: cached.trial_end ?? null,
-            });
-            return;
-          } catch {
-            // Invalid JSON in cache, fall through to live check
-          }
-        }
-      }
-
-      // Call edge function for fresh check
       const { data, error } = await supabase.functions.invoke("check-subscription");
       if (error) {
         console.error("check-subscription error:", error);
         return;
       }
+
       if (data) {
-        const sub = {
+        setSubscription({
           subscribed: data.subscribed ?? false,
           product_id: data.product_id ?? null,
           subscription_end: data.subscription_end ?? null,
           trial_end: data.trial_end ?? null,
-        };
-        setSubscription(sub);
-
-        // Cache result in profiles
-        await supabase
-          .from("profiles")
-          .update({
-            subscription_status: JSON.stringify(sub),
-            subscription_checked_at: new Date().toISOString(),
-          } as any)
-          .eq("id", user?.id ?? "");
+        });
       }
     } catch (err) {
       console.error("Failed to check subscription:", err);
     } finally {
       setSubscriptionLoading(false);
     }
-  }, [user?.id]);
+  }, []);
 
   const refreshSubscription = useCallback(async () => {
     await checkSubscription(true);

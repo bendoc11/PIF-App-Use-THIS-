@@ -452,6 +452,23 @@ export default function CoursePlayer() {
         </div>
       </div>
 
+      {isCompleting && typeof document !== "undefined" && createPortal(
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 z-[60] bg-background/80 backdrop-blur-sm flex items-center justify-center"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: [0, 1.2, 1] }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+          >
+            <Check className="h-24 w-24 text-pif-green" />
+          </motion.div>
+        </motion.div>,
+        document.body
+      )}
+
       {/* Course Completion Modal */}
       <AnimatePresence>
         {showCompletion && (

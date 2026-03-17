@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
+import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -31,19 +32,39 @@ serve(async (req) => {
     let customerId: string | undefined;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
+    } else {
+      // Create a new Stripe customer so we have an ID to store
+      const newCustomer = await stripe.customers.create({ email });
+      customerId = newCustomer.id;
+      logStep("Created new Stripe customer", { customerId });
     }
     logStep("Customer lookup", { customerId });
 
+    // Save stripe_customer_id to profiles table
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
+
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({ stripe_customer_id: customerId })
+      .eq("email", email);
+
+    if (updateError) {
+      logStep("Failed to save stripe_customer_id", { error: updateError.message });
+    } else {
+      logStep("Saved stripe_customer_id to profile", { customerId, email });
+    }
+
     const origin = req.headers.get("origin") || "http://localhost:3000";
 
-    // $7 trial fee (one-time) + subscription with 7-day free trial
-    // This charges $7 upfront, then $27/month after 7 days
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      customer_email: customerId ? undefined : email,
       line_items: [
-        { price: "price_1T6WwJBPEetonI9eZgTrNOwK", quantity: 1 }, // $27/month recurring
-        { price: "price_1T6XK6BPEetonI9eSK1U48vs", quantity: 1 }, // $7 one-time trial fee
+        { price: "price_1T6WwJBPEetonI9eZgTrNOwK", quantity: 1 },
+        { price: "price_1T6XK6BPEetonI9eSK1U48vs", quantity: 1 },
       ],
       mode: "subscription",
       subscription_data: {

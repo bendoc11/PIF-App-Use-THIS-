@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -10,6 +10,28 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MessageSquare, ArrowBigUp, Send, Plus, X, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+
+const DRAFT_KEY = "community_post_draft";
+
+function saveDraft(title: string, body: string, category: string) {
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ title, body, category }));
+  } catch {}
+}
+
+function loadDraft(): { title: string; body: string; category: string } | null {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    const d = JSON.parse(raw);
+    if (d.title || d.body) return d;
+  } catch {}
+  return null;
+}
+
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch {}
+}
 
 interface Post {
   id: string;
@@ -54,48 +76,80 @@ export default function Community() {
   const [replies, setReplies] = useState<Record<string, Reply[]>>({});
   const [replyText, setReplyText] = useState("");
   const [userUpvotes, setUserUpvotes] = useState<Set<string>>(new Set());
+  const draftRestored = useRef(false);
 
-  const fetchPosts = async () => {
+  // Restore draft when form opens
+  useEffect(() => {
+    if (showNewPost && !draftRestored.current) {
+      const draft = loadDraft();
+      if (draft) {
+        setNewTitle(draft.title);
+        setNewBody(draft.body);
+        setNewCategory(draft.category || "General");
+        toast.info("Draft restored");
+      }
+      draftRestored.current = true;
+    }
+    if (!showNewPost) {
+      draftRestored.current = false;
+    }
+  }, [showNewPost]);
+
+  // Save draft on every keystroke
+  useEffect(() => {
+    if (showNewPost) {
+      saveDraft(newTitle, newBody, newCategory);
+    }
+  }, [newTitle, newBody, newCategory, showNewPost]);
+
+  const fetchPosts = useCallback(async () => {
     const { data } = await supabase
       .from("community_posts")
       .select("*, profiles(first_name, last_name)")
       .eq("hidden", false)
       .order("created_at", { ascending: false });
     if (data) setPosts(data as any);
-  };
+  }, []);
 
-  const fetchUserUpvotes = async () => {
+  const fetchUserUpvotes = useCallback(async () => {
     if (!user) return;
     const { data } = await supabase
       .from("community_upvotes")
       .select("post_id")
       .eq("user_id", user.id);
     if (data) setUserUpvotes(new Set(data.map((u) => u.post_id)));
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchPosts();
     fetchUserUpvotes();
-  }, [user]);
+  }, [fetchPosts, fetchUserUpvotes]);
 
   const handleCreatePost = async () => {
     if (!newTitle.trim() || !newBody.trim() || !user) return;
     setPosting(true);
-    const { error } = await supabase.from("community_posts").insert({
-      user_id: user.id,
-      title: newTitle.trim(),
-      body: newBody.trim(),
-      category: newCategory,
-    });
-    setPosting(false);
-    if (error) {
-      toast.error("Failed to create post");
-    } else {
+    try {
+      const { error } = await supabase.from("community_posts").insert({
+        user_id: user.id,
+        title: newTitle.trim(),
+        body: newBody.trim(),
+        category: newCategory,
+      });
+      if (error) {
+        toast.error("Failed to create post. Your draft has been saved.");
+        return;
+      }
+      clearDraft();
       setNewTitle("");
       setNewBody("");
       setShowNewPost(false);
       toast.success("Post created!");
       fetchPosts();
+    } catch (err) {
+      console.error("Post creation error:", err);
+      toast.error("Something went wrong. Your draft has been saved.");
+    } finally {
+      setPosting(false);
     }
   };
 

@@ -51,42 +51,50 @@ export function useTrainingSchedule() {
     if (!user) return;
     setLoading(true);
 
-    const [schedRes, todayLogsRes, weekLogsRes] = await Promise.all([
-      supabase
-        .from("weekly_schedule_templates")
-        .select("id, day_of_week, session_type, order_index")
-        .eq("user_id", user.id)
-        .order("day_of_week")
-        .order("order_index"),
-      supabase
-        .from("training_logs")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("log_date", todayStr),
-      supabase
-        .from("training_logs")
-        .select("*")
-        .eq("user_id", user.id)
-        .gte("log_date", mondayStr)
-        .lte("log_date", sundayStr),
-    ]);
+    try {
+      const [schedRes, todayLogsRes, weekLogsRes] = await Promise.all([
+        supabase
+          .from("weekly_schedule_templates")
+          .select("id, day_of_week, session_type, order_index")
+          .eq("user_id", user.id)
+          .order("day_of_week")
+          .order("order_index"),
+        supabase
+          .from("training_logs")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("log_date", todayStr),
+        supabase
+          .from("training_logs")
+          .select("*")
+          .eq("user_id", user.id)
+          .gte("log_date", mondayStr)
+          .lte("log_date", sundayStr),
+      ]);
 
-    const schedData = (schedRes.data || []) as any[];
-    setSchedule(
-      schedData.map((r: any) => ({
-        id: r.id,
-        day_of_week: r.day_of_week,
-        session_type: r.session_type as SessionType,
-        order_index: r.order_index ?? 0,
-      }))
-    );
+      const schedData = (schedRes.data || []) as any[];
+      setSchedule(
+        schedData.map((r: any) => ({
+          id: r.id,
+          day_of_week: r.day_of_week,
+          session_type: r.session_type as SessionType,
+          order_index: r.order_index ?? 0,
+        }))
+      );
 
-    setTodaysLogs((todayLogsRes.data || []) as TrainingLog[]);
-    setWeekLogs((weekLogsRes.data || []) as TrainingLog[]);
+      setTodaysLogs((todayLogsRes.data || []) as TrainingLog[]);
+      setWeekLogs((weekLogsRes.data || []) as TrainingLog[]);
 
-    const hasSchedule = schedData.length > 0;
-    const setupDone = (profile as any)?.schedule_setup_completed === true;
-    setNeedsSetup(!hasSchedule && !setupDone);
+      const hasSchedule = schedData.length > 0;
+      const setupDone = (profile as any)?.schedule_setup_completed === true;
+      setNeedsSetup(!hasSchedule && !setupDone);
+    } catch (err) {
+      console.error("[TrainingSchedule] fetchSchedule error:", err);
+      setSchedule([]);
+      setTodaysLogs([]);
+      setWeekLogs([]);
+      setNeedsSetup(false);
+    }
 
     setLoading(false);
   }, [user, profile, todayStr, mondayStr, sundayStr]);

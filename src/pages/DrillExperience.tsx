@@ -9,7 +9,7 @@ import { DrillComplete } from "@/components/drill/DrillComplete";
 import { ShotInputScreen } from "@/components/drill/ShotInputScreen";
 import { ShotResultFlash } from "@/components/drill/ShotResultFlash";
 import { updateStreak } from "@/hooks/useStreakUpdate";
-import { Loader2, Check } from "lucide-react";
+import { Loader2, Check, Flame } from "lucide-react";
 import { motion } from "framer-motion";
 
 type ScreenState = "intro" | "active" | "shot-input" | "shot-result" | "flash" | "complete";

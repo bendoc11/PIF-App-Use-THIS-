@@ -100,6 +100,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return data;
     } catch (err) {
       console.error("[Auth] fetchProfile threw:", err);
+      await supabase.auth.signOut();
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      setSubscription(defaultSubscription);
       return null;
     }
   }, []);

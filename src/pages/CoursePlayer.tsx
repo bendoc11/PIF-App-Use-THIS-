@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -51,14 +52,14 @@ export default function CoursePlayer() {
   const [course, setCourse] = useState<Course | null>(null);
   const [drills, setDrills] = useState<Drill[]>([]);
   const [completedDrills, setCompletedDrills] = useState<Set<string>>(new Set());
-  const [completing, setCompleting] = useState(false);
-  const [justCompleted, setJustCompleted] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [showMobileDrawer, setShowMobileDrawer] = useState(false);
   const [showShotInput, setShowShotInput] = useState(false);
   const [showShotResult, setShowShotResult] = useState(false);
   const [shotResultPct, setShotResultPct] = useState<number | null>(null);
+  const completionTimerRef = useRef<number | null>(null);
 
   const currentDrill = drills[currentIndex - 1];
   const clampedCompleted = Math.min(completedDrills.size, drills.length);
@@ -95,18 +96,16 @@ export default function CoursePlayer() {
 
   const hasShotTracking = !!(currentDrill as any)?.enable_shot_tracking && ((currentDrill as any)?.shot_attempts ?? 0) > 0;
 
-  const handleMarkComplete = async () => {
-    if (!currentDrill || !user) return;
-    if (hasShotTracking) {
-      setShowShotInput(true);
-      return;
-    }
-    await doComplete();
-  };
+  useEffect(() => {
+    return () => {
+      if (completionTimerRef.current !== null) {
+        window.clearTimeout(completionTimerRef.current);
+      }
+    };
+  }, []);
 
-  const doComplete = async () => {
+  const persistCompletion = async () => {
     if (!currentDrill || !user) return;
-    setCompleting(true);
 
     await supabase.from("user_drill_progress").upsert({
       user_id: user.id,
@@ -125,17 +124,47 @@ export default function CoursePlayer() {
     }, { onConflict: "user_id,course_id" });
 
     setCompletedDrills((prev) => new Set([...prev, currentDrill.id]));
-    setCompleting(false);
-    setJustCompleted(true);
+  };
+
+  const advanceAfterCompletion = () => {
+    setIsCompleting(false);
 
     if (currentIndex >= drills.length) {
-      setTimeout(() => setShowCompletion(true), 1000);
-    } else {
-      setTimeout(() => {
-        setJustCompleted(false);
-        navigate(`/courses/${courseId}/${currentIndex + 1}`);
-      }, 2000);
+      setShowCompletion(true);
+      return;
     }
+
+    navigate(`/courses/${courseId}/${currentIndex + 1}`);
+  };
+
+  const startCompletionFlow = () => {
+    if (!currentDrill || !user || isCompleting) return;
+
+    setIsCompleting(true);
+
+    requestAnimationFrame(() => {
+      void persistCompletion();
+    });
+
+    if (completionTimerRef.current !== null) {
+      window.clearTimeout(completionTimerRef.current);
+    }
+
+    completionTimerRef.current = window.setTimeout(() => {
+      advanceAfterCompletion();
+    }, 600);
+  };
+
+  const handleMarkComplete = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!currentDrill || !user || isCompleting) return;
+
+    if (hasShotTracking) {
+      setShowShotInput(true);
+      return;
+    }
+
+    startCompletionFlow();
   };
 
   const handleShotSave = async (shotsMade: number) => {
@@ -159,13 +188,13 @@ export default function CoursePlayer() {
     setTimeout(() => {
       setShowShotResult(false);
       setShotResultPct(null);
-      doComplete();
+      startCompletionFlow();
     }, 800);
   };
 
   const handleShotSkip = async () => {
     setShowShotInput(false);
-    await doComplete();
+    startCompletionFlow();
   };
 
   const getDrillStatus = (drill: Drill, index: number) => {
@@ -401,37 +430,20 @@ export default function CoursePlayer() {
 
                 {/* Action button — always visible below tab content */}
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-2xl mt-6">
-                  {!completedDrills.has(currentDrill.id) ? (
-                    <Button
-                      onClick={handleMarkComplete}
-                      disabled={completing || justCompleted}
-                      className={`w-full h-14 btn-cta text-base transition-all ${
-                        justCompleted ? "bg-pif-green hover:bg-pif-green" : "bg-primary hover:bg-primary/90 glow-red-hover"
-                      }`}
-                    >
-                      {completing ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                      ) : justCompleted ? (
-                        <motion.span initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="flex items-center gap-2">
-                          <Check className="h-5 w-5" /> Completed!
-                        </motion.span>
-                      ) : (
-                        <>Mark Complete & Continue →</>
-                      )}
-                    </Button>
-                  ) : currentIndex < drills.length ? (
-                    <Button
-                      onClick={() => navigate(`/courses/${courseId}/${currentIndex + 1}`)}
-                      className="w-full h-14 btn-cta text-base bg-primary hover:bg-primary/90 glow-red-hover"
-                    >
-                      Next Drill →
-                    </Button>
-                  ) : (
+                  {currentIndex >= drills.length && completedDrills.has(currentDrill.id) ? (
                     <Link to="/courses">
                       <Button className="w-full h-14 btn-cta text-base bg-primary hover:bg-primary/90 glow-red-hover">
                         Back to Workouts
                       </Button>
                     </Link>
+                  ) : (
+                    <Button
+                      onClick={handleMarkComplete}
+                      disabled={isCompleting}
+                      className="w-full h-14 btn-cta text-base bg-primary hover:bg-primary/90 glow-red-hover"
+                    >
+                      Mark Complete & Continue →
+                    </Button>
                   )}
                 </motion.div>
               </div>
@@ -439,6 +451,23 @@ export default function CoursePlayer() {
           )}
         </div>
       </div>
+
+      {isCompleting && typeof document !== "undefined" && createPortal(
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 z-[60] bg-background/80 backdrop-blur-sm flex items-center justify-center"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: [0, 1.2, 1] }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+          >
+            <Check className="h-24 w-24 text-pif-green" />
+          </motion.div>
+        </motion.div>,
+        document.body
+      )}
 
       {/* Course Completion Modal */}
       <AnimatePresence>

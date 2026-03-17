@@ -8,6 +8,11 @@ const ADMIN_PREFIX = "/admin";
 export function AuthGuard({ children }: { children: ReactNode }) {
   const { user, loading, subscription, subscriptionLoading, profile } = useAuth();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  // Detect Stripe return — skip onboarding & paywall checks entirely
+  const isStripeReturn = searchParams.has("session_id") || searchParams.get("verified") === "true";
+  const isSignupSuccessRoute = location.pathname.startsWith("/signup-success");
 
   if (loading) {
     return (
@@ -18,6 +23,14 @@ export function AuthGuard({ children }: { children: ReactNode }) {
   }
 
   if (!user) {
+    // Never redirect to login if returning from Stripe
+    if (isStripeReturn || isSignupSuccessRoute) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      );
+    }
     return <Navigate to="/login" replace />;
   }
 
@@ -28,6 +41,11 @@ export function AuthGuard({ children }: { children: ReactNode }) {
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
+  }
+
+  // Skip all onboarding & subscription checks on Stripe return pages
+  if (isStripeReturn || isSignupSuccessRoute) {
+    return <>{children}</>;
   }
 
   // Redirect to onboarding if not completed (skip for pricing/settings/admin/onboarding routes)

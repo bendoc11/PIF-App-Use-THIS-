@@ -8,9 +8,19 @@ const logStep = (step: string, details?: any) => {
 
 // Fire-and-forget GHL notification — never throws
 function notifyGHL(payload: Record<string, any>) {
-  const ghlUrl = Deno.env.get("GHL_WEBHOOK_URL");
+  const urlMap: Record<string, string> = {
+    subscription_created: "GHL_WEBHOOK_SUBSCRIPTION_CREATED",
+    trial_ending: "GHL_WEBHOOK_TRIAL_ENDING",
+    payment_failed: "GHL_WEBHOOK_PAYMENT_FAILED",
+  };
+  const secretName = urlMap[payload.event];
+  if (!secretName) {
+    logStep("Unknown GHL event, skipping", { event: payload.event });
+    return;
+  }
+  const ghlUrl = Deno.env.get(secretName);
   if (!ghlUrl) {
-    logStep("GHL_WEBHOOK_URL not set, skipping notification");
+    logStep(`${secretName} not set, skipping notification`);
     return;
   }
   fetch(ghlUrl, {

@@ -6,9 +6,9 @@ const logStep = (step: string, details?: any) => {
 };
 
 serve(async (_req) => {
-  const ghlUrl = Deno.env.get("GHL_WEBHOOK_URL");
+  const ghlUrl = Deno.env.get("GHL_WEBHOOK_TRIAL_ENDING");
   if (!ghlUrl) {
-    logStep("ERROR", { message: "GHL_WEBHOOK_URL not configured" });
+    logStep("ERROR", { message: "GHL_WEBHOOK_TRIAL_ENDING not configured" });
     return new Response(JSON.stringify({ error: "Not configured" }), { status: 500 });
   }
 

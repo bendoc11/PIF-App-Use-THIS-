@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,45 +9,60 @@ export default function SignupSuccess() {
   const [searchParams] = useSearchParams();
   const { user, refreshSubscription } = useAuth();
   const [status, setStatus] = useState<"confirming" | "done">("confirming");
+  const hasStartedPolling = useRef(false);
 
   const sessionId = searchParams.get("session_id");
+  const verified = searchParams.get("verified") === "true";
 
   useEffect(() => {
-    // ONLY show this screen when arriving from Stripe with a session_id
-    if (!sessionId) {
-      console.log("[SignupSuccess] No session_id in URL — redirecting to dashboard");
+    // No session_id and no verified flag — not a valid post-payment return
+    if (!sessionId && !verified) {
+      console.log("[SignupSuccess] No session_id or verified flag — redirecting to dashboard");
       navigate("/dashboard", { replace: true });
       return;
     }
 
-    console.log("[SignupSuccess] Triggered by Stripe session_id:", sessionId);
+    console.log("[SignupSuccess] Post-payment return detected", { sessionId, verified });
 
-    if (!user) {
-      const timeout = setTimeout(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-          if (!session) {
-            console.log("[SignupSuccess] No auth session — redirecting to login");
-            navigate("/login", { replace: true });
+    // Wait for auth session to be restored (Supabase reads from localStorage)
+    const waitForSessionAndPoll = async () => {
+      if (hasStartedPolling.current) return;
+      hasStartedPolling.current = true;
+
+      // Give Supabase auth up to 5 seconds to restore the session
+      let authUser = user;
+      if (!authUser) {
+        for (let i = 0; i < 10; i++) {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user) {
+            authUser = session.user;
+            break;
           }
-        });
-      }, 1000);
-      return () => clearTimeout(timeout);
-    }
+          await new Promise((r) => setTimeout(r, 500));
+        }
+      }
 
-    const pollSubscription = async () => {
-      const maxAttempts = 8;
+      if (!authUser) {
+        // Session could not be restored — still don't send to login
+        // Just route to dashboard; AuthGuard will handle it
+        console.log("[SignupSuccess] Could not restore session — routing to dashboard anyway");
+        sessionStorage.setItem("pif_subscription_confirmed", "true");
+        navigate("/dashboard", { replace: true });
+        return;
+      }
+
+      // Poll subscription status for up to 20 seconds
+      const maxAttempts = 10;
       const intervalMs = 2000;
 
       for (let attempt = 0; attempt < maxAttempts; attempt++) {
         try {
           const { data, error } = await supabase.functions.invoke("check-subscription");
           if (!error && data?.subscribed) {
-
+            console.log("[SignupSuccess] Subscription confirmed on attempt", attempt + 1);
             sessionStorage.setItem("pif_subscription_confirmed", "true");
             await refreshSubscription();
-
             setStatus("done");
-            // Clear the session_id from URL so refresh won't re-trigger
             window.history.replaceState({}, "", "/signup-success");
             setTimeout(() => navigate("/dashboard", { replace: true }), 1500);
             return;
@@ -58,7 +73,8 @@ export default function SignupSuccess() {
         await new Promise((r) => setTimeout(r, intervalMs));
       }
 
-      // After polling, redirect anyway
+      // Timeout after 20s — route to dashboard anyway, never to login
+      console.log("[SignupSuccess] Polling timed out — routing to dashboard anyway");
       sessionStorage.setItem("pif_subscription_confirmed", "true");
       await refreshSubscription();
       setStatus("done");
@@ -66,11 +82,11 @@ export default function SignupSuccess() {
       setTimeout(() => navigate("/dashboard", { replace: true }), 1500);
     };
 
-    pollSubscription();
-  }, [user, navigate, refreshSubscription, sessionId]);
+    waitForSessionAndPoll();
+  }, [user, navigate, refreshSubscription, sessionId, verified]);
 
-  // If no session_id, render nothing (redirect happens in useEffect)
-  if (!sessionId) return null;
+  // If no valid post-payment params, render nothing (redirect happens in useEffect)
+  if (!sessionId && !verified) return null;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">

@@ -23,11 +23,11 @@ export default function Pricing() {
       });
       if (error) throw error;
       if (data?.url) {
-        window.open(data.url, "_blank");
+        // Redirect in same tab to preserve Supabase session
+        window.location.href = data.url;
       }
     } catch (err: any) {
       toast({ title: "Error", description: err.message || "Could not start checkout", variant: "destructive" });
-    } finally {
       setLoading(false);
     }
   };

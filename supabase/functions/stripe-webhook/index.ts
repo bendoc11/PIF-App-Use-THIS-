@@ -149,6 +149,24 @@ async function handleSubscriptionCreated(supabase: any, subscription: any) {
     current_period_end: periodEnd,
     stripe_subscription_id: subscription.id,
   });
+
+  // Notify GHL — new subscriber
+  const { data: fullProfile } = await supabase
+    .from("profiles")
+    .select("email, first_name, last_name")
+    .eq("id", profile.id)
+    .maybeSingle();
+
+  if (fullProfile) {
+    notifyGHL({
+      event: "subscription_created",
+      email: fullProfile.email || "",
+      first_name: fullProfile.first_name || "",
+      last_name: fullProfile.last_name || "",
+      plan: "pro",
+      trial_end: periodEnd,
+    });
+  }
 }
 
 async function handleSubscriptionUpdated(supabase: any, subscription: any) {

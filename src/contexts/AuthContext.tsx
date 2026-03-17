@@ -142,11 +142,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await fetchProfile(session.user.id);
+    supabase.auth.getSession().then(async ({ data: { session: existingSession } }) => {
+      let activeSession = existingSession;
+
+      // If no session, try restoring from pre-checkout backup
+      if (!activeSession) {
+        const savedSession = localStorage.getItem("pif_pre_checkout_session");
+        if (savedSession) {
+          try {
+            const { access_token, refresh_token } = JSON.parse(savedSession);
+            const { data: restored } = await supabase.auth.setSession({ access_token, refresh_token });
+            if (restored?.session) {
+              activeSession = restored.session;
+              console.log("[AuthContext] Session restored from pre-checkout backup");
+            }
+          } catch (e) {
+            console.error("[AuthContext] Failed to restore session:", e);
+          }
+          localStorage.removeItem("pif_pre_checkout_session");
+        }
+      }
+
+      setSession(activeSession);
+      setUser(activeSession?.user ?? null);
+
+      if (activeSession?.user) {
+        // Check if returning from checkout — mark onboarding complete
+        const postCheckout = localStorage.getItem("pif_post_checkout");
+        if (postCheckout) {
+          try {
+            const { userId, onboardingCompleted, returnTime } = JSON.parse(postCheckout);
+            const tenMinutesAgo = Date.now() - 10 * 60 * 1000;
+            if (onboardingCompleted && returnTime > tenMinutesAgo && userId === activeSession.user.id) {
+              await supabase
+                .from("profiles")
+                .update({ onboarding_completed: true })
+                .eq("id", userId);
+              console.log("[AuthContext] Marked onboarding_completed after checkout return");
+            }
+          } catch (e) {
+            console.error("[AuthContext] Failed to process post-checkout flag:", e);
+          }
+          localStorage.removeItem("pif_post_checkout");
+        }
+
+        await fetchProfile(activeSession.user.id);
       }
       setLoading(false);
     });

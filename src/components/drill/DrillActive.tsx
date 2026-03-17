@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, Clock, Loader2, Repeat } from "lucide-react";
+import { ChevronDown, Clock, Repeat } from "lucide-react";
 
 interface DrillActiveProps {
   drillTitle: string;

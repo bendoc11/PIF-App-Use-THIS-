@@ -7,7 +7,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Check, Lock, Play, Bookmark, Share2, Loader2, Trophy } from "lucide-react";
+import { ArrowLeft, Check, Lock, Play, Share2, Loader2, Trophy } from "lucide-react";
 import { ShotInputScreen } from "@/components/drill/ShotInputScreen";
 import { ShotResultFlash } from "@/components/drill/ShotResultFlash";
 
@@ -328,7 +328,7 @@ export default function CoursePlayer() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button className="p-2 rounded-lg hover:bg-muted transition-colors"><Bookmark className="h-4 w-4 text-muted-foreground" /></button>
+                    
                     <button
                       className="p-2 rounded-lg hover:bg-muted transition-colors"
                       onClick={async () => {

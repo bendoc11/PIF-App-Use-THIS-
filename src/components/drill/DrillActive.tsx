@@ -82,15 +82,16 @@ export function DrillActive({ drillTitle, vimeoId, coachingTips, completing, onC
         )}
 
         {/* Complete button */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <Button
-            onClick={onComplete}
-            disabled={completing}
-            className="w-full h-16 text-lg btn-cta bg-primary hover:bg-primary/90 glow-red-hover"
-          >
-            {completing ? <Loader2 className="h-5 w-5 animate-spin" /> : "Mark Complete & Continue"}
-          </Button>
-        </motion.div>
+        {!completing && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <Button
+              onClick={onComplete}
+              className="w-full h-16 text-lg btn-cta bg-primary hover:bg-primary/90 glow-red-hover"
+            >
+              Mark Complete &amp; Continue
+            </Button>
+          </motion.div>
+        )}
       </div>
     </div>
   );

@@ -248,24 +248,26 @@ export default function DrillExperience() {
       )}
 
       {screen === "flash" && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-pif-green/10">
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/70">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: [0, 1.2, 1] }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="w-20 h-20 rounded-full bg-pif-green/20 flex items-center justify-center"
           >
-            <Check className="h-12 w-12 text-pif-green" strokeWidth={3} />
+            <Check className="h-20 w-20" style={{ color: "#22c55e" }} strokeWidth={3} />
           </motion.div>
           {streakResult.animated && streakResult.newStreak > 0 && (
-            <motion.p
+            <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="mt-4 text-sm text-pif-green font-heading"
+              className="mt-4 flex items-center gap-2"
             >
-              {streakResult.newStreak} day streak
-            </motion.p>
+              <Flame className="h-5 w-5 text-pif-gold" />
+              <span className="text-sm text-white font-heading">
+                {streakResult.newStreak} day streak
+              </span>
+            </motion.div>
           )}
         </div>
       )}

@@ -21,11 +21,19 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     return <Navigate to="/login" replace />;
   }
 
+  // Wait for profile to load before making routing decisions
+  if (!profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   // Redirect to onboarding if not completed (skip for pricing/settings/admin/onboarding routes)
   const isOnboardingRoute = location.pathname.startsWith("/onboarding");
   if (
-    profile &&
-    !(profile as any).onboarding_completed &&
+    !profile.onboarding_completed &&
     !isOnboardingRoute &&
     !location.pathname.startsWith("/pricing") &&
     !location.pathname.startsWith("/settings") &&

@@ -258,7 +258,7 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {drills.slice(0, 6).map((drill, i) => {
               const isAccessible = drill.is_free || subscription.subscribed || profile?.role === "admin" || profile?.role === "creator";
-              const showLock = !isAccessible && !subscriptionLoading;
+              const showLock = !isAccessible;
               return (
               <motion.div key={drill.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.05 }}>
                 <Link to={isAccessible || subscriptionLoading ? `/drills/${drill.id}` : `/pricing`}>

@@ -328,7 +328,7 @@ export default function CoursePlayer() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button className="p-2 rounded-lg hover:bg-muted transition-colors"><Bookmark className="h-4 w-4 text-muted-foreground" /></button>
+                    
                     <button
                       className="p-2 rounded-lg hover:bg-muted transition-colors"
                       onClick={async () => {

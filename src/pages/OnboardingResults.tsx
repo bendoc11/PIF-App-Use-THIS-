@@ -29,20 +29,31 @@ export default function OnboardingResults() {
 
   // No auto-redirect — let user see their results and click checkout
 
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
   const handleCheckout = async () => {
     setLoading(true);
+    setErrorMsg(null);
     try {
       const { data: { user: authUser } } = await supabase.auth.getUser();
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
+
+      const checkoutPromise = supabase.functions.invoke("create-checkout", {
         body: { email: authUser?.email },
       });
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Request timed out")), 10000)
+      );
+
+      const { data, error } = await Promise.race([checkoutPromise, timeoutPromise]) as any;
       if (error) throw error;
       if (data?.url) {
-        window.open(data.url, "_blank");
+        window.location.href = data.url;
+        return; // don't reset loading — we're navigating away
       }
+      throw new Error("No checkout URL returned");
     } catch (err: any) {
       toast.error(err.message || "Could not start checkout");
-    } finally {
+      setErrorMsg("Something went wrong — tap to try again");
       setLoading(false);
     }
   };
@@ -139,6 +150,8 @@ export default function OnboardingResults() {
           >
             {loading ? (
               <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Loading…</span>
+            ) : errorMsg ? (
+              errorMsg
             ) : (
               "Start My 7-Day Trial →"
             )}

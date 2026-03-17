@@ -430,37 +430,20 @@ export default function CoursePlayer() {
 
                 {/* Action button — always visible below tab content */}
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-2xl mt-6">
-                  {!completedDrills.has(currentDrill.id) ? (
-                    <Button
-                      onClick={handleMarkComplete}
-                      disabled={completing || justCompleted}
-                      className={`w-full h-14 btn-cta text-base transition-all ${
-                        justCompleted ? "bg-pif-green hover:bg-pif-green" : "bg-primary hover:bg-primary/90 glow-red-hover"
-                      }`}
-                    >
-                      {completing ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                      ) : justCompleted ? (
-                        <motion.span initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="flex items-center gap-2">
-                          <Check className="h-5 w-5" /> Completed!
-                        </motion.span>
-                      ) : (
-                        <>Mark Complete & Continue →</>
-                      )}
-                    </Button>
-                  ) : currentIndex < drills.length ? (
-                    <Button
-                      onClick={() => navigate(`/courses/${courseId}/${currentIndex + 1}`)}
-                      className="w-full h-14 btn-cta text-base bg-primary hover:bg-primary/90 glow-red-hover"
-                    >
-                      Next Drill →
-                    </Button>
-                  ) : (
+                  {currentIndex >= drills.length && completedDrills.has(currentDrill.id) ? (
                     <Link to="/courses">
                       <Button className="w-full h-14 btn-cta text-base bg-primary hover:bg-primary/90 glow-red-hover">
                         Back to Workouts
                       </Button>
                     </Link>
+                  ) : (
+                    <Button
+                      onClick={handleMarkComplete}
+                      disabled={isCompleting}
+                      className="w-full h-14 btn-cta text-base bg-primary hover:bg-primary/90 glow-red-hover"
+                    >
+                      Mark Complete & Continue →
+                    </Button>
                   )}
                 </motion.div>
               </div>

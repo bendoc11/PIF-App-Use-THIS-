@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState<SubscriptionStatus>(defaultSubscription);
-  const initializedRef = useRef(false);
+  
 
   const fetchProfile = useCallback(async (userId: string): Promise<Profile | null> => {
     console.log("[Auth] fetchProfile: querying profiles table for", userId);

@@ -6,6 +6,22 @@ const logStep = (step: string, details?: any) => {
   console.log(`[STRIPE-WEBHOOK] ${step}${details ? ` - ${JSON.stringify(details)}` : ""}`);
 };
 
+// Fire-and-forget GHL notification — never throws
+function notifyGHL(payload: Record<string, any>) {
+  const ghlUrl = Deno.env.get("GHL_WEBHOOK_URL");
+  if (!ghlUrl) {
+    logStep("GHL_WEBHOOK_URL not set, skipping notification");
+    return;
+  }
+  fetch(ghlUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  })
+    .then(() => logStep("GHL notified", { event: payload.event }))
+    .catch((err) => logStep("GHL notify failed (non-blocking)", { error: String(err) }));
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200 });

@@ -87,6 +87,7 @@ export default function Onboarding() {
           position,
           height: heightStr,
           age: Number(age),
+          phone: phone || null,
           strengths,
           weaknesses,
           primary_goal: primaryGoal,

@@ -193,18 +193,29 @@ export default function Onboarding() {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="text-xs font-heading tracking-wider text-muted-foreground mb-1.5 block">Age</label>
-                    <Input
-                      type="number"
-                      min={8}
-                      max={60}
-                      value={age}
-                      onChange={(e) => setAge(e.target.value)}
-                      placeholder="Enter your age"
-                      className="h-12 text-base bg-card border-border"
-                    />
-                  </div>
+                   <div>
+                     <label className="text-xs font-heading tracking-wider text-muted-foreground mb-1.5 block">Age</label>
+                     <Input
+                       type="number"
+                       min={8}
+                       max={60}
+                       value={age}
+                       onChange={(e) => setAge(e.target.value)}
+                       placeholder="Enter your age"
+                       className="h-12 text-base bg-card border-border"
+                     />
+                   </div>
+
+                   <div>
+                     <label className="text-xs font-heading tracking-wider text-muted-foreground mb-1.5 block">Phone Number</label>
+                     <Input
+                       type="tel"
+                       value={phone}
+                       onChange={(e) => setPhone(e.target.value)}
+                       placeholder="(555) 555-5555"
+                       className="h-12 text-base bg-card border-border"
+                     />
+                   </div>
                 </div>
               </>
             )}

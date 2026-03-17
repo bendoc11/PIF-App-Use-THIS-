@@ -65,34 +65,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const initializedRef = useRef(false);
 
   const fetchProfile = useCallback(async (userId: string): Promise<Profile | null> => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
+    console.log("[Auth] fetchProfile: querying profiles table for", userId);
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
 
-    if (!data || error) {
-      // Profile not found — sign out
-      await supabase.auth.signOut();
-      setUser(null);
-      setSession(null);
-      setProfile(null);
-      setSubscription(defaultSubscription);
+      console.log("[Auth] fetchProfile response:", { data: !!data, error: error?.message ?? null });
+
+      if (!data || error) {
+        console.warn("[Auth] fetchProfile failed — signing out. Error:", error?.message);
+        await supabase.auth.signOut();
+        setUser(null);
+        setSession(null);
+        setProfile(null);
+        setSubscription(defaultSubscription);
+        return null;
+      }
+
+      if ((data as any).banned === true) {
+        console.warn("[Auth] User is banned — signing out");
+        await supabase.auth.signOut();
+        setUser(null);
+        setSession(null);
+        setProfile(null);
+        setSubscription(defaultSubscription);
+        window.dispatchEvent(new CustomEvent("account-banned"));
+        return null;
+      }
+
+      setProfile(data);
+      return data;
+    } catch (err) {
+      console.error("[Auth] fetchProfile threw:", err);
       return null;
     }
-
-    if ((data as any).banned === true) {
-      await supabase.auth.signOut();
-      setUser(null);
-      setSession(null);
-      setProfile(null);
-      setSubscription(defaultSubscription);
-      window.dispatchEvent(new CustomEvent("account-banned"));
-      return null;
-    }
-
-    setProfile(data);
-    return data;
   }, []);
 
   const checkSubscription = useCallback(async (forceRefresh = false) => {

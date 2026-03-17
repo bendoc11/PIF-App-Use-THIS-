@@ -19,16 +19,31 @@ function notifyGHL(payload: Record<string, any>) {
     return;
   }
   const ghlUrl = Deno.env.get(secretName);
+
+  // Log URL availability for debugging
+  logStep("notifyGHL called", {
+    event: payload.event,
+    secretName,
+    urlFirst20: ghlUrl ? ghlUrl.substring(0, 20) : "NULL/UNDEFINED",
+    urlLength: ghlUrl ? ghlUrl.length : 0,
+  });
+
   if (!ghlUrl) {
     logStep(`${secretName} not set, skipping notification`);
     return;
   }
+
+  logStep("About to POST to GHL", { event: payload.event, email: payload.email });
+
   fetch(ghlUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   })
-    .then(() => logStep("GHL notified", { event: payload.event }))
+    .then(async (res) => {
+      const body = await res.text();
+      logStep("GHL response received", { event: payload.event, status: res.status, body });
+    })
     .catch((err) => logStep("GHL notify failed (non-blocking)", { error: String(err) }));
 }
 
@@ -168,6 +183,10 @@ async function handleSubscriptionCreated(supabase: any, subscription: any) {
     .maybeSingle();
 
   if (fullProfile) {
+    logStep("Calling notifyGHL for subscription_created", {
+      email: fullProfile.email,
+      first_name: fullProfile.first_name,
+    });
     notifyGHL({
       event: "subscription_created",
       email: fullProfile.email || "",
@@ -177,6 +196,8 @@ async function handleSubscriptionCreated(supabase: any, subscription: any) {
       trial_end: periodEnd,
       phone: fullProfile.phone || "",
     });
+  } else {
+    logStep("No fullProfile found, skipping GHL notification", { profileId: profile.id });
   }
 }
 
@@ -274,6 +295,10 @@ async function handlePaymentSucceeded(supabase: any, stripe: any, invoice: any) 
     .maybeSingle();
 
   if (fullProfile) {
+    logStep("Calling notifyGHL for subscription_created (payment_succeeded)", {
+      email: fullProfile.email,
+      first_name: fullProfile.first_name,
+    });
     notifyGHL({
       event: "subscription_created",
       email: fullProfile.email || "",
@@ -283,6 +308,8 @@ async function handlePaymentSucceeded(supabase: any, stripe: any, invoice: any) 
       trial_end: periodEnd,
       phone: fullProfile.phone || "",
     });
+  } else {
+    logStep("No fullProfile found, skipping GHL notification (payment_succeeded)", { profileId: profile.id });
   }
 }
 
@@ -321,6 +348,7 @@ async function handlePaymentFailed(supabase: any, invoice: any) {
     .maybeSingle();
 
   if (fullProfile) {
+    logStep("Calling notifyGHL for payment_failed", { email: fullProfile.email });
     notifyGHL({
       event: "payment_failed",
       email: fullProfile.email || "",

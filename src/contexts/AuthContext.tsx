@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode, useCallback, useRef } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState<SubscriptionStatus>(defaultSubscription);
-  const initializedRef = useRef(false);
+  
 
   const fetchProfile = useCallback(async (userId: string): Promise<Profile | null> => {
     console.log("[Auth] fetchProfile: querying profiles table for", userId);
@@ -178,19 +178,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Single initialization via onAuthStateChange only
   useEffect(() => {
-    if (initializedRef.current) return;
-    initializedRef.current = true;
-
     console.log("[Auth] Initializing auth listener...");
 
-    // Hard 30s timeout fallback — prevents infinite spinner no matter what
+    // Safety timeout — prevents infinite spinner
     const loadingTimeout = setTimeout(() => {
       console.warn("[Auth] 30s timeout reached — forcing setLoading(false)");
       setLoading(false);
     }, 30000);
 
+    let cancelled = false;
+
     const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange(
       async (_event, newSession) => {
+        if (cancelled) return;
         console.log("[Auth] onAuthStateChange fired:", _event, "session:", !!newSession);
         setSession(newSession);
         const newUser = newSession?.user ?? null;
@@ -199,6 +199,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (newUser) {
           console.log("[Auth] fetchProfile started for user:", newUser.id);
           const profileData = await fetchProfile(newUser.id);
+          if (cancelled) return;
           console.log("[Auth] fetchProfile completed:", profileData ? "success" : "null/error");
           clearTimeout(loadingTimeout);
           console.log("[Auth] setLoading(false) called");
@@ -214,8 +215,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 
     return () => {
+      cancelled = true;
       clearTimeout(loadingTimeout);
       authSub.unsubscribe();
+      console.log("[Auth] Cleanup: unsubscribed auth listener");
     };
   }, [fetchProfile]);
 

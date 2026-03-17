@@ -65,34 +65,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const initializedRef = useRef(false);
 
   const fetchProfile = useCallback(async (userId: string): Promise<Profile | null> => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
+    console.log("[Auth] fetchProfile: querying profiles table for", userId);
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
 
-    if (!data || error) {
-      // Profile not found — sign out
-      await supabase.auth.signOut();
-      setUser(null);
-      setSession(null);
-      setProfile(null);
-      setSubscription(defaultSubscription);
+      console.log("[Auth] fetchProfile response:", { data: !!data, error: error?.message ?? null });
+
+      if (!data || error) {
+        console.warn("[Auth] fetchProfile failed — signing out. Error:", error?.message);
+        await supabase.auth.signOut();
+        setUser(null);
+        setSession(null);
+        setProfile(null);
+        setSubscription(defaultSubscription);
+        return null;
+      }
+
+      if ((data as any).banned === true) {
+        console.warn("[Auth] User is banned — signing out");
+        await supabase.auth.signOut();
+        setUser(null);
+        setSession(null);
+        setProfile(null);
+        setSubscription(defaultSubscription);
+        window.dispatchEvent(new CustomEvent("account-banned"));
+        return null;
+      }
+
+      setProfile(data);
+      return data;
+    } catch (err) {
+      console.error("[Auth] fetchProfile threw:", err);
       return null;
     }
-
-    if ((data as any).banned === true) {
-      await supabase.auth.signOut();
-      setUser(null);
-      setSession(null);
-      setProfile(null);
-      setSubscription(defaultSubscription);
-      window.dispatchEvent(new CustomEvent("account-banned"));
-      return null;
-    }
-
-    setProfile(data);
-    return data;
   }, []);
 
   const checkSubscription = useCallback(async (forceRefresh = false) => {
@@ -167,30 +176,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (initializedRef.current) return;
     initializedRef.current = true;
 
+    console.log("[Auth] Initializing auth listener...");
+
+    // Hard 8s timeout fallback — prevents infinite spinner no matter what
+    const loadingTimeout = setTimeout(() => {
+      console.warn("[Auth] 8s timeout reached — forcing setLoading(false)");
+      setLoading(false);
+    }, 8000);
+
     const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange(
       async (_event, newSession) => {
+        console.log("[Auth] onAuthStateChange fired:", _event, "session:", !!newSession);
         setSession(newSession);
         const newUser = newSession?.user ?? null;
         setUser(newUser);
 
         if (newUser) {
+          console.log("[Auth] fetchProfile started for user:", newUser.id);
           const profileData = await fetchProfile(newUser.id);
-          if (profileData) {
-            // Profile fetched successfully — now loading is done
-            setLoading(false);
-          } else {
-            // fetchProfile signed user out
-            setLoading(false);
-          }
+          console.log("[Auth] fetchProfile completed:", profileData ? "success" : "null/error");
+          clearTimeout(loadingTimeout);
+          console.log("[Auth] setLoading(false) called");
+          setLoading(false);
         } else {
           setProfile(null);
           setSubscription(defaultSubscription);
+          clearTimeout(loadingTimeout);
+          console.log("[Auth] No user — setLoading(false) called");
           setLoading(false);
         }
       }
     );
 
-    return () => authSub.unsubscribe();
+    return () => {
+      clearTimeout(loadingTimeout);
+      authSub.unsubscribe();
+    };
   }, [fetchProfile]);
 
   // Check subscription after user is set (separate from loading)

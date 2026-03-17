@@ -9,6 +9,9 @@ export function AuthGuard({ children }: { children: ReactNode }) {
   const { user, loading, subscription, subscriptionLoading, profile } = useAuth();
   const location = useLocation();
 
+  // Check if user just returned from Stripe checkout
+  const isReturningFromCheckout = !!sessionStorage.getItem("pif_subscription_confirmed");
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -41,7 +44,7 @@ export function AuthGuard({ children }: { children: ReactNode }) {
   const isAdminOrCreator = profile?.role === "admin" || profile?.role === "creator";
 
   // Don't redirect to pricing while subscription is still loading
-  if (!isPublicRoute && !isOnboardingRoute && !isAdminOrCreator && subscriptionLoading) {
+  if (!isPublicRoute && !isOnboardingRoute && !isAdminOrCreator && !isReturningFromCheckout && subscriptionLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -49,7 +52,8 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     );
   }
 
-  if (!subscription.subscribed && !isPublicRoute && !isOnboardingRoute && !isAdminOrCreator) {
+  // Never redirect to paywall if user just completed checkout
+  if (!subscription.subscribed && !isPublicRoute && !isOnboardingRoute && !isAdminOrCreator && !isReturningFromCheckout) {
     return <Navigate to="/pricing" replace />;
   }
 

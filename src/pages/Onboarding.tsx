@@ -41,6 +41,7 @@ export default function Onboarding() {
   const [feet, setFeet] = useState("");
   const [inches, setInches] = useState("");
   const [age, setAge] = useState("");
+  const [phone, setPhone] = useState("");
 
   // Step 2
   const [strengths, setStrengths] = useState<string[]>([]);

@@ -70,7 +70,7 @@ serve(async (req) => {
       subscription_data: {
         trial_period_days: 7,
       },
-      success_url: `${origin}/signup-success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${origin}/signup-success?session_id={CHECKOUT_SESSION_ID}&verified=true`,
       cancel_url: `${origin}/login?checkout=cancelled`,
     });
 

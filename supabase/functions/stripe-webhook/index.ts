@@ -259,7 +259,7 @@ async function handlePaymentSucceeded(supabase: any, stripe: any, invoice: any) 
   // Notify GHL — payment succeeded (new subscriber welcome)
   const { data: fullProfile } = await supabase
     .from("profiles")
-    .select("email, first_name, last_name")
+    .select("email, first_name, last_name, phone")
     .eq("id", profile.id)
     .maybeSingle();
 
@@ -271,6 +271,7 @@ async function handlePaymentSucceeded(supabase: any, stripe: any, invoice: any) 
       last_name: fullProfile.last_name || "",
       plan: "pro",
       trial_end: periodEnd,
+      phone: fullProfile.phone || "",
     });
   }
 }

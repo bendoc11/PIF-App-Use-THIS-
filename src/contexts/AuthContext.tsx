@@ -183,11 +183,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     console.log("[Auth] Initializing auth listener...");
 
-    // Hard 8s timeout fallback — prevents infinite spinner no matter what
+    // Hard 30s timeout fallback — prevents infinite spinner no matter what
     const loadingTimeout = setTimeout(() => {
-      console.warn("[Auth] 8s timeout reached — forcing setLoading(false)");
+      console.warn("[Auth] 30s timeout reached — forcing setLoading(false)");
       setLoading(false);
-    }, 8000);
+    }, 30000);
 
     const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange(
       async (_event, newSession) => {

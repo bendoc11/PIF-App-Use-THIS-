@@ -9,23 +9,40 @@ serve(async (req) => {
     return new Response(null, { status: 200 });
   }
 
-  const ghlUrl = Deno.env.get("GHL_WEBHOOK_URL");
-  if (!ghlUrl) {
-    logStep("ERROR", { message: "GHL_WEBHOOK_URL not configured" });
-    return new Response(JSON.stringify({ error: "Not configured" }), { status: 500 });
-  }
-
   try {
     const payload = await req.json();
-    logStep("Sending to GHL", { event: payload.event, email: payload.email });
+    const event = payload.event as string;
 
-    // Fire and forget — don't await the full response
+    // Map event to its dedicated webhook URL secret
+    const urlMap: Record<string, string> = {
+      subscription_created: "GHL_WEBHOOK_SUBSCRIPTION_CREATED",
+      trial_ending: "GHL_WEBHOOK_TRIAL_ENDING",
+      payment_failed: "GHL_WEBHOOK_PAYMENT_FAILED",
+    };
+
+    const secretName = urlMap[event];
+    if (!secretName) {
+      logStep("Unknown event type, skipping", { event });
+      return new Response(JSON.stringify({ skipped: true, reason: "unknown event" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const ghlUrl = Deno.env.get(secretName);
+    if (!ghlUrl) {
+      logStep("ERROR", { message: `${secretName} not configured` });
+      return new Response(JSON.stringify({ error: `${secretName} not configured` }), { status: 500 });
+    }
+
+    logStep("Sending to GHL", { event, secret: secretName, email: payload.email });
+
     fetch(ghlUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     })
-      .then(() => logStep("GHL notification sent", { event: payload.event }))
+      .then(() => logStep("GHL notification sent", { event }))
       .catch((err) => logStep("GHL notification failed (non-blocking)", { error: String(err) }));
 
     return new Response(JSON.stringify({ sent: true }), {

@@ -52,14 +52,14 @@ export default function CoursePlayer() {
   const [course, setCourse] = useState<Course | null>(null);
   const [drills, setDrills] = useState<Drill[]>([]);
   const [completedDrills, setCompletedDrills] = useState<Set<string>>(new Set());
-  const [completing, setCompleting] = useState(false);
-  const [justCompleted, setJustCompleted] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [showMobileDrawer, setShowMobileDrawer] = useState(false);
   const [showShotInput, setShowShotInput] = useState(false);
   const [showShotResult, setShowShotResult] = useState(false);
   const [shotResultPct, setShotResultPct] = useState<number | null>(null);
+  const completionTimerRef = useRef<number | null>(null);
 
   const currentDrill = drills[currentIndex - 1];
   const clampedCompleted = Math.min(completedDrills.size, drills.length);

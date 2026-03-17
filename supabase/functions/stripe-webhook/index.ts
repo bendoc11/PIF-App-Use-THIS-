@@ -254,6 +254,24 @@ async function handlePaymentSucceeded(supabase: any, stripe: any, invoice: any) 
     current_period_end: periodEnd,
     stripe_subscription_id: invoice.subscription,
   });
+
+  // Notify GHL — payment succeeded (new subscriber welcome)
+  const { data: fullProfile } = await supabase
+    .from("profiles")
+    .select("email, first_name, last_name")
+    .eq("id", profile.id)
+    .maybeSingle();
+
+  if (fullProfile) {
+    notifyGHL({
+      event: "subscription_created",
+      email: fullProfile.email || "",
+      first_name: fullProfile.first_name || "",
+      last_name: fullProfile.last_name || "",
+      plan: "pro",
+      trial_end: periodEnd,
+    });
+  }
 }
 
 async function handlePaymentFailed(supabase: any, invoice: any) {

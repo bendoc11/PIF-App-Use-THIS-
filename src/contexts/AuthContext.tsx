@@ -30,6 +30,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
+  subscriptionLoading: boolean;
   subscription: SubscriptionStatus;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -48,6 +49,7 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   profile: null,
   loading: true,
+  subscriptionLoading: true,
   subscription: defaultSubscription,
   signOut: async () => {},
   refreshProfile: async () => {},
@@ -62,57 +64,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState<SubscriptionStatus>(defaultSubscription);
-  
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
 
-  const fetchProfile = useCallback(async (userId: string): Promise<Profile | null> => {
-    console.log("[Auth] fetchProfile: querying profiles table for", userId);
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
+  const fetchProfile = async (userId: string): Promise<boolean> => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
 
-      console.log("[Auth] fetchProfile response:", { data: !!data, error: error?.message ?? null });
-
-      if (!data || error) {
-        console.warn("[Auth] fetchProfile failed — signing out. Error:", error?.message);
-        await supabase.auth.signOut();
-        setUser(null);
-        setSession(null);
-        setProfile(null);
-        setSubscription(defaultSubscription);
-        return null;
-      }
-
-      if ((data as any).banned === true) {
-        console.warn("[Auth] User is banned — signing out");
-        await supabase.auth.signOut();
-        setUser(null);
-        setSession(null);
-        setProfile(null);
-        setSubscription(defaultSubscription);
-        window.dispatchEvent(new CustomEvent("account-banned"));
-        return null;
-      }
-
-      setProfile(data);
-      return data;
-    } catch (err) {
-      console.error("[Auth] fetchProfile threw:", err);
+    if (data && (data as any).banned === true) {
       await supabase.auth.signOut();
       setUser(null);
       setSession(null);
       setProfile(null);
       setSubscription(defaultSubscription);
-      return null;
+      // Dispatch a custom event so the login page can show the message
+      window.dispatchEvent(new CustomEvent("account-banned"));
+      return false;
     }
-  }, []);
+
+    setProfile(data);
+    return true;
+  };
+
+  const refreshProfile = async () => {
+    if (user) await fetchProfile(user.id);
+  };
 
   const checkSubscription = useCallback(async (forceRefresh = false) => {
     try {
+      setSubscriptionLoading(true);
+
+      // Skip cache if force refresh requested (e.g. post-checkout)
       if (!forceRefresh) {
-        // Check cached result in profiles
+        // Check if we have a recent cached result in profiles
         const { data: profileData } = await supabase
           .from("profiles")
           .select("subscription_status, subscription_checked_at")
@@ -124,6 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           : 0;
         const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
 
+        // Use cached value if checked within last 5 minutes
         if (checkedAt > fiveMinutesAgo && profileData?.subscription_status) {
           try {
             const cached = JSON.parse(profileData.subscription_status);
@@ -135,11 +122,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             });
             return;
           } catch {
-            // Invalid cache, fall through
+            // Invalid JSON in cache, fall through to live check
           }
         }
       }
 
+      // Call edge function for fresh check
       const { data, error } = await supabase.functions.invoke("check-subscription");
       if (error) {
         console.error("check-subscription error:", error);
@@ -154,7 +142,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
         setSubscription(sub);
 
-        // Cache result
+        // Cache result in profiles
         await supabase
           .from("profiles")
           .update({
@@ -165,6 +153,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (err) {
       console.error("Failed to check subscription:", err);
+    } finally {
+      setSubscriptionLoading(false);
     }
   }, [user?.id]);
 
@@ -172,74 +162,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await checkSubscription(true);
   }, [checkSubscription]);
 
-  const refreshProfile = useCallback(async () => {
-    if (user) await fetchProfile(user.id);
-  }, [user, fetchProfile]);
-
-  // Single initialization via onAuthStateChange only
   useEffect(() => {
-    console.log("[Auth] Initializing auth listener...");
-
-    // Safety timeout — prevents infinite spinner
-    const loadingTimeout = setTimeout(() => {
-      console.warn("[Auth] 30s timeout reached — forcing setLoading(false)");
-      setLoading(false);
-    }, 30000);
-
-    let cancelled = false;
-
     const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange(
-      async (_event, newSession) => {
-        if (cancelled) return;
-        console.log("[Auth] onAuthStateChange fired:", _event, "session:", !!newSession);
-        setSession(newSession);
-        const newUser = newSession?.user ?? null;
-        setUser(newUser);
-
-        if (newUser) {
-          console.log("[Auth] fetchProfile started for user:", newUser.id);
-          const profileData = await fetchProfile(newUser.id);
-          if (cancelled) return;
-          console.log("[Auth] fetchProfile completed:", profileData ? "success" : "null/error");
-          clearTimeout(loadingTimeout);
-          console.log("[Auth] setLoading(false) called");
-          setLoading(false);
+      async (_event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          setTimeout(async () => {
+            await fetchProfile(session.user.id);
+          }, 0);
         } else {
           setProfile(null);
           setSubscription(defaultSubscription);
-          clearTimeout(loadingTimeout);
-          console.log("[Auth] No user — setLoading(false) called");
-          setLoading(false);
         }
+        setLoading(false);
       }
     );
 
-    return () => {
-      cancelled = true;
-      clearTimeout(loadingTimeout);
-      authSub.unsubscribe();
-      console.log("[Auth] Cleanup: unsubscribed auth listener");
-    };
-  }, [fetchProfile]);
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        await fetchProfile(session.user.id);
+      }
+      setLoading(false);
+    });
 
-  // Check subscription after user is set (separate from loading)
+    return () => authSub.unsubscribe();
+  }, []);
+
+  // Check subscription after user is set
   useEffect(() => {
-    if (!user) return;
-    checkSubscription();
-    const interval = setInterval(() => checkSubscription(), 60000);
-    return () => clearInterval(interval);
+    if (user) {
+      // If returning from checkout, force a fresh check
+      const confirmed = sessionStorage.getItem("pif_subscription_confirmed");
+      const forceRefresh = !!confirmed;
+      if (confirmed) sessionStorage.removeItem("pif_subscription_confirmed");
+      
+      checkSubscription(forceRefresh);
+      const interval = setInterval(() => checkSubscription(), 60000);
+      return () => clearInterval(interval);
+    }
   }, [user, checkSubscription]);
 
-  const signOut = useCallback(async () => {
+  const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
     setProfile(null);
     setSubscription(defaultSubscription);
-  }, []);
+  };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, subscription, signOut, refreshProfile, refreshSubscription }}>
+    <AuthContext.Provider value={{ user, session, profile, loading, subscriptionLoading, subscription, signOut, refreshProfile, refreshSubscription }}>
       {children}
     </AuthContext.Provider>
   );

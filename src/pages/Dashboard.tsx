@@ -7,10 +7,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
 import { Flame, Play, TrendingUp, Trophy, ArrowRight, Lock } from "lucide-react";
-import { useTrainingSchedule } from "@/hooks/useTrainingSchedule";
-import { TodaysTraining } from "@/components/dashboard/TodaysTraining";
-import { WeeklyStrip } from "@/components/dashboard/WeeklyStrip";
-import { ScheduleSetupModal } from "@/components/dashboard/ScheduleSetupModal";
 
 interface CourseWithCoach {
   id: string;
@@ -89,15 +85,12 @@ function AnimatedCounter({ value, label, icon: Icon, delay = 0 }: { value: numbe
 }
 
 export default function Dashboard() {
-  const { profile, user, subscription } = useAuth();
+  const { profile, user, subscription, subscriptionLoading } = useAuth();
   const [courses, setCourses] = useState<CourseWithCoach[]>([]);
   const [drills, setDrills] = useState<DrillWithCoach[]>([]);
   const [statDrillsDone, setStatDrillsDone] = useState(0);
   const [statHours, setStatHours] = useState("0m");
   const [statRank, setStatRank] = useState("#—");
-  const [setupModalOpen, setSetupModalOpen] = useState(false);
-
-  const training = useTrainingSchedule();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -111,39 +104,56 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
+  // Fetch live stats for the logged-in user
   useEffect(() => {
     if (!user) return;
+
     const fetchStats = async () => {
+      // 1. Drills Done — count completed drill progress rows
       const { count: drillCount } = await supabase
         .from("user_drill_progress")
         .select("id", { count: "exact", head: true })
         .eq("user_id", user.id)
         .eq("completed", true);
-      setStatDrillsDone(drillCount ?? 0);
+      const done = drillCount ?? 0;
+      setStatDrillsDone(done);
 
+      // 2. Hours Trained — sum duration_seconds from joined drills
       const { data: progressRows } = await supabase
         .from("user_drill_progress")
         .select("drill_id, drills(duration_seconds)")
         .eq("user_id", user.id)
         .eq("completed", true);
-      const totalSeconds = (progressRows ?? []).reduce((sum, r: any) => sum + (r.drills?.duration_seconds ?? 0), 0);
-      setStatHours(totalSeconds >= 3600 ? `${(totalSeconds / 3600).toFixed(1)}h` : totalSeconds > 0 ? `${Math.round(totalSeconds / 60)}m` : "0m");
+      const totalSeconds = (progressRows ?? []).reduce((sum, r: any) => {
+        return sum + (r.drills?.duration_seconds ?? 0);
+      }, 0);
+      if (totalSeconds >= 3600) {
+        setStatHours(`${(totalSeconds / 3600).toFixed(1)}h`);
+      } else if (totalSeconds > 0) {
+        setStatHours(`${Math.round(totalSeconds / 60)}m`);
+      } else {
+        setStatHours("0m");
+      }
 
+      // 3. Weekly Rank — count users with more drills this week
       const now = new Date();
-      const dayOfWeek = now.getDay();
+      const dayOfWeek = now.getDay(); // 0=Sun
       const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
       const weekStart = new Date(now);
       weekStart.setDate(now.getDate() - mondayOffset);
       weekStart.setHours(0, 0, 0, 0);
       const weekStartISO = weekStart.toISOString();
 
+      // Get current user's drill count this week
       const { count: myWeekCount } = await supabase
         .from("user_drill_progress")
         .select("id", { count: "exact", head: true })
         .eq("user_id", user.id)
         .eq("completed", true)
         .gte("completed_at", weekStartISO);
+      const myCount = myWeekCount ?? 0;
 
+      // Get all users' weekly counts to determine rank
       const { data: allWeekly } = await supabase
         .from("user_drill_progress")
         .select("user_id")
@@ -151,21 +161,26 @@ export default function Dashboard() {
         .gte("completed_at", weekStartISO);
 
       const userCounts: Record<string, number> = {};
-      (allWeekly ?? []).forEach((r) => { userCounts[r.user_id] = (userCounts[r.user_id] || 0) + 1; });
-      const usersAbove = Object.values(userCounts).filter((c) => c > (myWeekCount ?? 0)).length;
+      (allWeekly ?? []).forEach((r) => {
+        userCounts[r.user_id] = (userCounts[r.user_id] || 0) + 1;
+      });
+      const usersAbove = Object.values(userCounts).filter((c) => c > myCount).length;
       setStatRank(`#${usersAbove + 1}`);
     };
+
     fetchStats();
   }, [user]);
 
-  const sessionsLeft = training.loading ? 0 : training.sessionsLeftThisWeek();
-
   return (
     <AppLayout>
-      <div className="p-4 lg:p-6 space-y-5 max-w-7xl mx-auto">
-        {/* Section 1: Greeting + Weekly Status */}
+      <div className="p-4 lg:p-6 space-y-6 max-w-7xl mx-auto">
+        {/* Personalized Greeting */}
         {profile?.first_name && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="relative">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative"
+          >
             <div className="absolute -top-8 -left-8 w-72 h-48 rounded-full bg-[radial-gradient(ellipse_at_top_left,hsl(var(--pif-red)/0.09),transparent_70%)] pointer-events-none" />
             <h1 className="text-2xl md:text-3xl font-heading text-foreground relative z-10">
               {(profile as any).primary_goal?.toLowerCase().includes("next level")
@@ -179,11 +194,6 @@ export default function Dashboard() {
                 : `Let's get to work, ${profile.first_name}`
               } 🏀
             </h1>
-            {!training.loading && training.schedule.length > 0 && (
-              <p className="text-sm text-muted-foreground mt-1 relative z-10">
-                You have <span className="text-primary font-medium">{sessionsLeft} session{sessionsLeft !== 1 ? "s" : ""}</span> left this week
-              </p>
-            )}
           </motion.div>
         )}
 
@@ -195,34 +205,9 @@ export default function Dashboard() {
           <AnimatedCounter value={statRank} label="Weekly Rank" icon={Trophy} delay={300} />
         </div>
 
-        {/* Section 2: Today's Training */}
-        {!training.loading && (
-          <TodaysTraining
-            todaySessions={training.getTodaySessions()}
-            todaysLogs={training.todaysLogs}
-            schedule={training.schedule}
-            todayDow={training.todayDow}
-            onLogged={training.refresh}
-            needsSetup={training.needsSetup}
-            onSetup={() => setSetupModalOpen(true)}
-            allComplete={training.isTodayComplete()}
-          />
-        )}
-
-        {/* Section 3: Weekly Strip */}
-        {!training.loading && training.schedule.length > 0 && (
-          <WeeklyStrip
-            schedule={training.schedule}
-            weekCompletionMap={training.getWeekCompletionMap()}
-            todayDow={training.todayDow}
-            weekLogs={training.weekLogs}
-            onLogged={training.refresh}
-          />
-        )}
-
-        {/* Section 4: Continue Where You Left Off */}
+        {/* Continue Where You Left Off */}
         {courses.length > 0 && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <Card className="bg-card border-border overflow-hidden">
               <CardContent className="p-0">
                 <Link to={`/courses/${courses[0].id}/1`} className="flex flex-col sm:flex-row gap-4 p-5 hover:bg-muted/30 transition-colors">
@@ -252,16 +237,16 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* Section 5: Featured Drills */}
+        {/* Featured Drills */}
         <div>
           <h2 className="text-xl font-heading text-foreground mb-4">Featured Drills This Week</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {drills.slice(0, 6).map((drill, i) => {
               const isAccessible = drill.is_free || subscription.subscribed || profile?.role === "admin" || profile?.role === "creator";
-              const showLock = !isAccessible;
+              const showLock = !isAccessible && !subscriptionLoading;
               return (
               <motion.div key={drill.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.05 }}>
-                <Link to={isAccessible ? `/drills/${drill.id}` : `/pricing`}>
+                <Link to={isAccessible || subscriptionLoading ? `/drills/${drill.id}` : `/pricing`}>
                   <Card className="bg-card border-border hover:border-primary/20 transition-all group overflow-hidden">
                     <CardContent className="p-0">
                       <div className="relative h-36 bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center overflow-hidden">
@@ -311,7 +296,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Section 6: Workouts */}
+        {/* Workouts */}
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-heading text-foreground">Workouts</h2>
@@ -349,7 +334,8 @@ export default function Dashboard() {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className={`w-2 h-2 rounded-full ${categoryColors[course.category] || "bg-muted-foreground"}`} />
-                          <span className="text-xs text-muted-foreground font-heading tracking-wider">{course.category}</span>
+                          <span className="text-xs text-muted-foreground">{course.category}</span>
+                          <span className="ml-auto text-[10px] font-heading tracking-wider text-muted-foreground px-2 py-0.5 rounded bg-muted">{course.level}</span>
                         </div>
                       </div>
                     </CardContent>
@@ -359,15 +345,6 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
-
-        {/* Schedule Setup Modal */}
-        <ScheduleSetupModal
-          open={setupModalOpen}
-          onOpenChange={setSetupModalOpen}
-          recommended={training.generateRecommended()}
-          primaryGoal={profile?.primary_goal || null}
-          onSave={training.saveSchedule}
-        />
       </div>
     </AppLayout>
   );

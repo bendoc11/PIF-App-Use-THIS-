@@ -9,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
-import { generateMultiSessionSchedule } from "@/lib/schedule-utils";
 
 const POSITIONS = ["Point Guard", "Shooting Guard", "Small Forward", "Power Forward", "Center"];
 const FEET_OPTIONS = [4, 5, 6, 7];
@@ -27,7 +26,7 @@ const GOAL_OPTIONS = [
 ];
 
 const DAYS_OPTIONS = [1, 2, 3, 4, 5, 6, 7];
-const HOURS_OPTIONS = ["1", "2", "3", "4"];
+const HOURS_OPTIONS = ["30 min", "1 hour", "1.5 hours", "2+ hours"];
 
 const TOTAL_STEPS = 5;
 
@@ -79,13 +78,6 @@ export default function Onboarding() {
   const handleFinish = async () => {
     if (!user) return;
     setSaving(true);
-
-    // Timeout fallback — force navigate after 10 seconds no matter what
-    const timeout = setTimeout(() => {
-      setSaving(false);
-      navigate("/onboarding/results", { replace: true });
-    }, 10000);
-
     try {
       const heightStr = `${feet}'${inches}`;
       const { error } = await supabase
@@ -100,34 +92,13 @@ export default function Onboarding() {
           training_days_per_week: trainingDays,
           training_hours_per_session: trainingHours,
           onboarding_completed: true,
-          schedule_setup_completed: true,
         } as any)
         .eq("id", user.id);
 
       if (error) throw error;
-
-      // Generate weekly schedule — don't let it block navigation
-      try {
-        const rows = generateMultiSessionSchedule(primaryGoal);
-        await supabase.from("weekly_schedule_templates").delete().eq("user_id", user.id);
-        await supabase.from("weekly_schedule_templates").insert(
-          rows.map((r) => ({
-            user_id: user.id,
-            day_of_week: r.day_of_week,
-            session_type: r.session_type,
-            order_index: r.order_index,
-          }))
-        );
-      } catch (schedErr) {
-        console.error("Schedule generation error (non-blocking):", schedErr);
-      }
-
-      clearTimeout(timeout);
-      // Refresh profile without awaiting to avoid blocking
-      refreshProfile().catch(() => {});
+      await refreshProfile();
       navigate("/onboarding/results", { replace: true });
     } catch (err: any) {
-      clearTimeout(timeout);
       console.error("Onboarding save error:", err);
       toast.error("Failed to save. Please try again.");
     } finally {
@@ -337,7 +308,7 @@ export default function Onboarding() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-heading tracking-wider text-muted-foreground mb-3 block">Average Training Sessions Per Day</label>
+                    <label className="text-xs font-heading tracking-wider text-muted-foreground mb-3 block">Hours Per Session</label>
                     <div className="flex flex-wrap gap-3">
                       {HOURS_OPTIONS.map((h) => (
                         <button

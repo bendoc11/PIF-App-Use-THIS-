@@ -10,7 +10,7 @@ import { Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Login() {
-  const { user, loading } = useAuth();
+  const { user, loading, subscription } = useAuth();
   const navigate = useNavigate();
   const [tab, setTab] = useState<"signin" | "signup">("signin");
   const [showPassword, setShowPassword] = useState(false);
@@ -25,6 +25,7 @@ export default function Login() {
   const [lastName, setLastName] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
+  
 
   useEffect(() => {
     const handleBanned = () => {
@@ -34,16 +35,7 @@ export default function Login() {
     return () => window.removeEventListener("account-banned", handleBanned);
   }, []);
 
-  // Loading → full screen spinner, never blank
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  // Already logged in → dashboard (AuthGuard will handle routing from there)
+  if (loading) return null;
   if (user) return <Navigate to="/dashboard" replace />;
 
   const getPasswordStrength = (pw: string) => {
@@ -91,7 +83,9 @@ export default function Login() {
 
       if (signUpError) throw signUpError;
 
+      // Auto-confirm is enabled, so we should have a session
       if (!signUpData?.session) {
+        // Try signing in if auto-confirm created the user without a session
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: signupEmail.trim(),
           password: signupPassword,
@@ -99,6 +93,7 @@ export default function Login() {
         if (signInError) throw signInError;
       }
 
+      // Account created — AuthGuard will redirect to /onboarding since onboarding_completed is false
       navigate("/dashboard");
     } catch (err: any) {
       toast.error(err.message || "Could not create account");

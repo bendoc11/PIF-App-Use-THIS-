@@ -37,28 +37,11 @@ serve(async (req) => {
       ]);
     };
 
-    // Save stripe_customer_id to profiles table (avoid Stripe customer list call which can hang intermittently)
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { persistSession: false } }
-    );
-
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("stripe_customer_id")
-      .eq("email", email)
-      .maybeSingle();
-
-    const existingCustomerId = profile?.stripe_customer_id ?? undefined;
-    logStep("Using existing Stripe customer", { existingCustomerId: existingCustomerId ?? null });
-
     const origin = req.headers.get("origin") || "http://localhost:3000";
 
     const session = await withTimeout(
       stripe.checkout.sessions.create({
-        customer: existingCustomerId,
-        customer_email: existingCustomerId ? undefined : email,
+        customer_email: email,
         line_items: [
           { price: "price_1T6WwJBPEetonI9eZgTrNOwK", quantity: 1 },
           { price: "price_1T6XK6BPEetonI9eSK1U48vs", quantity: 1 },
@@ -75,11 +58,21 @@ serve(async (req) => {
     );
 
     const sessionCustomerId = typeof session.customer === "string" ? session.customer : undefined;
-    if (sessionCustomerId && sessionCustomerId !== existingCustomerId) {
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({ stripe_customer_id: sessionCustomerId })
-        .eq("email", email);
+    if (sessionCustomerId) {
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+        { auth: { persistSession: false } }
+      );
+
+      const { error: updateError } = await withTimeout(
+        supabase
+          .from("profiles")
+          .update({ stripe_customer_id: sessionCustomerId })
+          .eq("email", email),
+        2000,
+        "Saving customer id timed out"
+      );
 
       if (updateError) {
         logStep("Failed to save stripe_customer_id", { error: updateError.message });

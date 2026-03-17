@@ -153,7 +153,7 @@ async function handleSubscriptionCreated(supabase: any, subscription: any) {
   // Notify GHL — new subscriber
   const { data: fullProfile } = await supabase
     .from("profiles")
-    .select("email, first_name, last_name")
+    .select("email, first_name, last_name, phone")
     .eq("id", profile.id)
     .maybeSingle();
 
@@ -165,6 +165,7 @@ async function handleSubscriptionCreated(supabase: any, subscription: any) {
       last_name: fullProfile.last_name || "",
       plan: "pro",
       trial_end: periodEnd,
+      phone: fullProfile.phone || "",
     });
   }
 }

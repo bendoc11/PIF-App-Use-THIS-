@@ -96,18 +96,16 @@ export default function CoursePlayer() {
 
   const hasShotTracking = !!(currentDrill as any)?.enable_shot_tracking && ((currentDrill as any)?.shot_attempts ?? 0) > 0;
 
-  const handleMarkComplete = async () => {
-    if (!currentDrill || !user) return;
-    if (hasShotTracking) {
-      setShowShotInput(true);
-      return;
-    }
-    await doComplete();
-  };
+  useEffect(() => {
+    return () => {
+      if (completionTimerRef.current !== null) {
+        window.clearTimeout(completionTimerRef.current);
+      }
+    };
+  }, []);
 
-  const doComplete = async () => {
+  const persistCompletion = async () => {
     if (!currentDrill || !user) return;
-    setCompleting(true);
 
     await supabase.from("user_drill_progress").upsert({
       user_id: user.id,
@@ -126,17 +124,47 @@ export default function CoursePlayer() {
     }, { onConflict: "user_id,course_id" });
 
     setCompletedDrills((prev) => new Set([...prev, currentDrill.id]));
-    setCompleting(false);
-    setJustCompleted(true);
+  };
+
+  const advanceAfterCompletion = () => {
+    setIsCompleting(false);
 
     if (currentIndex >= drills.length) {
-      setTimeout(() => setShowCompletion(true), 1000);
-    } else {
-      setTimeout(() => {
-        setJustCompleted(false);
-        navigate(`/courses/${courseId}/${currentIndex + 1}`);
-      }, 2000);
+      setShowCompletion(true);
+      return;
     }
+
+    navigate(`/courses/${courseId}/${currentIndex + 1}`);
+  };
+
+  const startCompletionFlow = () => {
+    if (!currentDrill || !user || isCompleting) return;
+
+    setIsCompleting(true);
+
+    requestAnimationFrame(() => {
+      void persistCompletion();
+    });
+
+    if (completionTimerRef.current !== null) {
+      window.clearTimeout(completionTimerRef.current);
+    }
+
+    completionTimerRef.current = window.setTimeout(() => {
+      advanceAfterCompletion();
+    }, 600);
+  };
+
+  const handleMarkComplete = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!currentDrill || !user || isCompleting) return;
+
+    if (hasShotTracking) {
+      setShowShotInput(true);
+      return;
+    }
+
+    startCompletionFlow();
   };
 
   const handleShotSave = async (shotsMade: number) => {
@@ -160,13 +188,13 @@ export default function CoursePlayer() {
     setTimeout(() => {
       setShowShotResult(false);
       setShotResultPct(null);
-      doComplete();
+      startCompletionFlow();
     }, 800);
   };
 
   const handleShotSkip = async () => {
     setShowShotInput(false);
-    await doComplete();
+    startCompletionFlow();
   };
 
   const getDrillStatus = (drill: Drill, index: number) => {

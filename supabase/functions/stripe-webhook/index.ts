@@ -105,6 +105,9 @@ serve(async (req) => {
       case "invoice.payment_failed":
         await handlePaymentFailed(supabase, event.data.object as any);
         break;
+      case "customer.subscription.trial_will_end":
+        logStep("trial_will_end received", { subscriptionId: (event.data.object as any).id });
+        break;
       default:
         logStep("Unhandled event type", { type: event.type });
     }
@@ -112,6 +115,64 @@ serve(async (req) => {
     const msg = err instanceof Error ? err.message : String(err);
     logStep("ERROR processing event", { type: event.type, message: msg });
     // Always return 200 to Stripe to prevent retries
+  }
+
+  // --- Outbound GHL webhook calls (fire-and-forget, never block Stripe response) ---
+  try {
+    const GHL_URLS: Record<string, string> = {
+      "invoice.payment_succeeded": "https://services.leadconnectorhq.com/hooks/hNgWHJ2VuWmyxA4xDAAK/webhook-trigger/ZESbDcBswAS6yQ37kgzC",
+      "invoice.payment_failed": "https://services.leadconnectorhq.com/hooks/hNgWHJ2VuWmyxA4xDAAK/webhook-trigger/1437ec68-fa21-42b2-adcb-976dc4fc78ec",
+      "customer.subscription.trial_will_end": "https://services.leadconnectorhq.com/hooks/hNgWHJ2VuWmyxA4xDAAK/webhook-trigger/f53747a1-0ae3-4c39-ad0a-f94e0f0098f3",
+    };
+
+    const ghlUrl = GHL_URLS[event.type];
+    if (ghlUrl) {
+      let customerEmail = "";
+      let customerName = "";
+
+      if (event.type === "invoice.payment_succeeded" || event.type === "invoice.payment_failed") {
+        const invoice = event.data.object as any;
+        customerEmail = invoice.customer_email || "";
+        customerName = invoice.customer_name || "";
+      } else if (event.type === "customer.subscription.trial_will_end") {
+        const subscription = event.data.object as any;
+        const custId = typeof subscription.customer === "string"
+          ? subscription.customer
+          : subscription.customer?.id;
+        if (custId) {
+          try {
+            const customer = await stripe.customers.retrieve(custId);
+            if (customer && !customer.deleted) {
+              customerEmail = (customer as any).email || "";
+              customerName = (customer as any).name || "";
+            }
+          } catch (custErr) {
+            logStep("GHL: failed to fetch customer for trial_will_end", { error: String(custErr) });
+          }
+        }
+      }
+
+      const ghlPayload = {
+        email: customerEmail,
+        name: customerName,
+        event: event.type,
+      };
+
+      logStep("GHL outbound call", { url: ghlUrl.substring(0, 40) + "...", payload: ghlPayload });
+
+      fetch(ghlUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(ghlPayload),
+      })
+        .then(async (res) => {
+          const body = await res.text();
+          logStep("GHL direct response", { event: event.type, status: res.status, body });
+        })
+        .catch((err) => logStep("GHL direct call failed (non-blocking)", { error: String(err) }));
+    }
+  } catch (ghlErr) {
+    logStep("GHL outbound error (non-blocking)", { error: String(ghlErr) });
   }
 
   return new Response(JSON.stringify({ received: true }), {

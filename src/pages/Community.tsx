@@ -205,7 +205,17 @@ export default function Community() {
 
   const filtered = posts.filter((p) => activeCategory === "All" || p.category === activeCategory);
 
-  const getInitials = (profile: { first_name: string | null; last_name: string | null } | null) => {
+  const getDisplayName = (post: Post) => {
+    if (post.display_name) return post.display_name;
+    if (!post.profiles) return "Unknown";
+    return `${post.profiles.first_name || ""} ${post.profiles.last_name || ""}`.trim() || "Unknown";
+  };
+
+  const getInitials = (profile: { first_name: string | null; last_name: string | null } | null, displayName?: string | null) => {
+    if (displayName) {
+      const parts = displayName.trim().split(/\s+/);
+      return parts.map(p => p[0] || "").join("").toUpperCase().slice(0, 2) || "?";
+    }
     if (!profile) return "?";
     return `${(profile.first_name || "")[0] || ""}${(profile.last_name || "")[0] || ""}`.toUpperCase() || "?";
   };

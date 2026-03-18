@@ -64,6 +64,8 @@ export type Database = {
           body: string
           category: string
           created_at: string
+          display_avatar_url: string | null
+          display_name: string | null
           hidden: boolean
           id: string
           reply_count: number
@@ -75,6 +77,8 @@ export type Database = {
           body: string
           category?: string
           created_at?: string
+          display_avatar_url?: string | null
+          display_name?: string | null
           hidden?: boolean
           id?: string
           reply_count?: number
@@ -86,6 +90,8 @@ export type Database = {
           body?: string
           category?: string
           created_at?: string
+          display_avatar_url?: string | null
+          display_name?: string | null
           hidden?: boolean
           id?: string
           reply_count?: number

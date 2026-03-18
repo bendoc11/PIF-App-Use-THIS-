@@ -42,6 +42,8 @@ interface Post {
   upvote_count: number;
   reply_count: number;
   created_at: string;
+  display_name: string | null;
+  display_avatar_url: string | null;
   profiles: { first_name: string | null; last_name: string | null } | null;
 }
 
@@ -205,7 +207,17 @@ export default function Community() {
 
   const filtered = posts.filter((p) => activeCategory === "All" || p.category === activeCategory);
 
-  const getInitials = (profile: { first_name: string | null; last_name: string | null } | null) => {
+  const getDisplayName = (post: Post) => {
+    if (post.display_name) return post.display_name;
+    if (!post.profiles) return "Unknown";
+    return `${post.profiles.first_name || ""} ${post.profiles.last_name || ""}`.trim() || "Unknown";
+  };
+
+  const getInitials = (profile: { first_name: string | null; last_name: string | null } | null, displayName?: string | null) => {
+    if (displayName) {
+      const parts = displayName.trim().split(/\s+/);
+      return parts.map(p => p[0] || "").join("").toUpperCase().slice(0, 2) || "?";
+    }
     if (!profile) return "?";
     return `${(profile.first_name || "")[0] || ""}${(profile.last_name || "")[0] || ""}`.toUpperCase() || "?";
   };
@@ -299,11 +311,15 @@ export default function Community() {
 
                     {/* Content */}
                     <div className="flex-1 min-w-0 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center">
-                          <span className="text-[10px] font-heading text-primary">{getInitials(post.profiles)}</span>
-                        </div>
-                        <span className="text-sm text-foreground">{post.profiles?.first_name} {post.profiles?.last_name}</span>
+                        <div className="flex items-center gap-2">
+                        {post.display_avatar_url ? (
+                          <img src={post.display_avatar_url} alt="" className="w-7 h-7 rounded-full object-cover" />
+                        ) : (
+                          <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center">
+                            <span className="text-[10px] font-heading text-primary">{getInitials(post.profiles, post.display_name)}</span>
+                          </div>
+                        )}
+                        <span className="text-sm text-foreground">{getDisplayName(post)}</span>
                         <span className="text-xs text-muted-foreground">· {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}</span>
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-heading tracking-wider ${categoryColors[post.category] || "bg-muted text-muted-foreground"}`}>
                           {post.category}

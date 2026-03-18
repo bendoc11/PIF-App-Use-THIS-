@@ -311,11 +311,15 @@ export default function Community() {
 
                     {/* Content */}
                     <div className="flex-1 min-w-0 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center">
-                          <span className="text-[10px] font-heading text-primary">{getInitials(post.profiles)}</span>
-                        </div>
-                        <span className="text-sm text-foreground">{post.profiles?.first_name} {post.profiles?.last_name}</span>
+                        <div className="flex items-center gap-2">
+                        {post.display_avatar_url ? (
+                          <img src={post.display_avatar_url} alt="" className="w-7 h-7 rounded-full object-cover" />
+                        ) : (
+                          <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center">
+                            <span className="text-[10px] font-heading text-primary">{getInitials(post.profiles, post.display_name)}</span>
+                          </div>
+                        )}
+                        <span className="text-sm text-foreground">{getDisplayName(post)}</span>
                         <span className="text-xs text-muted-foreground">· {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}</span>
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-heading tracking-wider ${categoryColors[post.category] || "bg-muted text-muted-foreground"}`}>
                           {post.category}

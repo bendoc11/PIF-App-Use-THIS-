@@ -1,0 +1,1 @@
+ALTER TABLE public.community_replies ADD COLUMN display_name text, ADD COLUMN display_avatar_url text;

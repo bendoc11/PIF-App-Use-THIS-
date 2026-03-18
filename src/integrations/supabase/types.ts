@@ -113,6 +113,8 @@ export type Database = {
         Row: {
           body: string
           created_at: string
+          display_avatar_url: string | null
+          display_name: string | null
           id: string
           post_id: string
           user_id: string
@@ -120,6 +122,8 @@ export type Database = {
         Insert: {
           body: string
           created_at?: string
+          display_avatar_url?: string | null
+          display_name?: string | null
           id?: string
           post_id: string
           user_id: string
@@ -127,6 +131,8 @@ export type Database = {
         Update: {
           body?: string
           created_at?: string
+          display_avatar_url?: string | null
+          display_name?: string | null
           id?: string
           post_id?: string
           user_id?: string

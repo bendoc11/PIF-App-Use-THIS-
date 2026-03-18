@@ -52,6 +52,8 @@ interface Reply {
   user_id: string;
   body: string;
   created_at: string;
+  display_name: string | null;
+  display_avatar_url: string | null;
   profiles: { first_name: string | null; last_name: string | null } | null;
 }
 
@@ -342,12 +344,16 @@ export default function Community() {
                           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-3 pt-3 border-t border-border mt-3">
                             {(replies[post.id] || []).map((reply) => (
                               <div key={reply.id} className="flex gap-3 pl-2">
-                                <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center shrink-0">
-                                  <span className="text-[9px] font-heading text-muted-foreground">{getInitials(reply.profiles)}</span>
-                                </div>
+                                {reply.display_avatar_url ? (
+                                  <img src={reply.display_avatar_url} alt="" className="w-6 h-6 rounded-full object-cover shrink-0" />
+                                ) : (
+                                  <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center shrink-0">
+                                    <span className="text-[9px] font-heading text-muted-foreground">{getInitials(reply.profiles, reply.display_name)}</span>
+                                  </div>
+                                )}
                                 <div>
                                   <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium text-foreground">{reply.profiles?.first_name} {reply.profiles?.last_name}</span>
+                                    <span className="text-sm font-medium text-foreground">{reply.display_name || `${reply.profiles?.first_name || ""} ${reply.profiles?.last_name || ""}`.trim() || "Unknown"}</span>
                                     <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(reply.created_at), { addSuffix: true })}</span>
                                   </div>
                                   <p className="text-sm text-muted-foreground mt-0.5">{reply.body}</p>

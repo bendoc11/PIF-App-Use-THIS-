@@ -120,7 +120,7 @@ serve(async (req) => {
   // --- Outbound GHL webhook calls (fire-and-forget, never block Stripe response) ---
   try {
     const GHL_URLS: Record<string, string> = {
-      "invoice.payment_succeeded": "https://services.leadconnectorhq.com/hooks/hNgWHJ2VuWmyxA4xDAAK/webhook-trigger/ZESbDcBswAS6yQ37kgzC",
+      "customer.subscription.created": "https://services.leadconnectorhq.com/hooks/hNgWHJ2VuWmyxA4xDAAK/webhook-trigger/ZESbDcBswAS6yQ37kgzC",
       "invoice.payment_failed": "https://services.leadconnectorhq.com/hooks/hNgWHJ2VuWmyxA4xDAAK/webhook-trigger/1437ec68-fa21-42b2-adcb-976dc4fc78ec",
       "customer.subscription.trial_will_end": "https://services.leadconnectorhq.com/hooks/hNgWHJ2VuWmyxA4xDAAK/webhook-trigger/f53747a1-0ae3-4c39-ad0a-f94e0f0098f3",
     };
@@ -130,11 +130,11 @@ serve(async (req) => {
       let customerEmail = "";
       let customerName = "";
 
-      if (event.type === "invoice.payment_succeeded" || event.type === "invoice.payment_failed") {
+      if (event.type === "invoice.payment_failed") {
         const invoice = event.data.object as any;
         customerEmail = invoice.customer_email || "";
         customerName = invoice.customer_name || "";
-      } else if (event.type === "customer.subscription.trial_will_end") {
+      } else if (event.type === "customer.subscription.created" || event.type === "customer.subscription.trial_will_end") {
         const subscription = event.data.object as any;
         const custId = typeof subscription.customer === "string"
           ? subscription.customer
@@ -147,7 +147,7 @@ serve(async (req) => {
               customerName = (customer as any).name || "";
             }
           } catch (custErr) {
-            logStep("GHL: failed to fetch customer for trial_will_end", { error: String(custErr) });
+            logStep("GHL: failed to fetch customer", { event: event.type, error: String(custErr) });
           }
         }
       }

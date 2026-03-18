@@ -52,6 +52,8 @@ interface Reply {
   user_id: string;
   body: string;
   created_at: string;
+  display_name: string | null;
+  display_avatar_url: string | null;
   profiles: { first_name: string | null; last_name: string | null } | null;
 }
 

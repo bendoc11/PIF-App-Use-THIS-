@@ -339,42 +339,48 @@ export default function Community() {
                       </button>
 
                       {/* Replies */}
-                      <AnimatePresence>
-                        {expandedPost === post.id && (
-                          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-3 pt-3 border-t border-border mt-3">
-                            {(replies[post.id] || []).map((reply) => (
-                              <div key={reply.id} className="flex gap-3 pl-2">
-                                {reply.display_avatar_url ? (
-                                  <img src={reply.display_avatar_url} alt="" className="w-6 h-6 rounded-full object-cover shrink-0" />
-                                ) : (
-                                  <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center shrink-0">
-                                    <span className="text-[9px] font-heading text-muted-foreground">{getInitials(reply.profiles, reply.display_name)}</span>
-                                  </div>
-                                )}
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium text-foreground">{reply.display_name || `${reply.profiles?.first_name || ""} ${reply.profiles?.last_name || ""}`.trim() || "Unknown"}</span>
-                                    <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(reply.created_at), { addSuffix: true })}</span>
-                                  </div>
-                                  <p className="text-sm text-muted-foreground mt-0.5">{reply.body}</p>
+                      {expandedPost === post.id && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="space-y-3 pt-3 border-t border-border mt-3"
+                        >
+                          {(replies[post.id] || []).length === 0 && (
+                            <p className="text-sm text-muted-foreground italic">No replies yet. Be the first to respond!</p>
+                          )}
+                          {(replies[post.id] || []).map((reply) => (
+                            <div key={reply.id} className="flex gap-3 pl-2">
+                              {reply.display_avatar_url ? (
+                                <img src={reply.display_avatar_url} alt="" className="w-6 h-6 rounded-full object-cover shrink-0" />
+                              ) : (
+                                <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center shrink-0">
+                                  <span className="text-[9px] font-heading text-muted-foreground">{getInitials(reply.profiles, reply.display_name)}</span>
                                 </div>
+                              )}
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-medium text-foreground">{reply.display_name || `${reply.profiles?.first_name || ""} ${reply.profiles?.last_name || ""}`.trim() || "Unknown"}</span>
+                                  <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(reply.created_at), { addSuffix: true })}</span>
+                                </div>
+                                <p className="text-sm text-muted-foreground mt-0.5">{reply.body}</p>
                               </div>
-                            ))}
-                            <div className="flex gap-2 pt-2">
-                              <Input
-                                value={replyText}
-                                onChange={(e) => setReplyText(e.target.value)}
-                                placeholder="Write a reply..."
-                                className="bg-muted border-border h-9 text-sm"
-                                onKeyDown={(e) => e.key === "Enter" && handleReply(post.id)}
-                              />
-                              <Button size="sm" onClick={() => handleReply(post.id)} disabled={!replyText.trim()} className="bg-primary hover:bg-primary/90 h-9">
-                                <Send className="h-3 w-3" />
-                              </Button>
                             </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
+                          ))}
+                          <div className="flex gap-2 pt-2">
+                            <Input
+                              value={replyText}
+                              onChange={(e) => setReplyText(e.target.value)}
+                              placeholder="Write a reply..."
+                              className="bg-muted border-border h-9 text-sm"
+                              onKeyDown={(e) => e.key === "Enter" && handleReply(post.id)}
+                            />
+                            <Button size="sm" onClick={() => handleReply(post.id)} disabled={!replyText.trim()} className="bg-primary hover:bg-primary/90 h-9">
+                              <Send className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </motion.div>
+                      )}
                     </div>
                   </div>
                 </CardContent>

@@ -31,6 +31,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminModeration from "./pages/admin/AdminModeration";
 import AdminFeatured from "./pages/admin/AdminFeatured";
 import AdminDrills from "./pages/admin/AdminDrills";
+import AdminBulkUpload from "./pages/admin/AdminBulkUpload";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +65,7 @@ const App = () => (
             <Route path="/admin/courses" element={<AdminGuard><AdminCourses /></AdminGuard>} />
             <Route path="/admin/courses/:courseId" element={<AdminGuard><AdminCourseEditor /></AdminGuard>} />
             <Route path="/admin/drills" element={<AdminGuard><AdminDrills /></AdminGuard>} />
+            <Route path="/admin/bulk-upload" element={<AdminGuard requiredRole="admin"><AdminBulkUpload /></AdminGuard>} />
             <Route path="/admin/featured" element={<AdminGuard requiredRole="admin"><AdminFeatured /></AdminGuard>} />
             <Route path="/admin/creators" element={<AdminGuard requiredRole="admin"><AdminCreators /></AdminGuard>} />
             <Route path="/admin/coaches" element={<AdminGuard requiredRole="admin"><AdminCoaches /></AdminGuard>} />

@@ -53,14 +53,13 @@ interface Reply {
   profiles: { first_name: string | null; last_name: string | null } | null;
 }
 
-const categories = ["All", "General", "Training Tips", "Film Study", "Off-Court", "Introductions"];
+const categories = ["All", "General", "Training Tips", "Recruiting", "Mindset"];
 
 const categoryColors: Record<string, string> = {
   General: "bg-muted text-muted-foreground",
   "Training Tips": "bg-primary/10 text-primary",
-  "Film Study": "bg-secondary/10 text-secondary",
-  "Off-Court": "bg-pif-green/10 text-pif-green",
-  Introductions: "bg-pif-gold/10 text-pif-gold",
+  Recruiting: "bg-secondary/10 text-secondary",
+  Mindset: "bg-pif-green/10 text-pif-green",
 };
 
 export default function Community() {

@@ -152,11 +152,25 @@ serve(async (req) => {
         }
       }
 
-      const ghlPayload = {
-        email: customerEmail,
-        name: customerName,
-        event: event.type,
-      };
+      let ghlPayload: Record<string, string>;
+
+      if (event.type === "customer.subscription.created") {
+        const spaceIdx = customerName.indexOf(" ");
+        const firstName = spaceIdx > -1 ? customerName.substring(0, spaceIdx) : customerName;
+        const lastName = spaceIdx > -1 ? customerName.substring(spaceIdx + 1) : "";
+        ghlPayload = {
+          email: customerEmail,
+          first_name: firstName,
+          last_name: lastName,
+          event: event.type,
+        };
+      } else {
+        ghlPayload = {
+          email: customerEmail,
+          name: customerName,
+          event: event.type,
+        };
+      }
 
       logStep("GHL outbound call", { url: ghlUrl.substring(0, 40) + "...", payload: ghlPayload });
 

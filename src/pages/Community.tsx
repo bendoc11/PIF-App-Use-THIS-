@@ -42,6 +42,8 @@ interface Post {
   upvote_count: number;
   reply_count: number;
   created_at: string;
+  display_name: string | null;
+  display_avatar_url: string | null;
   profiles: { first_name: string | null; last_name: string | null } | null;
 }
 

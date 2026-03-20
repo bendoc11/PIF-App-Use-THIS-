@@ -73,7 +73,7 @@ export default function DrillExperience() {
       } else if (courseId && currentIndex) {
         const [courseRes, junctionRes] = await Promise.all([
           supabase.from("courses").select("id, title, drill_count").eq("id", courseId).single(),
-          supabase.from("workout_drills").select("position, drills(*)").eq("workout_id", courseId).order("position"),
+          supabase.from("workout_drills").select("position, drills(*, coaches(name, school))").eq("workout_id", courseId).order("position"),
         ]);
         if (courseRes.data) setCourse(courseRes.data);
         if (junctionRes.data) {

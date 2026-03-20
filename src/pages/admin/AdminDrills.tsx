@@ -90,7 +90,7 @@ export default function AdminDrills() {
 
   const openNewDrill = () => {
     setEditingDrill({
-      title: "", vimeo_id: "", duration_seconds: 0, description: "",
+      title: "", vimeo_id: "", mux_playback_id: "", duration_seconds: 0, description: "",
       coaching_tips: "", equipment_needed: [], category: "", level: "",
       drill_type: "", reps: null, sets: null, thumbnail_url: null,
       enable_shot_tracking: false, shot_attempts: null,

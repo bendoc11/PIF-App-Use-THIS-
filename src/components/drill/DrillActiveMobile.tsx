@@ -71,7 +71,15 @@ export function DrillActiveMobile({
     <div className="fixed inset-0 z-40 bg-black flex flex-col">
       {/* Fullscreen video background */}
       <div className="absolute inset-0 flex items-center justify-center overflow-hidden" onClick={togglePlayPause}>
-        {vimeoId ? (
+        {muxPlaybackId ? (
+          <VideoPlayer
+            muxPlaybackId={muxPlaybackId}
+            title={drillTitle}
+            className="w-full h-full"
+            autoPlay
+            loop
+          />
+        ) : vimeoId ? (
           <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
             <iframe
               ref={iframeRef}

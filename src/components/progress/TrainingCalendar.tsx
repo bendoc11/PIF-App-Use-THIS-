@@ -22,10 +22,27 @@ interface WeekData {
 }
 
 export function TrainingCalendar({ drillCompletedDates, streakDays }: TrainingCalendarProps) {
-  const { profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const scrollRef = useRef<HTMLDivElement>(null);
   const today = new Date();
-  const goal = profile?.training_days_per_week ?? 3;
+  const goal = profile?.training_days_per_week ?? 7;
+  const [goalOpen, setGoalOpen] = useState(false);
+  const GOAL_OPTIONS = [3, 5, 7] as const;
+
+  const updateGoal = async (newGoal: number) => {
+    if (!user) return;
+    const { error } = await supabase
+      .from("profiles")
+      .update({ training_days_per_week: newGoal })
+      .eq("id", user.id);
+    if (error) {
+      toast.error("Failed to update goal");
+    } else {
+      toast.success(`Weekly goal set to ${newGoal} days`);
+      refreshProfile?.();
+    }
+    setGoalOpen(false);
+  };
 
   const { weeks, longestStreak, totalTrainingDays } = useMemo(() => {
     // Build set of trained dates

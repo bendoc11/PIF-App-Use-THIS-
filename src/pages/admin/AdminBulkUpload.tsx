@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
 const CSV_COLUMNS = [
-  "title", "description", "coaching_tips", "vimeo_url", "category", "level",
+  "title", "description", "coaching_tips", "video_url", "mux_playback_id", "category", "level",
   "drill_type", "duration", "duration_seconds", "coach_name", "workout_title",
   "workout_category", "equipment", "is_featured", "shot_tracking", "shot_attempts",
 ];

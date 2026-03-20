@@ -169,6 +169,8 @@ export default function AdminDrills() {
     const drillData: any = {
       title: editingDrill.title,
       vimeo_id: editingDrill.vimeo_id || null,
+      mux_playback_id: editingDrill.mux_playback_id || null,
+      duration_seconds: editingDrill.duration_seconds || null,
       duration_seconds: editingDrill.duration_seconds || null,
       description: editingDrill.description || null,
       coaching_tips: editingDrill.coaching_tips ? editingDrill.coaching_tips.split("\n").filter(Boolean) : null,

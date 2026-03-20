@@ -9,6 +9,7 @@ import { VideoPlayer } from "./VideoPlayer";
 interface DrillActiveProps {
   drillTitle: string;
   vimeoId: string | null;
+  muxPlaybackId?: string | null;
   coachingTips: string[] | null;
   completing: boolean;
   onComplete: () => void;

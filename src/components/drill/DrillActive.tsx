@@ -55,6 +55,7 @@ export function DrillActive({
         <DrillActiveMobile
           drillTitle={drillTitle}
           vimeoId={vimeoId}
+          muxPlaybackId={muxPlaybackId}
           coachingTips={coachingTips}
           completing={completing}
           onComplete={onComplete}

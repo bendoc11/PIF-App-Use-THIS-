@@ -23,6 +23,8 @@ export function VideoPlayer({
   loop = false,
   iframeRef,
 }: VideoPlayerProps) {
+  console.log("[VideoPlayer] muxPlaybackId:", muxPlaybackId, "| vimeoId:", vimeoId, "| title:", title);
+
   if (muxPlaybackId) {
     return (
       <MuxPlayer

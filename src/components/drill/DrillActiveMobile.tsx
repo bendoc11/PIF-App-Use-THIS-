@@ -1,7 +1,8 @@
 import { useState, useRef } from "react";
-import { motion, AnimatePresence, useDragControls } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { ChevronUp, Clock, Repeat, X } from "lucide-react";
+import { VideoPlayer } from "./VideoPlayer";
 
 interface DrillActiveMobileProps {
   drillTitle: string;

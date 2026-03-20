@@ -3,9 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { Target } from "lucide-react";
+import { Target, Info } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { format } from "date-fns";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from "recharts";
 
 interface ShotResult {
   id: string;
@@ -143,6 +144,18 @@ export function ShootingTracker() {
             <div className="flex items-center gap-2">
               <Target className="h-5 w-5 text-primary" />
               <span className="text-2xl font-heading text-foreground">{overallPct}%</span>
+              <TooltipProvider delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="p-0.5 rounded-full hover:bg-muted transition-colors" aria-label="Info">
+                      <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-[200px] text-xs">
+                    Overall % is weighted by attempts across all sessions.
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
 
@@ -170,7 +183,7 @@ export function ShootingTracker() {
                 <LineChart data={chartData}>
                   <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(0 0% 100% / 0.5)" }} axisLine={false} tickLine={false} />
                   <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: "hsl(0 0% 100% / 0.5)" }} axisLine={false} tickLine={false} width={30} />
-                  <Tooltip
+                  <RechartsTooltip
                     contentStyle={{ background: "hsl(220 40% 13%)", border: "1px solid hsl(0 0% 100% / 0.1)", borderRadius: 8, color: "#fff" }}
                     formatter={(value: number, name: string) => [`${value}%`, name]}
                   />

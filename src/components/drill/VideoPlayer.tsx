@@ -23,6 +23,8 @@ export function VideoPlayer({
   loop = false,
   iframeRef,
 }: VideoPlayerProps) {
+  console.log("[VideoPlayer] muxPlaybackId:", muxPlaybackId, "| vimeoId:", vimeoId, "| title:", title);
+
   if (muxPlaybackId) {
     return (
       <MuxPlayer
@@ -33,6 +35,7 @@ export function VideoPlayer({
         loop={loop}
         playsInline
         className={className}
+        onError={(e: any) => console.error("[MuxPlayer] error:", e?.detail || e)}
       />
     );
   }

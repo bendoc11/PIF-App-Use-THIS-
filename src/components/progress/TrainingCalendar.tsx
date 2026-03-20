@@ -1,9 +1,12 @@
-import { useMemo, useRef, useEffect } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { format, startOfWeek, eachDayOfInterval, subWeeks, isSameWeek } from "date-fns";
-import { Flame, Trophy, Calendar } from "lucide-react";
+import { Flame, Trophy, Calendar, ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { toast } from "sonner";
 
 interface TrainingCalendarProps {
   drillCompletedDates: string[];
@@ -19,10 +22,27 @@ interface WeekData {
 }
 
 export function TrainingCalendar({ drillCompletedDates, streakDays }: TrainingCalendarProps) {
-  const { profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const scrollRef = useRef<HTMLDivElement>(null);
   const today = new Date();
-  const goal = profile?.training_days_per_week ?? 3;
+  const goal = profile?.training_days_per_week ?? 7;
+  const [goalOpen, setGoalOpen] = useState(false);
+  const GOAL_OPTIONS = [3, 5, 7] as const;
+
+  const updateGoal = async (newGoal: number) => {
+    if (!user) return;
+    const { error } = await supabase
+      .from("profiles")
+      .update({ training_days_per_week: newGoal })
+      .eq("id", user.id);
+    if (error) {
+      toast.error("Failed to update goal");
+    } else {
+      toast.success(`Weekly goal set to ${newGoal} days`);
+      refreshProfile?.();
+    }
+    setGoalOpen(false);
+  };
 
   const { weeks, longestStreak, totalTrainingDays } = useMemo(() => {
     // Build set of trained dates
@@ -97,7 +117,32 @@ export function TrainingCalendar({ drillCompletedDates, streakDays }: TrainingCa
   return (
     <Card className="bg-card border-border">
       <CardContent className="p-5">
-        <h2 className="text-lg font-heading text-foreground mb-4">Training Consistency</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-heading text-foreground">Training Consistency</h2>
+          <Popover open={goalOpen} onOpenChange={setGoalOpen}>
+            <PopoverTrigger asChild>
+              <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-muted">
+                Goal: {goal}d/wk
+                <ChevronDown className="h-3 w-3" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-36 p-1" align="end">
+              {GOAL_OPTIONS.map((opt) => (
+                <button
+                  key={opt}
+                  onClick={() => updateGoal(opt)}
+                  className={`w-full text-left text-sm px-3 py-2 rounded-md transition-colors ${
+                    opt === goal
+                      ? "bg-primary/10 text-primary font-medium"
+                      : "hover:bg-muted text-foreground"
+                  }`}
+                >
+                  {opt} days / week
+                </button>
+              ))}
+            </PopoverContent>
+          </Popover>
+        </div>
 
         {/* Scrollable rings row */}
         <div

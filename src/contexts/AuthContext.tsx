@@ -16,6 +16,7 @@ interface Profile {
   onboarding_completed: boolean;
   primary_goal: string | null;
   training_days_per_week: number | null;
+  created_at: string;
 }
 
 interface SubscriptionStatus {

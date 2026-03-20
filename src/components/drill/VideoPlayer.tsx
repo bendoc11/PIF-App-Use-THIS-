@@ -23,12 +23,15 @@ export function VideoPlayer({
   loop = false,
   iframeRef,
 }: VideoPlayerProps) {
-  console.log("[VideoPlayer] muxPlaybackId:", muxPlaybackId, "| vimeoId:", vimeoId, "| title:", title);
+  const hasMux = !!muxPlaybackId && muxPlaybackId.trim().length > 0;
+  const hasVimeo = !!vimeoId && vimeoId.trim().length > 0 && !hasMux;
 
-  if (muxPlaybackId) {
+  console.log("[VideoPlayer] muxPlaybackId:", muxPlaybackId, "| vimeoId:", vimeoId, "| title:", title, "| using:", hasMux ? "MUX" : hasVimeo ? "VIMEO" : "NONE");
+
+  if (hasMux) {
     return (
       <MuxPlayer
-        playbackId={muxPlaybackId}
+        playbackId={muxPlaybackId!}
         metadata={{ video_title: title }}
         style={{ width: "100%", aspectRatio: "16/9", ...style }}
         autoPlay={autoPlay ? "muted" : false}
@@ -40,7 +43,7 @@ export function VideoPlayer({
     );
   }
 
-  if (vimeoId) {
+  if (hasVimeo) {
     const params = `color=E8453C&title=0&byline=0&portrait=0&background=0${autoPlay ? "&autoplay=1" : ""}${loop ? "&loop=1" : ""}`;
     return (
       <iframe

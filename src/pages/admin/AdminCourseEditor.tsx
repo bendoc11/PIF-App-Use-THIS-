@@ -659,6 +659,12 @@ export default function AdminCourseEditor() {
                   <Input value={editingDrill.vimeo_id} onChange={(e) => setEditingDrill({ ...editingDrill, vimeo_id: extractVimeoId(e.target.value) })} placeholder="Paste Vimeo URL or iframe embed code" />
                 </div>
                 <div className="space-y-2">
+                  <Label className="font-heading tracking-wider text-sm">Mux Playback ID</Label>
+                  <Input value={editingDrill.mux_playback_id} onChange={(e) => setEditingDrill({ ...editingDrill, mux_playback_id: e.target.value.trim() })} placeholder="e.g. a1b2c3d4e5" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
                   <Label className="font-heading tracking-wider text-sm">Duration (m:ss)</Label>
                   <Input defaultValue={formatDuration(editingDrill.duration_seconds)} onBlur={(e) => setEditingDrill({ ...editingDrill, duration_seconds: parseDuration(e.target.value) })} placeholder="5:00" />
                 </div>

@@ -227,6 +227,7 @@ export default function DrillExperience() {
         <DrillActive
           drillTitle={drill.title}
           vimeoId={drill.vimeo_id}
+          muxPlaybackId={drill.mux_playback_id}
           coachingTips={coachingTips}
           completing={completing}
           onComplete={handleMarkComplete}

@@ -37,6 +37,7 @@ const categoryColors: Record<string, string> = {
   "Mental Game": "bg-pif-purple",
   "Scoring": "bg-pif-orange",
   "Post Game": "bg-pif-orange",
+  "Skill Development": "bg-pif-purple",
 };
 
 export default function Courses() {

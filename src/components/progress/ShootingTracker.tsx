@@ -98,6 +98,24 @@ export function ShootingTracker() {
     return Object.values(byDate);
   }, [tagged]);
 
+  const trendData = useMemo(() => {
+    const byDate: Record<string, { made: number; attempted: number }> = {};
+    const dateOrder: string[] = [];
+    [...tagged].reverse().forEach((r) => {
+      const d = format(new Date(r.completed_at), "M/d");
+      if (!byDate[d]) {
+        byDate[d] = { made: 0, attempted: 0 };
+        dateOrder.push(d);
+      }
+      byDate[d].made += r.shots_made;
+      byDate[d].attempted += r.shots_attempted;
+    });
+    return dateOrder.map((d) => ({
+      date: d,
+      pct: byDate[d].attempted > 0 ? Math.round((byDate[d].made / byDate[d].attempted) * 100) : 0,
+    }));
+  }, [tagged]);
+
   const recent = useMemo(() => {
     const items = tagged.slice(0, 10);
     const countMap = new Map<string, number>();

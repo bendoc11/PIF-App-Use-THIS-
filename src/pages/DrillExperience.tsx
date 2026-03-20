@@ -32,6 +32,7 @@ interface Drill {
   sets: number | null;
   enable_shot_tracking?: boolean;
   shot_attempts?: number | null;
+  coaches?: { name: string; school: string | null } | null;
 }
 
 interface Course {
@@ -61,7 +62,7 @@ export default function DrillExperience() {
       setLoading(true);
 
       if (drillId) {
-        const { data } = await supabase.from("drills").select("*").eq("id", drillId).single();
+        const { data } = await supabase.from("drills").select("*, coaches(name, school)").eq("id", drillId).single();
         if (data) {
           setDrill(data as any);
           if (data.course_id) {
@@ -72,7 +73,7 @@ export default function DrillExperience() {
       } else if (courseId && currentIndex) {
         const [courseRes, junctionRes] = await Promise.all([
           supabase.from("courses").select("id, title, drill_count").eq("id", courseId).single(),
-          supabase.from("workout_drills").select("position, drills(*)").eq("workout_id", courseId).order("position"),
+          supabase.from("workout_drills").select("position, drills(*, coaches(name, school))").eq("workout_id", courseId).order("position"),
         ]);
         if (courseRes.data) setCourse(courseRes.data);
         if (junctionRes.data) {
@@ -232,6 +233,13 @@ export default function DrillExperience() {
           durationSeconds={drill.duration_seconds}
           reps={drill.reps}
           sets={drill.sets}
+          category={drill.category}
+          level={drill.level}
+          coachName={drill.coaches?.name || null}
+          coachSchool={drill.coaches?.school || null}
+          drillIndex={currentIndex || undefined}
+          totalDrills={isInCourse ? allCourseDrills.length : undefined}
+          description={drill.description}
         />
       )}
 

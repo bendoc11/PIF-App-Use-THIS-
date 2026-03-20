@@ -236,6 +236,39 @@ export function ShootingTracker() {
               );
             })}
           </div>
+
+          {/* Shooting Trend */}
+          <div className="space-y-2 pt-2 border-t border-border">
+            <p className="text-xs font-heading tracking-wider text-muted-foreground">SHOOTING TREND</p>
+            {trendData.length < 3 ? (
+              <div className="h-32 rounded-lg bg-muted/20 border border-dashed border-border flex items-center justify-center">
+                <p className="text-xs text-muted-foreground/60 text-center px-4">
+                  Log {3 - trendData.length} more session{3 - trendData.length !== 1 ? "s" : ""} to unlock your shooting trend
+                </p>
+              </div>
+            ) : (
+              <div className="h-36">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={trendData}>
+                    <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(0 0% 100% / 0.4)" }} axisLine={false} tickLine={false} />
+                    <YAxis domain={[0, 100]} hide />
+                    <RechartsTooltip
+                      contentStyle={{ background: "hsl(220 40% 13%)", border: "1px solid hsl(0 0% 100% / 0.1)", borderRadius: 8, color: "#fff" }}
+                      formatter={(value: number) => [`${value}%`, "Overall"]}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="pct"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={2}
+                      dot={{ r: 3, fill: "hsl(var(--primary))", stroke: "hsl(var(--primary))" }}
+                      activeDot={{ r: 5 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
     </motion.div>

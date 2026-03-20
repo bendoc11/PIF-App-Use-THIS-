@@ -38,6 +38,7 @@ interface DrillForm {
   id?: string;
   title: string;
   vimeo_id: string;
+  mux_playback_id: string;
   duration_seconds: number;
   description: string;
   coaching_tips: string;

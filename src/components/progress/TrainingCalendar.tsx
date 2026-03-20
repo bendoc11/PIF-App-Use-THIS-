@@ -35,6 +35,9 @@ export function TrainingCalendar({ drillCompletedDates, streakDays }: TrainingCa
     const weeksList: WeekData[] = [];
     for (let i = 11; i >= 0; i--) {
       const ws = startOfWeek(subWeeks(today, i), { weekStartsOn: 1 });
+      const isCurrent = isSameWeek(ws, today, { weekStartsOn: 1 });
+      // Skip future weeks entirely
+      if (ws > today && !isCurrent) continue;
       const we = new Date(ws);
       we.setDate(we.getDate() + 6);
       const days = eachDayOfInterval({ start: ws, end: we });
@@ -47,7 +50,7 @@ export function TrainingCalendar({ drillCompletedDates, streakDays }: TrainingCa
         weekStart: ws,
         daysTrained: count,
         goalMet: pct >= 0.8,
-        isCurrent: isSameWeek(ws, today, { weekStartsOn: 1 }),
+        isCurrent,
         pct,
       });
     }
@@ -142,6 +145,7 @@ function WeekRing({ week, goal, index }: { week: WeekData; goal: number; index: 
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
   const filled = circumference * week.pct;
+  const isEmpty = week.daysTrained === 0;
 
   return (
     <div className="flex flex-col items-center shrink-0" style={{ minWidth: size + 8 }}>
@@ -156,27 +160,30 @@ function WeekRing({ week, goal, index }: { week: WeekData; goal: number; index: 
             cy={size / 2}
             r={radius}
             fill="none"
-            stroke="hsl(var(--muted))"
+            stroke={isEmpty ? "hsl(var(--muted) / 0.35)" : "hsl(var(--muted))"}
             strokeWidth={stroke}
+            strokeDasharray={isEmpty ? "4 4" : "none"}
           />
-          {/* Animated fill */}
-          <motion.circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke="hsl(var(--primary))"
-            strokeWidth={stroke}
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            initial={{ strokeDashoffset: circumference }}
-            animate={{ strokeDashoffset: circumference - filled }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: index * 0.05 }}
-          />
+          {/* Animated fill — only render if there's progress */}
+          {!isEmpty && (
+            <motion.circle
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              fill="none"
+              stroke="hsl(var(--primary))"
+              strokeWidth={stroke}
+              strokeLinecap="round"
+              strokeDasharray={circumference}
+              initial={{ strokeDashoffset: circumference }}
+              animate={{ strokeDashoffset: circumference - filled }}
+              transition={{ duration: 0.8, ease: "easeOut", delay: index * 0.05 }}
+            />
+          )}
         </svg>
         {/* Center number */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className={`font-heading text-foreground ${week.isCurrent ? "text-lg" : "text-base"}`}>
+          <span className={`font-heading ${isEmpty ? "text-muted-foreground/50" : "text-foreground"} ${week.isCurrent ? "text-lg" : "text-base"}`}>
             {week.daysTrained}
           </span>
         </div>
@@ -184,7 +191,12 @@ function WeekRing({ week, goal, index }: { week: WeekData; goal: number; index: 
       <span className="text-[10px] text-muted-foreground mt-1.5">
         {format(week.weekStart, "MMM d")}
       </span>
-      {week.goalMet && (
+      {week.isCurrent && (
+        <span className="text-[9px] font-heading text-muted-foreground tracking-wider mt-0.5">
+          {week.daysTrained}/{goal} days
+        </span>
+      )}
+      {!week.isCurrent && week.goalMet && (
         <span className="text-[9px] font-heading text-primary tracking-wider mt-0.5">
           GOAL MET
         </span>

@@ -38,6 +38,7 @@ interface DrillForm {
   id?: string;
   title: string;
   vimeo_id: string;
+  mux_playback_id: string;
   duration_seconds: number;
   description: string;
   coaching_tips: string;
@@ -89,7 +90,7 @@ export default function AdminDrills() {
 
   const openNewDrill = () => {
     setEditingDrill({
-      title: "", vimeo_id: "", duration_seconds: 0, description: "",
+      title: "", vimeo_id: "", mux_playback_id: "", duration_seconds: 0, description: "",
       coaching_tips: "", equipment_needed: [], category: "", level: "",
       drill_type: "", reps: null, sets: null, thumbnail_url: null,
       enable_shot_tracking: false, shot_attempts: null,
@@ -101,6 +102,7 @@ export default function AdminDrills() {
       id: d.id,
       title: d.title,
       vimeo_id: d.vimeo_id || "",
+      mux_playback_id: (d as any).mux_playback_id || "",
       duration_seconds: d.duration_seconds || 0,
       description: d.description || "",
       coaching_tips: Array.isArray(d.coaching_tips) ? d.coaching_tips.join("\n") : "",
@@ -167,6 +169,7 @@ export default function AdminDrills() {
     const drillData: any = {
       title: editingDrill.title,
       vimeo_id: editingDrill.vimeo_id || null,
+      mux_playback_id: editingDrill.mux_playback_id || null,
       duration_seconds: editingDrill.duration_seconds || null,
       description: editingDrill.description || null,
       coaching_tips: editingDrill.coaching_tips ? editingDrill.coaching_tips.split("\n").filter(Boolean) : null,
@@ -312,6 +315,13 @@ export default function AdminDrills() {
                 <Label className="font-heading tracking-wider text-sm">Vimeo URL</Label>
                 <Input value={editingDrill.vimeo_id} onChange={(e) => setEditingDrill({ ...editingDrill, vimeo_id: extractVimeoId(e.target.value) })} placeholder="Paste Vimeo URL or iframe" />
               </div>
+              <div className="space-y-2">
+                <Label className="font-heading tracking-wider text-sm">Mux Playback ID</Label>
+                <Input value={editingDrill.mux_playback_id} onChange={(e) => setEditingDrill({ ...editingDrill, mux_playback_id: e.target.value.trim() })} placeholder="e.g. a1b2c3d4e5" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="font-heading tracking-wider text-sm">Duration (m:ss)</Label>
                 <Input defaultValue={formatDuration(editingDrill.duration_seconds)} onBlur={(e) => setEditingDrill({ ...editingDrill, duration_seconds: parseDuration(e.target.value) })} placeholder="5:00" />

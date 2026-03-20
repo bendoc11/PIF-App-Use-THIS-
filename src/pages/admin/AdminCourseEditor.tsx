@@ -24,6 +24,7 @@ interface DrillForm {
   id?: string;
   title: string;
   vimeo_id: string;
+  mux_playback_id: string;
   duration_seconds: number;
   description: string;
   coaching_tips: string;
@@ -137,6 +138,7 @@ export default function AdminCourseEditor() {
               id: d.id,
               title: d.title,
               vimeo_id: d.vimeo_id || "",
+              mux_playback_id: d.mux_playback_id || "",
               duration_seconds: d.duration_seconds || 0,
               description: d.description || "",
               coaching_tips: Array.isArray(d.coaching_tips) ? d.coaching_tips.join("\n") : "",
@@ -280,6 +282,7 @@ export default function AdminCourseEditor() {
         id: drill.id,
         title: drill.title,
         vimeo_id: "",
+        mux_playback_id: "",
         duration_seconds: drill.duration_seconds || 0,
         description: "",
         coaching_tips: "",
@@ -373,9 +376,10 @@ export default function AdminCourseEditor() {
           // Linked drill — don't update the drill itself, just junction
           continue;
         }
-        const drillData: any = {
+         const drillData: any = {
           title: drill.title,
           vimeo_id: drill.vimeo_id,
+          mux_playback_id: drill.mux_playback_id || null,
           duration_seconds: drill.duration_seconds,
           description: drill.description || null,
           coaching_tips: drill.coaching_tips ? drill.coaching_tips.split("\n").filter(Boolean) : null,
@@ -550,7 +554,7 @@ export default function AdminCourseEditor() {
                 variant="outline"
                 onClick={() =>
                   setEditingDrill({
-                    title: "", vimeo_id: "", duration_seconds: 0, description: "",
+                    title: "", vimeo_id: "", mux_playback_id: "", duration_seconds: 0, description: "",
                     coaching_tips: "", equipment_needed: [], category: category || "",
                     level: "", sort_order: drills.length + 1, drill_type: "", reps: null, sets: null,
                     thumbnail_url: null,
@@ -654,6 +658,12 @@ export default function AdminCourseEditor() {
                   <Label className="font-heading tracking-wider text-sm">Vimeo URL</Label>
                   <Input value={editingDrill.vimeo_id} onChange={(e) => setEditingDrill({ ...editingDrill, vimeo_id: extractVimeoId(e.target.value) })} placeholder="Paste Vimeo URL or iframe embed code" />
                 </div>
+                <div className="space-y-2">
+                  <Label className="font-heading tracking-wider text-sm">Mux Playback ID</Label>
+                  <Input value={editingDrill.mux_playback_id} onChange={(e) => setEditingDrill({ ...editingDrill, mux_playback_id: e.target.value.trim() })} placeholder="e.g. a1b2c3d4e5" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="font-heading tracking-wider text-sm">Duration (m:ss)</Label>
                   <Input defaultValue={formatDuration(editingDrill.duration_seconds)} onBlur={(e) => setEditingDrill({ ...editingDrill, duration_seconds: parseDuration(e.target.value) })} placeholder="5:00" />

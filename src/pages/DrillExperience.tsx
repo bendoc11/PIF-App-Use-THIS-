@@ -20,6 +20,7 @@ interface Drill {
   description: string | null;
   category: string;
   vimeo_id: string | null;
+  mux_playback_id: string | null;
   duration_seconds: number | null;
   level: string | null;
   is_free: boolean;
@@ -226,6 +227,7 @@ export default function DrillExperience() {
         <DrillActive
           drillTitle={drill.title}
           vimeoId={drill.vimeo_id}
+          muxPlaybackId={drill.mux_playback_id}
           coachingTips={coachingTips}
           completing={completing}
           onComplete={handleMarkComplete}

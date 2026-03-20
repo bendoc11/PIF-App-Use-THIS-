@@ -1,11 +1,13 @@
 import { useState, useRef } from "react";
-import { motion, AnimatePresence, useDragControls } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { ChevronUp, Clock, Repeat, X } from "lucide-react";
+import { VideoPlayer } from "./VideoPlayer";
 
 interface DrillActiveMobileProps {
   drillTitle: string;
   vimeoId: string | null;
+  muxPlaybackId?: string | null;
   coachingTips: string[] | null;
   completing: boolean;
   onComplete: () => void;
@@ -31,6 +33,7 @@ const levelColors: Record<string, string> = {
 export function DrillActiveMobile({
   drillTitle,
   vimeoId,
+  muxPlaybackId,
   coachingTips,
   completing,
   onComplete,
@@ -68,7 +71,15 @@ export function DrillActiveMobile({
     <div className="fixed inset-0 z-40 bg-black flex flex-col">
       {/* Fullscreen video background */}
       <div className="absolute inset-0 flex items-center justify-center overflow-hidden" onClick={togglePlayPause}>
-        {vimeoId ? (
+        {muxPlaybackId ? (
+          <VideoPlayer
+            muxPlaybackId={muxPlaybackId}
+            title={drillTitle}
+            className="w-full h-full"
+            autoPlay
+            loop
+          />
+        ) : vimeoId ? (
           <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
             <iframe
               ref={iframeRef}

@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, Clock, Repeat } from "lucide-react";
 import { DrillActiveMobile } from "./DrillActiveMobile";
+import { VideoPlayer } from "./VideoPlayer";
 
 interface DrillActiveProps {
   drillTitle: string;
   vimeoId: string | null;
+  muxPlaybackId?: string | null;
   coachingTips: string[] | null;
   completing: boolean;
   onComplete: () => void;
@@ -28,6 +30,7 @@ interface DrillActiveProps {
 export function DrillActive({
   drillTitle,
   vimeoId,
+  muxPlaybackId,
   coachingTips,
   completing,
   onComplete,
@@ -52,6 +55,7 @@ export function DrillActive({
         <DrillActiveMobile
           drillTitle={drillTitle}
           vimeoId={vimeoId}
+          muxPlaybackId={muxPlaybackId}
           coachingTips={coachingTips}
           completing={completing}
           onComplete={onComplete}
@@ -78,18 +82,12 @@ export function DrillActive({
 
         {/* Video — full width hero */}
         <div className="aspect-video bg-background w-full">
-          {vimeoId ? (
-            <iframe
-              src={`https://player.vimeo.com/video/${vimeoId}?color=E8453C&title=0&byline=0&portrait=0`}
-              className="w-full h-full"
-              allow="autoplay; fullscreen; picture-in-picture"
-              allowFullScreen
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-muted">
-              <span className="text-muted-foreground text-sm">Video not available</span>
-            </div>
-          )}
+          <VideoPlayer
+            muxPlaybackId={muxPlaybackId}
+            vimeoId={vimeoId}
+            title={drillTitle}
+            className="w-full h-full"
+          />
         </div>
 
         {/* Spacer */}

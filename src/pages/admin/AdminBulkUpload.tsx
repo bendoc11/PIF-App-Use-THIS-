@@ -10,14 +10,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
 const CSV_COLUMNS = [
-  "title", "description", "coaching_tips", "vimeo_url", "category", "level",
+  "title", "description", "coaching_tips", "video_url", "mux_playback_id", "category", "level",
   "drill_type", "duration", "duration_seconds", "coach_name", "workout_title",
   "workout_category", "equipment", "is_featured", "shot_tracking", "shot_attempts",
 ];
 
 const EXAMPLE_ROW = [
   "Crossover Attack", "Learn the basic crossover move to beat defenders", "Keep your head up and push the ball low",
-  "https://vimeo.com/123456789", "Ball Handling", "Beginner", "Timed", "0:40", "40",
+  "https://vimeo.com/123456789", "", "Ball Handling", "Beginner", "Timed", "0:40", "40",
   "Zac Ervin", "Handles 101", "Ball Handling", "Basketball", "false", "false", "",
 ];
 
@@ -129,17 +129,19 @@ export default function AdminBulkUpload() {
       try {
         // Validate required fields
         if (!row.title) { res.errors.push({ row: rowNum, reason: "Missing title" }); continue; }
-        if (!row.vimeo_url) { res.errors.push({ row: rowNum, reason: "Missing vimeo_url" }); continue; }
+        if (!row.video_url && !row.vimeo_url && !row.mux_playback_id) { res.errors.push({ row: rowNum, reason: "Missing video_url or mux_playback_id" }); continue; }
         if (!row.category) { res.errors.push({ row: rowNum, reason: "Missing category" }); continue; }
         if (!row.level) { res.errors.push({ row: rowNum, reason: "Missing level" }); continue; }
         if (!row.drill_type) { res.errors.push({ row: rowNum, reason: "Missing drill_type" }); continue; }
 
-        // Extract vimeo_id from URL
-        const vimeoMatch = row.vimeo_url.match(/vimeo\.com\/(\d+)/);
-        const vimeoId = vimeoMatch ? vimeoMatch[1] : row.vimeo_url;
+        // Extract vimeo_id from URL (support both video_url and legacy vimeo_url columns)
+        const videoUrl = row.video_url || row.vimeo_url || "";
+        const vimeoMatch = videoUrl.match(/vimeo\.com\/(\d+)/);
+        const vimeoId = vimeoMatch ? vimeoMatch[1] : (videoUrl ? videoUrl : null);
+        const muxPlaybackId = row.mux_playback_id || null;
 
         // Check duplicate
-        const { data: existing } = await supabase.from("drills").select("id").eq("title", row.title).eq("vimeo_id", vimeoId).maybeSingle();
+        const { data: existing } = await supabase.from("drills").select("id").eq("title", row.title).eq("vimeo_id", vimeoId || "").maybeSingle();
         if (existing) { res.skipped++; continue; }
 
         // Duration
@@ -188,6 +190,7 @@ export default function AdminBulkUpload() {
           description: row.description || null,
           coaching_tips: coachingTips,
           vimeo_id: vimeoId,
+          mux_playback_id: muxPlaybackId,
           category: row.category,
           level: row.level,
           drill_type: row.drill_type,

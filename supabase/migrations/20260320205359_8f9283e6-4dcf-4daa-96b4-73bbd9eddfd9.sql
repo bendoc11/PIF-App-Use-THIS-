@@ -1,0 +1,1 @@
+ALTER TABLE public.drills ADD COLUMN mux_playback_id text DEFAULT NULL;

@@ -117,7 +117,32 @@ export function TrainingCalendar({ drillCompletedDates, streakDays }: TrainingCa
   return (
     <Card className="bg-card border-border">
       <CardContent className="p-5">
-        <h2 className="text-lg font-heading text-foreground mb-4">Training Consistency</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-heading text-foreground">Training Consistency</h2>
+          <Popover open={goalOpen} onOpenChange={setGoalOpen}>
+            <PopoverTrigger asChild>
+              <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-muted">
+                Goal: {goal}d/wk
+                <ChevronDown className="h-3 w-3" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-36 p-1" align="end">
+              {GOAL_OPTIONS.map((opt) => (
+                <button
+                  key={opt}
+                  onClick={() => updateGoal(opt)}
+                  className={`w-full text-left text-sm px-3 py-2 rounded-md transition-colors ${
+                    opt === goal
+                      ? "bg-primary/10 text-primary font-medium"
+                      : "hover:bg-muted text-foreground"
+                  }`}
+                >
+                  {opt} days / week
+                </button>
+              ))}
+            </PopoverContent>
+          </Popover>
+        </div>
 
         {/* Scrollable rings row */}
         <div

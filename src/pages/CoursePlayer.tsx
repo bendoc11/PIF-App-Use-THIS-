@@ -26,6 +26,7 @@ interface Drill {
   sort_order: number;
   enable_shot_tracking?: boolean;
   shot_attempts?: number | null;
+  mux_playback_id?: string | null;
 }
 
 interface Course {

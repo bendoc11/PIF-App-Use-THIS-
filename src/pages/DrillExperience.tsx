@@ -32,6 +32,7 @@ interface Drill {
   sets: number | null;
   enable_shot_tracking?: boolean;
   shot_attempts?: number | null;
+  coaches?: { name: string; school: string | null } | null;
 }
 
 interface Course {

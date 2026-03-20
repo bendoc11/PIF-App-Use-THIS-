@@ -35,6 +35,7 @@ export function VideoPlayer({
         loop={loop}
         playsInline
         className={className}
+        onError={(e: any) => console.error("[MuxPlayer] error:", e?.detail || e)}
       />
     );
   }

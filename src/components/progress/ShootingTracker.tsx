@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { Target } from "lucide-react";
 import { format } from "date-fns";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 interface ShotResult {
   id: string;
@@ -15,6 +15,25 @@ interface ShotResult {
   shooting_percentage: number;
   completed_at: string;
   drills: { title: string } | null;
+}
+
+type ShotCategory = "3PT" | "MID" | "FT" | "Other";
+
+const CATEGORY_COLORS: Record<ShotCategory, string> = {
+  "3PT": "hsl(210 90% 56%)",
+  "MID": "hsl(45 93% 58%)",
+  "FT": "hsl(142 71% 45%)",
+  "Other": "hsl(0 0% 50%)",
+};
+
+function categorize(title: string): ShotCategory {
+  const t = title.toLowerCase();
+  if (t.includes("3") || t.includes("three")) return "3PT";
+  if (t.includes("midrange") || t.includes("mid-range") || t.includes("mid range") || (t.includes("mid") && !t.includes("mid"))) return "MID";
+  if (t.includes("free throw") || t.includes("ft") || t.includes("foul")) return "FT";
+  // extra mid check
+  if (t.includes("mid")) return "MID";
+  return "Other";
 }
 
 export function ShootingTracker() {
@@ -35,20 +54,50 @@ export function ShootingTracker() {
       });
   }, [user]);
 
-  const overallPct = useMemo(() => {
-    const totalMade = results.reduce((s, r) => s + r.shots_made, 0);
-    const totalAttempted = results.reduce((s, r) => s + r.shots_attempted, 0);
-    return totalAttempted > 0 ? Math.round((totalMade / totalAttempted) * 100) : 0;
+  const tagged = useMemo(() => {
+    return results.map((r) => ({
+      ...r,
+      category: categorize(r.drills?.title || ""),
+    }));
   }, [results]);
 
+  const categoryStats = useMemo(() => {
+    const stats: Record<"3PT" | "MID" | "FT", { made: number; attempted: number }> = {
+      "3PT": { made: 0, attempted: 0 },
+      "MID": { made: 0, attempted: 0 },
+      "FT": { made: 0, attempted: 0 },
+    };
+    tagged.forEach((r) => {
+      if (r.category !== "Other") {
+        stats[r.category].made += r.shots_made;
+        stats[r.category].attempted += r.shots_attempted;
+      }
+    });
+    return stats;
+  }, [tagged]);
+
+  const pctFor = (cat: "3PT" | "MID" | "FT") => {
+    const s = categoryStats[cat];
+    return s.attempted > 0 ? Math.round((s.made / s.attempted) * 100) : 0;
+  };
+
+  const overallPct = useMemo(() => {
+    const cats: ("3PT" | "MID" | "FT")[] = ["3PT", "MID", "FT"];
+    const active = cats.filter((c) => categoryStats[c].attempted > 0);
+    if (active.length === 0) return 0;
+    return Math.round(active.reduce((s, c) => s + pctFor(c), 0) / active.length);
+  }, [categoryStats]);
+
   const chartData = useMemo(() => {
-    return [...results]
-      .reverse()
-      .map((r) => ({
-        date: format(new Date(r.completed_at), "M/d"),
-        pct: Math.round(r.shooting_percentage * 100) / 100,
-      }));
-  }, [results]);
+    const byDate: Record<string, { date: string; "3PT"?: number; MID?: number; FT?: number }> = {};
+    [...tagged].reverse().forEach((r) => {
+      if (r.category === "Other") return;
+      const d = format(new Date(r.completed_at), "M/d");
+      if (!byDate[d]) byDate[d] = { date: d };
+      byDate[d][r.category] = Math.round(r.shooting_percentage * 100) / 100;
+    });
+    return Object.values(byDate);
+  }, [tagged]);
 
   if (loading) return null;
 
@@ -67,12 +116,13 @@ export function ShootingTracker() {
     );
   }
 
-  const recent = results.slice(0, 10);
+  const recent = tagged.slice(0, 10);
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
       <Card className="bg-card border-border">
         <CardContent className="p-5 space-y-5">
+          {/* Header */}
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-heading text-foreground">Shooting Tracker</h2>
             <div className="flex items-center gap-2">
@@ -81,18 +131,37 @@ export function ShootingTracker() {
             </div>
           </div>
 
+          {/* Category breakdowns */}
+          <div className="grid grid-cols-3 gap-3">
+            {(["3PT", "MID", "FT"] as const).map((cat) => {
+              const pct = pctFor(cat);
+              const label = cat === "3PT" ? "3PT" : cat === "MID" ? "MID" : "FT";
+              return (
+                <div key={cat} className="text-center">
+                  <div className="flex items-center justify-center gap-1.5 mb-1">
+                    <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: CATEGORY_COLORS[cat] }} />
+                    <span className="text-xs font-heading tracking-wider text-muted-foreground">{label}</span>
+                  </div>
+                  <p className="text-xl font-heading text-foreground tabular-nums">{pct}%</p>
+                </div>
+              );
+            })}
+          </div>
+
           {/* Chart */}
           {chartData.length > 1 && (
-            <div className="h-40">
+            <div className="h-44">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
                   <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(0 0% 100% / 0.5)" }} axisLine={false} tickLine={false} />
                   <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: "hsl(0 0% 100% / 0.5)" }} axisLine={false} tickLine={false} width={30} />
                   <Tooltip
                     contentStyle={{ background: "hsl(220 40% 13%)", border: "1px solid hsl(0 0% 100% / 0.1)", borderRadius: 8, color: "#fff" }}
-                    formatter={(value: number) => [`${value}%`, "Shooting %"]}
+                    formatter={(value: number, name: string) => [`${value}%`, name]}
                   />
-                  <Line type="monotone" dataKey="pct" stroke="hsl(5 78% 55%)" strokeWidth={2} dot={{ r: 3, fill: "hsl(5 78% 55%)" }} />
+                  <Line type="monotone" dataKey="3PT" stroke={CATEGORY_COLORS["3PT"]} strokeWidth={2} dot={{ r: 3, fill: CATEGORY_COLORS["3PT"] }} connectNulls />
+                  <Line type="monotone" dataKey="MID" stroke={CATEGORY_COLORS["MID"]} strokeWidth={2} dot={{ r: 3, fill: CATEGORY_COLORS["MID"] }} connectNulls />
+                  <Line type="monotone" dataKey="FT" stroke={CATEGORY_COLORS["FT"]} strokeWidth={2} dot={{ r: 3, fill: CATEGORY_COLORS["FT"] }} connectNulls />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -106,9 +175,12 @@ export function ShootingTracker() {
               const color = pct >= 60 ? "text-pif-green" : pct >= 40 ? "text-pif-gold" : "text-primary";
               return (
                 <div key={r.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                  <div>
-                    <p className="text-sm text-foreground">{r.drills?.title || "Drill"}</p>
-                    <p className="text-xs text-muted-foreground">{format(new Date(r.completed_at), "MMM d, yyyy")}</p>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: CATEGORY_COLORS[r.category] }} />
+                    <div>
+                      <p className="text-sm text-foreground">{r.drills?.title || "Drill"}</p>
+                      <p className="text-xs text-muted-foreground">{format(new Date(r.completed_at), "MMM d, yyyy")} · {r.category}</p>
+                    </div>
                   </div>
                   <div className="text-right">
                     <p className={`text-sm font-heading ${color}`}>{pct}%</p>

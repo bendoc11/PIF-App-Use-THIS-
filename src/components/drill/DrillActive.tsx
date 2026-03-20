@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, Clock, Repeat } from "lucide-react";
 import { DrillActiveMobile } from "./DrillActiveMobile";
+import { VideoPlayer } from "./VideoPlayer";
 
 interface DrillActiveProps {
   drillTitle: string;

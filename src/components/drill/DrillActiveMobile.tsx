@@ -33,6 +33,7 @@ const levelColors: Record<string, string> = {
 export function DrillActiveMobile({
   drillTitle,
   vimeoId,
+  muxPlaybackId,
   coachingTips,
   completing,
   onComplete,

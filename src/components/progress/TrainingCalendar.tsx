@@ -19,6 +19,7 @@ interface WeekData {
   goalMet: boolean;
   isCurrent: boolean;
   pct: number; // 0–1
+  preAccount: boolean; // week is before the user signed up
 }
 
 export function TrainingCalendar({ drillCompletedDates, streakDays }: TrainingCalendarProps) {
@@ -45,21 +46,22 @@ export function TrainingCalendar({ drillCompletedDates, streakDays }: TrainingCa
   };
 
   const { weeks, longestStreak, totalTrainingDays } = useMemo(() => {
-    // Build set of trained dates
     const trainedSet = new Set<string>();
     drillCompletedDates.forEach((d) => {
       trainedSet.add(format(new Date(d), "yyyy-MM-dd"));
     });
 
-    // Build 12 weeks of data (oldest → newest)
+    const accountCreated = profile?.created_at ? new Date(profile.created_at) : today;
+
     const weeksList: WeekData[] = [];
     for (let i = 11; i >= 0; i--) {
       const ws = startOfWeek(subWeeks(today, i), { weekStartsOn: 1 });
       const isCurrent = isSameWeek(ws, today, { weekStartsOn: 1 });
-      // Skip future weeks entirely
       if (ws > today && !isCurrent) continue;
       const we = new Date(ws);
       we.setDate(we.getDate() + 6);
+      // Week is pre-account if it ended before the user signed up
+      const preAccount = we < accountCreated;
       const days = eachDayOfInterval({ start: ws, end: we });
       let count = 0;
       days.forEach((day) => {
@@ -72,6 +74,7 @@ export function TrainingCalendar({ drillCompletedDates, streakDays }: TrainingCa
         goalMet: pct >= 0.8,
         isCurrent,
         pct,
+        preAccount,
       });
     }
 
@@ -191,26 +194,34 @@ function WeekRing({ week, goal, index }: { week: WeekData; goal: number; index: 
   const circumference = 2 * Math.PI * radius;
   const filled = circumference * week.pct;
   const isEmpty = week.daysTrained === 0;
+  const isPreAccount = week.preAccount;
+
+  // Pre-account: locked gray state
+  const trackStroke = isPreAccount
+    ? "hsl(var(--muted) / 0.2)"
+    : isEmpty
+      ? "hsl(var(--destructive) / 0.3)"
+      : "hsl(var(--muted))";
+
+  const trackDash = isPreAccount || isEmpty ? "4 4" : "none";
 
   return (
     <div className="flex flex-col items-center shrink-0" style={{ minWidth: size + 8 }}>
       <div
         className={`relative ${week.isCurrent ? "ring-2 ring-foreground/20 rounded-full" : ""}`}
-        style={{ width: size, height: size }}
+        style={{ width: size, height: size, opacity: isPreAccount ? 0.4 : 1 }}
       >
         <svg width={size} height={size} className="-rotate-90">
-          {/* Background track */}
           <circle
             cx={size / 2}
             cy={size / 2}
             r={radius}
             fill="none"
-            stroke={isEmpty ? "hsl(var(--muted) / 0.35)" : "hsl(var(--muted))"}
+            stroke={trackStroke}
             strokeWidth={stroke}
-            strokeDasharray={isEmpty ? "4 4" : "none"}
+            strokeDasharray={trackDash}
           />
-          {/* Animated fill — only render if there's progress */}
-          {!isEmpty && (
+          {!isEmpty && !isPreAccount && (
             <motion.circle
               cx={size / 2}
               cy={size / 2}
@@ -226,19 +237,27 @@ function WeekRing({ week, goal, index }: { week: WeekData; goal: number; index: 
             />
           )}
         </svg>
-        {/* Center number */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className={`font-heading ${isEmpty ? "text-muted-foreground/50" : "text-foreground"} ${week.isCurrent ? "text-lg" : "text-base"}`}>
-            {week.daysTrained}
-          </span>
+          {isPreAccount ? (
+            <span className="text-muted-foreground/40 text-xs">—</span>
+          ) : (
+            <span className={`font-heading ${isEmpty ? "text-destructive/60" : "text-foreground"} ${week.isCurrent ? "text-lg" : "text-base"}`}>
+              {week.daysTrained}
+            </span>
+          )}
         </div>
       </div>
       <span className="text-[10px] text-muted-foreground mt-1.5">
         {format(week.weekStart, "MMM d")}
       </span>
-      {week.isCurrent && (
+      {week.isCurrent && !isPreAccount && (
         <span className="text-[9px] font-heading text-muted-foreground tracking-wider mt-0.5">
           {week.daysTrained}/{goal} days
+        </span>
+      )}
+      {!week.isCurrent && !isPreAccount && isEmpty && (
+        <span className="text-[9px] font-heading text-destructive/70 tracking-wider mt-0.5">
+          MISSED
         </span>
       )}
       {!week.isCurrent && week.goalMet && (

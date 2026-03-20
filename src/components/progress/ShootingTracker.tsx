@@ -97,6 +97,25 @@ export function ShootingTracker() {
     return Object.values(byDate);
   }, [tagged]);
 
+  const recent = useMemo(() => {
+    const items = tagged.slice(0, 10);
+    const countMap = new Map<string, number>();
+    const indexMap = new Map<string, number>();
+    items.forEach((r) => {
+      const key = `${r.drills?.title || "Drill"}|${format(new Date(r.completed_at), "yyyy-MM-dd")}`;
+      countMap.set(key, (countMap.get(key) || 0) + 1);
+    });
+    return items.map((r) => {
+      const title = r.drills?.title || "Drill";
+      const key = `${title}|${format(new Date(r.completed_at), "yyyy-MM-dd")}`;
+      const total = countMap.get(key) || 1;
+      if (total <= 1) return { ...r, displayTitle: title };
+      const idx = (indexMap.get(key) || 0) + 1;
+      indexMap.set(key, idx);
+      return { ...r, displayTitle: `${title} #${total - idx + 1}` };
+    });
+  }, [tagged]);
+
   if (loading) return null;
 
   if (results.length === 0) {
@@ -113,28 +132,6 @@ export function ShootingTracker() {
       </motion.div>
     );
   }
-
-  const recent = useMemo(() => {
-    const items = tagged.slice(0, 10);
-    // Count duplicates by drill title + date to add session numbers
-    const countMap = new Map<string, number>();
-    const indexMap = new Map<string, number>();
-    items.forEach((r) => {
-      const key = `${r.drills?.title || "Drill"}|${format(new Date(r.completed_at), "yyyy-MM-dd")}`;
-      countMap.set(key, (countMap.get(key) || 0) + 1);
-    });
-    // Assign session numbers (chronological within same date, so reverse since items are desc)
-    return items.map((r) => {
-      const title = r.drills?.title || "Drill";
-      const key = `${title}|${format(new Date(r.completed_at), "yyyy-MM-dd")}`;
-      const total = countMap.get(key) || 1;
-      if (total <= 1) return { ...r, displayTitle: title };
-      const idx = (indexMap.get(key) || 0) + 1;
-      indexMap.set(key, idx);
-      // Since results are desc, reverse the numbering so earliest = #1
-      return { ...r, displayTitle: `${title} #${total - idx + 1}` };
-    });
-  }, [tagged]);
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>

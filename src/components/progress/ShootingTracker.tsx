@@ -144,6 +144,18 @@ export function ShootingTracker() {
             <div className="flex items-center gap-2">
               <Target className="h-5 w-5 text-primary" />
               <span className="text-2xl font-heading text-foreground">{overallPct}%</span>
+              <TooltipProvider delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="p-0.5 rounded-full hover:bg-muted transition-colors" aria-label="Info">
+                      <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-[200px] text-xs">
+                    Overall % is weighted by attempts across all sessions.
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
 

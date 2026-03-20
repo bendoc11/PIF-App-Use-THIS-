@@ -190,6 +190,7 @@ export default function AdminBulkUpload() {
           description: row.description || null,
           coaching_tips: coachingTips,
           vimeo_id: vimeoId,
+          mux_playback_id: muxPlaybackId,
           category: row.category,
           level: row.level,
           drill_type: row.drill_type,

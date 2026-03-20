@@ -30,14 +30,15 @@ export function VideoPlayer({
     if (autoPlay) muxParams.set("autoplay", "muted");
     if (loop) muxParams.set("loop", "");
     return (
-      <iframe
-        ref={iframeRef}
-        src={`https://stream.mux.com/${muxPlaybackId}?${muxParams.toString()}`}
-        className={className}
-        style={{ border: "none", pointerEvents: "none", ...style }}
-        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
-        allowFullScreen
-      />
+      <div className={className} style={{ position: "relative", width: "100%", paddingTop: "56.25%", ...style }}>
+        <iframe
+          ref={iframeRef}
+          src={`https://stream.mux.com/${muxPlaybackId}?${muxParams.toString()}`}
+          style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none", pointerEvents: "none" }}
+          allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
     );
   }
 

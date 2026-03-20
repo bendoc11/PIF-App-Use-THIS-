@@ -1,6 +1,3 @@
-import MuxPlayer from "@mux/mux-player-react";
-import { useRef } from "react";
-
 interface VideoPlayerProps {
   muxPlaybackId?: string | null;
   vimeoId?: string | null;
@@ -9,7 +6,6 @@ interface VideoPlayerProps {
   style?: React.CSSProperties;
   autoPlay?: boolean;
   loop?: boolean;
-  /** For Vimeo iframe ref (used by mobile tap-to-pause) */
   iframeRef?: React.RefObject<HTMLIFrameElement>;
 }
 
@@ -26,19 +22,21 @@ export function VideoPlayer({
   const hasMux = !!muxPlaybackId && muxPlaybackId.trim().length > 0;
   const hasVimeo = !!vimeoId && vimeoId.trim().length > 0 && !hasMux;
 
-  console.log("[VideoPlayer] muxPlaybackId:", muxPlaybackId, "| vimeoId:", vimeoId, "| title:", title, "| using:", hasMux ? "MUX" : hasVimeo ? "VIMEO" : "NONE");
+  console.log("[VideoPlayer] muxPlaybackId:", muxPlaybackId, "| vimeoId:", vimeoId, "| using:", hasMux ? "MUX" : hasVimeo ? "VIMEO" : "NONE");
 
   if (hasMux) {
+    const muxParams = new URLSearchParams();
+    if (title) muxParams.set("metadata-video-title", title);
+    if (autoPlay) muxParams.set("autoplay", "muted");
+    if (loop) muxParams.set("loop", "");
     return (
-      <MuxPlayer
-        playbackId={muxPlaybackId!}
-        metadata={{ video_title: title }}
-        style={{ width: "100%", aspectRatio: "16/9", ...style }}
-        autoPlay={autoPlay ? "muted" : false}
-        loop={loop}
-        playsInline
+      <iframe
+        ref={iframeRef}
+        src={`https://stream.mux.com/${muxPlaybackId}?${muxParams.toString()}`}
         className={className}
-        onError={(e: any) => console.error("[MuxPlayer] error:", e?.detail || e)}
+        style={{ border: "none", aspectRatio: "16/9", ...style }}
+        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
+        allowFullScreen
       />
     );
   }

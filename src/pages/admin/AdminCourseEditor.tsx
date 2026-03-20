@@ -554,7 +554,7 @@ export default function AdminCourseEditor() {
                 variant="outline"
                 onClick={() =>
                   setEditingDrill({
-                    title: "", vimeo_id: "", duration_seconds: 0, description: "",
+                    title: "", vimeo_id: "", mux_playback_id: "", duration_seconds: 0, description: "",
                     coaching_tips: "", equipment_needed: [], category: category || "",
                     level: "", sort_order: drills.length + 1, drill_type: "", reps: null, sets: null,
                     thumbnail_url: null,

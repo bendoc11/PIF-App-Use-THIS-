@@ -282,6 +282,7 @@ export default function AdminCourseEditor() {
         id: drill.id,
         title: drill.title,
         vimeo_id: "",
+        mux_playback_id: "",
         duration_seconds: drill.duration_seconds || 0,
         description: "",
         coaching_tips: "",

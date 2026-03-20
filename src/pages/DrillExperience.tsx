@@ -62,7 +62,7 @@ export default function DrillExperience() {
       setLoading(true);
 
       if (drillId) {
-        const { data } = await supabase.from("drills").select("*").eq("id", drillId).single();
+        const { data } = await supabase.from("drills").select("*, coaches(name, school)").eq("id", drillId).single();
         if (data) {
           setDrill(data as any);
           if (data.course_id) {

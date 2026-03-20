@@ -28,7 +28,7 @@ const skillBadgeColors: Record<string, string> = {
   Advanced: "bg-red-500/20 text-red-400 border-red-500/30",
 };
 
-const categories = ["All", "Ball Handling", "Shooting", "Athletics", "Basketball IQ"];
+const categories = ["All", "Ball Handling", "Shooting", "Athletics", "Basketball IQ", "Skill Development"];
 const categoryColors: Record<string, string> = {
   "Ball Handling": "bg-primary",
   "Shooting": "bg-secondary",

@@ -19,6 +19,7 @@ interface WeekData {
   goalMet: boolean;
   isCurrent: boolean;
   pct: number; // 0–1
+  preAccount: boolean; // week is before the user signed up
 }
 
 export function TrainingCalendar({ drillCompletedDates, streakDays }: TrainingCalendarProps) {

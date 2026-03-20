@@ -109,6 +109,38 @@ export function GameLog() {
     }));
   }, [games]);
 
+  // Personal bests: max value per stat across all games
+  const PB_STATS: { key: keyof GameLogRow; label: string }[] = [
+    { key: "points", label: "PTS" },
+    { key: "rebounds", label: "REB" },
+    { key: "assists", label: "AST" },
+    { key: "steals", label: "STL" },
+    { key: "blocks", label: "BLK" },
+  ];
+
+  const personalBestMap = useMemo(() => {
+    // For each stat, find the max value
+    const maxes: Record<string, number> = {};
+    PB_STATS.forEach(({ key }) => {
+      maxes[key] = Math.max(...games.map(g => Number(g[key]) || 0));
+    });
+    return maxes;
+  }, [games]);
+
+  const getGamePBs = useCallback((g: GameLogRow): Set<string> => {
+    // Find which stats in this game match the personal best
+    const matches: { key: string; value: number }[] = [];
+    PB_STATS.forEach(({ key }) => {
+      const val = Number(g[key]) || 0;
+      if (val > 0 && val === personalBestMap[key]) {
+        matches.push({ key, value: val });
+      }
+    });
+    // Limit to top 2 most impressive (highest absolute value)
+    matches.sort((a, b) => b.value - a.value);
+    return new Set(matches.slice(0, 2).map(m => m.key));
+  }, [personalBestMap]);
+
   const handleDelete = async (id: string) => {
     await supabase.from("game_logs").delete().eq("id", id) as any;
     setGames(prev => prev.filter(g => g.id !== id));

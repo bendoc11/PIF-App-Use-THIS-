@@ -134,12 +134,14 @@ export default function AdminBulkUpload() {
         if (!row.level) { res.errors.push({ row: rowNum, reason: "Missing level" }); continue; }
         if (!row.drill_type) { res.errors.push({ row: rowNum, reason: "Missing drill_type" }); continue; }
 
-        // Extract vimeo_id from URL
-        const vimeoMatch = row.vimeo_url.match(/vimeo\.com\/(\d+)/);
-        const vimeoId = vimeoMatch ? vimeoMatch[1] : row.vimeo_url;
+        // Extract vimeo_id from URL (support both video_url and legacy vimeo_url columns)
+        const videoUrl = row.video_url || row.vimeo_url || "";
+        const vimeoMatch = videoUrl.match(/vimeo\.com\/(\d+)/);
+        const vimeoId = vimeoMatch ? vimeoMatch[1] : (videoUrl ? videoUrl : null);
+        const muxPlaybackId = row.mux_playback_id || null;
 
         // Check duplicate
-        const { data: existing } = await supabase.from("drills").select("id").eq("title", row.title).eq("vimeo_id", vimeoId).maybeSingle();
+        const { data: existing } = await supabase.from("drills").select("id").eq("title", row.title).eq("vimeo_id", vimeoId || "").maybeSingle();
         if (existing) { res.skipped++; continue; }
 
         // Duration

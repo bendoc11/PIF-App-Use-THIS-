@@ -30,6 +30,7 @@ interface DrillActiveProps {
 export function DrillActive({
   drillTitle,
   vimeoId,
+  muxPlaybackId,
   coachingTips,
   completing,
   onComplete,

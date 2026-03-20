@@ -109,6 +109,38 @@ export function GameLog() {
     }));
   }, [games]);
 
+  // Personal bests: max value per stat across all games
+  const PB_STATS: { key: keyof GameLogRow; label: string }[] = [
+    { key: "points", label: "PTS" },
+    { key: "rebounds", label: "REB" },
+    { key: "assists", label: "AST" },
+    { key: "steals", label: "STL" },
+    { key: "blocks", label: "BLK" },
+  ];
+
+  const personalBestMap = useMemo(() => {
+    // For each stat, find the max value
+    const maxes: Record<string, number> = {};
+    PB_STATS.forEach(({ key }) => {
+      maxes[key] = Math.max(...games.map(g => Number(g[key]) || 0));
+    });
+    return maxes;
+  }, [games]);
+
+  const getGamePBs = useCallback((g: GameLogRow): Set<string> => {
+    // Find which stats in this game match the personal best
+    const matches: { key: string; value: number }[] = [];
+    PB_STATS.forEach(({ key }) => {
+      const val = Number(g[key]) || 0;
+      if (val > 0 && val === personalBestMap[key]) {
+        matches.push({ key, value: val });
+      }
+    });
+    // Limit to top 2 most impressive (highest absolute value)
+    matches.sort((a, b) => b.value - a.value);
+    return new Set(matches.slice(0, 2).map(m => m.key));
+  }, [personalBestMap]);
+
   const handleDelete = async (id: string) => {
     await supabase.from("game_logs").delete().eq("id", id) as any;
     setGames(prev => prev.filter(g => g.id !== id));
@@ -218,6 +250,8 @@ export function GameLog() {
             {games.map(g => {
               const expanded = expandedId === g.id;
               const rating = g.game_rating;
+              const pbs = getGamePBs(g);
+              const pbBadge = <span className="ml-1 text-[8px] font-heading px-1 py-0.5 rounded bg-pif-gold/20 text-pif-gold align-middle">PB</span>;
               return (
                 <Card key={g.id} className="bg-card border-border">
                   <CardContent className="p-4">
@@ -231,12 +265,12 @@ export function GameLog() {
                             {g.result}
                           </span>
                         </div>
-                        <div className="flex gap-3 mt-2 text-xs text-muted-foreground">
-                          <span>{g.points} PTS</span>
-                          <span>{g.rebounds} REB</span>
-                          <span>{g.assists} AST</span>
-                          <span>{g.steals} STL</span>
-                          <span>{g.blocks} BLK</span>
+                        <div className="flex gap-3 mt-2 text-xs text-muted-foreground flex-wrap">
+                          <span>{g.points} PTS{pbs.has("points") && pbBadge}</span>
+                          <span>{g.rebounds} REB{pbs.has("rebounds") && pbBadge}</span>
+                          <span>{g.assists} AST{pbs.has("assists") && pbBadge}</span>
+                          <span>{g.steals} STL{pbs.has("steals") && pbBadge}</span>
+                          <span>{g.blocks} BLK{pbs.has("blocks") && pbBadge}</span>
                           <span>{g.turnovers} TO</span>
                         </div>
                         <div className="flex gap-3 mt-1 text-[10px] text-muted-foreground">

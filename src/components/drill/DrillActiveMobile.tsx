@@ -67,22 +67,17 @@ export function DrillActiveMobile({
   return (
     <div className="fixed inset-0 z-40 bg-black flex flex-col">
       {/* Fullscreen video background */}
-      <div className="absolute inset-0 overflow-hidden" onClick={togglePlayPause}>
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden" onClick={togglePlayPause}>
         {vimeoId ? (
-          <iframe
-            ref={iframeRef}
-            src={`https://player.vimeo.com/video/${vimeoId}?color=E8453C&title=0&byline=0&portrait=0&background=0&autoplay=1&loop=1`}
-            className="absolute top-1/2 left-1/2 border-none"
-            style={{
-              width: "177.78vh", /* 16:9 width relative to viewport height */
-              height: "56.25vw", /* 16:9 height relative to viewport width */
-              minWidth: "100vw",
-              minHeight: "100vh",
-              transform: "translate(-50%, -50%)",
-            }}
-            allow="autoplay; fullscreen; picture-in-picture"
-            allowFullScreen
-          />
+          <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
+            <iframe
+              ref={iframeRef}
+              src={`https://player.vimeo.com/video/${vimeoId}?color=E8453C&title=0&byline=0&portrait=0&background=0&autoplay=1&loop=1`}
+              className="absolute top-0 left-0 w-full h-full border-none"
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-black">
             <span className="text-white/40 text-sm">Video not available</span>

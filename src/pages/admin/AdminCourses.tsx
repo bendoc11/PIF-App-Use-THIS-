@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface CourseRow {
@@ -32,11 +32,11 @@ export default function AdminCourses() {
   const role = profile?.role || "user";
   const [courses, setCourses] = useState<CourseRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [reordering, setReordering] = useState<string | null>(null);
 
   const fetchCourses = async () => {
     setLoading(true);
 
-    // For creators, first find their coach_id
     let creatorCoachId: string | null = null;
     if (role === "creator" && user) {
       const { data: coachData } = await supabase
@@ -52,11 +52,9 @@ export default function AdminCourses() {
       .select("id, title, category, drill_count, status, created_at, coach_id, coaches(name)")
       .order("sort_order");
 
-    // Creators only see their own courses
     if (role === "creator" && creatorCoachId) {
       query = query.eq("coach_id", creatorCoachId);
     } else if (role === "creator") {
-      // Creator has no linked coach — show nothing
       setCourses([]);
       setLoading(false);
       return;
@@ -73,6 +71,30 @@ export default function AdminCourses() {
   useEffect(() => {
     fetchCourses();
   }, []);
+
+  const moveCourse = async (index: number, direction: "up" | "down") => {
+    const swapIndex = direction === "up" ? index - 1 : index + 1;
+    if (swapIndex < 0 || swapIndex >= courses.length) return;
+
+    const updated = [...courses];
+    [updated[index], updated[swapIndex]] = [updated[swapIndex], updated[index]];
+    setCourses(updated);
+
+    const idA = updated[index].id;
+    const idB = updated[swapIndex].id;
+    setReordering(idA);
+
+    const [resA, resB] = await Promise.all([
+      supabase.from("courses").update({ sort_order: index } as any).eq("id", idA),
+      supabase.from("courses").update({ sort_order: swapIndex } as any).eq("id", idB),
+    ]);
+
+    if (resA.error || resB.error) {
+      toast({ title: "Error reordering", variant: "destructive" });
+      fetchCourses();
+    }
+    setReordering(null);
+  };
 
   const toggleStatus = async (course: CourseRow) => {
     if (role !== "admin") {
@@ -125,6 +147,7 @@ export default function AdminCourses() {
             <Table>
               <TableHeader>
                 <TableRow className="border-border hover:bg-transparent">
+                  <TableHead className="font-heading tracking-wider w-12">Order</TableHead>
                   <TableHead className="font-heading tracking-wider">Workout Title</TableHead>
                   <TableHead className="font-heading tracking-wider">Creator</TableHead>
                   <TableHead className="font-heading tracking-wider">Drills</TableHead>
@@ -134,8 +157,30 @@ export default function AdminCourses() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {courses.map((course) => (
+                {courses.map((course, i) => (
                   <TableRow key={course.id} className="border-border">
+                    <TableCell>
+                      <div className="flex flex-col gap-0.5">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          disabled={i === 0 || !!reordering}
+                          onClick={() => moveCourse(i, "up")}
+                        >
+                          <ArrowUp className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          disabled={i === courses.length - 1 || !!reordering}
+                          onClick={() => moveCourse(i, "down")}
+                        >
+                          <ArrowDown className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </TableCell>
                     <TableCell className="font-medium text-foreground">{course.title}</TableCell>
                     <TableCell className="text-muted-foreground">{course.coaches?.name || "—"}</TableCell>
                     <TableCell className="text-muted-foreground">{course.drill_count}</TableCell>

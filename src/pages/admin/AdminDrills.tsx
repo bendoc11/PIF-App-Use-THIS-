@@ -102,6 +102,7 @@ export default function AdminDrills() {
       id: d.id,
       title: d.title,
       vimeo_id: d.vimeo_id || "",
+      mux_playback_id: (d as any).mux_playback_id || "",
       duration_seconds: d.duration_seconds || 0,
       description: d.description || "",
       coaching_tips: Array.isArray(d.coaching_tips) ? d.coaching_tips.join("\n") : "",

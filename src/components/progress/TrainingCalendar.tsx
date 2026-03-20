@@ -35,6 +35,9 @@ export function TrainingCalendar({ drillCompletedDates, streakDays }: TrainingCa
     const weeksList: WeekData[] = [];
     for (let i = 11; i >= 0; i--) {
       const ws = startOfWeek(subWeeks(today, i), { weekStartsOn: 1 });
+      const isCurrent = isSameWeek(ws, today, { weekStartsOn: 1 });
+      // Skip future weeks entirely
+      if (ws > today && !isCurrent) continue;
       const we = new Date(ws);
       we.setDate(we.getDate() + 6);
       const days = eachDayOfInterval({ start: ws, end: we });
@@ -47,7 +50,7 @@ export function TrainingCalendar({ drillCompletedDates, streakDays }: TrainingCa
         weekStart: ws,
         daysTrained: count,
         goalMet: pct >= 0.8,
-        isCurrent: isSameWeek(ws, today, { weekStartsOn: 1 }),
+        isCurrent,
         pct,
       });
     }

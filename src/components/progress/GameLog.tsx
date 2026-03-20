@@ -145,7 +145,9 @@ export function GameLog() {
           {seasonAverages && (
             <Card className="bg-card border-border">
               <CardContent className="p-4">
-                <p className="text-xs font-heading tracking-wider text-muted-foreground mb-3">SEASON AVERAGES</p>
+                <p className="text-xs font-heading tracking-wider text-muted-foreground mb-3">
+                  {games.length === 1 ? "YOUR FIRST GAME" : games.length < 5 ? "SEASON STATS SO FAR" : "SEASON AVERAGES"}
+                </p>
                 <div className="grid grid-cols-4 gap-3">
                   {[
                     { label: "PPG", value: seasonAverages.ppg },
@@ -157,7 +159,7 @@ export function GameLog() {
                     { label: "3P%", value: `${seasonAverages.tp}%` },
                     { label: "FT%", value: `${seasonAverages.ft}%` },
                     { label: "Record", value: seasonAverages.record },
-                    { label: "Games", value: seasonAverages.gamesPlayed },
+                    ...(games.length > 1 ? [{ label: "Games", value: seasonAverages.gamesPlayed }] : []),
                   ].map(s => (
                     <div key={s.label} className="text-center">
                       <p className="text-base font-heading text-foreground">{s.value}</p>

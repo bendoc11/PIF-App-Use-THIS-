@@ -16,7 +16,7 @@ import {
 import { ArrowUp, ArrowDown, Plus, Trash2, Loader2, Save, X, Upload, Search, Link2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
-const CATEGORIES = ["Shooting", "Ball Handling", "Defense", "Finishing", "Conditioning", "Mindset"];
+const CATEGORIES = ["Shooting", "Ball Handling", "Defense", "Finishing", "Conditioning", "Mindset", "Skill Development"];
 const DRILL_TAGS = ["Shooting", "Ball Handling", "Defense", "Finishing", "Conditioning", "Beginner", "Intermediate", "Advanced"];
 const SKILL_LEVELS = ["beginner", "intermediate", "advanced"];
 

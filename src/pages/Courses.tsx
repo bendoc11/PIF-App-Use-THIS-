@@ -71,7 +71,7 @@ export default function Courses() {
       <div className="p-4 lg:p-6 max-w-7xl mx-auto space-y-6">
         <div>
           <h1 className="text-3xl font-heading text-foreground">Workouts</h1>
-          <p className="text-muted-foreground mt-1">Structured training programs from elite coaches</p>
+          <p className="text-muted-foreground mt-1">New workouts added every week</p>
         </div>
 
         {coachFilter && (

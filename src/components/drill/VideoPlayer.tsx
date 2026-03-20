@@ -34,7 +34,7 @@ export function VideoPlayer({
         ref={iframeRef}
         src={`https://stream.mux.com/${muxPlaybackId}?${muxParams.toString()}`}
         className={className}
-        style={{ border: "none", ...style }}
+        style={{ border: "none", pointerEvents: "none", ...style }}
         allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
         allowFullScreen
       />

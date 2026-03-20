@@ -376,9 +376,10 @@ export default function AdminCourseEditor() {
           // Linked drill — don't update the drill itself, just junction
           continue;
         }
-        const drillData: any = {
+         const drillData: any = {
           title: drill.title,
           vimeo_id: drill.vimeo_id,
+          mux_playback_id: drill.mux_playback_id || null,
           duration_seconds: drill.duration_seconds,
           description: drill.description || null,
           coaching_tips: drill.coaching_tips ? drill.coaching_tips.split("\n").filter(Boolean) : null,

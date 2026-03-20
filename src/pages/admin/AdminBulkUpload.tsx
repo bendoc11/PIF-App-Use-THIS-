@@ -17,7 +17,7 @@ const CSV_COLUMNS = [
 
 const EXAMPLE_ROW = [
   "Crossover Attack", "Learn the basic crossover move to beat defenders", "Keep your head up and push the ball low",
-  "https://vimeo.com/123456789", "Ball Handling", "Beginner", "Timed", "0:40", "40",
+  "https://vimeo.com/123456789", "", "Ball Handling", "Beginner", "Timed", "0:40", "40",
   "Zac Ervin", "Handles 101", "Ball Handling", "Basketball", "false", "false", "",
 ];
 

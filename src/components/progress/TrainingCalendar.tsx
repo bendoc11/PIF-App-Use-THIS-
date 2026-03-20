@@ -46,21 +46,22 @@ export function TrainingCalendar({ drillCompletedDates, streakDays }: TrainingCa
   };
 
   const { weeks, longestStreak, totalTrainingDays } = useMemo(() => {
-    // Build set of trained dates
     const trainedSet = new Set<string>();
     drillCompletedDates.forEach((d) => {
       trainedSet.add(format(new Date(d), "yyyy-MM-dd"));
     });
 
-    // Build 12 weeks of data (oldest → newest)
+    const accountCreated = profile?.created_at ? new Date(profile.created_at) : today;
+
     const weeksList: WeekData[] = [];
     for (let i = 11; i >= 0; i--) {
       const ws = startOfWeek(subWeeks(today, i), { weekStartsOn: 1 });
       const isCurrent = isSameWeek(ws, today, { weekStartsOn: 1 });
-      // Skip future weeks entirely
       if (ws > today && !isCurrent) continue;
       const we = new Date(ws);
       we.setDate(we.getDate() + 6);
+      // Week is pre-account if it ended before the user signed up
+      const preAccount = we < accountCreated;
       const days = eachDayOfInterval({ start: ws, end: we });
       let count = 0;
       days.forEach((day) => {
@@ -73,6 +74,7 @@ export function TrainingCalendar({ drillCompletedDates, streakDays }: TrainingCa
         goalMet: pct >= 0.8,
         isCurrent,
         pct,
+        preAccount,
       });
     }
 

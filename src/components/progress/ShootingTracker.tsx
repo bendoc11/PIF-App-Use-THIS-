@@ -29,10 +29,8 @@ const CATEGORY_COLORS: Record<ShotCategory, string> = {
 function categorize(title: string): ShotCategory {
   const t = title.toLowerCase();
   if (t.includes("3") || t.includes("three")) return "3PT";
-  if (t.includes("midrange") || t.includes("mid-range") || t.includes("mid range") || (t.includes("mid") && !t.includes("mid"))) return "MID";
   if (t.includes("free throw") || t.includes("ft") || t.includes("foul")) return "FT";
-  // extra mid check
-  if (t.includes("mid")) return "MID";
+  if (t.includes("mid") || t.includes("pull up") || t.includes("pull-up") || t.includes("pullup") || t.includes("elbow") || t.includes("baseline")) return "MID";
   return "Other";
 }
 

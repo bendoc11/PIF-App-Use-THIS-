@@ -20,6 +20,7 @@ interface Drill {
   description: string | null;
   category: string;
   vimeo_id: string | null;
+  mux_playback_id: string | null;
   duration_seconds: number | null;
   level: string | null;
   is_free: boolean;

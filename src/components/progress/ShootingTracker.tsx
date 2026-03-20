@@ -193,7 +193,7 @@ export function ShootingTracker() {
                   <div className="flex items-center gap-2">
                     <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: CATEGORY_COLORS[r.category] }} />
                     <div>
-                      <p className="text-sm text-foreground">{r.drills?.title || "Drill"}</p>
+                      <p className="text-sm text-foreground">{r.displayTitle}</p>
                       <p className="text-xs text-muted-foreground">{format(new Date(r.completed_at), "MMM d, yyyy")} · {r.category}</p>
                     </div>
                   </div>

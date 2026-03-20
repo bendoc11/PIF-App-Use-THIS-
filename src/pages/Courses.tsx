@@ -28,7 +28,7 @@ const skillBadgeColors: Record<string, string> = {
   Advanced: "bg-red-500/20 text-red-400 border-red-500/30",
 };
 
-const categories = ["All", "Ball Handling", "Shooting", "Athletics", "Basketball IQ"];
+const categories = ["All", "Ball Handling", "Shooting", "Athletics", "Basketball IQ", "Skill Development"];
 const categoryColors: Record<string, string> = {
   "Ball Handling": "bg-primary",
   "Shooting": "bg-secondary",
@@ -37,6 +37,7 @@ const categoryColors: Record<string, string> = {
   "Mental Game": "bg-pif-purple",
   "Scoring": "bg-pif-orange",
   "Post Game": "bg-pif-orange",
+  "Skill Development": "bg-pif-purple",
 };
 
 export default function Courses() {
@@ -156,17 +157,17 @@ export default function Courses() {
                     <div className="p-5 space-y-3">
                       <h3 className="text-lg font-heading font-bold text-white">{course.title}</h3>
                       <p className="text-sm text-white/75 line-clamp-2">{course.description}</p>
-                      <div className="flex items-center gap-2">
-                        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
                           {course.coaches?.avatar_url ? (
                             <img src={course.coaches.avatar_url} alt={course.coaches.name} className="w-full h-full object-cover" />
                           ) : (
                             <span className="text-xs font-heading text-muted-foreground">{course.coaches?.initials}</span>
                           )}
                         </div>
-                        <div>
-                          <p className="text-[15px] text-white">{course.coaches?.name}</p>
-                          <p className="text-xs text-white/60">{course.coaches?.school}</p>
+                        <div className="min-w-0">
+                          <p className="text-sm text-white leading-tight">{course.coaches?.name}</p>
+                          <p className="text-xs text-white/60 leading-tight">{course.coaches?.school}</p>
                         </div>
                       </div>
                       {course.skill_levels && course.skill_levels.length > 0 && (

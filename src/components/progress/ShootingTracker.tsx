@@ -171,7 +171,7 @@ export function ShootingTracker() {
                 <LineChart data={chartData}>
                   <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(0 0% 100% / 0.5)" }} axisLine={false} tickLine={false} />
                   <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: "hsl(0 0% 100% / 0.5)" }} axisLine={false} tickLine={false} width={30} />
-                  <Tooltip
+                  <RechartsTooltip
                     contentStyle={{ background: "hsl(220 40% 13%)", border: "1px solid hsl(0 0% 100% / 0.1)", borderRadius: 8, color: "#fff" }}
                     formatter={(value: number, name: string) => [`${value}%`, name]}
                   />

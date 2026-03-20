@@ -233,6 +233,13 @@ export default function DrillExperience() {
           durationSeconds={drill.duration_seconds}
           reps={drill.reps}
           sets={drill.sets}
+          category={drill.category}
+          level={drill.level}
+          coachName={drill.coaches?.name || null}
+          coachSchool={drill.coaches?.school || null}
+          drillIndex={currentIndex || undefined}
+          totalDrills={isInCourse ? allCourseDrills.length : undefined}
+          description={drill.description}
         />
       )}
 

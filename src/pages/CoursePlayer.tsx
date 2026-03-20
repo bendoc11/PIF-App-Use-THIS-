@@ -26,6 +26,7 @@ interface Drill {
   sort_order: number;
   enable_shot_tracking?: boolean;
   shot_attempts?: number | null;
+  mux_playback_id?: string | null;
 }
 
 interface Course {
@@ -321,13 +322,24 @@ export default function CoursePlayer() {
             <div className="space-y-0">
               {/* Video */}
               <div className="aspect-video bg-background w-full">
-                <iframe
-                  key={currentDrill.id}
-                  src={`https://player.vimeo.com/video/${currentDrill.vimeo_id}?color=E8453C&title=0&byline=0&portrait=0`}
-                  className="w-full h-full"
-                  allow="autoplay; fullscreen; picture-in-picture"
-                  allowFullScreen
-                />
+                {currentDrill.mux_playback_id ? (
+                  <iframe
+                    key={currentDrill.id}
+                    src={`https://stream.mux.com/${currentDrill.mux_playback_id}`}
+                    className="w-full h-full"
+                    style={{ border: "none" }}
+                    allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <iframe
+                    key={currentDrill.id}
+                    src={`https://player.vimeo.com/video/${currentDrill.vimeo_id}?color=E8453C&title=0&byline=0&portrait=0`}
+                    className="w-full h-full"
+                    allow="autoplay; fullscreen; picture-in-picture"
+                    allowFullScreen
+                  />
+                )}
               </div>
 
               {/* Drill Info Bar */}

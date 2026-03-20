@@ -307,6 +307,7 @@ export type Database = {
           is_free: boolean
           is_new: boolean
           level: string | null
+          mux_playback_id: string | null
           reps: number | null
           sets: number | null
           shot_attempts: number | null
@@ -331,6 +332,7 @@ export type Database = {
           is_free?: boolean
           is_new?: boolean
           level?: string | null
+          mux_playback_id?: string | null
           reps?: number | null
           sets?: number | null
           shot_attempts?: number | null
@@ -355,6 +357,7 @@ export type Database = {
           is_free?: boolean
           is_new?: boolean
           level?: string | null
+          mux_playback_id?: string | null
           reps?: number | null
           sets?: number | null
           shot_attempts?: number | null

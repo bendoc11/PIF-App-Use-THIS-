@@ -246,6 +246,31 @@ export default function AdminBulkUpload() {
           <p className="text-sm text-muted-foreground mt-1">Import drills from a CSV spreadsheet</p>
         </div>
 
+        {/* Workout selector */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-heading tracking-wider">Add drills to existing workout (optional)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Select value={selectedWorkoutId} onValueChange={setSelectedWorkoutId}>
+              <SelectTrigger className="w-full max-w-md">
+                <SelectValue placeholder="None / Standalone drills" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None / Standalone drills</SelectItem>
+                {workouts.map((w) => (
+                  <SelectItem key={w.id} value={w.id}>{w.title}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground mt-2">
+              {selectedWorkoutId !== "none"
+                ? `All imported drills will be appended to "${workouts.find((w) => w.id === selectedWorkoutId)?.title}"`
+                : "Drills will be imported as standalone unless a workout_title is specified in the CSV"}
+            </p>
+          </CardContent>
+        </Card>
+
         {/* Step 1: Download template */}
         <Card>
           <CardHeader className="pb-3">

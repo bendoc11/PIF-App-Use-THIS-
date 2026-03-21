@@ -223,7 +223,7 @@ export default function AdminBulkUpload() {
 
         res.created++;
       } catch (err: any) {
-        res.errors.push({ row: rowNum, reason: err.message || "Unknown error" });
+        res.errors.push({ row: rowNum, title: row.title || "(unknown)", reason: err.message || "Unknown error" });
       }
 
       setProgress(Math.round(((i + 1) / rows.length) * 100));

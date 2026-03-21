@@ -151,7 +151,7 @@ export default function AdminBulkUpload() {
 
         // Check duplicate
         const { data: existing } = await supabase.from("drills").select("id").eq("title", row.title).eq("vimeo_id", vimeoId || "").maybeSingle();
-        if (existing) { res.skipped++; continue; }
+        if (existing) { res.skipped++; res.skippedRows.push({ row: rowNum, title: row.title }); continue; }
 
         // Duration
         let durationSecs: number | null = row.duration_seconds ? parseInt(row.duration_seconds, 10) : null;

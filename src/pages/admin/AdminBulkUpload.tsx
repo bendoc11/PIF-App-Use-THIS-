@@ -234,7 +234,7 @@ export default function AdminBulkUpload() {
   };
 
   const handleReset = () => {
-    setFile(null); setRows([]); setPreviewing(false); setResult(null); setProgress(0);
+    setFile(null); setRows([]); setPreviewing(false); setResult(null); setProgress(0); setSelectedWorkoutId("none");
     if (inputRef.current) inputRef.current.value = "";
   };
 

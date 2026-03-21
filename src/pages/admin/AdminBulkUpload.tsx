@@ -71,7 +71,8 @@ function parseDuration(dur: string): number | null {
   return null;
 }
 
-type ImportResult = { created: number; workoutsCreated: number; skipped: number; errors: { row: number; reason: string }[] };
+type ImportError = { row: number; title: string; reason: string };
+type ImportResult = { created: number; workoutsCreated: number; skipped: number; skippedRows: { row: number; title: string }[]; errors: ImportError[] };
 
 export default function AdminBulkUpload() {
   const [file, setFile] = useState<File | null>(null);

@@ -81,6 +81,14 @@ export default function AdminBulkUpload() {
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<ImportResult | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [workouts, setWorkouts] = useState<{ id: string; title: string }[]>([]);
+  const [selectedWorkoutId, setSelectedWorkoutId] = useState<string>("none");
+
+  useEffect(() => {
+    supabase.from("courses").select("id, title").order("title").then(({ data }) => {
+      if (data) setWorkouts(data);
+    });
+  }, []);
 
   const handleDownloadTemplate = () => {
     const csv = generateCSVTemplate();

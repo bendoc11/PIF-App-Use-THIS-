@@ -212,7 +212,7 @@ export default function AdminBulkUpload() {
           shot_attempts: row.shot_attempts ? parseInt(row.shot_attempts, 10) : null,
         }).select("id").single();
 
-        if (drillErr) { res.errors.push({ row: rowNum, reason: drillErr.message }); continue; }
+        if (drillErr) { res.errors.push({ row: rowNum, title: row.title, reason: drillErr.message }); continue; }
 
         // If workout exists, also add to workout_drills junction
         if (courseId && drill) {

@@ -1,10 +1,11 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Download, Upload, Eye, Play, AlertCircle, CheckCircle2, FileSpreadsheet, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -80,6 +81,14 @@ export default function AdminBulkUpload() {
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<ImportResult | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [workouts, setWorkouts] = useState<{ id: string; title: string }[]>([]);
+  const [selectedWorkoutId, setSelectedWorkoutId] = useState<string>("none");
+
+  useEffect(() => {
+    supabase.from("courses").select("id, title").order("title").then(({ data }) => {
+      if (data) setWorkouts(data);
+    });
+  }, []);
 
   const handleDownloadTemplate = () => {
     const csv = generateCSVTemplate();
@@ -151,9 +160,9 @@ export default function AdminBulkUpload() {
         // Coach
         const coachId = row.coach_name ? coachMap.get(row.coach_name.toLowerCase()) || null : null;
 
-        // Workout
-        let courseId: string | null = null;
-        if (row.workout_title) {
+        // Workout — use dropdown selection first, then fall back to CSV column
+        let courseId: string | null = selectedWorkoutId !== "none" ? selectedWorkoutId : null;
+        if (!courseId && row.workout_title) {
           const cacheKey = row.workout_title.toLowerCase();
           if (workoutCache.has(cacheKey)) {
             courseId = workoutCache.get(cacheKey)!;
@@ -225,7 +234,7 @@ export default function AdminBulkUpload() {
   };
 
   const handleReset = () => {
-    setFile(null); setRows([]); setPreviewing(false); setResult(null); setProgress(0);
+    setFile(null); setRows([]); setPreviewing(false); setResult(null); setProgress(0); setSelectedWorkoutId("none");
     if (inputRef.current) inputRef.current.value = "";
   };
 
@@ -236,6 +245,31 @@ export default function AdminBulkUpload() {
           <h1 className="text-2xl font-heading tracking-wider text-foreground">Bulk Upload</h1>
           <p className="text-sm text-muted-foreground mt-1">Import drills from a CSV spreadsheet</p>
         </div>
+
+        {/* Workout selector */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-heading tracking-wider">Add drills to existing workout (optional)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Select value={selectedWorkoutId} onValueChange={setSelectedWorkoutId}>
+              <SelectTrigger className="w-full max-w-md">
+                <SelectValue placeholder="None / Standalone drills" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None / Standalone drills</SelectItem>
+                {workouts.map((w) => (
+                  <SelectItem key={w.id} value={w.id}>{w.title}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground mt-2">
+              {selectedWorkoutId !== "none"
+                ? `All imported drills will be appended to "${workouts.find((w) => w.id === selectedWorkoutId)?.title}"`
+                : "Drills will be imported as standalone unless a workout_title is specified in the CSV"}
+            </p>
+          </CardContent>
+        </Card>
 
         {/* Step 1: Download template */}
         <Card>
@@ -298,6 +332,11 @@ export default function AdminBulkUpload() {
                   <Play className="h-4 w-4" /> Import {rows.length} Drills
                 </Button>
               </div>
+              {selectedWorkoutId !== "none" && (
+                <p className="text-sm text-muted-foreground mb-3">
+                  → Adding to workout: <span className="font-medium text-foreground">{workouts.find((w) => w.id === selectedWorkoutId)?.title}</span>
+                </p>
+              )}
             </CardHeader>
             <CardContent>
               {importing && (

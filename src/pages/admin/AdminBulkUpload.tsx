@@ -160,9 +160,9 @@ export default function AdminBulkUpload() {
         // Coach
         const coachId = row.coach_name ? coachMap.get(row.coach_name.toLowerCase()) || null : null;
 
-        // Workout
-        let courseId: string | null = null;
-        if (row.workout_title) {
+        // Workout — use dropdown selection first, then fall back to CSV column
+        let courseId: string | null = selectedWorkoutId !== "none" ? selectedWorkoutId : null;
+        if (!courseId && row.workout_title) {
           const cacheKey = row.workout_title.toLowerCase();
           if (workoutCache.has(cacheKey)) {
             courseId = workoutCache.get(cacheKey)!;

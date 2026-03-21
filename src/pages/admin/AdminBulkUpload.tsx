@@ -129,7 +129,7 @@ export default function AdminBulkUpload() {
       try {
         // Validate required fields
         if (!row.title) { res.errors.push({ row: rowNum, reason: "Missing title" }); continue; }
-        if (!row.video_url && !row.vimeo_url && !row.mux_playback_id) { res.errors.push({ row: rowNum, reason: "Missing video_url or mux_playback_id" }); continue; }
+        if (!row.video_url && !row.vimeo_url && !row.mux_playback_id) { res.errors.push({ row: rowNum, reason: "Missing video_url or mux_playback_id — at least one is required" }); continue; }
         if (!row.category) { res.errors.push({ row: rowNum, reason: "Missing category" }); continue; }
         if (!row.level) { res.errors.push({ row: rowNum, reason: "Missing level" }); continue; }
         if (!row.drill_type) { res.errors.push({ row: rowNum, reason: "Missing drill_type" }); continue; }

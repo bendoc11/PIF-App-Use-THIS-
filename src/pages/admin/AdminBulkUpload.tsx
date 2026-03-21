@@ -123,7 +123,7 @@ export default function AdminBulkUpload() {
     if (!rows.length) return;
     setImporting(true); setProgress(0); setResult(null);
 
-    const res: ImportResult = { created: 0, workoutsCreated: 0, skipped: 0, errors: [] };
+    const res: ImportResult = { created: 0, workoutsCreated: 0, skipped: 0, skippedRows: [], errors: [] };
 
     // Fetch coaches for name lookup
     const { data: coaches } = await supabase.from("coaches").select("id, name");

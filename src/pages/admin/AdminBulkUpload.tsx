@@ -332,6 +332,11 @@ export default function AdminBulkUpload() {
                   <Play className="h-4 w-4" /> Import {rows.length} Drills
                 </Button>
               </div>
+              {selectedWorkoutId !== "none" && (
+                <p className="text-sm text-muted-foreground mb-3">
+                  → Adding to workout: <span className="font-medium text-foreground">{workouts.find((w) => w.id === selectedWorkoutId)?.title}</span>
+                </p>
+              )}
             </CardHeader>
             <CardContent>
               {importing && (

@@ -176,7 +176,7 @@ export default function AdminBulkUpload() {
                 category: row.workout_category || row.category || null,
                 status: "live",
               }).select("id").single();
-              if (courseErr) { res.errors.push({ row: rowNum, reason: `Workout create failed: ${courseErr.message}` }); continue; }
+              if (courseErr) { res.errors.push({ row: rowNum, title: row.title, reason: `Workout create failed: ${courseErr.message}` }); continue; }
               courseId = newCourse.id;
               res.workoutsCreated++;
             }

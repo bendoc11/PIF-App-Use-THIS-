@@ -137,11 +137,11 @@ export default function AdminBulkUpload() {
       const rowNum = i + 2; // 1-indexed + header
       try {
         // Validate required fields
-        if (!row.title) { res.errors.push({ row: rowNum, reason: "Missing title" }); continue; }
-        if (!row.video_url && !row.vimeo_url && !row.mux_playback_id) { res.errors.push({ row: rowNum, reason: "Missing video_url or mux_playback_id — at least one is required" }); continue; }
-        if (!row.category) { res.errors.push({ row: rowNum, reason: "Missing category" }); continue; }
-        if (!row.level) { res.errors.push({ row: rowNum, reason: "Missing level" }); continue; }
-        if (!row.drill_type) { res.errors.push({ row: rowNum, reason: "Missing drill_type" }); continue; }
+        if (!row.title) { res.errors.push({ row: rowNum, title: "(no title)", reason: "Missing required field: title" }); continue; }
+        if (!row.video_url && !row.vimeo_url && !row.mux_playback_id) { res.errors.push({ row: rowNum, title: row.title, reason: "Missing video_url or mux_playback_id — at least one is required" }); continue; }
+        if (!row.category) { res.errors.push({ row: rowNum, title: row.title, reason: "Missing required field: category" }); continue; }
+        if (!row.level) { res.errors.push({ row: rowNum, title: row.title, reason: "Missing required field: level" }); continue; }
+        if (!row.drill_type) { res.errors.push({ row: rowNum, title: row.title, reason: "Missing required field: drill_type" }); continue; }
 
         // Extract vimeo_id from URL (support both video_url and legacy vimeo_url columns)
         const videoUrl = row.video_url || row.vimeo_url || "";

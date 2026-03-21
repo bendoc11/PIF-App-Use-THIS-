@@ -402,16 +402,61 @@ export default function AdminBulkUpload() {
                   </div>
                 </div>
               </div>
-              {result.errors.length > 0 && (
-                <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
-                  <p className="text-sm font-medium text-destructive mb-2">Error Log</p>
-                  <div className="space-y-1 max-h-48 overflow-y-auto">
-                    {result.errors.map((e, i) => (
-                      <p key={i} className="text-xs text-muted-foreground">
-                        <span className="text-destructive font-medium">Row {e.row}:</span> {e.reason}
-                      </p>
-                    ))}
+              {(result.errors.length > 0 || result.skipped > 0) && (
+                <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium text-destructive">
+                      {result.errors.length} Error{result.errors.length !== 1 ? "s" : ""}{result.skipped > 0 ? ` · ${result.skipped} Duplicate${result.skipped !== 1 ? "s" : ""} Skipped` : ""}
+                    </p>
+                    {result.errors.length > 0 && (
+                      <Button variant="outline" size="sm" className="gap-2 text-xs" onClick={() => {
+                        const header = "row,title,reason\n";
+                        const csvRows = result.errors.map((e) => `${e.row},"${e.title.replace(/"/g, '""')}","${e.reason.replace(/"/g, '""')}"`).join("\n");
+                        const blob = new Blob([header + csvRows], { type: "text/csv" });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a"); a.href = url; a.download = "import-errors.csv"; a.click();
+                        URL.revokeObjectURL(url);
+                      }}>
+                        <Download className="h-3 w-3" /> Download Error Report
+                      </Button>
+                    )}
                   </div>
+
+                  {result.errors.length > 0 && (
+                    <ScrollArea className="max-h-64 rounded-md border border-border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="text-xs w-16">Row</TableHead>
+                            <TableHead className="text-xs">Drill Name</TableHead>
+                            <TableHead className="text-xs">Reason</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {result.errors.map((e, i) => (
+                            <TableRow key={i}>
+                              <TableCell className="text-xs font-medium text-destructive">{e.row}</TableCell>
+                              <TableCell className="text-xs text-foreground">{e.title}</TableCell>
+                              <TableCell className="text-xs text-muted-foreground">{e.reason}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </ScrollArea>
+                  )}
+
+                  {result.skippedRows.length > 0 && (
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground mb-1">Skipped (duplicates):</p>
+                      <div className="space-y-0.5 max-h-32 overflow-y-auto">
+                        {result.skippedRows.map((s, i) => (
+                          <p key={i} className="text-xs text-muted-foreground">
+                            Row {s.row}: <span className="text-foreground">{s.title}</span>
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
               <Button variant="outline" onClick={handleReset} className="gap-2">

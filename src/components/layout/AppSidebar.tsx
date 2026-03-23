@@ -104,9 +104,17 @@ export function AppSidebar() {
       <SidebarFooter className="p-3">
         {/* User profile */}
         {!collapsed && (
-          <div className="flex items-center gap-3 px-3 py-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-heading text-primary">
-              {initials}
+          <NavLink
+            to="/settings"
+            className="flex items-center gap-3 px-3 py-2 mb-2 rounded-lg hover:bg-muted transition-colors cursor-pointer"
+            activeClassName=""
+          >
+            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-heading text-primary overflow-hidden shrink-0">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+              ) : (
+                initials
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">
@@ -114,7 +122,7 @@ export function AppSidebar() {
               </p>
               <p className="text-xs text-muted-foreground capitalize">{(profile?.role === "admin" || profile?.role === "creator") ? "Admin" : subscription.subscribed ? "Pro" : "Free"} plan</p>
             </div>
-          </div>
+          </NavLink>
         )}
         <SidebarMenu>
           <SidebarMenuItem>

@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { WeeklyStatusCard } from "@/components/progress/WeeklyStatusCard";
 import { TrainingCalendar } from "@/components/progress/TrainingCalendar";
+import { PlayerCard } from "@/components/progress/PlayerCard";
 import { ShootingTracker } from "@/components/progress/ShootingTracker";
 import { GameLog } from "@/components/progress/GameLog";
 import { DrillStatsRow } from "@/components/progress/DrillStatsRow";
@@ -65,6 +66,11 @@ export default function Progress() {
           <h1 className="text-3xl font-heading text-foreground">MY PROGRESS</h1>
           <p className="text-muted-foreground text-sm mt-1">Your basketball development at a glance</p>
         </div>
+
+        {/* Section 0: Player Card */}
+        <PlayerCard />
+
+        <Separator className="bg-border" />
 
         {/* Section 1: Weekly Status */}
         <WeeklyStatusCard drillCompletedDates={completedDates} />

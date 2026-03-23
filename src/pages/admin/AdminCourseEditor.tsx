@@ -72,6 +72,7 @@ export default function AdminCourseEditor() {
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [uploadingThumb, setUploadingThumb] = useState(false);
   const [skillLevels, setSkillLevels] = useState<string[]>([]);
+  const [ratingCategories, setRatingCategories] = useState<string[]>([]);
   const [coachAvatarUrl, setCoachAvatarUrl] = useState<string | null>(null);
 
   // Drills
@@ -103,6 +104,7 @@ export default function AdminCourseEditor() {
         setIsFeatured(course.is_featured || false);
         setThumbnailUrl(course.thumbnail_url || null);
         setSkillLevels((course as any).skill_levels || []);
+        setRatingCategories((course as any).categories || []);
         if ((course as any).coaches) {
           setCoachName((course as any).coaches.name);
           setCoachSchool((course as any).coaches.school || "");
@@ -361,6 +363,7 @@ export default function AdminCourseEditor() {
         drill_count: drills.length,
         total_duration_seconds: drills.reduce((a, d) => a + d.duration_seconds, 0),
         skill_levels: skillLevels,
+        categories: ratingCategories.length > 0 ? ratingCategories : null,
       };
 
       let savedCourseId = courseId;
@@ -469,6 +472,26 @@ export default function AdminCourseEditor() {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="space-y-2">
+              <Label className="font-heading tracking-wider text-sm">Rating Categories <span className="text-muted-foreground font-normal">(for player rating calc)</span></Label>
+              <div className="flex flex-wrap gap-2">
+                {CATEGORIES.map((c) => (
+                  <label key={c} className="flex items-center gap-1.5 cursor-pointer">
+                    <Checkbox
+                      checked={ratingCategories.includes(c)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setRatingCategories([...ratingCategories, c]);
+                        } else {
+                          setRatingCategories(ratingCategories.filter((rc) => rc !== c));
+                        }
+                      }}
+                    />
+                    <span className="text-sm">{c}</span>
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -182,6 +182,7 @@ export type Database = {
       }
       courses: {
         Row: {
+          categories: string[] | null
           category: string | null
           coach_id: string | null
           created_at: string
@@ -199,6 +200,7 @@ export type Database = {
           total_duration_seconds: number
         }
         Insert: {
+          categories?: string[] | null
           category?: string | null
           coach_id?: string | null
           created_at?: string
@@ -216,6 +218,7 @@ export type Database = {
           total_duration_seconds?: number
         }
         Update: {
+          categories?: string[] | null
           category?: string | null
           coach_id?: string | null
           created_at?: string
@@ -463,6 +466,36 @@ export type Database = {
           three_made?: number
           three_percentage?: number | null
           turnovers?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      player_ratings: {
+        Row: {
+          ball_handling: number
+          calculated_at: string
+          finishing: number
+          id: string
+          overall: number
+          shooting: number
+          user_id: string
+        }
+        Insert: {
+          ball_handling?: number
+          calculated_at?: string
+          finishing?: number
+          id?: string
+          overall?: number
+          shooting?: number
+          user_id: string
+        }
+        Update: {
+          ball_handling?: number
+          calculated_at?: string
+          finishing?: number
+          id?: string
+          overall?: number
+          shooting?: number
           user_id?: string
         }
         Relationships: []

@@ -66,6 +66,7 @@ export default function AdminCourseEditor() {
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("draft");
+  const [isFeatured, setIsFeatured] = useState(false);
   const [coachId, setCoachId] = useState<string | null>(null);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [uploadingThumb, setUploadingThumb] = useState(false);

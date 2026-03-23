@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { WeeklyStatusCard } from "@/components/progress/WeeklyStatusCard";
 import { TrainingCalendar } from "@/components/progress/TrainingCalendar";
+import { PlayerCard } from "@/components/progress/PlayerCard";
 import { ShootingTracker } from "@/components/progress/ShootingTracker";
 import { GameLog } from "@/components/progress/GameLog";
 import { DrillStatsRow } from "@/components/progress/DrillStatsRow";

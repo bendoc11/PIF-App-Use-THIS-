@@ -12,6 +12,9 @@ export default function Settings() {
   const { profile, user, subscription, refreshSubscription } = useAuth();
   const [loadingPortal, setLoadingPortal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const { uploading, openFilePicker } = useAvatarUpload();
+
+  const initials = [profile?.first_name?.[0], profile?.last_name?.[0]].filter(Boolean).join("").toUpperCase() || "?";
 
   const handleManageBilling = async () => {
     setLoadingPortal(true);

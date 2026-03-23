@@ -249,7 +249,7 @@ export default function Dashboard() {
                 <Link to={isAccessible || subscriptionLoading ? `/drills/${drill.id}` : `/pricing`}>
                   <Card className="bg-card border-border hover:border-primary/20 transition-all group overflow-hidden">
                     <CardContent className="p-0">
-                      <div className="relative h-36 bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center overflow-hidden">
+                      <div className="relative h-52 bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center overflow-hidden">
                         {drill.thumbnail_url ? (
                           <img src={drill.thumbnail_url} alt={drill.title} className="w-full h-full object-cover" />
                         ) : (
@@ -310,7 +310,7 @@ export default function Dashboard() {
                 <Link to={`/courses/${course.id}/1`}>
                   <Card className="bg-card border-border hover:border-primary/20 transition-all overflow-hidden">
                     <CardContent className="p-0">
-                      <div className="h-32 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center overflow-hidden">
+                      <div className="h-52 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center overflow-hidden">
                         {course.thumbnail_url ? (
                           <img src={course.thumbnail_url} alt={course.title} className="w-full h-full object-cover" />
                         ) : (

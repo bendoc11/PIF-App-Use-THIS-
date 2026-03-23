@@ -54,13 +54,13 @@ export function WeeklyStatusCard({ drillCompletedDates }: WeeklyStatusCardProps)
       <CardContent className="p-5">
         <h2 className="text-2xl font-heading text-foreground">
           {onTrack
-            ? `Strong Week, ${firstName}. 🔥`
-            : `Time to Get Back In The Gym, ${firstName}.`}
+            ? `Keep Grinding, ${firstName}. 🔥`
+            : `Your Next Level Is Waiting, ${firstName}. 🏀`}
         </h2>
         <p className="text-sm text-muted-foreground mt-1">
           {onTrack
-            ? `You've trained ${daysTrainedThisWeek} of your ${goal} days this week. Keep it going.`
-            : `You've trained ${daysTrainedThisWeek} of your ${goal} days this week. Your goal is ${goal} days.`}
+            ? `${daysTrainedThisWeek} of ${goal} days this week — you're locked in. Don't let up.`
+            : `${daysTrainedThisWeek} of ${goal} days this week. The work you put in today separates you tomorrow.`}
         </p>
       </CardContent>
     </Card>

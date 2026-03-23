@@ -313,7 +313,7 @@ function TrainSection() {
       const targetTitles = [
         "Ball Handling Transformation",
         "Point Guard Foundations",
-        "Bulletproof Ankles",
+        "Game Ready Mobility System",
         "Secrets of Shooting",
       ];
       const { data } = await supabase

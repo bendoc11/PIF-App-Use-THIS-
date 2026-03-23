@@ -355,6 +355,7 @@ export default function AdminCourseEditor() {
         description: description || null,
         thumbnail_url: thumbnailUrl,
         status: role === "admin" ? status : "draft",
+        is_featured: isFeatured,
         coach_id: finalCoachId,
         drill_count: drills.length,
         total_duration_seconds: drills.reduce((a, d) => a + d.duration_seconds, 0),

@@ -12,7 +12,7 @@ import { toast } from "sonner";
 export default function Login() {
   const { user, loading, subscription } = useAuth();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<"signin" | "signup">("signin");
+  const [tab, setTab] = useState<"signin" | "signup">("signup");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -158,7 +158,7 @@ export default function Login() {
               onClick={() => setTab("signup")}
               className={`flex-1 py-2.5 rounded-lg font-heading text-sm tracking-wider transition-all ${tab === "signup" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}
             >
-              Start Trial
+              Start Training
             </button>
           </div>
 
@@ -214,7 +214,7 @@ export default function Login() {
           ) : (
             <form onSubmit={handleSignUp} className="space-y-6">
               <div>
-                <h2 className="text-3xl font-heading text-foreground">Start Your 7-Day Trial</h2>
+                <h2 className="text-3xl font-heading text-foreground">Start Your Training Journey</h2>
                 <p className="text-muted-foreground mt-1">$7 for 7 days, then $27/month. Cancel anytime.</p>
               </div>
               <div className="space-y-4">

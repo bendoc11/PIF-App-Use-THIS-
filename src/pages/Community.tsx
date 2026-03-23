@@ -262,8 +262,8 @@ export default function Community() {
 
   const getDisplayName = (post: Post) => {
     if (post.display_name) return post.display_name;
-    if (!post.profiles) return "Unknown";
-    return `${post.profiles.first_name || ""} ${post.profiles.last_name || ""}`.trim() || "Unknown";
+    if (!post.profiles) return "Anonymous";
+    return `${post.profiles.first_name || ""} ${post.profiles.last_name || ""}`.trim() || "Anonymous";
   };
 
   const getInitials = (profile: { first_name: string | null; last_name: string | null } | null, displayName?: string | null) => {

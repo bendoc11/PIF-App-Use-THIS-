@@ -473,6 +473,26 @@ export default function AdminCourseEditor() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label className="font-heading tracking-wider text-sm">Rating Categories <span className="text-muted-foreground font-normal">(for player rating calc)</span></Label>
+              <div className="flex flex-wrap gap-2">
+                {CATEGORIES.map((c) => (
+                  <label key={c} className="flex items-center gap-1.5 cursor-pointer">
+                    <Checkbox
+                      checked={ratingCategories.includes(c)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setRatingCategories([...ratingCategories, c]);
+                        } else {
+                          setRatingCategories(ratingCategories.filter((rc) => rc !== c));
+                        }
+                      }}
+                    />
+                    <span className="text-sm">{c}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">

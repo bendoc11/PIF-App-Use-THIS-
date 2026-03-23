@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { Flame, Dribbble, Calendar } from "lucide-react";
+import { Flame, Calendar, Camera, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePlayerRatings } from "@/hooks/usePlayerRatings";
+import { useAvatarUpload } from "@/hooks/useAvatarUpload";
 import { format } from "date-fns";
 
 
@@ -67,6 +68,7 @@ function StatCell({ value, label, delay }: { value: string; label: string; delay
 export function PlayerCard() {
   const { profile } = useAuth();
   const { ratings, gameAverages, loading } = usePlayerRatings();
+  const { uploading, openFilePicker } = useAvatarUpload();
 
   if (loading || !ratings) {
     return (
@@ -109,13 +111,24 @@ export function PlayerCard() {
 
         {/* Avatar */}
         <div className="flex justify-center">
-          <div className="w-24 h-24 md:w-28 md:h-28 rounded-full border-2 border-primary/30 bg-muted flex items-center justify-center overflow-hidden">
-            {profile?.avatar_url ? (
+          <button
+            onClick={openFilePicker}
+            disabled={uploading}
+            className="relative w-24 h-24 md:w-28 md:h-28 rounded-full border-2 border-primary/30 bg-muted flex items-center justify-center overflow-hidden group cursor-pointer"
+          >
+            {uploading ? (
+              <Loader2 className="h-8 w-8 text-primary animate-spin" />
+            ) : profile?.avatar_url ? (
               <img src={profile.avatar_url} alt={playerName} className="w-full h-full object-cover" />
             ) : (
               <span className="text-2xl font-heading text-primary">{initials}</span>
             )}
-          </div>
+            {!uploading && (
+              <div className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-background/80 border border-border flex items-center justify-center">
+                <Camera className="h-3.5 w-3.5 text-muted-foreground" />
+              </div>
+            )}
+          </button>
         </div>
 
         {/* Name + Position */}

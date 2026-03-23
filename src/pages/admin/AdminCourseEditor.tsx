@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -66,6 +67,7 @@ export default function AdminCourseEditor() {
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("draft");
+  const [isFeatured, setIsFeatured] = useState(false);
   const [coachId, setCoachId] = useState<string | null>(null);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [uploadingThumb, setUploadingThumb] = useState(false);
@@ -98,6 +100,7 @@ export default function AdminCourseEditor() {
         setCategory(course.category || "");
         setDescription(course.description || "");
         setStatus((course as any).status || "draft");
+        setIsFeatured(course.is_featured || false);
         setThumbnailUrl(course.thumbnail_url || null);
         setSkillLevels((course as any).skill_levels || []);
         if ((course as any).coaches) {
@@ -353,6 +356,7 @@ export default function AdminCourseEditor() {
         description: description || null,
         thumbnail_url: thumbnailUrl,
         status: role === "admin" ? status : "draft",
+        is_featured: isFeatured,
         coach_id: finalCoachId,
         drill_count: drills.length,
         total_duration_seconds: drills.reduce((a, d) => a + d.duration_seconds, 0),
@@ -529,15 +533,24 @@ export default function AdminCourseEditor() {
             </div>
           </div>
           {role === "admin" && (
-            <div className="space-y-2">
-              <Label className="font-heading tracking-wider text-sm">Status</Label>
-              <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="live">Live</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex items-center gap-6">
+              <div className="space-y-2">
+                <Label className="font-heading tracking-wider text-sm">Status</Label>
+                <Select value={status} onValueChange={setStatus}>
+                  <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="live">Live</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="font-heading tracking-wider text-sm">Featured on Dashboard</Label>
+                <div className="flex items-center gap-2 pt-1">
+                  <Switch checked={isFeatured} onCheckedChange={setIsFeatured} />
+                  <span className="text-sm text-muted-foreground">{isFeatured ? "Yes" : "No"}</span>
+                </div>
+              </div>
             </div>
           )}
         </div>

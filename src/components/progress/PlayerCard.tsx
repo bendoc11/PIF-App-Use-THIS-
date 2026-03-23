@@ -68,6 +68,7 @@ function StatCell({ value, label, delay }: { value: string; label: string; delay
 export function PlayerCard() {
   const { profile } = useAuth();
   const { ratings, gameAverages, loading } = usePlayerRatings();
+  const { uploading, openFilePicker } = useAvatarUpload();
 
   if (loading || !ratings) {
     return (

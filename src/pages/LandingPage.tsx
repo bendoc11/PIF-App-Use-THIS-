@@ -404,10 +404,10 @@ function TrainSection() {
 
 function HowItWorks() {
   const steps = [
-    { icon: <UserPlus className="h-6 w-6" />, title: "CREATE ACCOUNT", desc: "Sign up free in under 60 seconds. No credit card required to get started." },
-    { icon: <Crosshair className="h-6 w-6" />, title: "PICK YOUR POSITION", desc: "Tell us your position and skill level. We surface the most relevant drills for you." },
-    { icon: <Dumbbell className="h-6 w-6" />, title: "TRAIN DAILY", desc: "Follow drills from elite coaches. Watch on any device, on your own schedule." },
-    { icon: <BarChart3 className="h-6 w-6" />, title: "LEVEL UP", desc: "Track progress, climb the leaderboard, and ask coaches directly in live sessions." },
+    { icon: <UserPlus className="h-6 w-6" />, title: "BUILD YOUR PLAYER PROFILE", desc: "Tell us your position, your goals, and where your game needs work. We use that to build your personalized training plan before you ever touch a drill." },
+    { icon: <Crosshair className="h-6 w-6" />, title: "FOLLOW YOUR WEEKLY SCHEDULE", desc: "Every week you get a structured training schedule built around your goals — skill workouts, shooting sessions, lifting, and recovery. No more guessing what to work on. Just show up and execute." },
+    { icon: <Dumbbell className="h-6 w-6" />, title: "TRAIN WITH ELITE COACHES", desc: "Access a full library of drills and courses taught by former D1 and college players. Every drill has coaching tips, progressions, and real instruction from athletes who've been where you're trying to go." },
+    { icon: <BarChart3 className="h-6 w-6" />, title: "TRACK YOUR PROGRESS", desc: "Log your games, track your shooting percentage, and watch your consistency rings fill up week over week. See your game improving in real numbers — not just feel it." },
   ];
 
   return (

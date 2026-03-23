@@ -141,7 +141,7 @@ export default function Courses() {
               <Link to={`/courses/${course.id}/1`}>
                 <Card className="bg-card border-border hover:border-primary/20 transition-all overflow-hidden group">
                   <CardContent className="p-0">
-                    <div className="relative h-40 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center overflow-hidden">
+                    <div className="relative h-52 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center overflow-hidden">
                       {course.thumbnail_url ? (
                         <img src={course.thumbnail_url} alt={course.title} className="w-full h-full object-cover" />
                       ) : (

@@ -158,7 +158,7 @@ export default function Login() {
               onClick={() => setTab("signup")}
               className={`flex-1 py-2.5 rounded-lg font-heading text-sm tracking-wider transition-all ${tab === "signup" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}
             >
-              Start Trial
+              Start Training
             </button>
           </div>
 

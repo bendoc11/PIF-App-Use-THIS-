@@ -5,7 +5,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
-import { CreditCard, User, RefreshCw } from "lucide-react";
+import { CreditCard, User, RefreshCw, Camera, Loader2 } from "lucide-react";
+import { useAvatarUpload } from "@/hooks/useAvatarUpload";
 
 export default function Settings() {
   const { profile, user, subscription, refreshSubscription } = useAuth();

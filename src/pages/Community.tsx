@@ -381,7 +381,7 @@ export default function Community() {
                               )}
                               <div>
                                 <div className="flex items-center gap-2">
-                                  <span className="text-sm font-medium text-foreground">{reply.display_name || `${reply.profiles?.first_name || ""} ${reply.profiles?.last_name || ""}`.trim() || "Unknown"}</span>
+                                  <span className="text-sm font-medium text-foreground">{reply.display_name || `${reply.profiles?.first_name || ""} ${reply.profiles?.last_name || ""}`.trim() || "Anonymous"}</span>
                                   <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(reply.created_at), { addSuffix: true })}</span>
                                 </div>
                                 <p className="text-sm text-muted-foreground mt-0.5">{reply.body}</p>

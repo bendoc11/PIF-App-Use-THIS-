@@ -532,15 +532,24 @@ export default function AdminCourseEditor() {
             </div>
           </div>
           {role === "admin" && (
-            <div className="space-y-2">
-              <Label className="font-heading tracking-wider text-sm">Status</Label>
-              <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="live">Live</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex items-center gap-6">
+              <div className="space-y-2">
+                <Label className="font-heading tracking-wider text-sm">Status</Label>
+                <Select value={status} onValueChange={setStatus}>
+                  <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="live">Live</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="font-heading tracking-wider text-sm">Featured on Dashboard</Label>
+                <div className="flex items-center gap-2 pt-1">
+                  <Switch checked={isFeatured} onCheckedChange={setIsFeatured} />
+                  <span className="text-sm text-muted-foreground">{isFeatured ? "Yes" : "No"}</span>
+                </div>
+              </div>
             </div>
           )}
         </div>

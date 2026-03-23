@@ -692,6 +692,7 @@ export default function LandingPage() {
       <Navbar />
       <HeroSection />
       <SchoolsTicker />
+      <GameAnalyzerSection />
       <PlatformSection />
       <AnimatedSection><CoachesSection /></AnimatedSection>
       <AnimatedSection><TrainSection /></AnimatedSection>

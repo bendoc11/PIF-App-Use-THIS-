@@ -294,8 +294,53 @@ function PlatformSection() {
   );
 }
 
+const categoryColorMap: Record<string, string> = {
+  "Ball Handling": "bg-pif-blue",
+  "Shooting": "bg-primary",
+  "Athletics": "bg-pif-green",
+  "Basketball IQ": "bg-pif-purple",
+  "Mental Game": "bg-pif-purple",
+  "Scoring": "bg-pif-orange",
+  "Post Game": "bg-pif-orange",
+  "Speed & Agility": "bg-pif-green",
+};
+
 function TrainSection() {
-  const categories = [
+  const [drills, setDrills] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchDrills = async () => {
+      // First try featured drills with thumbnails
+      const { data: featured } = await supabase
+        .from("drills")
+        .select("id, title, category, level, thumbnail_url")
+        .eq("is_featured", true)
+        .not("thumbnail_url", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(6);
+
+      let results = featured ?? [];
+
+      // If fewer than 4, backfill with any drills that have thumbnails
+      if (results.length < 4) {
+        const existingIds = results.map((d) => d.id);
+        const { data: backfill } = await supabase
+          .from("drills")
+          .select("id, title, category, level, thumbnail_url")
+          .not("thumbnail_url", "is", null)
+          .order("created_at", { ascending: false })
+          .limit(6);
+        const extra = (backfill ?? []).filter((d) => !existingIds.includes(d.id));
+        results = [...results, ...extra].slice(0, 4);
+      }
+
+      setDrills(results);
+    };
+    fetchDrills();
+  }, []);
+
+  // Static fallback categories if no drills have thumbnails
+  const fallbackCategories = [
     { label: "BALL HANDLING", sub: "FUNDAMENTALS", title: "BALL HANDLING", level: "Beginner – Pro · On Demand", color: "bg-pif-blue" },
     { label: "SHOOTING", sub: "SCORING", title: "SHOOTING MECHANICS", level: "All Levels · On Demand", color: "bg-primary" },
     { label: "SPEED & AGILITY", sub: "ATHLETICS", title: "SPEED & AGILITY", level: "Intermediate · On Demand", color: "bg-pif-green" },
@@ -315,21 +360,51 @@ function TrainSection() {
         <a href="#" className="font-heading text-sm tracking-widest text-pif-blue hover:text-foreground transition-colors hidden sm:block">BROWSE ALL →</a>
       </div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {categories.map((c) => (
-          <div key={c.title} className="group cursor-pointer">
-            <div className="aspect-[4/3] bg-navy-3 rounded-xl overflow-hidden relative mb-4 border border-border group-hover:border-primary/40 transition-colors">
-              <div className={`absolute top-3 left-3 ${c.color} text-foreground font-heading text-[10px] tracking-widest px-3 py-1 rounded-md`}>{c.label}</div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-12 h-12 rounded-full bg-primary/80 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Play className="h-5 w-5 text-foreground ml-0.5" />
+        {drills.length > 0
+          ? drills.map((drill) => {
+              const color = categoryColorMap[drill.category] || "bg-primary";
+              return (
+                <div key={drill.id} className="group cursor-pointer">
+                  <div className="aspect-[4/3] rounded-xl overflow-hidden relative mb-4 border border-border group-hover:border-primary/40 transition-colors">
+                    <img
+                      src={drill.thumbnail_url}
+                      alt={drill.title}
+                      className="absolute inset-0 w-full h-full object-cover object-top"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                    <div className={`absolute top-3 left-3 ${color} text-foreground font-heading text-[10px] tracking-widest px-3 py-1 rounded-md z-10`}>
+                      {drill.category?.toUpperCase()}
+                    </div>
+                    {drill.level && (
+                      <div className="absolute top-3 right-3 bg-background/80 text-foreground font-heading text-[10px] tracking-widest px-2 py-1 rounded-md z-10">
+                        {drill.level.toUpperCase()}
+                      </div>
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center z-10">
+                      <div className="w-12 h-12 rounded-full bg-primary/80 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Play className="h-5 w-5 text-foreground ml-0.5" />
+                      </div>
+                    </div>
+                    <p className="absolute bottom-3 left-3 right-3 font-heading text-sm text-white z-10 line-clamp-2">{drill.title}</p>
+                  </div>
                 </div>
+              );
+            })
+          : fallbackCategories.map((c) => (
+              <div key={c.title} className="group cursor-pointer">
+                <div className="aspect-[4/3] bg-navy-3 rounded-xl overflow-hidden relative mb-4 border border-border group-hover:border-primary/40 transition-colors">
+                  <div className={`absolute top-3 left-3 ${c.color} text-foreground font-heading text-[10px] tracking-widest px-3 py-1 rounded-md`}>{c.label}</div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-primary/80 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Play className="h-5 w-5 text-foreground ml-0.5" />
+                    </div>
+                  </div>
+                </div>
+                <p className="font-heading text-[10px] tracking-widest text-muted-foreground">{c.sub}</p>
+                <p className="font-heading text-lg text-foreground">{c.title}</p>
+                <p className="font-body text-sm text-muted-foreground">{c.level}</p>
               </div>
-            </div>
-            <p className="font-heading text-[10px] tracking-widest text-muted-foreground">{c.sub}</p>
-            <p className="font-heading text-lg text-foreground">{c.title}</p>
-            <p className="font-body text-sm text-muted-foreground">{c.level}</p>
-          </div>
-        ))}
+            ))}
       </div>
     </section>
   );

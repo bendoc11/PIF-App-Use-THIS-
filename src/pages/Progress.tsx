@@ -67,6 +67,11 @@ export default function Progress() {
           <p className="text-muted-foreground text-sm mt-1">Your basketball development at a glance</p>
         </div>
 
+        {/* Section 0: Player Card */}
+        <PlayerCard />
+
+        <Separator className="bg-border" />
+
         {/* Section 1: Weekly Status */}
         <WeeklyStatusCard drillCompletedDates={completedDates} />
 

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, memo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -66,44 +66,124 @@ const categoryColors: Record<string, string> = {
   Mindset: "bg-pif-green/10 text-pif-green",
 };
 
-export default function Community() {
-  const { user } = useAuth();
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [activeCategory, setActiveCategory] = useState("All");
-  const [showNewPost, setShowNewPost] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
-  const [newBody, setNewBody] = useState("");
-  const [newCategory, setNewCategory] = useState("General");
+// ── Isolated Post Creation Form ──
+// This component manages its own state entirely, so feed re-renders never affect it.
+const NewPostForm = memo(function NewPostForm({
+  userId,
+  onPostCreated,
+}: {
+  userId: string;
+  onPostCreated: () => void;
+}) {
+  const [showForm, setShowForm] = useState(false);
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [category, setCategory] = useState("General");
   const [posting, setPosting] = useState(false);
-  const [expandedPost, setExpandedPost] = useState<string | null>(null);
-  const [replies, setReplies] = useState<Record<string, Reply[]>>({});
-  const [replyText, setReplyText] = useState("");
-  const [userUpvotes, setUserUpvotes] = useState<Set<string>>(new Set());
   const draftRestored = useRef(false);
 
   // Restore draft when form opens
   useEffect(() => {
-    if (showNewPost && !draftRestored.current) {
+    if (showForm && !draftRestored.current) {
       const draft = loadDraft();
       if (draft) {
-        setNewTitle(draft.title);
-        setNewBody(draft.body);
-        setNewCategory(draft.category || "General");
+        setTitle(draft.title);
+        setBody(draft.body);
+        setCategory(draft.category || "General");
         toast.info("Draft restored");
       }
       draftRestored.current = true;
     }
-    if (!showNewPost) {
+    if (!showForm) {
       draftRestored.current = false;
     }
-  }, [showNewPost]);
+  }, [showForm]);
 
   // Save draft on every keystroke
   useEffect(() => {
-    if (showNewPost) {
-      saveDraft(newTitle, newBody, newCategory);
+    if (showForm) {
+      saveDraft(title, body, category);
     }
-  }, [newTitle, newBody, newCategory, showNewPost]);
+  }, [title, body, category, showForm]);
+
+  const handleCreate = async () => {
+    if (!title.trim() || !body.trim()) return;
+    setPosting(true);
+    try {
+      const { error } = await supabase.from("community_posts").insert({
+        user_id: userId,
+        title: title.trim(),
+        body: body.trim(),
+        category,
+      });
+      if (error) {
+        toast.error("Failed to create post. Your draft has been saved.");
+        return;
+      }
+      clearDraft();
+      setTitle("");
+      setBody("");
+      setShowForm(false);
+      toast.success("Post created!");
+      onPostCreated();
+    } catch (err) {
+      console.error("Post creation error:", err);
+      toast.error("Something went wrong. Your draft has been saved.");
+    } finally {
+      setPosting(false);
+    }
+  };
+
+  return (
+    <>
+      <Button onClick={() => setShowForm(!showForm)} className="btn-cta bg-primary hover:bg-primary/90 glow-red-hover">
+        {showForm ? <X className="h-4 w-4 mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+        {showForm ? "Cancel" : "New Post"}
+      </Button>
+
+      <AnimatePresence>
+        {showForm && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+            <Card className="bg-card border-border mt-6">
+              <CardContent className="p-5 space-y-4">
+                <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Post title..." className="bg-muted border-border h-12 font-heading text-lg" />
+                <Textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Share your thoughts, ask a question..." className="bg-muted border-border min-h-[100px]" />
+                <div className="flex items-center justify-between">
+                  <div className="flex gap-2">
+                    {categories.filter((c) => c !== "All").map((cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => setCategory(cat)}
+                        className={`px-3 py-1 rounded-lg text-xs font-heading tracking-wider transition-all ${
+                          category === cat ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                  <Button onClick={handleCreate} disabled={posting || !title.trim() || !body.trim()} className="bg-primary hover:bg-primary/90">
+                    <Send className="h-4 w-4 mr-2" /> Post
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+});
+
+// ── Main Community Page ──
+export default function Community() {
+  const { user } = useAuth();
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [expandedPost, setExpandedPost] = useState<string | null>(null);
+  const [replies, setReplies] = useState<Record<string, Reply[]>>({});
+  const [replyText, setReplyText] = useState("");
+  const [userUpvotes, setUserUpvotes] = useState<Set<string>>(new Set());
 
   const fetchPosts = useCallback(async () => {
     const { data } = await supabase
@@ -127,34 +207,6 @@ export default function Community() {
     fetchPosts();
     fetchUserUpvotes();
   }, [fetchPosts, fetchUserUpvotes]);
-
-  const handleCreatePost = async () => {
-    if (!newTitle.trim() || !newBody.trim() || !user) return;
-    setPosting(true);
-    try {
-      const { error } = await supabase.from("community_posts").insert({
-        user_id: user.id,
-        title: newTitle.trim(),
-        body: newBody.trim(),
-        category: newCategory,
-      });
-      if (error) {
-        toast.error("Failed to create post. Your draft has been saved.");
-        return;
-      }
-      clearDraft();
-      setNewTitle("");
-      setNewBody("");
-      setShowNewPost(false);
-      toast.success("Post created!");
-      fetchPosts();
-    } catch (err) {
-      console.error("Post creation error:", err);
-      toast.error("Something went wrong. Your draft has been saved.");
-    } finally {
-      setPosting(false);
-    }
-  };
 
   const handleUpvote = async (postId: string) => {
     if (!user) return;
@@ -196,7 +248,6 @@ export default function Community() {
       toast.error("Failed to reply");
     } else {
       setReplyText("");
-      // Refresh replies
       const { data } = await supabase
         .from("community_replies")
         .select("*, profiles(first_name, last_name)")
@@ -224,6 +275,11 @@ export default function Community() {
     return `${(profile.first_name || "")[0] || ""}${(profile.last_name || "")[0] || ""}`.toUpperCase() || "?";
   };
 
+  // Stable callback ref so NewPostForm never re-renders from parent
+  const onPostCreated = useCallback(() => {
+    fetchPosts();
+  }, [fetchPosts]);
+
   return (
     <AppLayout>
       <div className="p-4 lg:p-6 max-w-4xl mx-auto space-y-6">
@@ -232,43 +288,8 @@ export default function Community() {
             <h1 className="text-3xl font-heading text-foreground">Community</h1>
             <p className="text-muted-foreground mt-1">Connect with fellow athletes and coaches</p>
           </div>
-          <Button onClick={() => setShowNewPost(!showNewPost)} className="btn-cta bg-primary hover:bg-primary/90 glow-red-hover">
-            {showNewPost ? <X className="h-4 w-4 mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
-            {showNewPost ? "Cancel" : "New Post"}
-          </Button>
+          {user && <NewPostForm userId={user.id} onPostCreated={onPostCreated} />}
         </div>
-
-        {/* New Post Form */}
-        <AnimatePresence>
-          {showNewPost && (
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-              <Card className="bg-card border-border">
-                <CardContent className="p-5 space-y-4">
-                  <Input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder="Post title..." className="bg-muted border-border h-12 font-heading text-lg" />
-                  <Textarea value={newBody} onChange={(e) => setNewBody(e.target.value)} placeholder="Share your thoughts, ask a question..." className="bg-muted border-border min-h-[100px]" />
-                  <div className="flex items-center justify-between">
-                    <div className="flex gap-2">
-                      {categories.filter((c) => c !== "All").map((cat) => (
-                        <button
-                          key={cat}
-                          onClick={() => setNewCategory(cat)}
-                          className={`px-3 py-1 rounded-lg text-xs font-heading tracking-wider transition-all ${
-                            newCategory === cat ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
-                          }`}
-                        >
-                          {cat}
-                        </button>
-                      ))}
-                    </div>
-                    <Button onClick={handleCreatePost} disabled={posting || !newTitle.trim() || !newBody.trim()} className="bg-primary hover:bg-primary/90">
-                      <Send className="h-4 w-4 mr-2" /> Post
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Category Filter */}
         <div className="flex gap-2 flex-wrap">

@@ -262,8 +262,8 @@ export default function Community() {
 
   const getDisplayName = (post: Post) => {
     if (post.display_name) return post.display_name;
-    if (!post.profiles) return "Unknown";
-    return `${post.profiles.first_name || ""} ${post.profiles.last_name || ""}`.trim() || "Unknown";
+    if (!post.profiles) return "Anonymous";
+    return `${post.profiles.first_name || ""} ${post.profiles.last_name || ""}`.trim() || "Anonymous";
   };
 
   const getInitials = (profile: { first_name: string | null; last_name: string | null } | null, displayName?: string | null) => {
@@ -381,7 +381,7 @@ export default function Community() {
                               )}
                               <div>
                                 <div className="flex items-center gap-2">
-                                  <span className="text-sm font-medium text-foreground">{reply.display_name || `${reply.profiles?.first_name || ""} ${reply.profiles?.last_name || ""}`.trim() || "Unknown"}</span>
+                                  <span className="text-sm font-medium text-foreground">{reply.display_name || `${reply.profiles?.first_name || ""} ${reply.profiles?.last_name || ""}`.trim() || "Anonymous"}</span>
                                   <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(reply.created_at), { addSuffix: true })}</span>
                                 </div>
                                 <p className="text-sm text-muted-foreground mt-0.5">{reply.body}</p>

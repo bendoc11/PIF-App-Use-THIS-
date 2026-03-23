@@ -363,6 +363,7 @@ export default function AdminCourseEditor() {
         drill_count: drills.length,
         total_duration_seconds: drills.reduce((a, d) => a + d.duration_seconds, 0),
         skill_levels: skillLevels,
+        categories: ratingCategories.length > 0 ? ratingCategories : null,
       };
 
       let savedCourseId = courseId;

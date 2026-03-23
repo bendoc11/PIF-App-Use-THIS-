@@ -8,13 +8,16 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Loader2, X, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, X, Upload, Star, Image } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
-const DRILL_TAGS = ["Shooting", "Ball Handling", "Defense", "Finishing", "Conditioning", "Beginner", "Intermediate", "Advanced"];
+const DRILL_TAGS = ["Shooting", "Ball Handling", "Defense", "Finishing", "Conditioning", "Skill Development", "Beginner", "Intermediate", "Advanced"];
+
+type FilterMode = "all" | "featured" | "standalone" | string; // string for workout id
 
 interface DrillRow {
   id: string;
@@ -27,11 +30,17 @@ interface DrillRow {
   reps: number | null;
   sets: number | null;
   vimeo_id: string | null;
+  mux_playback_id: string | null;
   description: string | null;
   coaching_tips: any;
   equipment_needed: string[] | null;
   course_id: string | null;
+  thumbnail_url: string | null;
+  is_featured: boolean;
+  enable_shot_tracking: boolean;
+  shot_attempts: number | null;
   coaches: { name: string } | null;
+  courses: { title: string } | null;
 }
 
 interface DrillForm {
@@ -53,23 +62,29 @@ interface DrillForm {
   shot_attempts: number | null;
 }
 
+interface WorkoutOption {
+  id: string;
+  title: string;
+}
+
 export default function AdminDrills() {
   const { profile } = useAuth();
-  const role = profile?.role || "user";
   const [drills, setDrills] = useState<DrillRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingDrill, setEditingDrill] = useState<DrillForm | null>(null);
   const [equipmentInput, setEquipmentInput] = useState("");
   const [saving, setSaving] = useState(false);
   const [uploadingThumb, setUploadingThumb] = useState(false);
+  const [uploadingRowThumb, setUploadingRowThumb] = useState<string | null>(null);
+  const [filterMode, setFilterMode] = useState<FilterMode>("all");
+  const [workouts, setWorkouts] = useState<WorkoutOption[]>([]);
+  const [togglingFeatured, setTogglingFeatured] = useState<string | null>(null);
 
   const fetchDrills = async () => {
     setLoading(true);
-    // Fetch standalone drills (no course_id) + also all drills for admin visibility
     const { data, error } = await supabase
       .from("drills")
-      .select("id, title, category, level, created_at, drill_type, duration_seconds, reps, sets, vimeo_id, description, coaching_tips, equipment_needed, course_id, thumbnail_url, coaches(name)")
-      .is("course_id", null)
+      .select("id, title, category, level, created_at, drill_type, duration_seconds, reps, sets, vimeo_id, mux_playback_id, description, coaching_tips, equipment_needed, course_id, thumbnail_url, is_featured, enable_shot_tracking, shot_attempts, coaches(name), courses(title)")
       .order("created_at", { ascending: false });
     if (error) {
       toast({ title: "Error loading drills", description: error.message, variant: "destructive" });
@@ -78,7 +93,25 @@ export default function AdminDrills() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchDrills(); }, []);
+  const fetchWorkouts = async () => {
+    const { data } = await supabase
+      .from("courses")
+      .select("id, title")
+      .order("title", { ascending: true });
+    setWorkouts(data || []);
+  };
+
+  useEffect(() => {
+    fetchDrills();
+    fetchWorkouts();
+  }, []);
+
+  const filteredDrills = drills.filter((d) => {
+    if (filterMode === "all") return true;
+    if (filterMode === "featured") return d.is_featured;
+    if (filterMode === "standalone") return !d.course_id;
+    return d.course_id === filterMode; // filter by workout id
+  });
 
   const extractVimeoId = (input: string) => {
     const iframeMatch = input.match(/player\.vimeo\.com\/video\/(\d+)/);
@@ -102,7 +135,7 @@ export default function AdminDrills() {
       id: d.id,
       title: d.title,
       vimeo_id: d.vimeo_id || "",
-      mux_playback_id: (d as any).mux_playback_id || "",
+      mux_playback_id: d.mux_playback_id || "",
       duration_seconds: d.duration_seconds || 0,
       description: d.description || "",
       coaching_tips: Array.isArray(d.coaching_tips) ? d.coaching_tips.join("\n") : "",
@@ -112,9 +145,9 @@ export default function AdminDrills() {
       drill_type: d.drill_type || "",
       reps: d.reps ?? null,
       sets: d.sets ?? null,
-      thumbnail_url: (d as any).thumbnail_url || null,
-      enable_shot_tracking: (d as any).enable_shot_tracking || false,
-      shot_attempts: (d as any).shot_attempts ?? null,
+      thumbnail_url: d.thumbnail_url || null,
+      enable_shot_tracking: d.enable_shot_tracking || false,
+      shot_attempts: d.shot_attempts ?? null,
     });
   };
 
@@ -131,10 +164,55 @@ export default function AdminDrills() {
       return;
     }
     const { data: urlData } = supabase.storage.from("course-thumbnails").getPublicUrl(path);
-    console.log("[AdminDrills] Thumbnail uploaded, public URL:", urlData.publicUrl);
     setEditingDrill({ ...editingDrill, thumbnail_url: urlData.publicUrl });
     setUploadingThumb(false);
     toast({ title: "Thumbnail uploaded" });
+  };
+
+  const handleRowThumbnailUpload = async (drillId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingRowThumb(drillId);
+    const ext = file.name.split(".").pop();
+    const path = `drills/${crypto.randomUUID()}.${ext}`;
+    const { error: uploadError } = await supabase.storage.from("course-thumbnails").upload(path, file);
+    if (uploadError) {
+      toast({ title: "Upload failed", description: uploadError.message, variant: "destructive" });
+      setUploadingRowThumb(null);
+      return;
+    }
+    const { data: urlData } = supabase.storage.from("course-thumbnails").getPublicUrl(path);
+    const publicUrl = urlData.publicUrl;
+
+    const { error: updateError } = await supabase
+      .from("drills")
+      .update({ thumbnail_url: publicUrl })
+      .eq("id", drillId);
+
+    if (updateError) {
+      toast({ title: "Failed to save thumbnail", description: updateError.message, variant: "destructive" });
+    } else {
+      setDrills((prev) => prev.map((d) => d.id === drillId ? { ...d, thumbnail_url: publicUrl } : d));
+      toast({ title: "Thumbnail saved" });
+    }
+    setUploadingRowThumb(null);
+  };
+
+  const toggleFeatured = async (drillId: string, currentValue: boolean) => {
+    setTogglingFeatured(drillId);
+    const newValue = !currentValue;
+    const { error } = await supabase
+      .from("drills")
+      .update({ is_featured: newValue })
+      .eq("id", drillId);
+
+    if (error) {
+      toast({ title: "Failed to update featured", description: error.message, variant: "destructive" });
+    } else {
+      setDrills((prev) => prev.map((d) => d.id === drillId ? { ...d, is_featured: newValue } : d));
+      toast({ title: newValue ? "Drill featured" : "Drill unfeatured" });
+    }
+    setTogglingFeatured(null);
   };
 
   const parseDuration = (input: string): number => {
@@ -179,22 +257,19 @@ export default function AdminDrills() {
       drill_type: editingDrill.drill_type || null,
       reps: editingDrill.reps,
       sets: editingDrill.sets,
-      course_id: null, // standalone
       thumbnail_url: editingDrill.thumbnail_url,
       enable_shot_tracking: editingDrill.enable_shot_tracking,
       shot_attempts: editingDrill.enable_shot_tracking ? editingDrill.shot_attempts : null,
     };
 
-    console.log("[AdminDrills] Saving drill, thumbnail_url:", drillData.thumbnail_url);
     try {
       if (editingDrill.id) {
-        const { error, data } = await supabase.from("drills").update(drillData).eq("id", editingDrill.id).select();
-        console.log("[AdminDrills] Update result:", { error, data });
+        const { error } = await supabase.from("drills").update(drillData).eq("id", editingDrill.id);
         if (error) throw error;
         toast({ title: "Drill updated" });
       } else {
-        const { error, data } = await supabase.from("drills").insert(drillData).select();
-        console.log("[AdminDrills] Insert result:", { error, data });
+        drillData.course_id = null;
+        const { error } = await supabase.from("drills").insert(drillData);
         if (error) throw error;
         toast({ title: "Drill created" });
       }
@@ -222,42 +297,119 @@ export default function AdminDrills() {
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-heading text-foreground">Standalone Drills</h1>
+          <h1 className="text-3xl font-heading text-foreground">All Drills</h1>
           <Button onClick={openNewDrill} className="btn-cta bg-primary hover:bg-primary/90 glow-red-hover">
             <Plus className="h-4 w-4 mr-2" /> Create New Drill
           </Button>
+        </div>
+
+        {/* Filter bar */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant={filterMode === "all" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFilterMode("all")}
+          >
+            All Drills ({drills.length})
+          </Button>
+          <Button
+            variant={filterMode === "featured" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFilterMode("featured")}
+          >
+            <Star className="h-3.5 w-3.5 mr-1" />
+            Featured ({drills.filter(d => d.is_featured).length})
+          </Button>
+          <Button
+            variant={filterMode === "standalone" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFilterMode("standalone")}
+          >
+            Standalone ({drills.filter(d => !d.course_id).length})
+          </Button>
+          <Select
+            value={filterMode.startsWith("all") || filterMode === "featured" || filterMode === "standalone" ? "" : filterMode}
+            onValueChange={(v) => setFilterMode(v)}
+          >
+            <SelectTrigger className="w-[220px] h-9 text-sm">
+              <SelectValue placeholder="Filter by Workout..." />
+            </SelectTrigger>
+            <SelectContent>
+              {workouts.map((w) => (
+                <SelectItem key={w.id} value={w.id}>{w.title}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {loading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : drills.length === 0 ? (
+        ) : filteredDrills.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
-            <p>No standalone drills yet. Create your first drill to get started.</p>
+            <p>No drills match this filter.</p>
           </div>
         ) : (
           <div className="border border-border rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow className="border-border hover:bg-transparent">
+                  <TableHead className="font-heading tracking-wider w-10">Thumb</TableHead>
                   <TableHead className="font-heading tracking-wider">Drill Title</TableHead>
+                  <TableHead className="font-heading tracking-wider">Workout</TableHead>
                   <TableHead className="font-heading tracking-wider">Creator</TableHead>
                   <TableHead className="font-heading tracking-wider">Category</TableHead>
                   <TableHead className="font-heading tracking-wider">Level</TableHead>
-                  <TableHead className="font-heading tracking-wider">Created</TableHead>
+                  <TableHead className="font-heading tracking-wider text-center">Featured</TableHead>
                   <TableHead className="font-heading tracking-wider text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {drills.map((drill) => (
+                {filteredDrills.map((drill) => (
                   <TableRow key={drill.id} className="border-border">
+                    <TableCell>
+                      <label className="cursor-pointer block w-10 h-10 rounded border border-border overflow-hidden bg-muted relative group">
+                        {drill.thumbnail_url ? (
+                          <img src={drill.thumbnail_url} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Image className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          {uploadingRowThumb === drill.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-white" />
+                          ) : (
+                            <Upload className="h-3.5 w-3.5 text-white" />
+                          )}
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          disabled={uploadingRowThumb === drill.id}
+                          onChange={(e) => handleRowThumbnailUpload(drill.id, e)}
+                        />
+                      </label>
+                    </TableCell>
                     <TableCell className="font-medium text-foreground">{drill.title}</TableCell>
+                    <TableCell>
+                      {drill.course_id && drill.courses ? (
+                        <Badge variant="secondary" className="text-xs">{drill.courses.title}</Badge>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Standalone</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-muted-foreground">{drill.coaches?.name || "—"}</TableCell>
                     <TableCell className="text-muted-foreground">{drill.category}</TableCell>
                     <TableCell className="text-muted-foreground">{drill.level || "—"}</TableCell>
-                    <TableCell className="text-muted-foreground text-sm">
-                      {new Date(drill.created_at).toLocaleDateString()}
+                    <TableCell className="text-center">
+                      <Switch
+                        checked={drill.is_featured}
+                        disabled={togglingFeatured === drill.id}
+                        onCheckedChange={() => toggleFeatured(drill.id, drill.is_featured)}
+                      />
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
@@ -277,7 +429,7 @@ export default function AdminDrills() {
         )}
       </div>
 
-      {/* Drill Editor Modal - same as workout editor */}
+      {/* Drill Editor Modal */}
       {editingDrill && (
         <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-card border border-border rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-5">
@@ -328,11 +480,20 @@ export default function AdminDrills() {
               </div>
             </div>
 
-            {editingDrill.vimeo_id && /^\d+$/.test(editingDrill.vimeo_id) && (
+            {editingDrill.mux_playback_id ? (
+              <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
+                <iframe
+                  src={`https://player.mux.com/${editingDrill.mux_playback_id}`}
+                  style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }}
+                  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            ) : editingDrill.vimeo_id && /^\d+$/.test(editingDrill.vimeo_id) ? (
               <div className="aspect-video bg-background rounded-lg overflow-hidden border border-border">
                 <iframe src={`https://player.vimeo.com/video/${editingDrill.vimeo_id}?color=E8453C&title=0&byline=0&portrait=0`} className="w-full h-full" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen />
               </div>
-            )}
+            ) : null}
 
             {/* Drill Type Selector */}
             <div className="space-y-2">

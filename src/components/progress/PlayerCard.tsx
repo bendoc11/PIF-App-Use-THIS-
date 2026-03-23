@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { Flame, Dribbble, Calendar } from "lucide-react";
+import { Flame, Calendar, Camera, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePlayerRatings } from "@/hooks/usePlayerRatings";
+import { useAvatarUpload } from "@/hooks/useAvatarUpload";
 import { format } from "date-fns";
 
 

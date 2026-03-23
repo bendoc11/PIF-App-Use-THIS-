@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { GameAnalyzerSection } from "@/components/landing/GameAnalyzer";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, ChevronRight, Star, Check, Dribbble, Target, Zap, TrendingUp, UserPlus, Crosshair, Dumbbell, BarChart3, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";

@@ -214,7 +214,7 @@ export default function Login() {
           ) : (
             <form onSubmit={handleSignUp} className="space-y-6">
               <div>
-                <h2 className="text-3xl font-heading text-foreground">Start Your 7-Day Trial</h2>
+                <h2 className="text-3xl font-heading text-foreground">Start Your Training Journey</h2>
                 <p className="text-muted-foreground mt-1">$7 for 7 days, then $27/month. Cancel anytime.</p>
               </div>
               <div className="space-y-4">

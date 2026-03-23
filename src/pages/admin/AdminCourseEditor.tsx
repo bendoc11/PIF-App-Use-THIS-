@@ -99,6 +99,7 @@ export default function AdminCourseEditor() {
         setCategory(course.category || "");
         setDescription(course.description || "");
         setStatus((course as any).status || "draft");
+        setIsFeatured(course.is_featured || false);
         setThumbnailUrl(course.thumbnail_url || null);
         setSkillLevels((course as any).skill_levels || []);
         if ((course as any).coaches) {

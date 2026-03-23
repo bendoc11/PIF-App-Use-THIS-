@@ -124,8 +124,8 @@ export function PlayerCard() {
               <span className="text-2xl font-heading text-primary">{initials}</span>
             )}
             {!uploading && (
-              <div className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-background/80 border border-border flex items-center justify-center">
-                <Camera className="h-3.5 w-3.5 text-muted-foreground" />
+              <div className="absolute bottom-1 right-1 w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-lg border-2 border-background">
+                <Camera className="h-4 w-4 text-primary-foreground" />
               </div>
             )}
           </button>

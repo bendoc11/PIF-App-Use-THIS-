@@ -104,6 +104,7 @@ export default function AdminCourseEditor() {
         setIsFeatured(course.is_featured || false);
         setThumbnailUrl(course.thumbnail_url || null);
         setSkillLevels((course as any).skill_levels || []);
+        setRatingCategories((course as any).categories || []);
         if ((course as any).coaches) {
           setCoachName((course as any).coaches.name);
           setCoachSchool((course as any).coaches.school || "");

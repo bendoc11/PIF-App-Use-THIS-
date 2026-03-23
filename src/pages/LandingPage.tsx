@@ -692,9 +692,9 @@ export default function LandingPage() {
       <HeroSection />
       <SchoolsTicker />
       <PlatformSection />
+      <AnimatedSection><CoachesSection /></AnimatedSection>
       <AnimatedSection><TrainSection /></AnimatedSection>
       <AnimatedSection><HowItWorks /></AnimatedSection>
-      <AnimatedSection><CoachesSection /></AnimatedSection>
       <AnimatedSection><TestimonialsSection /></AnimatedSection>
       <AnimatedSection><PricingSection /></AnimatedSection>
       <AnimatedSection><FinalCTA /></AnimatedSection>

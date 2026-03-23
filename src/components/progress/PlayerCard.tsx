@@ -4,39 +4,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePlayerRatings } from "@/hooks/usePlayerRatings";
 import { format } from "date-fns";
 
-function AnimatedNumber({ value, duration = 1 }: { value: number; duration?: number }) {
-  return (
-    <motion.span
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-    >
-      <motion.span
-        initial={0}
-        animate={value}
-        transition={{ duration, ease: "easeOut" }}
-      >
-        {/* We use a custom counter via key frames */}
-      </motion.span>
-      {/* Use motion.div with useMotionValue for counting */}
-    </motion.span>
-  );
-}
-
-function CountUp({ target, duration = 1, delay = 0 }: { target: number; duration?: number; delay?: number }) {
-  return (
-    <motion.span
-      initial="hidden"
-      animate="visible"
-      variants={{
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { delay } },
-      }}
-    >
-      <Counter target={target} duration={duration} delay={delay} />
-    </motion.span>
-  );
-}
 
 function Counter({ target, duration, delay }: { target: number; duration: number; delay: number }) {
   const [display, setDisplay] = useState(0);

@@ -309,34 +309,26 @@ function TrainSection() {
   const [drills, setDrills] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchDrills = async () => {
-      // First try featured drills with thumbnails
-      const { data: featured } = await supabase
-        .from("drills")
-        .select("id, title, category, level, thumbnail_url")
-        .eq("is_featured", true)
-        .not("thumbnail_url", "is", null)
-        .order("created_at", { ascending: false })
-        .limit(6);
+    const fetchWorkouts = async () => {
+      const targetTitles = [
+        "Ball Handling Transformation",
+        "Point Guard Foundations",
+        "Bulletproof Ankles",
+        "Secrets of Shooting",
+      ];
+      const { data } = await supabase
+        .from("courses")
+        .select("id, title, category, level, thumbnail_url, skill_levels")
+        .in("title", targetTitles);
 
-      let results = featured ?? [];
+      // Sort results to match the desired order
+      const sorted = targetTitles
+        .map((t) => (data ?? []).find((c) => c.title === t))
+        .filter(Boolean) as any[];
 
-      // If fewer than 4, backfill with any drills that have thumbnails
-      if (results.length < 4) {
-        const existingIds = results.map((d) => d.id);
-        const { data: backfill } = await supabase
-          .from("drills")
-          .select("id, title, category, level, thumbnail_url")
-          .not("thumbnail_url", "is", null)
-          .order("created_at", { ascending: false })
-          .limit(6);
-        const extra = (backfill ?? []).filter((d) => !existingIds.includes(d.id));
-        results = [...results, ...extra].slice(0, 4);
-      }
-
-      setDrills(results);
+      setDrills(sorted);
     };
-    fetchDrills();
+    fetchWorkouts();
   }, []);
 
   // Static fallback categories if no drills have thumbnails

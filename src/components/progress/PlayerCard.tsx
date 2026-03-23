@@ -122,9 +122,7 @@ export function PlayerCard() {
         <div>
           <h2 className="text-xl font-heading text-foreground">{playerName}</h2>
           <p className="text-xs text-muted-foreground">
-            {[profile?.position, profile?.primary_goal && `Age ${(profile as any)?.age || ""}`].filter(Boolean).join(" · ").replace("Age ", "")}
-            {(profile as any)?.age ? ` · Age ${(profile as any).age}` : ""}
-            {profile?.position && !((profile as any)?.age) ? "" : ""}
+            {[profile?.position, (profile as any)?.age ? `Age ${(profile as any).age}` : null].filter(Boolean).join(" · ")}
           </p>
           {goalDisplay && (
             <span className="inline-block mt-1.5 px-3 py-0.5 rounded-full text-[10px] font-heading tracking-wider bg-primary/10 text-primary border border-primary/20">

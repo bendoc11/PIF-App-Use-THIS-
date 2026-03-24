@@ -15,5 +15,3 @@ project_id = "feblgdfxkuegmjqsdycp"
     verify_jwt = false
   [functions.check-trial-ending]
     verify_jwt = false
-  [functions.manage-subscription]
-    verify_jwt = false

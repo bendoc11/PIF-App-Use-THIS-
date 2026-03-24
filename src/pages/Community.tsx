@@ -194,14 +194,16 @@ export default function Community() {
     if (data) setPosts(data as any);
   }, []);
 
+  const userId = user?.id;
+
   const fetchUserUpvotes = useCallback(async () => {
-    if (!user) return;
+    if (!userId) return;
     const { data } = await supabase
       .from("community_upvotes")
       .select("post_id")
-      .eq("user_id", user.id);
+      .eq("user_id", userId);
     if (data) setUserUpvotes(new Set(data.map((u) => u.post_id)));
-  }, [user]);
+  }, [userId]);
 
   useEffect(() => {
     fetchPosts();

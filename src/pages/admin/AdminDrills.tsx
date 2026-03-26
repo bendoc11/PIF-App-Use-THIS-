@@ -385,6 +385,9 @@ export default function AdminDrills() {
             <Table>
               <TableHeader>
                 <TableRow className="border-border hover:bg-transparent">
+                  {filterMode === "featured" && (
+                    <TableHead className="font-heading tracking-wider w-16 text-center">Order</TableHead>
+                  )}
                   <TableHead className="font-heading tracking-wider w-10">Thumb</TableHead>
                   <TableHead className="font-heading tracking-wider">Drill Title</TableHead>
                   <TableHead className="font-heading tracking-wider">Workout</TableHead>

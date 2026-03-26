@@ -123,14 +123,14 @@ function Navbar() {
 
 function HeroSection() {
   return (
-    <section className="px-4 md:px-6 lg:px-12 py-16 lg:py-32 max-w-[1400px] mx-auto overflow-hidden">
-      <div className="grid lg:grid-cols-2 gap-12 items-center">
+    <section className="px-4 md:px-6 lg:px-12 py-12 md:py-16 lg:py-32 max-w-[1400px] mx-auto overflow-hidden">
+      <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} variants={staggerContainer}>
-          <motion.div variants={fadeUp} className="inline-flex items-center gap-2 bg-primary/15 border border-primary/30 rounded-full px-4 py-1.5 mb-8">
+          <motion.div variants={fadeUp} className="inline-flex items-center gap-2 bg-primary/15 border border-primary/30 rounded-full px-3 md:px-4 py-1.5 mb-6 md:mb-8">
             <span className="w-2 h-2 bg-pif-green rounded-full animate-pulse" />
-            <span className="font-heading text-xs tracking-widest text-primary">NOW LIVE — NEW CONTENT EVERY WEEK</span>
+            <span className="font-heading text-[10px] md:text-xs tracking-widest text-primary">NOW LIVE — NEW CONTENT EVERY WEEK</span>
           </motion.div>
-          <motion.h1 variants={fadeUp} className="text-5xl sm:text-7xl lg:text-8xl leading-[0.9] mb-8">
+          <motion.h1 variants={fadeUp} className="text-4xl sm:text-7xl lg:text-8xl leading-[0.9] mb-6 md:mb-8">
             <span className="text-foreground">LEARN</span><br />
             <span className="text-primary">FROM THE</span><br />
             <span className="text-muted-foreground/40">BEST</span>
@@ -138,13 +138,13 @@ function HeroSection() {
           <motion.p variants={fadeUp} className="font-body text-muted-foreground text-lg max-w-lg mb-10 leading-relaxed">
             Elite former players from across the country — sharing their knowledge, drills, and lived experience to help the next generation dominate on the court.
           </motion.p>
-          <motion.div variants={fadeUp} className="flex flex-wrap gap-4 mb-12">
-            <Link to="/login">
-              <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg px-8 py-6 text-base glow-red glow-red-hover">
+          <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-10 md:mb-12">
+            <Link to="/login" className="w-full sm:w-auto">
+              <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base min-h-[48px] glow-red glow-red-hover">
                 GET STARTED →
               </Button>
             </Link>
-            <Button variant="outline" className="btn-cta border-border text-foreground rounded-lg px-8 py-6 text-base hover:bg-muted">
+            <Button variant="outline" className="btn-cta border-border text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base min-h-[48px] hover:bg-muted">
               <Play className="h-4 w-4 mr-2" /> WATCH A DRILL
             </Button>
           </motion.div>
@@ -473,7 +473,7 @@ function CoachesSection() {
       <h2 className="text-5xl sm:text-6xl lg:text-7xl leading-[0.9] mb-12">
         LEARN FROM<br /><span className="text-primary">THE BEST</span>
       </h2>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {coaches.map((c) => (
           <div key={c.name} className="bg-card border border-border rounded-xl overflow-hidden group hover:border-primary/30 transition-colors">
             <div className="aspect-[3/4] bg-navy-3 overflow-hidden relative">
@@ -595,11 +595,11 @@ function PricingSection() {
             </div>
           ))}
         </div>
-        <Link to="/login">
-          <Button className="w-full btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg py-5 md:py-6 text-sm md:text-base glow-red glow-red-hover">
-            START MY 7-DAY TRIAL — $7 →
-          </Button>
-        </Link>
+          <Link to="/login">
+            <Button className="w-full btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg py-5 md:py-6 text-sm md:text-base min-h-[48px] glow-red glow-red-hover">
+              START MY 7-DAY TRIAL — $7 →
+            </Button>
+          </Link>
         <p className="font-body text-xs text-muted-foreground text-center mt-4">Then just $27/month · Cancel anytime · No hidden fees</p>
       </div>
     </section>

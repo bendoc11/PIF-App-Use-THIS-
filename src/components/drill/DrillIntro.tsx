@@ -106,11 +106,11 @@ export function DrillIntro({
       </div>
 
       {/* CTA — bottom anchored */}
-      <div className="p-4 pb-8 max-w-lg mx-auto w-full">
+      <div className="p-4 max-w-lg mx-auto w-full" style={{ paddingBottom: "max(2rem, env(safe-area-inset-bottom))" }}>
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
           <Button
             onClick={onStart}
-            className="w-full h-16 text-lg btn-cta bg-primary hover:bg-primary/90 glow-red-hover"
+            className="w-full h-16 text-lg btn-cta bg-primary hover:bg-primary/90 glow-red-hover min-h-[48px]"
           >
             Start Drill
           </Button>

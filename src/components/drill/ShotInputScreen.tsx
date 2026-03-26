@@ -27,6 +27,7 @@ export function ShotInputScreen({ shotAttempts, onSave, onSkip }: ShotInputScree
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background px-6"
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       <div className="flex flex-col items-center gap-8 max-w-sm w-full">
         <div className="text-center space-y-2">
@@ -47,6 +48,7 @@ export function ShotInputScreen({ shotAttempts, onSave, onSkip }: ShotInputScree
 
           <input
             type="number"
+            inputMode="numeric"
             value={shotsMade}
             onChange={handleInputChange}
             min={0}

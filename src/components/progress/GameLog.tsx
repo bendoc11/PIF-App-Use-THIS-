@@ -423,7 +423,7 @@ function LogGameModal({ open, onClose, onSaved }: { open: boolean; onClose: () =
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto bg-background border-border">
+      <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto bg-background border-border mx-2 sm:mx-auto" style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}>
         <DialogHeader>
           <DialogTitle className="font-heading text-xl">Log a Game</DialogTitle>
         </DialogHeader>

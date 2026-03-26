@@ -90,10 +90,10 @@ export default function Courses() {
         )}
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
-          <div className="relative flex-1 max-w-sm">
+        <div className="flex flex-col gap-4">
+          <div className="relative w-full sm:max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search workouts..." className="pl-10 bg-muted border-border h-10" />
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search workouts..." className="pl-10 bg-muted border-border h-12 sm:h-10" />
           </div>
           <div className="flex gap-4 items-end flex-wrap">
             <div className="space-y-1.5">
@@ -103,7 +103,7 @@ export default function Courses() {
                   <button
                     key={cat}
                     onClick={() => setActiveCategory(cat)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-heading tracking-wider transition-all ${
+                    className={`px-3 py-2 rounded-lg text-xs font-heading tracking-wider transition-all min-h-[40px] ${
                       activeCategory === cat ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
                     }`}
                   >
@@ -120,7 +120,7 @@ export default function Courses() {
                   <button
                     key={lvl}
                     onClick={() => setActiveSkillLevel(lvl)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-heading tracking-wider transition-all ${
+                    className={`px-3 py-2 rounded-lg text-xs font-heading tracking-wider transition-all min-h-[40px] ${
                       activeSkillLevel === lvl ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
                     }`}
                   >

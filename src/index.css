@@ -110,3 +110,22 @@
     box-shadow: 0 0 32px hsl(var(--pif-red) / 0.4);
   }
 }
+
+/* Global mobile fixes */
+@layer base {
+  /* Prevent iOS auto-zoom on input focus — ensure min 16px font */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
+  @media (min-width: 768px) {
+    input, select, textarea {
+      font-size: inherit !important;
+    }
+  }
+
+  /* Prevent horizontal overflow globally */
+  html, body {
+    overflow-x: hidden;
+  }
+}

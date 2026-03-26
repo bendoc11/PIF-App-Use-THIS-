@@ -148,13 +148,13 @@ const NewPostForm = memo(function NewPostForm({
               <CardContent className="p-5 space-y-4">
                 <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Post title..." className="bg-muted border-border h-12 font-heading text-lg" />
                 <Textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Share your thoughts, ask a question..." className="bg-muted border-border min-h-[100px]" />
-                <div className="flex items-center justify-between">
-                  <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                  <div className="flex gap-2 flex-wrap">
                     {categories.filter((c) => c !== "All").map((cat) => (
                       <button
                         key={cat}
                         onClick={() => setCategory(cat)}
-                        className={`px-3 py-1 rounded-lg text-xs font-heading tracking-wider transition-all ${
+                        className={`px-3 py-2 rounded-lg text-xs font-heading tracking-wider transition-all min-h-[40px] ${
                           category === cat ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
                         }`}
                       >
@@ -162,7 +162,7 @@ const NewPostForm = memo(function NewPostForm({
                       </button>
                     ))}
                   </div>
-                  <Button onClick={handleCreate} disabled={posting || !title.trim() || !body.trim()} className="bg-primary hover:bg-primary/90">
+                  <Button onClick={handleCreate} disabled={posting || !title.trim() || !body.trim()} className="bg-primary hover:bg-primary/90 min-h-[48px]">
                     <Send className="h-4 w-4 mr-2" /> Post
                   </Button>
                 </div>
@@ -299,7 +299,7 @@ export default function Community() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-heading tracking-wider transition-all ${
+              className={`px-3 py-2 rounded-lg text-xs font-heading tracking-wider transition-all min-h-[40px] ${
                 activeCategory === cat ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -395,11 +395,11 @@ export default function Community() {
                               value={replyText}
                               onChange={(e) => setReplyText(e.target.value)}
                               placeholder="Write a reply..."
-                              className="bg-muted border-border h-9 text-sm"
+                              className="bg-muted border-border h-11 text-sm"
                               onKeyDown={(e) => e.key === "Enter" && handleReply(post.id)}
                             />
-                            <Button size="sm" onClick={() => handleReply(post.id)} disabled={!replyText.trim()} className="bg-primary hover:bg-primary/90 h-9">
-                              <Send className="h-3 w-3" />
+                            <Button size="sm" onClick={() => handleReply(post.id)} disabled={!replyText.trim()} className="bg-primary hover:bg-primary/90 h-11 px-4">
+                              <Send className="h-3.5 w-3.5" />
                             </Button>
                           </div>
                         </motion.div>

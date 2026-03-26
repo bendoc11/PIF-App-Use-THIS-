@@ -99,7 +99,7 @@ export default function Pricing() {
                   disabled={loading}
                   className="w-full h-12 btn-cta bg-primary hover:bg-primary/90 glow-red-hover text-base"
                 >
-                  {loading ? "Loading…" : "Start 7-Day Trial — $7 →"}
+                  {loading ? "Loading…" : "Start 7-Day Trial — $1 →"}
                 </Button>
               </CardContent>
             </Card>

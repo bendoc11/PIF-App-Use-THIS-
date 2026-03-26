@@ -473,7 +473,7 @@ function CoachesSection() {
       <h2 className="text-5xl sm:text-6xl lg:text-7xl leading-[0.9] mb-12">
         LEARN FROM<br /><span className="text-primary">THE BEST</span>
       </h2>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {coaches.map((c) => (
           <div key={c.name} className="bg-card border border-border rounded-xl overflow-hidden group hover:border-primary/30 transition-colors">
             <div className="aspect-[3/4] bg-navy-3 overflow-hidden relative">

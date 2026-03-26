@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Loader2, X, Upload, Star, Image } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, X, Upload, Star, Image, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const DRILL_TAGS = ["Shooting", "Ball Handling", "Defense", "Finishing", "Conditioning", "Skill Development", "Beginner", "Intermediate", "Advanced"];

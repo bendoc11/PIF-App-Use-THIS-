@@ -96,7 +96,7 @@ export default function Dashboard() {
     const fetchData = async () => {
       const [coursesRes, drillsRes] = await Promise.all([
         supabase.from("courses").select("id, title, category, drill_count, level, is_free, thumbnail_url, coaches(name, school, initials, avatar_color, avatar_url)").eq("status", "live").eq("is_featured", true).order("sort_order").limit(6),
-        supabase.from("drills").select("id, title, category, level, is_free, is_new, duration_seconds, thumbnail_url, coaches(name, initials, avatar_color, avatar_url)").eq("is_featured", true).order("created_at", { ascending: false }).limit(6),
+        supabase.from("drills").select("id, title, category, level, is_free, is_new, duration_seconds, thumbnail_url, coaches(name, initials, avatar_color, avatar_url)").eq("is_featured", true).order("sort_order").limit(6),
       ]);
       if (coursesRes.data) setCourses(coursesRes.data as any);
       if (drillsRes.data) setDrills(drillsRes.data as any);

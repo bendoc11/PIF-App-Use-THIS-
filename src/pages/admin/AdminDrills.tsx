@@ -107,12 +107,41 @@ export default function AdminDrills() {
     fetchWorkouts();
   }, []);
 
-  const filteredDrills = drills.filter((d) => {
-    if (filterMode === "all") return true;
-    if (filterMode === "featured") return d.is_featured;
-    if (filterMode === "standalone") return !d.course_id;
-    return d.course_id === filterMode; // filter by workout id
-  });
+  const featuredDrills = drills.filter(d => d.is_featured).sort((a, b) => a.sort_order - b.sort_order);
+
+  const filteredDrills = (() => {
+    if (filterMode === "all") return drills;
+    if (filterMode === "featured") return featuredDrills;
+    if (filterMode === "standalone") return drills.filter(d => !d.course_id);
+    return drills.filter(d => d.course_id === filterMode);
+  })();
+
+  const moveFeaturedDrill = async (drillId: string, direction: "up" | "down") => {
+    const idx = featuredDrills.findIndex(d => d.id === drillId);
+    if (idx < 0) return;
+    const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= featuredDrills.length) return;
+
+    const a = featuredDrills[idx];
+    const b = featuredDrills[swapIdx];
+
+    // Swap sort_order values
+    const [err1, err2] = await Promise.all([
+      supabase.from("drills").update({ sort_order: b.sort_order }).eq("id", a.id).then(r => r.error),
+      supabase.from("drills").update({ sort_order: a.sort_order }).eq("id", b.id).then(r => r.error),
+    ]);
+
+    if (err1 || err2) {
+      toast({ title: "Failed to reorder", variant: "destructive" });
+      return;
+    }
+
+    setDrills(prev => prev.map(d => {
+      if (d.id === a.id) return { ...d, sort_order: b.sort_order };
+      if (d.id === b.id) return { ...d, sort_order: a.sort_order };
+      return d;
+    }));
+  };
 
   const extractVimeoId = (input: string) => {
     const iframeMatch = input.match(/player\.vimeo\.com\/video\/(\d+)/);

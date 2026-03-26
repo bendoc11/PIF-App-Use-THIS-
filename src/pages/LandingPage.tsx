@@ -597,7 +597,7 @@ function PricingSection() {
         </div>
           <Link to="/login">
             <Button className="w-full btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg py-5 md:py-6 text-sm md:text-base min-h-[48px] glow-red glow-red-hover">
-              START MY 7-DAY TRIAL — $7 →
+              START MY 7-DAY TRIAL — $1 →
             </Button>
           </Link>
         <p className="font-body text-xs text-muted-foreground text-center mt-4">Then just $27/month · Cancel anytime · No hidden fees</p>

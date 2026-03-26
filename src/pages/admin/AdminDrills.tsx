@@ -85,8 +85,8 @@ export default function AdminDrills() {
     setLoading(true);
     const { data, error } = await supabase
       .from("drills")
-      .select("id, title, category, level, created_at, drill_type, duration_seconds, reps, sets, vimeo_id, mux_playback_id, description, coaching_tips, equipment_needed, course_id, thumbnail_url, is_featured, enable_shot_tracking, shot_attempts, coaches(name), courses(title)")
-      .order("created_at", { ascending: false });
+      .select("id, title, category, level, created_at, sort_order, drill_type, duration_seconds, reps, sets, vimeo_id, mux_playback_id, description, coaching_tips, equipment_needed, course_id, thumbnail_url, is_featured, enable_shot_tracking, shot_attempts, coaches(name), courses(title)")
+      .order("sort_order", { ascending: true });
     if (error) {
       toast({ title: "Error loading drills", description: error.message, variant: "destructive" });
     }

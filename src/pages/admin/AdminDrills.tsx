@@ -25,6 +25,7 @@ interface DrillRow {
   category: string;
   level: string | null;
   created_at: string;
+  sort_order: number;
   drill_type: string | null;
   duration_seconds: number | null;
   reps: number | null;

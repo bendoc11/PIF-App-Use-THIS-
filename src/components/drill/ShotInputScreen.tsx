@@ -48,6 +48,7 @@ export function ShotInputScreen({ shotAttempts, onSave, onSkip }: ShotInputScree
 
           <input
             type="number"
+            inputMode="numeric"
             value={shotsMade}
             onChange={handleInputChange}
             min={0}

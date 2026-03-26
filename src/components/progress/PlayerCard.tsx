@@ -185,7 +185,7 @@ export function PlayerCard() {
 
       {/* Bottom Strip */}
       <div className="px-5 pb-4">
-        <div className="flex items-center justify-center gap-4 text-[11px] text-muted-foreground">
+        <div className="flex items-center justify-center gap-3 md:gap-4 text-[10px] md:text-[11px] text-muted-foreground flex-wrap">
           <span className="flex items-center gap-1">
             <Flame className="h-3.5 w-3.5 text-primary" />
             <span className="font-heading">{profile?.streak_days || 0}</span> Day Streak
@@ -195,8 +195,8 @@ export function PlayerCard() {
             🏀
             <span className="font-heading">{profile?.total_drills_completed || 0}</span> Drills
           </span>
-          <span className="text-border">·</span>
-          <span className="flex items-center gap-1">
+          <span className="text-border hidden md:inline">·</span>
+          <span className="hidden md:flex items-center gap-1">
             <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
             Player Since {memberSince}
           </span>

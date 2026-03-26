@@ -120,7 +120,7 @@ export default function Courses() {
                   <button
                     key={lvl}
                     onClick={() => setActiveSkillLevel(lvl)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-heading tracking-wider transition-all ${
+                    className={`px-3 py-2 rounded-lg text-xs font-heading tracking-wider transition-all min-h-[40px] ${
                       activeSkillLevel === lvl ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
                     }`}
                   >

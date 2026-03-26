@@ -395,11 +395,11 @@ export default function Community() {
                               value={replyText}
                               onChange={(e) => setReplyText(e.target.value)}
                               placeholder="Write a reply..."
-                              className="bg-muted border-border h-9 text-sm"
+                              className="bg-muted border-border h-11 text-sm"
                               onKeyDown={(e) => e.key === "Enter" && handleReply(post.id)}
                             />
-                            <Button size="sm" onClick={() => handleReply(post.id)} disabled={!replyText.trim()} className="bg-primary hover:bg-primary/90 h-9">
-                              <Send className="h-3 w-3" />
+                            <Button size="sm" onClick={() => handleReply(post.id)} disabled={!replyText.trim()} className="bg-primary hover:bg-primary/90 h-11 px-4">
+                              <Send className="h-3.5 w-3.5" />
                             </Button>
                           </div>
                         </motion.div>

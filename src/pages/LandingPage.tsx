@@ -138,13 +138,13 @@ function HeroSection() {
           <motion.p variants={fadeUp} className="font-body text-muted-foreground text-lg max-w-lg mb-10 leading-relaxed">
             Elite former players from across the country — sharing their knowledge, drills, and lived experience to help the next generation dominate on the court.
           </motion.p>
-          <motion.div variants={fadeUp} className="flex flex-wrap gap-4 mb-12">
-            <Link to="/login">
-              <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg px-8 py-6 text-base glow-red glow-red-hover">
+          <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-10 md:mb-12">
+            <Link to="/login" className="w-full sm:w-auto">
+              <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base min-h-[48px] glow-red glow-red-hover">
                 GET STARTED →
               </Button>
             </Link>
-            <Button variant="outline" className="btn-cta border-border text-foreground rounded-lg px-8 py-6 text-base hover:bg-muted">
+            <Button variant="outline" className="btn-cta border-border text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base min-h-[48px] hover:bg-muted">
               <Play className="h-4 w-4 mr-2" /> WATCH A DRILL
             </Button>
           </motion.div>

@@ -77,7 +77,7 @@ export default function Pricing() {
                     $27<span className="text-sm text-muted-foreground font-body">/month</span>
                   </p>
                   <p className="text-xs text-primary mt-1 font-heading tracking-wider">
-                    Try for $7 for 7 days
+                    Try for $1 for 7 days
                   </p>
                 </div>
                 <ul className="space-y-3">

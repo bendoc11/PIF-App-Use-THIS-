@@ -123,14 +123,14 @@ function Navbar() {
 
 function HeroSection() {
   return (
-    <section className="px-4 md:px-6 lg:px-12 py-16 lg:py-32 max-w-[1400px] mx-auto overflow-hidden">
-      <div className="grid lg:grid-cols-2 gap-12 items-center">
+    <section className="px-4 md:px-6 lg:px-12 py-12 md:py-16 lg:py-32 max-w-[1400px] mx-auto overflow-hidden">
+      <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} variants={staggerContainer}>
-          <motion.div variants={fadeUp} className="inline-flex items-center gap-2 bg-primary/15 border border-primary/30 rounded-full px-4 py-1.5 mb-8">
+          <motion.div variants={fadeUp} className="inline-flex items-center gap-2 bg-primary/15 border border-primary/30 rounded-full px-3 md:px-4 py-1.5 mb-6 md:mb-8">
             <span className="w-2 h-2 bg-pif-green rounded-full animate-pulse" />
-            <span className="font-heading text-xs tracking-widest text-primary">NOW LIVE — NEW CONTENT EVERY WEEK</span>
+            <span className="font-heading text-[10px] md:text-xs tracking-widest text-primary">NOW LIVE — NEW CONTENT EVERY WEEK</span>
           </motion.div>
-          <motion.h1 variants={fadeUp} className="text-5xl sm:text-7xl lg:text-8xl leading-[0.9] mb-8">
+          <motion.h1 variants={fadeUp} className="text-4xl sm:text-7xl lg:text-8xl leading-[0.9] mb-6 md:mb-8">
             <span className="text-foreground">LEARN</span><br />
             <span className="text-primary">FROM THE</span><br />
             <span className="text-muted-foreground/40">BEST</span>

@@ -336,7 +336,7 @@ export default function AdminCourseEditor() {
           const { data: existingCoach } = await supabase
             .from("coaches")
             .select("id")
-            .eq("name", coachName.trim())
+            .ilike("name", coachName.trim())
             .maybeSingle();
           if (existingCoach) {
             finalCoachId = existingCoach.id;

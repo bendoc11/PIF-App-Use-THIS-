@@ -401,6 +401,30 @@ export default function AdminDrills() {
               <TableBody>
                 {filteredDrills.map((drill) => (
                   <TableRow key={drill.id} className="border-border">
+                    {filterMode === "featured" && (
+                      <TableCell className="text-center">
+                        <div className="flex items-center justify-center gap-0.5">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0"
+                            disabled={featuredDrills.indexOf(drill) === 0}
+                            onClick={() => moveFeaturedDrill(drill.id, "up")}
+                          >
+                            <ArrowUp className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0"
+                            disabled={featuredDrills.indexOf(drill) === featuredDrills.length - 1}
+                            onClick={() => moveFeaturedDrill(drill.id, "down")}
+                          >
+                            <ArrowDown className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    )}
                     <TableCell>
                       <label className="cursor-pointer block w-10 h-10 rounded border border-border overflow-hidden bg-muted relative group">
                         {drill.thumbnail_url ? (

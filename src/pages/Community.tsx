@@ -148,13 +148,13 @@ const NewPostForm = memo(function NewPostForm({
               <CardContent className="p-5 space-y-4">
                 <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Post title..." className="bg-muted border-border h-12 font-heading text-lg" />
                 <Textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Share your thoughts, ask a question..." className="bg-muted border-border min-h-[100px]" />
-                <div className="flex items-center justify-between">
-                  <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                  <div className="flex gap-2 flex-wrap">
                     {categories.filter((c) => c !== "All").map((cat) => (
                       <button
                         key={cat}
                         onClick={() => setCategory(cat)}
-                        className={`px-3 py-1 rounded-lg text-xs font-heading tracking-wider transition-all ${
+                        className={`px-3 py-2 rounded-lg text-xs font-heading tracking-wider transition-all min-h-[40px] ${
                           category === cat ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
                         }`}
                       >
@@ -162,7 +162,7 @@ const NewPostForm = memo(function NewPostForm({
                       </button>
                     ))}
                   </div>
-                  <Button onClick={handleCreate} disabled={posting || !title.trim() || !body.trim()} className="bg-primary hover:bg-primary/90">
+                  <Button onClick={handleCreate} disabled={posting || !title.trim() || !body.trim()} className="bg-primary hover:bg-primary/90 min-h-[48px]">
                     <Send className="h-4 w-4 mr-2" /> Post
                   </Button>
                 </div>

@@ -155,7 +155,7 @@ export default function OnboardingResults() {
         </Card>
 
         <div className="space-y-3 text-center">
-          <p className="text-lg font-heading text-foreground">Unlock your plan for just $7</p>
+          <p className="text-lg font-heading text-foreground"><p className="text-lg font-heading text-foreground">Unlock your plan for just $1</p></p>
           <Button
             onClick={handleCheckout}
             disabled={loading}

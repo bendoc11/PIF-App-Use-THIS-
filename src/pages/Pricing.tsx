@@ -77,7 +77,7 @@ export default function Pricing() {
                     $27<span className="text-sm text-muted-foreground font-body">/month</span>
                   </p>
                   <p className="text-xs text-primary mt-1 font-heading tracking-wider">
-                    Try for $7 for 7 days
+                    Try for $1 for 7 days
                   </p>
                 </div>
                 <ul className="space-y-3">
@@ -99,7 +99,7 @@ export default function Pricing() {
                   disabled={loading}
                   className="w-full h-12 btn-cta bg-primary hover:bg-primary/90 glow-red-hover text-base"
                 >
-                  {loading ? "Loading…" : "Start 7-Day Trial — $7 →"}
+                  {loading ? "Loading…" : "Start 7-Day Trial — $1 →"}
                 </Button>
               </CardContent>
             </Card>

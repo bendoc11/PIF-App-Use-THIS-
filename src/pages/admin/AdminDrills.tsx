@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Loader2, X, Upload, Star, Image } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, X, Upload, Star, Image, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const DRILL_TAGS = ["Shooting", "Ball Handling", "Defense", "Finishing", "Conditioning", "Skill Development", "Beginner", "Intermediate", "Advanced"];
@@ -25,6 +25,7 @@ interface DrillRow {
   category: string;
   level: string | null;
   created_at: string;
+  sort_order: number;
   drill_type: string | null;
   duration_seconds: number | null;
   reps: number | null;
@@ -84,8 +85,8 @@ export default function AdminDrills() {
     setLoading(true);
     const { data, error } = await supabase
       .from("drills")
-      .select("id, title, category, level, created_at, drill_type, duration_seconds, reps, sets, vimeo_id, mux_playback_id, description, coaching_tips, equipment_needed, course_id, thumbnail_url, is_featured, enable_shot_tracking, shot_attempts, coaches(name), courses(title)")
-      .order("created_at", { ascending: false });
+      .select("id, title, category, level, created_at, sort_order, drill_type, duration_seconds, reps, sets, vimeo_id, mux_playback_id, description, coaching_tips, equipment_needed, course_id, thumbnail_url, is_featured, enable_shot_tracking, shot_attempts, coaches(name), courses(title)")
+      .order("sort_order", { ascending: true });
     if (error) {
       toast({ title: "Error loading drills", description: error.message, variant: "destructive" });
     }
@@ -106,12 +107,41 @@ export default function AdminDrills() {
     fetchWorkouts();
   }, []);
 
-  const filteredDrills = drills.filter((d) => {
-    if (filterMode === "all") return true;
-    if (filterMode === "featured") return d.is_featured;
-    if (filterMode === "standalone") return !d.course_id;
-    return d.course_id === filterMode; // filter by workout id
-  });
+  const featuredDrills = drills.filter(d => d.is_featured).sort((a, b) => a.sort_order - b.sort_order);
+
+  const filteredDrills = (() => {
+    if (filterMode === "all") return drills;
+    if (filterMode === "featured") return featuredDrills;
+    if (filterMode === "standalone") return drills.filter(d => !d.course_id);
+    return drills.filter(d => d.course_id === filterMode);
+  })();
+
+  const moveFeaturedDrill = async (drillId: string, direction: "up" | "down") => {
+    const idx = featuredDrills.findIndex(d => d.id === drillId);
+    if (idx < 0) return;
+    const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= featuredDrills.length) return;
+
+    const a = featuredDrills[idx];
+    const b = featuredDrills[swapIdx];
+
+    // Swap sort_order values
+    const [err1, err2] = await Promise.all([
+      supabase.from("drills").update({ sort_order: b.sort_order }).eq("id", a.id).then(r => r.error),
+      supabase.from("drills").update({ sort_order: a.sort_order }).eq("id", b.id).then(r => r.error),
+    ]);
+
+    if (err1 || err2) {
+      toast({ title: "Failed to reorder", variant: "destructive" });
+      return;
+    }
+
+    setDrills(prev => prev.map(d => {
+      if (d.id === a.id) return { ...d, sort_order: b.sort_order };
+      if (d.id === b.id) return { ...d, sort_order: a.sort_order };
+      return d;
+    }));
+  };
 
   const extractVimeoId = (input: string) => {
     const iframeMatch = input.match(/player\.vimeo\.com\/video\/(\d+)/);
@@ -355,6 +385,9 @@ export default function AdminDrills() {
             <Table>
               <TableHeader>
                 <TableRow className="border-border hover:bg-transparent">
+                  {filterMode === "featured" && (
+                    <TableHead className="font-heading tracking-wider w-16 text-center">Order</TableHead>
+                  )}
                   <TableHead className="font-heading tracking-wider w-10">Thumb</TableHead>
                   <TableHead className="font-heading tracking-wider">Drill Title</TableHead>
                   <TableHead className="font-heading tracking-wider">Workout</TableHead>
@@ -368,6 +401,30 @@ export default function AdminDrills() {
               <TableBody>
                 {filteredDrills.map((drill) => (
                   <TableRow key={drill.id} className="border-border">
+                    {filterMode === "featured" && (
+                      <TableCell className="text-center">
+                        <div className="flex items-center justify-center gap-0.5">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0"
+                            disabled={featuredDrills.indexOf(drill) === 0}
+                            onClick={() => moveFeaturedDrill(drill.id, "up")}
+                          >
+                            <ArrowUp className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0"
+                            disabled={featuredDrills.indexOf(drill) === featuredDrills.length - 1}
+                            onClick={() => moveFeaturedDrill(drill.id, "down")}
+                          >
+                            <ArrowDown className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    )}
                     <TableCell>
                       <label className="cursor-pointer block w-10 h-10 rounded border border-border overflow-hidden bg-muted relative group">
                         {drill.thumbnail_url ? (

@@ -33,7 +33,7 @@ interface Drill {
   sets: number | null;
   enable_shot_tracking?: boolean;
   shot_attempts?: number | null;
-  coaches?: { name: string; school: string | null } | null;
+  coaches?: { name: string; school: string | null; avatar_url?: string | null } | null;
 }
 
 interface Course {
@@ -63,7 +63,7 @@ export default function DrillExperience() {
       setLoading(true);
 
       if (drillId) {
-        const { data } = await supabase.from("drills").select("*, coaches(name, school)").eq("id", drillId).single();
+        const { data } = await supabase.from("drills").select("*, coaches(name, school, avatar_url)").eq("id", drillId).single();
         if (data) {
           setDrill(data as any);
           if (data.course_id) {
@@ -74,7 +74,7 @@ export default function DrillExperience() {
       } else if (courseId && currentIndex) {
         const [courseRes, junctionRes] = await Promise.all([
           supabase.from("courses").select("id, title, drill_count").eq("id", courseId).single(),
-          supabase.from("workout_drills").select("position, drills(*, coaches(name, school))").eq("workout_id", courseId).order("position"),
+          supabase.from("workout_drills").select("position, drills(*, coaches(name, school, avatar_url))").eq("workout_id", courseId).order("position"),
         ]);
         if (courseRes.data) setCourse(courseRes.data);
         if (junctionRes.data) {
@@ -191,6 +191,9 @@ export default function DrillExperience() {
     ? `${profile.first_name || ""} ${profile.last_name || ""}`.trim() || "Athlete"
     : "Athlete";
 
+  const introDisplayName = drill?.coaches?.name || athleteName;
+  const introDisplayAvatar = drill?.coaches?.avatar_url ?? profile?.avatar_url ?? null;
+
   if (loading || !drill) {
     return (
       <AppLayout>
@@ -207,8 +210,8 @@ export default function DrillExperience() {
     <AppLayout>
       {screen === "intro" && (
         <DrillIntro
-          athleteName={athleteName}
-          athleteAvatar={profile?.avatar_url}
+          athleteName={introDisplayName}
+          athleteAvatar={introDisplayAvatar}
           drillTitle={drill.title}
           drillDescription={drill.description}
           level={drill.level}

@@ -275,7 +275,7 @@ export default function Dashboard() {
                         <h3 className="font-heading text-sm text-foreground">{drill.title}</h3>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                            <div className="w-8 h-8 md:w-12 md:h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden">
                               {drill.coaches?.avatar_url ? (
                                 <img src={drill.coaches.avatar_url} alt={drill.coaches.name} className="w-full h-full object-cover" />
                               ) : (

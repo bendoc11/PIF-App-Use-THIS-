@@ -59,9 +59,7 @@ export default function AdminFeatured() {
 
   const toggleDrillFeatured = async (drill: FeaturedDrill) => {
     const newVal = !drill.is_featured;
-    console.log("[AdminFeatured] Toggling drill featured:", drill.id, "to:", newVal);
     const { error, data } = await supabase.from("drills").update({ is_featured: newVal } as any).eq("id", drill.id).select();
-    console.log("[AdminFeatured] Toggle result:", { error, data });
     if (error) {
       toast({ title: "Error updating", description: error.message, variant: "destructive" });
       return;

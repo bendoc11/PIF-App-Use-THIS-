@@ -56,7 +56,8 @@ export function DrillActiveMobile({
   const togglePlayPause = () => {
     if (!iframeRef.current) return;
     const msg = isPaused ? '{"method":"play"}' : '{"method":"pause"}';
-    iframeRef.current.contentWindow?.postMessage(msg, "*");
+    const origin = muxPlaybackId ? "https://stream.mux.com" : "https://player.vimeo.com";
+    iframeRef.current.contentWindow?.postMessage(msg, origin);
     setIsPaused(!isPaused);
   };
 

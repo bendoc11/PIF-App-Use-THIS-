@@ -44,7 +44,7 @@ serve(async (req) => {
         customer_email: email,
         line_items: [
           { price: "price_1T6WwJBPEetonI9eZgTrNOwK", quantity: 1 },
-          { price: "price_1T6XK6BPEetonI9eSK1U48vs", quantity: 1 },
+          { price: "price_1TFHVNBPEetonI9eERpV9Zav", quantity: 1 },
         ],
         mode: "subscription",
         subscription_data: {

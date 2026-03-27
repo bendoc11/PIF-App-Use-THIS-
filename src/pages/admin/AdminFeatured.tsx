@@ -65,7 +65,7 @@ export default function AdminFeatured() {
       return;
     }
     if (!data || data.length === 0) {
-      console.warn("[AdminFeatured] Update returned 0 rows — RLS may be blocking the write");
+      
       toast({ title: "Update may not have saved", description: "No rows were affected. Check permissions.", variant: "destructive" });
       return;
     }

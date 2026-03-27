@@ -22,7 +22,7 @@ export function VideoPlayer({
   const hasMux = !!muxPlaybackId && muxPlaybackId.trim().length > 0;
   const hasVimeo = !!vimeoId && vimeoId.trim().length > 0 && !hasMux;
 
-  console.log("[VideoPlayer] muxPlaybackId:", muxPlaybackId, "| vimeoId:", vimeoId, "| using:", hasMux ? "MUX" : hasVimeo ? "VIMEO" : "NONE");
+  
 
   if (hasMux) {
     const muxParams = new URLSearchParams();

@@ -19,8 +19,8 @@ const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Workouts", url: "/courses", icon: BookOpen },
   { title: "Coaches", url: "/coaches", icon: Users },
-  { title: "Community", url: "/community", icon: MessageSquare },
-  { title: "My Progress", url: "/progress", icon: TrendingUp },
+  { title: "Community", url: "/community", icon: MessageSquare, tourId: "nav-community" },
+  { title: "My Progress", url: "/progress", icon: TrendingUp, tourId: "nav-progress" },
   { title: "Settings", url: "/settings", icon: Settings },
   { title: "Install App", url: "/install", icon: Download },
 ];

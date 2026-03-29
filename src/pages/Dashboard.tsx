@@ -208,7 +208,7 @@ export default function Dashboard() {
 
         {/* Today's Training / Continue Where You Left Off */}
         {courses.length > 0 && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} data-tour="todays-training">
             <Card className="bg-card border-border overflow-hidden">
               <CardContent className="p-0">
                 <Link to={`/courses/${courses[0].id}/1`} className="flex flex-col sm:flex-row gap-4 p-5 hover:bg-muted/30 transition-colors">

@@ -174,6 +174,10 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
+      {/* Product Tour */}
+      {profile && !(profile as any).product_tour_completed && subscription.subscribed && (
+        <ProductTour />
+      )}
       <div className="p-4 lg:p-6 space-y-6 max-w-7xl mx-auto">
         {/* Personalized Greeting */}
         {profile?.first_name && (

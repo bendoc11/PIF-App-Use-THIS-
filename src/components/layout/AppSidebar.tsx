@@ -66,6 +66,7 @@ export function AppSidebar() {
                       end={item.url === "/dashboard"}
                       className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors font-heading text-sm tracking-wider"
                       activeClassName="bg-primary/10 text-primary border border-primary/20"
+                      {...(item.tourId ? { "data-tour": item.tourId } : {})}
                     >
                       <item.icon className="h-5 w-5 shrink-0" />
                       {!collapsed && <span>{item.title}</span>}

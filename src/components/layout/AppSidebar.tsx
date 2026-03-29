@@ -15,7 +15,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const navItems = [
+const navItems: { title: string; url: string; icon: any; tourId?: string }[] = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Workouts", url: "/courses", icon: BookOpen },
   { title: "Coaches", url: "/coaches", icon: Users },

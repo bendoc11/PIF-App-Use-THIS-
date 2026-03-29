@@ -206,7 +206,7 @@ export default function Dashboard() {
           <AnimatedCounter value={statRank} label="Weekly Rank" icon={Trophy} delay={300} />
         </div>
 
-        {/* Continue Where You Left Off */}
+        {/* Today's Training / Continue Where You Left Off */}
         {courses.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <Card className="bg-card border-border overflow-hidden">

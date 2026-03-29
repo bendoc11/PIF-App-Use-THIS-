@@ -1,363 +1,250 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
-const POSITIONS = ["Point Guard", "Shooting Guard", "Small Forward", "Power Forward", "Center"];
-const FEET_OPTIONS = [4, 5, 6, 7];
-const INCHES_OPTIONS = Array.from({ length: 12 }, (_, i) => i);
+import OnboardingBackground from "@/components/onboarding/OnboardingBackground";
+import OnboardingProgress from "@/components/onboarding/OnboardingProgress";
+import ScreenHook from "@/components/onboarding/ScreenHook";
+import ScreenUserType from "@/components/onboarding/ScreenUserType";
+import ScreenBasicInfo from "@/components/onboarding/ScreenBasicInfo";
+import ScreenGoal from "@/components/onboarding/ScreenGoal";
+import ScreenStrengths from "@/components/onboarding/ScreenStrengths";
+import ScreenSchedule from "@/components/onboarding/ScreenSchedule";
+import BuildingPlanScreen from "@/components/onboarding/BuildingPlanScreen";
 
-const SKILL_OPTIONS = ["Shooting", "Ball Handling", "Defense", "Rebounding", "Passing / Playmaking", "Scoring"];
-const WEAKNESS_OPTIONS = [...SKILL_OPTIONS, "Athleticism"];
+const TOTAL_STEPS = 6;
 
-const GOAL_OPTIONS = [
-  "Make the Team",
-  "Earn a Starting Spot",
-  "Play at the Next Level (D1/D2/D3/JUCO)",
-  "Play Professionally",
-  "Improve My Overall Game",
-];
+// Schedule templates based on goal
+function generateSchedule(goal: string, daysPerWeek: number) {
+  const sessionMap: Record<string, string[]> = {
+    "Play Professionally": ["skill_workout", "shooting", "lifting", "shooting", "skill_workout", "lifting", "game"],
+    "Play at the Next Level (D1/D2/D3/JUCO)": ["skill_workout", "shooting", "lifting", "shooting", "skill_workout", "game", "rest"],
+    "Earn a Starting Spot": ["skill_workout", "shooting", "lifting", "skill_workout", "shooting", "rest", "rest"],
+    "Make the Team": ["skill_workout", "shooting", "skill_workout", "shooting", "rest", "rest", "rest"],
+    "Improve My Overall Game": ["skill_workout", "shooting", "skill_workout", "rest", "shooting", "rest", "rest"],
+  };
+  const sessions = sessionMap[goal] || sessionMap["Improve My Overall Game"];
+  const templates: { day_of_week: number; session_type: string; order_index: number }[] = [];
 
-const DAYS_OPTIONS = [1, 2, 3, 4, 5, 6, 7];
-const HOURS_OPTIONS = ["30 min", "1 hour", "1.5 hours", "2+ hours"];
-
-const TOTAL_STEPS = 5;
+  for (let i = 0; i < 7; i++) {
+    if (i < daysPerWeek) {
+      templates.push({ day_of_week: i, session_type: sessions[i % sessions.length], order_index: 0 });
+    } else {
+      templates.push({ day_of_week: i, session_type: "rest", order_index: 0 });
+    }
+  }
+  return templates;
+}
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, refreshProfile } = useAuth();
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
+  const [showBuildingPlan, setShowBuildingPlan] = useState(false);
 
-  // Step 1
-  const [position, setPosition] = useState(profile?.position || "");
+  // Collected data
+  const [userType, setUserType] = useState<"player" | "parent">("player");
+  const [firstName, setFirstName] = useState("");
+  const [position, setPosition] = useState("");
+  const [age, setAge] = useState("");
   const [feet, setFeet] = useState("");
   const [inches, setInches] = useState("");
-  const [age, setAge] = useState("");
+  const [primaryGoal, setPrimaryGoal] = useState("");
+  const [strengths, setStrengths] = useState<string[]>([]);
+  const [weaknesses, setWeaknesses] = useState<string[]>([]);
+  const [trainingDays, setTrainingDays] = useState(0);
+  const [trainingHours, setTrainingHours] = useState("");
   const [phone, setPhone] = useState("");
 
-  // Step 2
-  const [strengths, setStrengths] = useState<string[]>([]);
+  const progress = showBuildingPlan ? 100 : (step / TOTAL_STEPS) * 100;
 
-  // Step 3
-  const [weaknesses, setWeaknesses] = useState<string[]>([]);
+  const goNext = () => setStep((s) => s + 1);
 
-  // Step 4
-  const [primaryGoal, setPrimaryGoal] = useState("");
-
-  // Step 5
-  const [trainingDays, setTrainingDays] = useState<number | null>(null);
-  const [trainingHours, setTrainingHours] = useState("");
-
-  const canAdvance = () => {
-    switch (step) {
-      case 1: return position && feet && inches !== "" && age && Number(age) >= 8 && Number(age) <= 60;
-      case 2: return strengths.length >= 1;
-      case 3: return weaknesses.length >= 1;
-      case 4: return !!primaryGoal;
-      case 5: return trainingDays !== null && !!trainingHours;
-      default: return false;
-    }
+  const handleUserType = (type: "player" | "parent") => {
+    setUserType(type);
+    setTimeout(goNext, 400);
   };
 
-  const toggleSelection = (arr: string[], setArr: (v: string[]) => void, val: string) => {
-    setArr(arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val]);
+  const handleBasicInfo = (data: { firstName: string; position: string; age: string; feet: string; inches: string }) => {
+    setFirstName(data.firstName);
+    setPosition(data.position);
+    setAge(data.age);
+    setFeet(data.feet);
+    setInches(data.inches);
+    goNext();
   };
 
-  const handleNext = () => {
-    if (step < TOTAL_STEPS) setStep(step + 1);
-    else handleFinish();
+  const handleGoal = (goal: string) => {
+    setPrimaryGoal(goal);
+    goNext();
   };
 
-  const handleFinish = async () => {
+  const handleStrengths = (s: string[], w: string[]) => {
+    setStrengths(s);
+    setWeaknesses(w);
+    goNext();
+  };
+
+  const handleSchedule = async (data: { trainingDays: number; trainingHours: string; phone: string }) => {
     if (!user) return;
     setSaving(true);
+    setTrainingDays(data.trainingDays);
+    setTrainingHours(data.trainingHours);
+    setPhone(data.phone);
+
     try {
       const heightStr = `${feet}'${inches}`;
+
+      // Save profile data
       const { error } = await supabase
         .from("profiles")
         .update({
+          user_type: userType,
+          first_name: firstName,
           position,
           height: heightStr,
           age: Number(age),
-          phone: phone || null,
+          phone: data.phone || null,
           strengths,
           weaknesses,
           primary_goal: primaryGoal,
-          training_days_per_week: trainingDays,
-          training_hours_per_session: trainingHours,
+          training_days_per_week: data.trainingDays,
+          training_hours_per_session: data.trainingHours,
           onboarding_completed: true,
         } as any)
         .eq("id", user.id);
 
       if (error) throw error;
-      await refreshProfile();
-      navigate("/onboarding/results", { replace: true });
+
+      // Generate weekly schedule
+      const schedule = generateSchedule(primaryGoal, data.trainingDays);
+      // Delete existing schedule first
+      await supabase.from("weekly_schedule_templates").delete().eq("user_id", user.id);
+      // Insert new schedule
+      const { error: schedError } = await supabase
+        .from("weekly_schedule_templates")
+        .insert(schedule.map((s) => ({ ...s, user_id: user.id })));
+      if (schedError) throw schedError;
+
+      // Show building plan animation
+      setShowBuildingPlan(true);
     } catch (err: any) {
-      console.error("Onboarding save error:", err);
       toast.error("Failed to save. Please try again.");
-    } finally {
       setSaving(false);
     }
   };
 
-  const focusArea = weaknesses.length > 0
-    ? `Focus: ${weaknesses.slice(0, 2).join(" & ")}`
-    : "Focus: Overall Development";
+  const handleBuildingComplete = useCallback(async () => {
+    await refreshProfile();
+    navigate("/onboarding/results", { replace: true });
+  }, [refreshProfile, navigate]);
 
-  const progressPercent = (step / TOTAL_STEPS) * 100;
+  const slideVariants = {
+    enter: (direction: number) => ({ x: direction > 0 ? "100%" : "-100%", opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (direction: number) => ({ x: direction > 0 ? "-100%" : "100%", opacity: 0 }),
+  };
+
+  const [direction, setDirection] = useState(1);
+
+  const goBack = () => {
+    setDirection(-1);
+    setStep((s) => Math.max(1, s - 1));
+  };
+
+  const handleStepChange = (newStep: number) => {
+    setDirection(newStep > step ? 1 : -1);
+    setStep(newStep);
+  };
+
+  // Override goNext to set direction
+  const advanceStep = () => {
+    setDirection(1);
+    setStep((s) => s + 1);
+  };
+
+  // Rewire handlers to use advanceStep
+  const handleUserTypeWrapped = (type: "player" | "parent") => {
+    setUserType(type);
+    setTimeout(() => { setDirection(1); setStep((s) => s + 1); }, 400);
+  };
+
+  const handleBasicInfoWrapped = (data: { firstName: string; position: string; age: string; feet: string; inches: string }) => {
+    setFirstName(data.firstName);
+    setPosition(data.position);
+    setAge(data.age);
+    setFeet(data.feet);
+    setInches(data.inches);
+    setDirection(1);
+    setStep((s) => s + 1);
+  };
+
+  const handleGoalWrapped = (goal: string) => {
+    setPrimaryGoal(goal);
+    setDirection(1);
+    setStep((s) => s + 1);
+  };
+
+  const handleStrengthsWrapped = (s: string[], w: string[]) => {
+    setStrengths(s);
+    setWeaknesses(w);
+    setDirection(1);
+    setStep((s) => s + 1);
+  };
+
+  if (showBuildingPlan) {
+    return (
+      <div className="relative">
+        <OnboardingBackground />
+        <OnboardingProgress progress={100} />
+        <div className="relative z-10">
+          <BuildingPlanScreen onComplete={handleBuildingComplete} />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Progress Bar */}
-      <div className="px-4 pt-4 pb-2">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-heading tracking-wider text-muted-foreground">
-            Step {step} of {TOTAL_STEPS}
-          </span>
-          {step > 1 && (
-            <button
-              onClick={() => setStep(step - 1)}
-              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ArrowLeft className="h-3 w-3" /> Back
-            </button>
-          )}
-        </div>
-        <Progress value={progressPercent} className="h-1.5 bg-muted" />
-      </div>
+    <div className="relative overflow-hidden">
+      <OnboardingBackground />
+      <OnboardingProgress progress={progress} />
 
-      {/* Step Content */}
-      <div className="flex-1 flex flex-col justify-center px-4 pb-24 max-w-lg mx-auto w-full">
-        <AnimatePresence mode="wait">
+      {/* Back button */}
+      {step > 1 && (
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          onClick={goBack}
+          className="fixed top-6 left-5 z-50 w-10 h-10 flex items-center justify-center rounded-full bg-white/5 backdrop-blur-sm border border-white/10 text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </motion.button>
+      )}
+
+      <div className="relative z-10">
+        <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={step}
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.25 }}
-            className="space-y-6"
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
           >
-            {step === 1 && (
-              <>
-                <div className="space-y-2">
-                  <h1 className="text-3xl font-heading text-foreground">Tell Us About Yourself</h1>
-                  <p className="text-muted-foreground text-sm">Help us build your personal training plan.</p>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-xs font-heading tracking-wider text-muted-foreground mb-1.5 block">Position</label>
-                    <Select value={position} onValueChange={setPosition}>
-                      <SelectTrigger className="h-12 text-base bg-card border-border">
-                        <SelectValue placeholder="Select your position" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {POSITIONS.map((p) => (
-                          <SelectItem key={p} value={p}>{p}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-heading tracking-wider text-muted-foreground mb-1.5 block">Height</label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <Select value={feet} onValueChange={setFeet}>
-                        <SelectTrigger className="h-12 text-base bg-card border-border">
-                          <SelectValue placeholder="Feet" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {FEET_OPTIONS.map((f) => (
-                            <SelectItem key={f} value={String(f)}>{f} ft</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Select value={inches} onValueChange={setInches}>
-                        <SelectTrigger className="h-12 text-base bg-card border-border">
-                          <SelectValue placeholder="Inches" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {INCHES_OPTIONS.map((i) => (
-                            <SelectItem key={i} value={String(i)}>{i} in</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                   <div>
-                     <label className="text-xs font-heading tracking-wider text-muted-foreground mb-1.5 block">Age</label>
-                     <Input
-                       type="number"
-                       min={8}
-                       max={60}
-                       value={age}
-                       onChange={(e) => setAge(e.target.value)}
-                       placeholder="Enter your age"
-                       className="h-12 text-base bg-card border-border"
-                     />
-                   </div>
-
-                   <div>
-                     <label className="text-xs font-heading tracking-wider text-muted-foreground mb-1.5 block">Phone Number</label>
-                     <Input
-                       type="tel"
-                       value={phone}
-                       onChange={(e) => setPhone(e.target.value)}
-                       placeholder="(555) 555-5555"
-                       className="h-12 text-base bg-card border-border"
-                     />
-                   </div>
-                </div>
-              </>
-            )}
-
-            {step === 2 && (
-              <>
-                <div className="space-y-2">
-                  <h1 className="text-3xl font-heading text-foreground">What Are Your Biggest Strengths?</h1>
-                  <p className="text-muted-foreground text-sm">What do you do well on the court? Select all that apply.</p>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                  {SKILL_OPTIONS.map((skill) => (
-                    <button
-                      key={skill}
-                      onClick={() => toggleSelection(strengths, setStrengths, skill)}
-                      className={`px-5 py-3 rounded-xl text-sm font-heading tracking-wider transition-all border ${
-                        strengths.includes(skill)
-                          ? "bg-primary text-primary-foreground border-primary glow-red"
-                          : "bg-card text-foreground border-border hover:border-primary/40"
-                      }`}
-                    >
-                      {skill}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-
-            {step === 3 && (
-              <>
-                <div className="space-y-2">
-                  <h1 className="text-3xl font-heading text-foreground">Where Do You Have Room to Grow?</h1>
-                  <p className="text-muted-foreground text-sm">What part of your game needs the most work?</p>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                  {WEAKNESS_OPTIONS.map((skill) => (
-                    <button
-                      key={skill}
-                      onClick={() => toggleSelection(weaknesses, setWeaknesses, skill)}
-                      className={`px-5 py-3 rounded-xl text-sm font-heading tracking-wider transition-all border ${
-                        weaknesses.includes(skill)
-                          ? "bg-primary text-primary-foreground border-primary glow-red"
-                          : "bg-card text-foreground border-border hover:border-primary/40"
-                      }`}
-                    >
-                      {skill}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-
-            {step === 4 && (
-              <>
-                <div className="space-y-2">
-                  <h1 className="text-3xl font-heading text-foreground">What's Your Main Goal?</h1>
-                  <p className="text-muted-foreground text-sm">What are you training for?</p>
-                </div>
-                <div className="flex flex-col gap-3">
-                  {GOAL_OPTIONS.map((goal) => (
-                    <button
-                      key={goal}
-                      onClick={() => setPrimaryGoal(goal)}
-                      className={`w-full px-5 py-4 rounded-xl text-left text-sm font-heading tracking-wider transition-all border flex items-center justify-between ${
-                        primaryGoal === goal
-                          ? "bg-primary text-primary-foreground border-primary glow-red"
-                          : "bg-card text-foreground border-border hover:border-primary/40"
-                      }`}
-                    >
-                      {goal}
-                      {primaryGoal === goal && <ChevronRight className="h-4 w-4" />}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-
-            {step === 5 && (
-              <>
-                <div className="space-y-2">
-                  <h1 className="text-3xl font-heading text-foreground">Your Training Schedule</h1>
-                  <p className="text-muted-foreground text-sm">How much time can you put in?</p>
-                </div>
-
-                <div className="space-y-5">
-                  <div>
-                    <label className="text-xs font-heading tracking-wider text-muted-foreground mb-3 block">Days Per Week</label>
-                    <div className="flex gap-2">
-                      {DAYS_OPTIONS.map((d) => (
-                        <button
-                          key={d}
-                          onClick={() => setTrainingDays(d)}
-                          className={`flex-1 py-3 rounded-xl text-sm font-heading transition-all border ${
-                            trainingDays === d
-                              ? "bg-primary text-primary-foreground border-primary glow-red"
-                              : "bg-card text-foreground border-border hover:border-primary/40"
-                          }`}
-                        >
-                          {d}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-heading tracking-wider text-muted-foreground mb-3 block">Hours Per Session</label>
-                    <div className="flex flex-wrap gap-3">
-                      {HOURS_OPTIONS.map((h) => (
-                        <button
-                          key={h}
-                          onClick={() => setTrainingHours(h)}
-                          className={`px-5 py-3 rounded-xl text-sm font-heading tracking-wider transition-all border ${
-                            trainingHours === h
-                              ? "bg-primary text-primary-foreground border-primary glow-red"
-                              : "bg-card text-foreground border-border hover:border-primary/40"
-                          }`}
-                        >
-                          {h}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
+            {step === 1 && <ScreenHook onNext={() => { setDirection(1); setStep(2); }} />}
+            {step === 2 && <ScreenUserType onSelect={handleUserTypeWrapped} />}
+            {step === 3 && <ScreenBasicInfo userType={userType} onNext={handleBasicInfoWrapped} />}
+            {step === 4 && <ScreenGoal onSelect={handleGoalWrapped} />}
+            {step === 5 && <ScreenStrengths onNext={handleStrengthsWrapped} />}
+            {step === 6 && <ScreenSchedule onSubmit={handleSchedule} saving={saving} />}
           </motion.div>
         </AnimatePresence>
-      </div>
-
-      {/* Fixed Bottom CTA */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur border-t border-border" style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}>
-        <div className="max-w-lg mx-auto">
-          <Button
-            onClick={handleNext}
-            disabled={!canAdvance() || saving}
-            className="w-full h-14 btn-cta bg-primary hover:bg-primary/90 glow-red-hover text-base"
-          >
-            {saving ? "Saving…" : step === TOTAL_STEPS ? "Let's Get to Work →" : (
-              <span className="flex items-center gap-2">Next <ArrowRight className="h-4 w-4" /></span>
-            )}
-          </Button>
-        </div>
       </div>
     </div>
   );

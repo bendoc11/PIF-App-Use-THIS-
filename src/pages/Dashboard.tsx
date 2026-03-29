@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
 import { Flame, Play, TrendingUp, Trophy, ArrowRight, Lock } from "lucide-react";
+import ProductTour from "@/components/tour/ProductTour";
 
 interface CourseWithCoach {
   id: string;
@@ -173,6 +174,10 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
+      {/* Product Tour */}
+      {profile && !(profile as any).product_tour_completed && subscription.subscribed && (
+        <ProductTour />
+      )}
       <div className="p-4 lg:p-6 space-y-6 max-w-7xl mx-auto">
         {/* Personalized Greeting */}
         {profile?.first_name && (
@@ -205,9 +210,9 @@ export default function Dashboard() {
           <AnimatedCounter value={statRank} label="Weekly Rank" icon={Trophy} delay={300} />
         </div>
 
-        {/* Continue Where You Left Off */}
+        {/* Today's Training / Continue Where You Left Off */}
         {courses.length > 0 && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} data-tour="todays-training">
             <Card className="bg-card border-border overflow-hidden">
               <CardContent className="p-0">
                 <Link to={`/courses/${courses[0].id}/1`} className="flex flex-col sm:flex-row gap-4 p-5 hover:bg-muted/30 transition-colors">
@@ -245,7 +250,7 @@ export default function Dashboard() {
               const isAccessible = drill.is_free || subscription.subscribed || profile?.role === "admin" || profile?.role === "creator";
               const showLock = !isAccessible && !subscriptionLoading;
               return (
-              <motion.div key={drill.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.05 }}>
+              <motion.div key={drill.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.05 }} {...(i === 0 ? { "data-tour": "first-drill" } : {})}>
                 <Link to={isAccessible || subscriptionLoading ? `/drills/${drill.id}` : `/pricing`}>
                   <Card className="bg-card border-border hover:border-primary/20 transition-all group overflow-hidden">
                     <CardContent className="p-0">

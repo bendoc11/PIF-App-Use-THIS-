@@ -15,12 +15,12 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const navItems = [
+const navItems: { title: string; url: string; icon: any; tourId?: string }[] = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Workouts", url: "/courses", icon: BookOpen },
   { title: "Coaches", url: "/coaches", icon: Users },
-  { title: "Community", url: "/community", icon: MessageSquare },
-  { title: "My Progress", url: "/progress", icon: TrendingUp },
+  { title: "Community", url: "/community", icon: MessageSquare, tourId: "nav-community" },
+  { title: "My Progress", url: "/progress", icon: TrendingUp, tourId: "nav-progress" },
   { title: "Settings", url: "/settings", icon: Settings },
   { title: "Install App", url: "/install", icon: Download },
 ];
@@ -66,6 +66,7 @@ export function AppSidebar() {
                       end={item.url === "/dashboard"}
                       className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors font-heading text-sm tracking-wider"
                       activeClassName="bg-primary/10 text-primary border border-primary/20"
+                      {...(item.tourId ? { "data-tour": item.tourId } : {})}
                     >
                       <item.icon className="h-5 w-5 shrink-0" />
                       {!collapsed && <span>{item.title}</span>}

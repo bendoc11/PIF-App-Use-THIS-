@@ -579,6 +579,7 @@ export type Database = {
           plan: string
           position: string | null
           primary_goal: string | null
+          product_tour_completed: boolean
           role: string
           schedule_setup_completed: boolean
           streak_days: number
@@ -609,6 +610,7 @@ export type Database = {
           plan?: string
           position?: string | null
           primary_goal?: string | null
+          product_tour_completed?: boolean
           role?: string
           schedule_setup_completed?: boolean
           streak_days?: number
@@ -639,6 +641,7 @@ export type Database = {
           plan?: string
           position?: string | null
           primary_goal?: string | null
+          product_tour_completed?: boolean
           role?: string
           schedule_setup_completed?: boolean
           streak_days?: number

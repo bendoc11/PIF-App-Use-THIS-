@@ -590,6 +590,7 @@ export type Database = {
           training_days_per_week: number | null
           training_hours_per_session: string | null
           updated_at: string
+          user_type: string | null
           weaknesses: string[] | null
         }
         Insert: {
@@ -619,6 +620,7 @@ export type Database = {
           training_days_per_week?: number | null
           training_hours_per_session?: string | null
           updated_at?: string
+          user_type?: string | null
           weaknesses?: string[] | null
         }
         Update: {
@@ -648,6 +650,7 @@ export type Database = {
           training_days_per_week?: number | null
           training_hours_per_session?: string | null
           updated_at?: string
+          user_type?: string | null
           weaknesses?: string[] | null
         }
         Relationships: []

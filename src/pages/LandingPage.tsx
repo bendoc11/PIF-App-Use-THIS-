@@ -190,7 +190,7 @@ function HeroSection() {
                   <span className="font-heading text-sm tracking-wider text-foreground">ZAC ERVIN · ELON UNIVERSITY</span>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </Link>
         </motion.div>
       </div>

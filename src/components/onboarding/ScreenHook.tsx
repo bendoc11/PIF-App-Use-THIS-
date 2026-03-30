@@ -30,29 +30,10 @@ export default function ScreenHook({ onNext }: Props) {
           transition={{ duration: 0.6 }}
           className="text-5xl md:text-6xl font-heading text-foreground leading-[0.95] tracking-tight"
         >
-          THE GAME
+          LET'S BUILD YOUR
           <br />
-          DOESN'T WAIT.
+          <span className="text-primary">TRAINING PLAN.</span>
         </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.6 }}
-          className="text-xl md:text-2xl font-heading text-foreground/90"
-        >
-          Neither should you.
-        </motion.p>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.6, duration: 0.6 }}
-          className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto"
-        >
-          Play it Forward was built by players, for players.
-          Let's build your development plan.
-        </motion.p>
       </div>
 
       <motion.div

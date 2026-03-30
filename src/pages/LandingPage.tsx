@@ -590,11 +590,10 @@ function PricingSection() {
         <p className="font-heading text-xs tracking-widest text-pif-blue mt-2">FULL ACCESS</p>
         <p className="font-heading text-2xl text-foreground mb-4">PLAY IT FORWARD</p>
         <div className="flex items-baseline gap-2 mb-2">
-          <span className="text-sm text-muted-foreground">$</span>
-          <span className="text-6xl font-heading text-foreground">7</span>
+          <span className="text-6xl font-heading text-foreground">FREE</span>
           <div>
             <p className="font-heading text-sm text-foreground">7-DAY TRIAL</p>
-            <p className="font-body text-xs text-muted-foreground">THEN $27/MONTH</p>
+            <p className="font-body text-xs text-muted-foreground">THEN $12.99/MONTH</p>
           </div>
         </div>
         <p className="font-body text-sm text-muted-foreground mb-6">Everything included. Cancel anytime.</p>
@@ -608,10 +607,10 @@ function PricingSection() {
         </div>
           <Link to="/login">
             <Button className="w-full btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg py-5 md:py-6 text-sm md:text-base min-h-[48px] glow-red glow-red-hover">
-              START MY 7-DAY TRIAL — $1 →
+              START YOUR FREE WEEK →
             </Button>
           </Link>
-        <p className="font-body text-xs text-muted-foreground text-center mt-4">Then just $27/month · Cancel anytime · No hidden fees</p>
+        <p className="font-body text-xs text-muted-foreground text-center mt-4">Then just $12.99/month · Cancel anytime · No hidden fees</p>
       </div>
     </section>
   );

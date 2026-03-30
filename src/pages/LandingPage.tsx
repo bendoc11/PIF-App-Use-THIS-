@@ -190,7 +190,7 @@ function HeroSection() {
                 <p className="font-heading text-xs tracking-widest text-primary">BALL SCREEN READS COURSE</p>
                 <p className="font-heading text-base text-foreground mt-1">SPLITTING THE SCREEN — DRILL 2 OF 6</p>
                 <div className="flex items-center gap-2 mt-3">
-                  <img src={zacErvinImg} alt="Zac Ervin" className="w-7 h-7 rounded-full object-cover object-top" />
+                  <img src={zacErvinImg} alt="Zac Ervin" width={28} height={28} className="w-7 h-7 rounded-full object-cover object-top" loading="lazy" />
                   <span className="font-heading text-sm tracking-wider text-foreground">ZAC ERVIN · ELON UNIVERSITY</span>
                 </div>
               </div>

@@ -150,19 +150,10 @@ function HeroSection() {
             </div>
           </motion.div>
 
-          {/* Coach callout */}
-          <motion.div variants={fadeUp} className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 mb-8 max-w-lg">
-            <img src={zacErvinImg} alt="Coach Zac Ervin" className="w-10 h-10 rounded-full object-cover object-top flex-shrink-0" />
-            <p className="font-body text-sm text-muted-foreground leading-snug">
-              <span className="text-foreground font-heading text-xs tracking-wider">FEATURING COACH ZAC ERVIN</span><br />
-              Received 40 Division 1 scholarship offers out of high school
-            </p>
-          </motion.div>
-
           <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <Link to="/login" className="w-full sm:w-auto">
               <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base min-h-[48px] glow-red glow-red-hover">
-                START YOUR FREE WEEK →
+                GET STARTED FOR FREE →
               </Button>
             </Link>
             <Button variant="outline" className="btn-cta border-border text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base min-h-[48px] hover:bg-muted">

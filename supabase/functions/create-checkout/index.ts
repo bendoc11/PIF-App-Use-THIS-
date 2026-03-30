@@ -42,9 +42,8 @@ serve(async (req) => {
     const session = await withTimeout(
       stripe.checkout.sessions.create({
         customer_email: email,
-        line_items: [
-          { price: "price_1T6WwJBPEetonI9eZgTrNOwK", quantity: 1 },
-          { price: "price_1TFHVNBPEetonI9eERpV9Zav", quantity: 1 },
+      line_items: [
+          { price: "price_1TGfgSBPEetonI9e1URTjWYN", quantity: 1 },
         ],
         mode: "subscription",
         subscription_data: {

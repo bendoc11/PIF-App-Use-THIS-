@@ -349,7 +349,7 @@ export function GameAnalyzerSection() {
               SEE YOUR STATS →
             </Button>
           </Link>
-          <p className="font-body text-xs text-white/30 mt-3"><p className="font-body text-xs text-white/30 mt-3">Start tracking for $1 — then $27/month</p></p>
+          <p className="font-body text-xs text-white/30 mt-3">Free for 7 days — then $12.99/month</p>
         </motion.div>
       </div>
     </section>

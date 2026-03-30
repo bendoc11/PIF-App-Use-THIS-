@@ -169,14 +169,10 @@ function HeroSection() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-          animate={{ y: [0, -10, 0] }}
-          style={{ animationDelay: "0s" }}
           className="relative"
         >
           <Link to="/login">
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            <div
               className="bg-card rounded-xl border border-border overflow-hidden shadow-2xl cursor-pointer hover:shadow-primary/20 hover:border-primary/30 transition-all duration-300"
             >
               <div className="aspect-video bg-navy-3 flex items-center justify-center relative overflow-hidden">

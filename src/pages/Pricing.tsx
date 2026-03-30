@@ -74,10 +74,10 @@ export default function Pricing() {
                 <div>
                   <h3 className="text-xl font-heading text-foreground">Pro</h3>
                   <p className="text-3xl font-heading text-foreground mt-2">
-                    $27<span className="text-sm text-muted-foreground font-body">/month</span>
+                    $12.99<span className="text-sm text-muted-foreground font-body">/month</span>
                   </p>
                   <p className="text-xs text-primary mt-1 font-heading tracking-wider">
-                    Try for $1 for 7 days
+                    Free 7-day trial
                   </p>
                 </div>
                 <ul className="space-y-3">

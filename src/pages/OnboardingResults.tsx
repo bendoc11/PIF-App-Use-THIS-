@@ -162,10 +162,10 @@ export default function OnboardingResults() {
               ) : errorMsg ? (
                 errorMsg
               ) : (
-                "START FOR $1 →"
+                "START FREE TRIAL →"
               )}
             </motion.button>
-            <p className="text-xs text-muted-foreground">Then $27/month. Cancel anytime.</p>
+            <p className="text-xs text-muted-foreground">Free for 7 days, then $12.99/month. Cancel anytime.</p>
             <p className="text-[10px] text-muted-foreground/60">Join 2,400+ athletes already training</p>
           </motion.div>
         </motion.div>

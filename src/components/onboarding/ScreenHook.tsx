@@ -39,15 +39,15 @@ export default function ScreenHook({ onNext }: Props) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 2.2, duration: 0.5 }}
-        className="relative z-10 fixed bottom-0 left-0 right-0 p-5"
-        style={{ paddingBottom: "max(1.25rem, env(safe-area-inset-bottom))" }}
+        transition={{ delay: 0.8, duration: 0.5 }}
+        className="relative z-10 mt-10"
       >
-        <div className="max-w-md mx-auto">
+        <div className="max-w-sm mx-auto">
           <motion.button
+            whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={onNext}
-            className="w-full h-16 rounded-xl bg-primary text-primary-foreground btn-cta text-lg font-heading tracking-wider glow-red"
+            className="w-full py-5 rounded-2xl bg-primary text-primary-foreground font-heading text-xl tracking-widest glow-red transition-shadow hover:shadow-[0_0_30px_hsl(var(--primary)/0.5)]"
           >
             LET'S GO →
           </motion.button>

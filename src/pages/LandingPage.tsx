@@ -130,33 +130,44 @@ function HeroSection() {
             <span className="w-2 h-2 bg-pif-green rounded-full animate-pulse" />
             <span className="font-heading text-[10px] md:text-xs tracking-widest text-primary">NOW LIVE — NEW CONTENT EVERY WEEK</span>
           </motion.div>
-          <motion.h1 variants={fadeUp} className="text-4xl sm:text-7xl lg:text-8xl leading-[0.9] mb-6 md:mb-8">
-            <span className="text-foreground">LEARN</span><br />
-            <span className="text-primary">FROM THE</span><br />
-            <span className="text-muted-foreground/40">BEST</span>
+          <motion.h1 variants={fadeUp} className="text-3xl sm:text-5xl lg:text-6xl leading-[1] mb-6 md:mb-8 text-foreground">
+            YOUR KID IS WORKING HARD.<br />
+            <span className="text-primary">MAKE SURE IT'S ACTUALLY WORKING.</span>
           </motion.h1>
-          <motion.p variants={fadeUp} className="font-body text-muted-foreground text-lg max-w-lg mb-10 leading-relaxed">
-            Elite former players from across the country — sharing their knowledge, drills, and lived experience to help the next generation dominate on the court.
+          <motion.p variants={fadeUp} className="font-body text-muted-foreground text-base sm:text-lg max-w-lg mb-6 leading-relaxed">
+            For the first time your kid can see exactly where they're improving — with shot tracking, D1 coaching, and a personalized development plan built around their game.
           </motion.p>
-          <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-10 md:mb-12">
+
+          {/* Social proof — visible without scrolling */}
+          <motion.div variants={fadeUp} className="flex gap-8 mb-6">
+            <div>
+              <span className="text-3xl sm:text-4xl font-heading text-foreground">2,400<span className="text-primary">+</span></span>
+              <p className="font-heading text-[10px] sm:text-xs tracking-widest text-muted-foreground mt-1">ATHLETES ENROLLED</p>
+            </div>
+            <div>
+              <span className="text-3xl sm:text-4xl font-heading text-foreground">50<span className="text-primary">+</span></span>
+              <p className="font-heading text-[10px] sm:text-xs tracking-widest text-muted-foreground mt-1">ELITE COACHES</p>
+            </div>
+          </motion.div>
+
+          {/* Coach callout */}
+          <motion.div variants={fadeUp} className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 mb-8 max-w-lg">
+            <img src={zacErvinImg} alt="Coach Zac Ervin" className="w-10 h-10 rounded-full object-cover object-top flex-shrink-0" />
+            <p className="font-body text-sm text-muted-foreground leading-snug">
+              <span className="text-foreground font-heading text-xs tracking-wider">FEATURING COACH ZAC ERVIN</span><br />
+              Received 40 Division 1 scholarship offers out of high school
+            </p>
+          </motion.div>
+
+          <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <Link to="/login" className="w-full sm:w-auto">
               <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base min-h-[48px] glow-red glow-red-hover">
-                GET STARTED →
+                START YOUR FREE WEEK →
               </Button>
             </Link>
             <Button variant="outline" className="btn-cta border-border text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base min-h-[48px] hover:bg-muted">
               <Play className="h-4 w-4 mr-2" /> WATCH A DRILL
             </Button>
-          </motion.div>
-          <motion.div variants={fadeUp} className="flex gap-10">
-            <div>
-              <span className="text-4xl font-heading text-foreground">2,400<span className="text-primary">+</span></span>
-              <p className="font-heading text-xs tracking-widest text-muted-foreground mt-1">ATHLETES ENROLLED</p>
-            </div>
-            <div>
-              <span className="text-4xl font-heading text-foreground">50<span className="text-primary">+</span></span>
-              <p className="font-heading text-xs tracking-widest text-muted-foreground mt-1">ELITE COACHES</p>
-            </div>
           </motion.div>
         </motion.div>
         <motion.div

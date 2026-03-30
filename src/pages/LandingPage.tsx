@@ -367,7 +367,10 @@ function TrainSection() {
                     <img
                       src={drill.thumbnail_url}
                       alt={drill.title}
+                      width={400} height={300}
                       className="absolute inset-0 w-full h-full object-cover object-top"
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                     <div className={`absolute top-3 left-3 ${color} text-foreground font-heading text-[10px] tracking-widest px-3 py-1 rounded-md z-10`}>

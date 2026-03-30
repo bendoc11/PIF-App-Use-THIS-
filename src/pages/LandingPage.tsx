@@ -41,17 +41,16 @@ function CoachTicker() {
   const doubled = [...COACH_NAMES, ...COACH_NAMES];
   return (
     <div className="bg-primary/90 overflow-hidden py-2.5 relative">
-      <motion.div
-        className="flex whitespace-nowrap gap-0"
-        animate={{ x: ["0%", "-50%"] }}
-        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+      <div
+        className="flex whitespace-nowrap gap-0 animate-[ticker_30s_linear_infinite]"
+        style={{ willChange: "transform" }}
       >
         {doubled.map((name, i) => (
           <span key={i} className="font-heading text-sm tracking-widest text-foreground flex items-center gap-4 px-4">
             {name} <span className="text-primary">•</span>
           </span>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 }

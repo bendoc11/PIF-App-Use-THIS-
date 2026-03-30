@@ -47,7 +47,7 @@ export default function ScreenHook({ onNext }: Props) {
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={onNext}
-            className="w-full h-14 rounded-xl bg-primary text-primary-foreground btn-cta text-base glow-red"
+            className="w-full h-16 rounded-xl bg-primary text-primary-foreground btn-cta text-lg font-heading tracking-wider glow-red"
           >
             LET'S GO →
           </motion.button>

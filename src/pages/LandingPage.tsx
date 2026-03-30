@@ -482,7 +482,7 @@ function CoachesSection() {
         {coaches.map((c) => (
           <div key={c.name} className="bg-card border border-border rounded-xl overflow-hidden group hover:border-primary/30 transition-colors">
             <div className="aspect-[3/4] bg-navy-3 overflow-hidden relative">
-              <img src={c.img} alt={c.name} className="w-full h-full object-cover object-top" />
+              <img src={c.img} alt={c.name} width={400} height={450} className="w-full h-full object-cover object-top" loading="lazy" decoding="async" />
             </div>
             <div className="p-5">
               <p className="font-heading text-[10px] tracking-widest text-muted-foreground mb-1">{c.school}</p>

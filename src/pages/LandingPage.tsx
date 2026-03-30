@@ -1,17 +1,21 @@
 import { Link } from "react-router-dom";
-import { GameAnalyzerSection } from "@/components/landing/GameAnalyzer";
+import { lazy, Suspense, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, ChevronRight, Star, Check, Dribbble, Target, Zap, TrendingUp, UserPlus, Crosshair, Dumbbell, BarChart3, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import bobFisherImg from "@/assets/coaches/bob-fisher.png";
-import alexWadeImg from "@/assets/coaches/alex-wade.png";
-import torrenceWatsonImg from "@/assets/coaches/torrence-watson.png";
-import hunterMcintoshImg from "@/assets/coaches/hunter-mcintosh.png";
-import heroDrillThumb from "@/assets/hero-drill-thumbnail.png";
-import zacErvinImg from "@/assets/coaches/zac-ervin.png";
+import heroDrillThumb from "@/assets/hero-drill-thumbnail.webp";
+import zacErvinImg from "@/assets/coaches/zac-ervin.webp";
 import { type Easing } from "framer-motion";
+
+// Lazy-load heavy below-fold imports
+const GameAnalyzerSection = lazy(() => import("@/components/landing/GameAnalyzer").then(m => ({ default: m.GameAnalyzerSection })));
+
+// Lazy-load coach images (below the fold)
+const bobFisherImg = new URL("@/assets/coaches/bob-fisher.webp", import.meta.url).href;
+const alexWadeImg = new URL("@/assets/coaches/alex-wade.webp", import.meta.url).href;
+const torrenceWatsonImg = new URL("@/assets/coaches/torrence-watson.webp", import.meta.url).href;
+const hunterMcintoshImg = new URL("@/assets/coaches/hunter-mcintosh.webp", import.meta.url).href;
 
 const ease: Easing = [0.25, 0.1, 0.25, 1];
 
@@ -37,17 +41,16 @@ function CoachTicker() {
   const doubled = [...COACH_NAMES, ...COACH_NAMES];
   return (
     <div className="bg-primary/90 overflow-hidden py-2.5 relative">
-      <motion.div
-        className="flex whitespace-nowrap gap-0"
-        animate={{ x: ["0%", "-50%"] }}
-        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+      <div
+        className="flex whitespace-nowrap gap-0 animate-[ticker_30s_linear_infinite]"
+        style={{ willChange: "transform" }}
       >
         {doubled.map((name, i) => (
           <span key={i} className="font-heading text-sm tracking-widest text-foreground flex items-center gap-4 px-4">
             {name} <span className="text-primary">•</span>
           </span>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 }
@@ -166,18 +169,14 @@ function HeroSection() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-          animate={{ y: [0, -10, 0] }}
-          style={{ animationDelay: "0s" }}
           className="relative"
         >
           <Link to="/login">
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            <div
               className="bg-card rounded-xl border border-border overflow-hidden shadow-2xl cursor-pointer hover:shadow-primary/20 hover:border-primary/30 transition-all duration-300"
             >
               <div className="aspect-video bg-navy-3 flex items-center justify-center relative overflow-hidden">
-                <img src={heroDrillThumb} alt="Basketball drill training" className="absolute inset-0 w-full h-full object-cover" />
+                <img src={heroDrillThumb} alt="Basketball drill training" width={800} height={450} className="absolute inset-0 w-full h-full object-cover" fetchPriority="high" />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
                 <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center z-10">
                   <Play className="h-7 w-7 text-foreground ml-1" />
@@ -187,11 +186,11 @@ function HeroSection() {
                 <p className="font-heading text-xs tracking-widest text-primary">BALL SCREEN READS COURSE</p>
                 <p className="font-heading text-base text-foreground mt-1">SPLITTING THE SCREEN — DRILL 2 OF 6</p>
                 <div className="flex items-center gap-2 mt-3">
-                  <img src={zacErvinImg} alt="Zac Ervin" className="w-7 h-7 rounded-full object-cover object-top" />
+                  <img src={zacErvinImg} alt="Zac Ervin" width={28} height={28} className="w-7 h-7 rounded-full object-cover object-top" loading="lazy" />
                   <span className="font-heading text-sm tracking-wider text-foreground">ZAC ERVIN · ELON UNIVERSITY</span>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </Link>
         </motion.div>
       </div>
@@ -364,7 +363,10 @@ function TrainSection() {
                     <img
                       src={drill.thumbnail_url}
                       alt={drill.title}
+                      width={400} height={300}
                       className="absolute inset-0 w-full h-full object-cover object-top"
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                     <div className={`absolute top-3 left-3 ${color} text-foreground font-heading text-[10px] tracking-widest px-3 py-1 rounded-md z-10`}>
@@ -479,7 +481,7 @@ function CoachesSection() {
         {coaches.map((c) => (
           <div key={c.name} className="bg-card border border-border rounded-xl overflow-hidden group hover:border-primary/30 transition-colors">
             <div className="aspect-[3/4] bg-navy-3 overflow-hidden relative">
-              <img src={c.img} alt={c.name} className="w-full h-full object-cover object-top" />
+              <img src={c.img} alt={c.name} width={400} height={450} className="w-full h-full object-cover object-top" loading="lazy" decoding="async" />
             </div>
             <div className="p-5">
               <p className="font-heading text-[10px] tracking-widest text-muted-foreground mb-1">{c.school}</p>
@@ -693,7 +695,9 @@ export default function LandingPage() {
       <Navbar />
       <HeroSection />
       <SchoolsTicker />
-      <GameAnalyzerSection />
+      <Suspense fallback={<div className="h-96" />}>
+        <GameAnalyzerSection />
+      </Suspense>
       <AnimatedSection><CoachesSection /></AnimatedSection>
       <PlatformSection />
       <AnimatedSection><TrainSection /></AnimatedSection>

@@ -180,7 +180,7 @@ function HeroSection() {
               className="bg-card rounded-xl border border-border overflow-hidden shadow-2xl cursor-pointer hover:shadow-primary/20 hover:border-primary/30 transition-all duration-300"
             >
               <div className="aspect-video bg-navy-3 flex items-center justify-center relative overflow-hidden">
-                <img src={heroDrillThumb} alt="Basketball drill training" className="absolute inset-0 w-full h-full object-cover" />
+                <img src={heroDrillThumb} alt="Basketball drill training" width={800} height={450} className="absolute inset-0 w-full h-full object-cover" fetchPriority="high" />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
                 <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center z-10">
                   <Play className="h-7 w-7 text-foreground ml-1" />

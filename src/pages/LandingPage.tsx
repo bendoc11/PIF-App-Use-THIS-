@@ -633,10 +633,10 @@ function FinalCTA() {
         <div className="relative z-10 text-center">
           <Link to="/login">
             <Button className="btn-cta bg-foreground text-background hover:bg-foreground/90 rounded-full px-10 py-6 text-base">
-              START 7-DAY TRIAL — $1 →
+              START YOUR FREE WEEK →
             </Button>
           </Link>
-          <p className="font-body text-xs text-foreground/60 mt-3">No credit card required · Cancel anytime</p>
+          <p className="font-body text-xs text-foreground/60 mt-3">Free for 7 days · Then $12.99/month · Cancel anytime</p>
         </div>
       </div>
     </section>

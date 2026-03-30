@@ -131,11 +131,11 @@ function HeroSection() {
             <span className="font-heading text-[10px] md:text-xs tracking-widest text-primary">NOW LIVE — NEW CONTENT EVERY WEEK</span>
           </motion.div>
           <motion.h1 variants={fadeUp} className="text-3xl sm:text-5xl lg:text-6xl leading-[1] mb-6 md:mb-8 text-foreground">
-            YOUR KID IS WORKING HARD.<br />
-            <span className="text-primary">MAKE SURE IT'S ACTUALLY WORKING.</span>
+            THE APP THAT SHOWS YOU<br />
+            <span className="text-primary">EXACTLY HOW TO GET BETTER.</span>
           </motion.h1>
           <motion.p variants={fadeUp} className="font-body text-muted-foreground text-base sm:text-lg max-w-lg mb-6 leading-relaxed">
-            For the first time your kid can see exactly where they're improving — with shot tracking, D1 coaching, and a personalized development plan built around their game.
+            Play it Forward gives every serious player access to D1 coaches, shot tracking, and a real development plan — so you finally know exactly what to work on and whether it's working.
           </motion.p>
 
           {/* Social proof — visible without scrolling */}

@@ -1,33 +1,27 @@
 import { Link } from "react-router-dom";
 import { lazy, Suspense, useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Play, ChevronRight, Star, Check, Dribbble, Target, Zap, TrendingUp, UserPlus, Crosshair, Dumbbell, BarChart3, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import heroDrillThumb from "@/assets/hero-drill-thumbnail.webp";
 import zacErvinImg from "@/assets/coaches/zac-ervin.webp";
-import { type Easing } from "framer-motion";
 
 // Lazy-load heavy below-fold imports
 const GameAnalyzerSection = lazy(() => import("@/components/landing/GameAnalyzer").then(m => ({ default: m.GameAnalyzerSection })));
+
+// Lazy-load framer-motion — only needed for below-fold animations
+const LazyMotion = lazy(() => import("framer-motion").then(m => ({
+  default: ({ children, ...props }: any) => {
+    const Comp = m.motion.div;
+    return <Comp {...props}>{children}</Comp>;
+  }
+})));
 
 // Lazy-load coach images (below the fold)
 const bobFisherImg = new URL("@/assets/coaches/bob-fisher.webp", import.meta.url).href;
 const alexWadeImg = new URL("@/assets/coaches/alex-wade.webp", import.meta.url).href;
 const torrenceWatsonImg = new URL("@/assets/coaches/torrence-watson.webp", import.meta.url).href;
 const hunterMcintoshImg = new URL("@/assets/coaches/hunter-mcintosh.webp", import.meta.url).href;
-
-const ease: Easing = [0.25, 0.1, 0.25, 1];
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease } },
-};
-
-const staggerContainer = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } },
-};
 
 const COACH_NAMES = [
   "RYAN LANGBORG", "BEN DAUGHERTY", "MAC MCCLUNG", "JARED WADE",

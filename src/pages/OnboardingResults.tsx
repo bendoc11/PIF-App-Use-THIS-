@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
+
 import { toast } from "sonner";
 import OnboardingBackground from "@/components/onboarding/OnboardingBackground";
 
@@ -32,41 +32,8 @@ export default function OnboardingResults() {
       .then(({ data }) => setProfileData(data));
   }, [user]);
 
-  const handleCheckout = async () => {
-    setLoading(true);
-    setErrorMsg(null);
-    try {
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      const checkoutPromise = supabase.functions.invoke("create-checkout", {
-        body: { email: authUser?.email },
-      });
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Request timed out")), 10000)
-      );
-      const { data, error } = await Promise.race([checkoutPromise, timeoutPromise]) as any;
-      if (error) throw error;
-      if (data?.url) {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          localStorage.setItem("pif_pre_checkout_session", JSON.stringify({
-            access_token: session.access_token,
-            refresh_token: session.refresh_token,
-          }));
-        }
-        localStorage.setItem("pif_post_checkout", JSON.stringify({
-          userId: authUser?.id,
-          onboardingCompleted: true,
-          returnTime: Date.now(),
-        }));
-        window.location.href = data.url;
-        return;
-      }
-      throw new Error("No checkout URL returned");
-    } catch (err: any) {
-      toast.error(err.message || "Could not start checkout");
-      setErrorMsg("Something went wrong — tap to try again");
-      setLoading(false);
-    }
+  const handleCheckout = () => {
+    window.location.href = "https://playitforward.app/pricing";
   };
 
   const p = profileData;
@@ -96,7 +63,7 @@ export default function OnboardingResults() {
             <h1 className="text-3xl md:text-4xl font-heading text-foreground leading-tight">
               START YOUR FREE 7 DAYS
             </h1>
-            <p className="text-sm text-muted-foreground">Full access to every coach, drill, and tracking tool. Cancel anytime — no charge today.</p>
+            <p className="text-sm text-muted-foreground">Full access to every coach, drill, and tracking tool. Cancel anytime.</p>
           </div>
 
           {/* Profile Card */}
@@ -151,20 +118,11 @@ export default function OnboardingResults() {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={handleCheckout}
-              disabled={loading}
-              className="w-full h-14 rounded-xl bg-primary text-primary-foreground btn-cta text-base glow-red disabled:opacity-70"
+              className="w-full h-14 rounded-xl bg-primary text-primary-foreground btn-cta text-base glow-red"
             >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Loading…
-                </span>
-              ) : errorMsg ? (
-                errorMsg
-              ) : (
-                "START FREE TRIAL →"
-              )}
+              START FREE TRIAL →
             </motion.button>
-            <p className="text-xs text-muted-foreground">No charge for 7 days · $12.99/month after · Cancel in 2 taps</p>
+            <p className="text-xs text-muted-foreground">No charge for 7 days · Cancel anytime</p>
           </motion.div>
         </motion.div>
       </div>

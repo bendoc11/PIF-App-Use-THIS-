@@ -63,7 +63,7 @@ export default function OnboardingResults() {
             <h1 className="text-3xl md:text-4xl font-heading text-foreground leading-tight">
               START YOUR FREE 7 DAYS
             </h1>
-            <p className="text-sm text-muted-foreground">Full access to every coach, drill, and tracking tool. Cancel anytime — no charge today.</p>
+            <p className="text-sm text-muted-foreground">Full access to every coach, drill, and tracking tool. Cancel anytime.</p>
           </div>
 
           {/* Profile Card */}

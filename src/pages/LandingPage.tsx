@@ -548,6 +548,43 @@ function TestimonialsSection() {
   );
 }
 
+function ParentTestimonialsSection() {
+  const fade = useFadeIn();
+  const parentTestimonials = [
+    {
+      quote: "Since using Play it Forward, my child has been on a consistent, regimented schedule with drills that actually stick. He's fallen even more in love with basketball and has become the leading scorer on his team.",
+      name: "COURTNEY", city: "San Diego",
+    },
+    {
+      quote: "Before Play it Forward, I had no idea which drills to give my son. Now he's practicing the right way — and he's developed into a college-level player. This app completely transformed his game.",
+      name: "BOB", city: "Nashville",
+    },
+  ];
+
+  return (
+    <section className="px-4 md:px-6 lg:px-12 py-16 lg:py-24 max-w-[1400px] mx-auto overflow-hidden" ref={fade.ref}>
+      <div className={fade.className}>
+        <p className="font-heading text-xs tracking-widest text-muted-foreground mb-8 text-center">WHAT PARENTS ARE SAYING</p>
+        <div className="grid md:grid-cols-2 gap-6 max-w-[900px] mx-auto">
+          {parentTestimonials.map((t) => (
+            <div key={t.name} className="rounded-xl p-6 border border-border" style={{ background: "#13131a" }}>
+              <div className="flex gap-1 mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-4 w-4 fill-pif-gold text-pif-gold" />
+                ))}
+              </div>
+              <p className="font-body text-muted-foreground leading-relaxed mb-5">
+                <span className="text-primary text-xl">"</span>{t.quote}<span className="text-primary text-xl">"</span>
+              </p>
+              <p className="font-heading text-sm tracking-wider text-foreground">{t.name} <span className="text-muted-foreground font-body text-xs">· {t.city}</span></p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function PricingSection() {
   const fade = useFadeIn();
   const features = [

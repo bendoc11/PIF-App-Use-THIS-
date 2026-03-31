@@ -47,7 +47,7 @@ export default function ScreenHook({ onNext }: Props) {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={onNext}
-            className="w-full py-5 rounded-2xl bg-primary text-primary-foreground font-heading text-xl tracking-widest glow-red transition-shadow hover:shadow-[0_0_30px_hsl(var(--primary)/0.5)]"
+            className="w-full py-6 px-10 rounded-2xl bg-primary text-primary-foreground font-heading text-2xl tracking-[0.2em] glow-red transition-shadow hover:shadow-[0_0_30px_hsl(var(--primary)/0.5)]"
           >
             LET'S GO →
           </motion.button>

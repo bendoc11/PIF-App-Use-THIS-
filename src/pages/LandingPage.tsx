@@ -83,7 +83,7 @@ function Navbar() {
           <Link to="/login" className="font-heading text-sm tracking-widest text-muted-foreground hover:text-foreground transition-colors">SIGN IN</Link>
           <Link to="/login">
             <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg px-5 py-2.5 text-sm glow-red">
-              START TODAY →
+              GET YOUR CUSTOM TRAINING PLAN FREE →
             </Button>
           </Link>
         </div>

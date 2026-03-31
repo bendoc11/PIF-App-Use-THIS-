@@ -121,16 +121,18 @@ function HeroSection() {
     <section className="px-4 md:px-6 lg:px-12 py-12 md:py-16 lg:py-32 max-w-[1400px] mx-auto overflow-hidden">
       <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
         <div className="animate-[fadeInUp_0.5s_ease-out_both]">
-          <div className="inline-flex items-center gap-2 bg-primary/15 border border-primary/30 rounded-full px-3 md:px-4 py-1.5 mb-6 md:mb-8">
-            <span className="w-2 h-2 bg-pif-green rounded-full animate-pulse" />
-            <span className="font-heading text-[10px] md:text-xs tracking-widest text-primary">NOW LIVE — NEW CONTENT EVERY WEEK</span>
+          {/* Stat callout card */}
+          <div className="inline-block rounded-lg px-4 py-2.5 mb-6 md:mb-8" style={{ background: "rgba(192,57,43,0.08)", border: "1px solid rgba(192,57,43,0.3)" }}>
+            <span className="font-heading text-2xl sm:text-3xl text-primary tracking-wide">29% → 56%</span>
+            <p className="font-body text-xs text-muted-foreground mt-0.5">Real parent result — 3-point percentage tracked inside the app.</p>
           </div>
+
           <h1 className="text-3xl sm:text-5xl lg:text-6xl leading-[1] mb-6 md:mb-8 text-foreground">
-            THE APP THAT SHOWS YOU<br />
-            <span className="text-primary">EXACTLY HOW TO GET BETTER.</span>
+            GIVE YOUR CHILD A REAL<br />DEVELOPMENT PLAN,<br />
+            <span className="text-primary">BUILT BY D1 AND NBA COACHES.</span>
           </h1>
           <p className="font-body text-muted-foreground text-base sm:text-lg max-w-lg mb-6 leading-relaxed">
-            Play it Forward gives every serious player access to D1 coaches, shot tracking, and a real development plan — so you finally know exactly what to work on and whether it's working.
+            D1 and NBA coaches. Real drills. Shot tracking. Your child finally knows exactly what to work on — and whether it's working.
           </p>
 
           <div className="flex gap-8 mb-6">
@@ -144,15 +146,13 @@ function HeroSection() {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <div className="flex flex-col gap-3">
             <Link to="/login" className="w-full sm:w-auto">
               <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base min-h-[48px] glow-red glow-red-hover">
-                GET STARTED FOR FREE →
+                GET YOUR CUSTOM TRAINING PLAN FREE →
               </Button>
             </Link>
-            <Button variant="outline" className="btn-cta border-border text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base min-h-[48px] hover:bg-muted">
-              <Play className="h-4 w-4 mr-2" /> WATCH A DRILL
-            </Button>
+            <p className="font-body text-xs text-muted-foreground">Free 7-day trial · No commitment · Cancel anytime</p>
           </div>
         </div>
         <div className="animate-[fadeInUp_0.7s_ease-out_0.15s_both]">

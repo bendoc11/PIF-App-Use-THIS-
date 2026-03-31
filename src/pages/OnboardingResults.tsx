@@ -94,9 +94,9 @@ export default function OnboardingResults() {
           {/* Header */}
           <div className="text-center space-y-2">
             <h1 className="text-3xl md:text-4xl font-heading text-foreground leading-tight">
-              YOUR PLAYER PROFILE IS READY, {firstName.toUpperCase()}.
+              START YOUR FREE 7 DAYS
             </h1>
-            <p className="text-sm text-muted-foreground">Here's what we built for you.</p>
+            <p className="text-sm text-muted-foreground">Full access to every coach, drill, and tracking tool. Cancel anytime — no charge today.</p>
           </div>
 
           {/* Profile Card */}
@@ -148,7 +148,6 @@ export default function OnboardingResults() {
             transition={{ delay: 0.8 }}
             className="space-y-3 text-center"
           >
-            <p className="text-xs font-heading tracking-[0.2em] text-muted-foreground">UNLOCK YOUR PLAN</p>
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={handleCheckout}
@@ -165,8 +164,7 @@ export default function OnboardingResults() {
                 "START FREE TRIAL →"
               )}
             </motion.button>
-            <p className="text-xs text-muted-foreground">Free for 7 days, then $12.99/month. Cancel anytime.</p>
-            <p className="text-[10px] text-muted-foreground/60">Join 2,400+ athletes already training</p>
+            <p className="text-xs text-muted-foreground">No charge for 7 days · $12.99/month after · Cancel in 2 taps</p>
           </motion.div>
         </motion.div>
       </div>

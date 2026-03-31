@@ -83,7 +83,7 @@ function Navbar() {
           <Link to="/login" className="font-heading text-sm tracking-widest text-muted-foreground hover:text-foreground transition-colors">SIGN IN</Link>
           <Link to="/login">
             <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg px-5 py-2.5 text-sm glow-red">
-              START TODAY →
+              GET YOUR CUSTOM TRAINING PLAN FREE →
             </Button>
           </Link>
         </div>
@@ -104,7 +104,7 @@ function Navbar() {
             <Link to="/login" onClick={() => setMobileOpen(false)} className="font-heading text-base tracking-widest text-muted-foreground hover:text-foreground transition-colors">SIGN IN</Link>
             <Link to="/login" onClick={() => setMobileOpen(false)}>
               <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full py-3 text-sm glow-red">
-                START TODAY →
+                GET YOUR CUSTOM TRAINING PLAN FREE →
               </Button>
             </Link>
           </div>
@@ -121,16 +121,18 @@ function HeroSection() {
     <section className="px-4 md:px-6 lg:px-12 py-12 md:py-16 lg:py-32 max-w-[1400px] mx-auto overflow-hidden">
       <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
         <div className="animate-[fadeInUp_0.5s_ease-out_both]">
-          <div className="inline-flex items-center gap-2 bg-primary/15 border border-primary/30 rounded-full px-3 md:px-4 py-1.5 mb-6 md:mb-8">
-            <span className="w-2 h-2 bg-pif-green rounded-full animate-pulse" />
-            <span className="font-heading text-[10px] md:text-xs tracking-widest text-primary">NOW LIVE — NEW CONTENT EVERY WEEK</span>
+          {/* Stat callout card */}
+          <div className="inline-block rounded-lg px-4 py-2.5 mb-6 md:mb-8" style={{ background: "rgba(192,57,43,0.08)", border: "1px solid rgba(192,57,43,0.3)" }}>
+            <span className="font-heading text-2xl sm:text-3xl text-primary tracking-wide">29% → 56%</span>
+            <p className="font-body text-xs text-muted-foreground mt-0.5">Real parent result — 3-point percentage tracked inside the app.</p>
           </div>
+
           <h1 className="text-3xl sm:text-5xl lg:text-6xl leading-[1] mb-6 md:mb-8 text-foreground">
-            THE APP THAT SHOWS YOU<br />
-            <span className="text-primary">EXACTLY HOW TO GET BETTER.</span>
+            GIVE YOUR CHILD A REAL<br />DEVELOPMENT PLAN,<br />
+            <span className="text-primary">BUILT BY D1 AND NBA COACHES.</span>
           </h1>
           <p className="font-body text-muted-foreground text-base sm:text-lg max-w-lg mb-6 leading-relaxed">
-            Play it Forward gives every serious player access to D1 coaches, shot tracking, and a real development plan — so you finally know exactly what to work on and whether it's working.
+            D1 and NBA coaches. Real drills. Shot tracking. Your child finally knows exactly what to work on — and whether it's working.
           </p>
 
           <div className="flex gap-8 mb-6">
@@ -144,15 +146,13 @@ function HeroSection() {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <div className="flex flex-col gap-3">
             <Link to="/login" className="w-full sm:w-auto">
               <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base min-h-[48px] glow-red glow-red-hover">
-                GET STARTED FOR FREE →
+                GET YOUR CUSTOM TRAINING PLAN FREE →
               </Button>
             </Link>
-            <Button variant="outline" className="btn-cta border-border text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base min-h-[48px] hover:bg-muted">
-              <Play className="h-4 w-4 mr-2" /> WATCH A DRILL
-            </Button>
+            <p className="font-body text-xs text-muted-foreground">Free 7-day trial · No commitment · Cancel anytime</p>
           </div>
         </div>
         <div className="animate-[fadeInUp_0.7s_ease-out_0.15s_both]">
@@ -548,6 +548,43 @@ function TestimonialsSection() {
   );
 }
 
+function ParentTestimonialsSection() {
+  const fade = useFadeIn();
+  const parentTestimonials = [
+    {
+      quote: "Since using Play it Forward, my child has been on a consistent, regimented schedule with drills that actually stick. He's fallen even more in love with basketball and has become the leading scorer on his team.",
+      name: "COURTNEY", city: "San Diego",
+    },
+    {
+      quote: "Before Play it Forward, I had no idea which drills to give my son. Now he's practicing the right way — and he's developed into a college-level player. This app completely transformed his game.",
+      name: "BOB", city: "Nashville",
+    },
+  ];
+
+  return (
+    <section className="px-4 md:px-6 lg:px-12 py-16 lg:py-24 max-w-[1400px] mx-auto overflow-hidden" ref={fade.ref}>
+      <div className={fade.className}>
+        <p className="font-heading text-xs tracking-widest text-muted-foreground mb-8 text-center">WHAT PARENTS ARE SAYING</p>
+        <div className="grid md:grid-cols-2 gap-6 max-w-[900px] mx-auto">
+          {parentTestimonials.map((t) => (
+            <div key={t.name} className="rounded-xl p-6 border border-border" style={{ background: "#13131a" }}>
+              <div className="flex gap-1 mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-4 w-4 fill-pif-gold text-pif-gold" />
+                ))}
+              </div>
+              <p className="font-body text-muted-foreground leading-relaxed mb-5">
+                <span className="text-primary text-xl">"</span>{t.quote}<span className="text-primary text-xl">"</span>
+              </p>
+              <p className="font-heading text-sm tracking-wider text-foreground">{t.name} <span className="text-muted-foreground font-body text-xs">· {t.city}</span></p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function PricingSection() {
   const fade = useFadeIn();
   const features = [
@@ -596,7 +633,7 @@ function PricingSection() {
           </div>
           <Link to="/login">
             <Button className="w-full btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg py-5 md:py-6 text-sm md:text-base min-h-[48px] glow-red glow-red-hover">
-              START YOUR FREE WEEK →
+              GET YOUR CUSTOM TRAINING PLAN FREE →
             </Button>
           </Link>
           <p className="font-body text-xs text-muted-foreground text-center mt-4">Then just $12.99/month · Cancel anytime · No hidden fees</p>
@@ -624,7 +661,7 @@ function FinalCTA() {
         <div className="relative z-10 text-center">
           <Link to="/login">
             <Button className="btn-cta bg-foreground text-background hover:bg-foreground/90 rounded-full px-10 py-6 text-base">
-              START YOUR FREE WEEK →
+              GET YOUR CUSTOM TRAINING PLAN FREE →
             </Button>
           </Link>
           <p className="font-body text-xs text-foreground/60 mt-3">Free for 7 days · Then $12.99/month · Cancel anytime</p>
@@ -680,6 +717,7 @@ export default function LandingPage() {
       <Navbar />
       <HeroSection />
       <SchoolsTicker />
+      <ParentTestimonialsSection />
       <Suspense fallback={<div className="h-96" />}>
         <GameAnalyzerSection />
       </Suspense>

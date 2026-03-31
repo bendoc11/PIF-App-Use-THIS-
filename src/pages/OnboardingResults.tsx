@@ -118,20 +118,11 @@ export default function OnboardingResults() {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={handleCheckout}
-              disabled={loading}
-              className="w-full h-14 rounded-xl bg-primary text-primary-foreground btn-cta text-base glow-red disabled:opacity-70"
+              className="w-full h-14 rounded-xl bg-primary text-primary-foreground btn-cta text-base glow-red"
             >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Loading…
-                </span>
-              ) : errorMsg ? (
-                errorMsg
-              ) : (
-                "START FREE TRIAL →"
-              )}
+              START FREE TRIAL →
             </motion.button>
-            <p className="text-xs text-muted-foreground">No charge for 7 days · $12.99/month after · Cancel in 2 taps</p>
+            <p className="text-xs text-muted-foreground">No charge for 7 days · Cancel anytime</p>
           </motion.div>
         </motion.div>
       </div>

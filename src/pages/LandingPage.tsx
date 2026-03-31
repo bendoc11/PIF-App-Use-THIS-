@@ -717,6 +717,7 @@ export default function LandingPage() {
       <Navbar />
       <HeroSection />
       <SchoolsTicker />
+      <ParentTestimonialsSection />
       <Suspense fallback={<div className="h-96" />}>
         <GameAnalyzerSection />
       </Suspense>

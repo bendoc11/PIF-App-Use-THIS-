@@ -148,7 +148,6 @@ export default function OnboardingResults() {
             transition={{ delay: 0.8 }}
             className="space-y-3 text-center"
           >
-            <p className="text-xs font-heading tracking-[0.2em] text-muted-foreground">UNLOCK YOUR PLAN</p>
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={handleCheckout}
@@ -165,8 +164,7 @@ export default function OnboardingResults() {
                 "START FREE TRIAL →"
               )}
             </motion.button>
-            <p className="text-xs text-muted-foreground">Free for 7 days, then $12.99/month. Cancel anytime.</p>
-            <p className="text-[10px] text-muted-foreground/60">Join 2,400+ athletes already training</p>
+            <p className="text-xs text-muted-foreground">No charge for 7 days · $12.99/month after · Cancel in 2 taps</p>
           </motion.div>
         </motion.div>
       </div>

@@ -94,9 +94,9 @@ export default function OnboardingResults() {
           {/* Header */}
           <div className="text-center space-y-2">
             <h1 className="text-3xl md:text-4xl font-heading text-foreground leading-tight">
-              YOUR PLAYER PROFILE IS READY, {firstName.toUpperCase()}.
+              START YOUR FREE 7 DAYS
             </h1>
-            <p className="text-sm text-muted-foreground">Here's what we built for you.</p>
+            <p className="text-sm text-muted-foreground">Full access to every coach, drill, and tracking tool. Cancel anytime — no charge today.</p>
           </div>
 
           {/* Profile Card */}

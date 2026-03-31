@@ -104,7 +104,7 @@ function Navbar() {
             <Link to="/login" onClick={() => setMobileOpen(false)} className="font-heading text-base tracking-widest text-muted-foreground hover:text-foreground transition-colors">SIGN IN</Link>
             <Link to="/login" onClick={() => setMobileOpen(false)}>
               <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full py-3 text-sm glow-red">
-                START TODAY →
+                GET YOUR CUSTOM TRAINING PLAN FREE →
               </Button>
             </Link>
           </div>

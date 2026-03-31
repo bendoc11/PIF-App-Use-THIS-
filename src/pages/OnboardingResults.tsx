@@ -32,41 +32,8 @@ export default function OnboardingResults() {
       .then(({ data }) => setProfileData(data));
   }, [user]);
 
-  const handleCheckout = async () => {
-    setLoading(true);
-    setErrorMsg(null);
-    try {
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      const checkoutPromise = supabase.functions.invoke("create-checkout", {
-        body: { email: authUser?.email },
-      });
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Request timed out")), 10000)
-      );
-      const { data, error } = await Promise.race([checkoutPromise, timeoutPromise]) as any;
-      if (error) throw error;
-      if (data?.url) {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          localStorage.setItem("pif_pre_checkout_session", JSON.stringify({
-            access_token: session.access_token,
-            refresh_token: session.refresh_token,
-          }));
-        }
-        localStorage.setItem("pif_post_checkout", JSON.stringify({
-          userId: authUser?.id,
-          onboardingCompleted: true,
-          returnTime: Date.now(),
-        }));
-        window.location.href = data.url;
-        return;
-      }
-      throw new Error("No checkout URL returned");
-    } catch (err: any) {
-      toast.error(err.message || "Could not start checkout");
-      setErrorMsg("Something went wrong — tap to try again");
-      setLoading(false);
-    }
+  const handleCheckout = () => {
+    window.location.href = "https://playitforward.app/pricing";
   };
 
   const p = profileData;

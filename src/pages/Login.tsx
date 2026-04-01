@@ -109,6 +109,13 @@ export default function Login() {
     if (error) toast.error("Google sign-in failed");
   };
 
+  const handleAppleSignIn = async () => {
+    const { error } = await lovable.auth.signInWithOAuth("apple", {
+      redirect_uri: window.location.origin,
+    });
+    if (error) toast.error("Apple sign-in failed");
+  };
+
   const strength = getPasswordStrength(signupPassword);
 
   return (

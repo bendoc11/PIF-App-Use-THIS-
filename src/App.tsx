@@ -17,7 +17,7 @@ import Community from "./pages/Community";
 import Progress from "./pages/Progress";
 import Pricing from "./pages/Pricing";
 import Settings from "./pages/Settings";
-import Install from "./pages/Install";
+
 import SignupSuccess from "./pages/SignupSuccess";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";

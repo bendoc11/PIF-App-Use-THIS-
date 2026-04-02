@@ -29,7 +29,7 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
-  const { signOut, profile, subscription } = useAuth();
+  const { signOut, profile } = useAuth();
   const role = profile?.role || "user";
 
   const initials = profile

@@ -251,7 +251,7 @@ export default function Dashboard() {
               const showLock = false;
               return (
               <motion.div key={drill.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.05 }} {...(i === 0 ? { "data-tour": "first-drill" } : {})}>
-                <Link to={isAccessible || subscriptionLoading ? `/drills/${drill.id}` : `/pricing`}>
+                <Link to={`/drills/${drill.id}`}>
                   <Card className="bg-card border-border hover:border-primary/20 transition-all group overflow-hidden">
                     <CardContent className="p-0">
                       <div className="relative h-52 bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center overflow-hidden">

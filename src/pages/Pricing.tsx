@@ -73,10 +73,7 @@ export default function Pricing() {
               <CardContent className="p-6 space-y-6">
                 <div>
                   <h3 className="text-xl font-heading text-foreground">Pro</h3>
-                  <p className="text-3xl font-heading text-foreground mt-2">
-                    $12.99<span className="text-sm text-muted-foreground font-body">/month</span>
-                  </p>
-                  <p className="text-xs text-primary mt-1 font-heading tracking-wider">
+                  <p className="text-sm text-primary mt-2 font-heading tracking-wider">
                     Free 7-day trial
                   </p>
                 </div>

@@ -10,7 +10,7 @@ import { Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Login() {
-  const { user, loading, subscription } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [tab, setTab] = useState<"signin" | "signup">("signup");
   const [showPassword, setShowPassword] = useState(false);

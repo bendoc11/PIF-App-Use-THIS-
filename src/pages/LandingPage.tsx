@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { lazy, Suspense, useState, useEffect, useRef } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { Play, ChevronRight, Star, Check, Dribbble, Target, Zap, TrendingUp, UserPlus, Crosshair, Dumbbell, BarChart3, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -707,6 +708,16 @@ function Footer() {
 }
 
 export default function LandingPage() {
+  const { user, profile, loading } = useAuth();
+
+  // Redirect authenticated users away from landing page
+  if (!loading && user) {
+    if (profile && !profile.onboarding_completed) {
+      return <Navigate to="/onboarding" replace />;
+    }
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground scroll-smooth">
       <Navbar />

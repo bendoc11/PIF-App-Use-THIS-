@@ -1,14 +1,54 @@
+import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import { User, Camera, Loader2 } from "lucide-react";
+import { User, Camera, Loader2, Trash2 } from "lucide-react";
 import { useAvatarUpload } from "@/hooks/useAvatarUpload";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function Settings() {
-  const { profile, user } = useAuth();
+  const { profile, user, signOut } = useAuth();
   const { uploading, openFilePicker } = useAvatarUpload();
+  const [deleting, setDeleting] = useState(false);
+  const navigate = useNavigate();
 
   const initials = [profile?.first_name?.[0], profile?.last_name?.[0]].filter(Boolean).join("").toUpperCase() || "?";
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not authenticated");
+
+      const res = await supabase.functions.invoke("delete-account", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (res.error) throw res.error;
+
+      await signOut();
+      navigate("/");
+      toast({ title: "Account deleted", description: "Your account has been permanently deleted." });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Failed to delete account", variant: "destructive" });
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   return (
     <AppLayout>
@@ -56,6 +96,45 @@ export default function Settings() {
               <span className="text-muted-foreground">Email</span>
               <span className="text-foreground">{user?.email}</span>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Delete Account */}
+        <Card className="bg-card border-destructive/30">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg font-heading text-destructive">
+              <Trash2 className="h-5 w-5" /> Delete Account
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Permanently delete your account and all associated data. This action cannot be undone.
+            </p>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" disabled={deleting}>
+                  {deleting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Delete My Account
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete your account, profile, training history, and all associated data. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteAccount}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Yes, Delete Everything
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </CardContent>
         </Card>
       </div>

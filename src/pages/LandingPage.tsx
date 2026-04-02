@@ -152,7 +152,7 @@ function HeroSection() {
                 GET YOUR CUSTOM TRAINING PLAN FREE →
               </Button>
             </Link>
-            <p className="font-body text-xs text-muted-foreground">Free 7-day trial · No commitment · Cancel anytime</p>
+            <p className="font-body text-xs text-muted-foreground">100% free · No commitment · Sign up and start training</p>
           </div>
         </div>
         <div className="animate-[fadeInUp_0.7s_ease-out_0.15s_both]">

@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-
-import { toast } from "sonner";
 import OnboardingBackground from "@/components/onboarding/OnboardingBackground";
 
 const GOAL_QUOTES: Record<string, string> = {
@@ -17,10 +15,8 @@ const GOAL_QUOTES: Record<string, string> = {
 
 export default function OnboardingResults() {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const { user, refreshProfile } = useAuth();
   const [profileData, setProfileData] = useState<any>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -32,12 +28,15 @@ export default function OnboardingResults() {
       .then(({ data }) => setProfileData(data));
   }, [user]);
 
-  const handleCheckout = () => {
-    window.location.href = "https://playitforward.app/pricing";
+  const handleContinue = async () => {
+    if (user) {
+      await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", user.id);
+      await refreshProfile();
+    }
+    navigate("/dashboard", { replace: true });
   };
 
   const p = profileData;
-  const firstName = p?.first_name || "Player";
   const position = p?.position || "—";
   const height = p?.height || "—";
   const primaryGoal = p?.primary_goal || "Improve My Overall Game";
@@ -58,15 +57,13 @@ export default function OnboardingResults() {
           transition={{ duration: 0.6 }}
           className="max-w-md w-full space-y-8"
         >
-          {/* Header */}
           <div className="text-center space-y-2">
             <h1 className="text-3xl md:text-4xl font-heading text-foreground leading-tight">
-              START YOUR FREE 7 DAYS
+              YOUR PLAN IS READY
             </h1>
-            <p className="text-sm text-muted-foreground">Full access to every coach, drill, and tracking tool. Cancel anytime.</p>
+            <p className="text-sm text-muted-foreground">Full access to every coach, drill, and tracking tool.</p>
           </div>
 
-          {/* Profile Card */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -80,17 +77,14 @@ export default function OnboardingResults() {
                   <p className="text-foreground font-medium text-lg">{position} · {height}</p>
                 </div>
               </div>
-
               <div>
                 <p className="text-xs font-heading tracking-wider text-muted-foreground">PRIMARY GOAL</p>
                 <p className="text-primary font-heading text-lg">{primaryGoal.toUpperCase()}</p>
               </div>
-
               <div>
                 <p className="text-xs font-heading tracking-wider text-muted-foreground">FOCUS AREA</p>
                 <p className="text-foreground font-medium">{focusArea}</p>
               </div>
-
               <div>
                 <p className="text-xs font-heading tracking-wider text-muted-foreground">TRAINING COMMITMENT</p>
                 <p className="text-foreground font-medium">{scheduleText}</p>
@@ -98,7 +92,6 @@ export default function OnboardingResults() {
             </div>
           </motion.div>
 
-          {/* Dynamic quote */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -108,7 +101,6 @@ export default function OnboardingResults() {
             "{quote}"
           </motion.p>
 
-          {/* CTA */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -117,12 +109,11 @@ export default function OnboardingResults() {
           >
             <motion.button
               whileTap={{ scale: 0.97 }}
-              onClick={handleCheckout}
+              onClick={handleContinue}
               className="w-full h-14 rounded-xl bg-primary text-primary-foreground btn-cta text-base glow-red"
             >
-              START FREE TRIAL →
+              GO TO DASHBOARD →
             </motion.button>
-            <p className="text-xs text-muted-foreground">No charge for 7 days · Cancel anytime</p>
           </motion.div>
         </motion.div>
       </div>

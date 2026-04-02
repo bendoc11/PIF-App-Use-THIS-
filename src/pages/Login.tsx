@@ -228,7 +228,7 @@ export default function Login() {
             <form onSubmit={handleSignUp} className="space-y-6">
               <div>
                 <h2 className="text-3xl font-heading text-foreground">Start Your Training Journey</h2>
-                <p className="text-muted-foreground mt-1">Free for 7 days. Cancel anytime.</p>
+                <p className="text-muted-foreground mt-1">Create your account and start training today.</p>
               </div>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">

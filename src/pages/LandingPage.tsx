@@ -650,7 +650,7 @@ function FinalCTA() {
             THE GAME IS<br />WAITING FOR YOU.
           </h2>
           <p className="font-body text-foreground/80 mt-4 max-w-md">
-            Join thousands of athletes already training with elite former college players. Start your 7-day trial today.
+            Join thousands of athletes already training with elite former college players. Sign up free today.
           </p>
         </div>
         <div className="relative z-10 text-center">
@@ -659,7 +659,7 @@ function FinalCTA() {
               GET YOUR CUSTOM TRAINING PLAN FREE →
             </Button>
           </Link>
-          <p className="font-body text-xs text-foreground/60 mt-3">Free for 7 days · Then $12.99/month · Cancel anytime</p>
+          <p className="font-body text-xs text-foreground/60 mt-3">100% free · No credit card required</p>
         </div>
       </div>
     </section>

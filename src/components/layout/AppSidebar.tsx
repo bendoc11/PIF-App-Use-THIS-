@@ -1,4 +1,4 @@
-import { LayoutDashboard, BookOpen, Users, MessageSquare, TrendingUp, Settings, LogOut, Shield, Download } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, MessageSquare, TrendingUp, Settings, LogOut, Shield } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -22,7 +22,6 @@ const navItems: { title: string; url: string; icon: any; tourId?: string }[] = [
   { title: "Community", url: "/community", icon: MessageSquare, tourId: "nav-community" },
   { title: "My Progress", url: "/progress", icon: TrendingUp, tourId: "nav-progress" },
   { title: "Settings", url: "/settings", icon: Settings },
-  { title: "Install App", url: "/install", icon: Download },
 ];
 
 export function AppSidebar() {

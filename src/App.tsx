@@ -58,7 +58,7 @@ const App = () => (
             <Route path="/drills/:drillId" element={<AuthGuard><DrillExperience /></AuthGuard>} />
             <Route path="/pricing" element={<AuthGuard><Pricing /></AuthGuard>} />
             <Route path="/settings" element={<AuthGuard><Settings /></AuthGuard>} />
-            <Route path="/install" element={<AuthGuard><Install /></AuthGuard>} />
+            
             <Route path="/coaches" element={<AuthGuard><Coaches /></AuthGuard>} />
             <Route path="/community" element={<AuthGuard><Community /></AuthGuard>} />
             <Route path="/progress" element={<AuthGuard><Progress /></AuthGuard>} />

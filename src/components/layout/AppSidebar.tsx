@@ -22,7 +22,6 @@ const navItems: { title: string; url: string; icon: any; tourId?: string }[] = [
   { title: "Community", url: "/community", icon: MessageSquare, tourId: "nav-community" },
   { title: "My Progress", url: "/progress", icon: TrendingUp, tourId: "nav-progress" },
   { title: "Settings", url: "/settings", icon: Settings },
-  { title: "Install App", url: "/install", icon: Download },
 ];
 
 export function AppSidebar() {

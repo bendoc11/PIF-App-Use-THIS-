@@ -29,7 +29,7 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
-  const { signOut, profile, subscription } = useAuth();
+  const { signOut, profile } = useAuth();
   const role = profile?.role || "user";
 
   const initials = profile
@@ -121,7 +121,7 @@ export function AppSidebar() {
               <p className="text-sm font-medium text-foreground truncate">
                 {profile?.first_name} {profile?.last_name}
               </p>
-              <p className="text-xs text-muted-foreground capitalize">{(profile?.role === "admin" || profile?.role === "creator") ? "Admin" : subscription.subscribed ? "Pro" : "Free"} plan</p>
+              <p className="text-xs text-muted-foreground capitalize">{(profile?.role === "admin" || profile?.role === "creator") ? "Admin" : "Member"}</p>
             </div>
           </NavLink>
         )}

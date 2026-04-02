@@ -61,7 +61,7 @@ function Navbar() {
     { label: "ABOUT", href: "#about" },
     { label: "CONTENT", href: "#content" },
     { label: "COACHES", href: "#coaches" },
-    { label: "PRICING", href: "#pricing" },
+    { label: "GET STARTED", href: "#pricing" },
   ];
 
   return (
@@ -152,7 +152,7 @@ function HeroSection() {
                 GET YOUR CUSTOM TRAINING PLAN FREE →
               </Button>
             </Link>
-            <p className="font-body text-xs text-muted-foreground">Free 7-day trial · No commitment · Cancel anytime</p>
+            <p className="font-body text-xs text-muted-foreground">100% free · No commitment · Sign up and start training</p>
           </div>
         </div>
         <div className="animate-[fadeInUp_0.7s_ease-out_0.15s_both]">
@@ -602,27 +602,23 @@ function PricingSection() {
       <div className={fade.className}>
         <div className="flex items-center gap-3 justify-center mb-4">
           <div className="w-8 h-0.5 bg-primary" />
-          <span className="font-heading text-xs tracking-widest text-primary">SIMPLE PRICING</span>
+          <span className="font-heading text-xs tracking-widest text-primary">WHAT YOU GET</span>
         </div>
         <h2 className="text-4xl sm:text-6xl lg:text-7xl mb-4">
-          ONE PRICE.<br /><span className="text-primary">EVERYTHING INCLUDED.</span>
+          100% FREE.<br /><span className="text-primary">EVERYTHING INCLUDED.</span>
         </h2>
-        <p className="font-body text-muted-foreground text-lg mb-12">No contracts. Cancel anytime. Full access to every drill, course, and coach from day one.</p>
+        <p className="font-body text-muted-foreground text-lg mb-12">Full access to every drill, course, and coach. No payment required.</p>
 
         <div className="max-w-lg mx-auto bg-card border border-border rounded-2xl p-6 md:p-8 text-left relative">
           <div className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap">
-            <span className="bg-primary text-foreground font-heading text-[10px] md:text-xs tracking-widest px-3 md:px-5 py-2 rounded-full">START TODAY — RISK FREE</span>
+            <span className="bg-primary text-foreground font-heading text-[10px] md:text-xs tracking-widest px-3 md:px-5 py-2 rounded-full">START TODAY — FREE FOREVER</span>
           </div>
           <p className="font-heading text-xs tracking-widest text-pif-blue mt-2">FULL ACCESS</p>
           <p className="font-heading text-2xl text-foreground mb-4">PLAY IT FORWARD</p>
           <div className="flex items-baseline gap-2 mb-2">
             <span className="text-6xl font-heading text-foreground">FREE</span>
-            <div>
-              <p className="font-heading text-sm text-foreground">7-DAY TRIAL</p>
-              <p className="font-body text-xs text-muted-foreground">THEN $12.99/MONTH</p>
-            </div>
           </div>
-          <p className="font-body text-sm text-muted-foreground mb-6">Everything included. Cancel anytime.</p>
+          <p className="font-body text-sm text-muted-foreground mb-6">Everything included. No credit card needed.</p>
           <div className="border-t border-border pt-6 space-y-3 mb-8">
             {features.map((f) => (
               <div key={f} className="flex items-center gap-3">
@@ -636,7 +632,6 @@ function PricingSection() {
               GET YOUR CUSTOM TRAINING PLAN FREE →
             </Button>
           </Link>
-          <p className="font-body text-xs text-muted-foreground text-center mt-4">Then just $12.99/month · Cancel anytime · No hidden fees</p>
         </div>
       </div>
     </section>
@@ -655,7 +650,7 @@ function FinalCTA() {
             THE GAME IS<br />WAITING FOR YOU.
           </h2>
           <p className="font-body text-foreground/80 mt-4 max-w-md">
-            Join thousands of athletes already training with elite former college players. Start your 7-day trial today.
+            Join thousands of athletes already training with elite former college players. Sign up free today.
           </p>
         </div>
         <div className="relative z-10 text-center">
@@ -664,7 +659,7 @@ function FinalCTA() {
               GET YOUR CUSTOM TRAINING PLAN FREE →
             </Button>
           </Link>
-          <p className="font-body text-xs text-foreground/60 mt-3">Free for 7 days · Then $12.99/month · Cancel anytime</p>
+          <p className="font-body text-xs text-foreground/60 mt-3">100% free · No credit card required</p>
         </div>
       </div>
     </section>

@@ -86,7 +86,7 @@ function AnimatedCounter({ value, label, icon: Icon, delay = 0 }: { value: numbe
 }
 
 export default function Dashboard() {
-  const { profile, user, subscription, subscriptionLoading } = useAuth();
+  const { profile, user } = useAuth();
   const [courses, setCourses] = useState<CourseWithCoach[]>([]);
   const [drills, setDrills] = useState<DrillWithCoach[]>([]);
   const [statDrillsDone, setStatDrillsDone] = useState(0);
@@ -175,7 +175,7 @@ export default function Dashboard() {
   return (
     <AppLayout>
       {/* Product Tour */}
-      {profile && !(profile as any).product_tour_completed && subscription.subscribed && (
+      {profile && !(profile as any).product_tour_completed && (
         <ProductTour />
       )}
       <div className="p-4 lg:p-6 space-y-6 max-w-7xl mx-auto">
@@ -247,11 +247,11 @@ export default function Dashboard() {
           <h2 className="text-xl font-heading text-foreground mb-4">Featured Drills This Week</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {drills.slice(0, 6).map((drill, i) => {
-              const isAccessible = drill.is_free || subscription.subscribed || profile?.role === "admin" || profile?.role === "creator";
-              const showLock = !isAccessible && !subscriptionLoading;
+              const isAccessible = true;
+              const showLock = false;
               return (
               <motion.div key={drill.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.05 }} {...(i === 0 ? { "data-tour": "first-drill" } : {})}>
-                <Link to={isAccessible || subscriptionLoading ? `/drills/${drill.id}` : `/pricing`}>
+                <Link to={`/drills/${drill.id}`}>
                   <Card className="bg-card border-border hover:border-primary/20 transition-all group overflow-hidden">
                     <CardContent className="p-0">
                       <div className="relative h-52 bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center overflow-hidden">

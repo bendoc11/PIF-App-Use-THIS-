@@ -61,7 +61,7 @@ function Navbar() {
     { label: "ABOUT", href: "#about" },
     { label: "CONTENT", href: "#content" },
     { label: "COACHES", href: "#coaches" },
-    { label: "PRICING", href: "#pricing" },
+    { label: "GET STARTED", href: "#pricing" },
   ];
 
   return (

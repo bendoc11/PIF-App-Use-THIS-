@@ -708,6 +708,16 @@ function Footer() {
 }
 
 export default function LandingPage() {
+  const { user, profile, loading } = useAuth();
+
+  // Redirect authenticated users away from landing page
+  if (!loading && user) {
+    if (profile && !profile.onboarding_completed) {
+      return <Navigate to="/onboarding" replace />;
+    }
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground scroll-smooth">
       <Navbar />

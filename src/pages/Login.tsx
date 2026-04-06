@@ -15,6 +15,7 @@ export default function Login() {
   const [tab, setTab] = useState<"signin" | "signup">("signup");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const oauthRedirectUri = `${window.location.origin}/auth/callback`;
 
   // Sign In state
   const [email, setEmail] = useState("");
@@ -104,14 +105,14 @@ export default function Login() {
 
   const handleGoogleSignIn = async () => {
     const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: oauthRedirectUri,
     });
     if (error) toast.error("Google sign-in failed");
   };
 
   const handleAppleSignIn = async () => {
     const { error } = await lovable.auth.signInWithOAuth("apple", {
-      redirect_uri: window.location.origin,
+      redirect_uri: oauthRedirectUri,
     });
     if (error) toast.error("Apple sign-in failed");
   };

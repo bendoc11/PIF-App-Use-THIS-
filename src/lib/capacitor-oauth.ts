@@ -46,7 +46,8 @@ export async function signInWithOAuthNative(
         await Browser.close();
 
         // Remove the listener
-        listener.remove();
+        const resolvedListener = await listenerPromise;
+        await resolvedListener.remove();
 
         // Extract the auth code or tokens from the URL
         const url = new URL(event.url.replace(`${CUSTOM_SCHEME}://`, "https://placeholder/"));
@@ -78,11 +79,12 @@ export async function signInWithOAuthNative(
         }
       };
 
-      const listener = App.addListener("appUrlOpen", handleAppUrl);
+      const listenerPromise = App.addListener("appUrlOpen", handleAppUrl);
 
       // Safety timeout — if nothing happens in 2 minutes, clean up
-      setTimeout(() => {
-        listener.remove();
+      setTimeout(async () => {
+        const listener = await listenerPromise;
+        await listener.remove();
         resolve({ error: new Error("Authentication timed out") });
       }, 120_000);
     });

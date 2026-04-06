@@ -1,8 +1,7 @@
 import { motion } from "framer-motion";
-import { Flame, Calendar, Camera, Loader2 } from "lucide-react";
+import { Flame, Calendar } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePlayerRatings } from "@/hooks/usePlayerRatings";
-import { useAvatarUpload } from "@/hooks/useAvatarUpload";
 import { format } from "date-fns";
 
 
@@ -68,8 +67,6 @@ function StatCell({ value, label, delay }: { value: string; label: string; delay
 export function PlayerCard() {
   const { profile } = useAuth();
   const { ratings, gameAverages, loading } = usePlayerRatings();
-  const { uploading, openFilePicker } = useAvatarUpload();
-
   if (loading || !ratings) {
     return (
       <div className="rounded-2xl bg-card border border-border p-6 animate-pulse">
@@ -111,24 +108,13 @@ export function PlayerCard() {
 
         {/* Avatar */}
         <div className="flex justify-center">
-          <button
-            onClick={openFilePicker}
-            disabled={uploading}
-            className="relative w-24 h-24 md:w-28 md:h-28 rounded-full border-2 border-primary/30 bg-muted flex items-center justify-center overflow-hidden group cursor-pointer"
-          >
-            {uploading ? (
-              <Loader2 className="h-8 w-8 text-primary animate-spin" />
-            ) : profile?.avatar_url ? (
+          <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full border-2 border-primary/30 bg-muted flex items-center justify-center overflow-hidden">
+            {profile?.avatar_url ? (
               <img src={profile.avatar_url} alt={playerName} className="w-full h-full object-cover" />
             ) : (
               <span className="text-2xl font-heading text-primary">{initials}</span>
             )}
-            {!uploading && (
-              <div className="absolute bottom-1 right-1 w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-lg border-2 border-background">
-                <Camera className="h-4 w-4 text-primary-foreground" />
-              </div>
-            )}
-          </button>
+          </div>
         </div>
 
         {/* Name + Position */}

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { isNativePlatform, signInWithOAuthNative } from "@/lib/capacitor-oauth";
 
 export default function Login() {
   const { user, loading } = useAuth();
@@ -104,6 +105,12 @@ export default function Login() {
   };
 
   const handleGoogleSignIn = async () => {
+    if (isNativePlatform()) {
+      const { error } = await signInWithOAuthNative("google");
+      if (error) toast.error("Google sign-in failed");
+      else navigate("/dashboard");
+      return;
+    }
     const { error } = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: oauthRedirectUri,
     });
@@ -111,6 +118,12 @@ export default function Login() {
   };
 
   const handleAppleSignIn = async () => {
+    if (isNativePlatform()) {
+      const { error } = await signInWithOAuthNative("apple");
+      if (error) toast.error("Apple sign-in failed");
+      else navigate("/dashboard");
+      return;
+    }
     const { error } = await lovable.auth.signInWithOAuth("apple", {
       redirect_uri: oauthRedirectUri,
     });

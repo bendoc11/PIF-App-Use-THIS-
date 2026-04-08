@@ -34,7 +34,7 @@ export async function signInWithOAuthNative(
     }
 
     // Open the OAuth URL in the in-app browser (Safari View Controller on iOS)
-    await Browser.open({ url: data.url, presentationStyle: "popover" });
+    await Browser.open({ url: data.url, presentationStyle: "fullscreen" });
 
     // Wait for the app to receive the redirect via the custom URL scheme
     return new Promise((resolve) => {

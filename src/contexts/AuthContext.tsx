@@ -17,6 +17,7 @@ interface Profile {
   primary_goal: string | null;
   training_days_per_week: number | null;
   created_at: string;
+  subscription_status: string | null;
 }
 
 interface AuthContextType {

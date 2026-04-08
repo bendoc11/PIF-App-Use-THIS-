@@ -19,16 +19,11 @@ export default function Pricing() {
   const navigate = useNavigate();
   const [purchasing, setPurchasing] = useState(false);
   const [iapReady, setIapReady] = useState(false);
-  const [priceLabel, setPriceLabel] = useState("$12.99/month");
 
   useEffect(() => {
     if (isIAPAvailable()) {
       initializeStore().then(() => {
         setIapReady(true);
-        const product = getProduct();
-        if (product?.pricing?.price) {
-          setPriceLabel(`${product.pricing.price}/${product.pricing.priceMicros ? "month" : "month"}`);
-        }
       });
     }
   }, []);
@@ -86,6 +81,16 @@ export default function Pricing() {
               </p>
             </div>
 
+            {/* Plan name & Price */}
+            <div className="text-center space-y-1">
+              <p className="text-sm font-semibold uppercase tracking-wide text-primary">Pro</p>
+              <div>
+                <span className="text-4xl font-bold text-foreground">$12.99</span>
+                <span className="text-muted-foreground">/month</span>
+              </div>
+              <p className="text-sm text-primary font-medium">Free 7-day trial</p>
+            </div>
+
             {/* Features */}
             <div className="space-y-3">
               {FEATURES.map((feature) => (
@@ -96,12 +101,6 @@ export default function Pricing() {
                   <span className="text-sm text-foreground">{feature}</span>
                 </div>
               ))}
-            </div>
-
-            {/* Price */}
-            <div className="text-center">
-              <span className="text-4xl font-bold text-foreground">$12.99</span>
-              <span className="text-muted-foreground">/month</span>
             </div>
 
             {/* Buttons */}

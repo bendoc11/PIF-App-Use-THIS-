@@ -128,7 +128,7 @@ export default function Pricing() {
                 className="w-full h-12 text-base gap-2"
               >
                 <Globe className="w-5 h-5" />
-                Subscribe on Website
+                Subscribe
               </Button>
             </div>
 

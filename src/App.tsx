@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AuthGuard } from "@/components/auth/AuthGuard";
+import { SubscriptionGuard } from "@/components/auth/SubscriptionGuard";
 import { AdminGuard } from "@/components/admin/AdminGuard";
 import LandingPage from "./pages/LandingPage";
 import Coaches from "./pages/Coaches";

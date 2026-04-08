@@ -35,6 +35,7 @@ import AdminFeatured from "./pages/admin/AdminFeatured";
 import AdminDrills from "./pages/admin/AdminDrills";
 import AdminBulkUpload from "./pages/admin/AdminBulkUpload";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfUse from "./pages/TermsOfUse";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfUse />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup-success" element={<SignupSuccess />} />
             <Route path="/reset-password" element={<ResetPassword />} />

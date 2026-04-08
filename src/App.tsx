@@ -54,17 +54,17 @@ const App = () => (
             <Route path="/auth/callback" element={<OAuthCallback />} />
             <Route path="/onboarding" element={<AuthGuard><Onboarding /></AuthGuard>} />
             <Route path="/onboarding/results" element={<AuthGuard><OnboardingResults /></AuthGuard>} />
-            <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
-            <Route path="/courses" element={<AuthGuard><Courses /></AuthGuard>} />
-            <Route path="/courses/:courseId/:drillIndex" element={<AuthGuard><CoursePlayer /></AuthGuard>} />
-            <Route path="/drill/:courseId/:drillIndex" element={<AuthGuard><DrillExperience /></AuthGuard>} />
-            <Route path="/drills/:drillId" element={<AuthGuard><DrillExperience /></AuthGuard>} />
+            <Route path="/dashboard" element={<AuthGuard><SubscriptionGuard><Dashboard /></SubscriptionGuard></AuthGuard>} />
+            <Route path="/courses" element={<AuthGuard><SubscriptionGuard><Courses /></SubscriptionGuard></AuthGuard>} />
+            <Route path="/courses/:courseId/:drillIndex" element={<AuthGuard><SubscriptionGuard><CoursePlayer /></SubscriptionGuard></AuthGuard>} />
+            <Route path="/drill/:courseId/:drillIndex" element={<AuthGuard><SubscriptionGuard><DrillExperience /></SubscriptionGuard></AuthGuard>} />
+            <Route path="/drills/:drillId" element={<AuthGuard><SubscriptionGuard><DrillExperience /></SubscriptionGuard></AuthGuard>} />
             <Route path="/pricing" element={<AuthGuard><Pricing /></AuthGuard>} />
             <Route path="/settings" element={<AuthGuard><Settings /></AuthGuard>} />
             
-            <Route path="/coaches" element={<AuthGuard><Coaches /></AuthGuard>} />
-            <Route path="/community" element={<AuthGuard><Community /></AuthGuard>} />
-            <Route path="/progress" element={<AuthGuard><Progress /></AuthGuard>} />
+            <Route path="/coaches" element={<AuthGuard><SubscriptionGuard><Coaches /></SubscriptionGuard></AuthGuard>} />
+            <Route path="/community" element={<AuthGuard><SubscriptionGuard><Community /></SubscriptionGuard></AuthGuard>} />
+            <Route path="/progress" element={<AuthGuard><SubscriptionGuard><Progress /></SubscriptionGuard></AuthGuard>} />
             {/* Admin Routes */}
             <Route path="/admin" element={<Navigate to="/admin/courses" replace />} />
             <Route path="/admin/courses" element={<AdminGuard><AdminCourses /></AdminGuard>} />

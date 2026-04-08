@@ -6,14 +6,15 @@ import { supabase } from "@/integrations/supabase/client";
 const CUSTOM_SCHEME = "com.playitforward.basketball";
 
 /**
- * Checks if we're running inside a native Capacitor shell.
+ * Checks if we're running inside a native Capacitor shell (iPhone or iPad).
  */
 export function isNativePlatform(): boolean {
   return Capacitor.isNativePlatform();
 }
 
 /**
- * Opens the Supabase OAuth flow in the Capacitor in-app browser (Safari View Controller / Chrome Custom Tabs)
+ * Opens the Supabase OAuth flow in the Capacitor in-app browser
+ * (Safari View Controller on iOS — works on both iPhone and iPad)
  * and listens for the custom URL scheme redirect to complete the sign-in.
  */
 export async function signInWithOAuthNative(
@@ -33,8 +34,15 @@ export async function signInWithOAuthNative(
       return { error: error ?? new Error("Failed to generate OAuth URL") };
     }
 
-    // Open the OAuth URL in the in-app browser (Safari View Controller on iOS)
-    await Browser.open({ url: data.url, presentationStyle: "fullscreen" });
+    // Open the OAuth URL in the in-app browser (Safari View Controller on iOS).
+    // Using windowName '_self' and presentationStyle 'popover' to force the
+    // in-app browser on iPad (which otherwise may open external Safari).
+    await Browser.open({
+      url: data.url,
+      windowName: "_self",
+      presentationStyle: "popover",
+      toolbarColor: "#000000",
+    });
 
     // Wait for the app to receive the redirect via the custom URL scheme
     return new Promise((resolve) => {
@@ -43,7 +51,11 @@ export async function signInWithOAuthNative(
         if (!event.url.startsWith(`${CUSTOM_SCHEME}://auth/callback`)) return;
 
         // Close the in-app browser
-        await Browser.close();
+        try {
+          await Browser.close();
+        } catch {
+          // Browser may already be closed
+        }
 
         // Remove the listener
         const resolvedListener = await listenerPromise;
@@ -80,6 +92,15 @@ export async function signInWithOAuthNative(
       };
 
       const listenerPromise = App.addListener("appUrlOpen", handleAppUrl);
+
+      // Also listen for browserFinished in case user dismisses the browser manually
+      Browser.addListener("browserFinished", async () => {
+        // Give a small delay for the appUrlOpen to fire first
+        setTimeout(async () => {
+          const listener = await listenerPromise;
+          await listener.remove();
+        }, 2000);
+      });
 
       // Safety timeout — if nothing happens in 2 minutes, clean up
       setTimeout(async () => {

@@ -15,3 +15,5 @@ project_id = "feblgdfxkuegmjqsdycp"
     verify_jwt = false
   [functions.check-trial-ending]
     verify_jwt = false
+  [functions.verify-apple-receipt]
+    verify_jwt = false

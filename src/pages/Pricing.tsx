@@ -135,6 +135,12 @@ export default function Pricing() {
             <p className="text-xs text-center text-muted-foreground">
               Cancel anytime. Subscription auto-renews monthly.
             </p>
+
+            <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
+              <a href="https://playitforward.app/terms" target="_blank" rel="noopener noreferrer" className="hover:text-foreground underline">Terms of Use</a>
+              <span>•</span>
+              <a href="https://playitforward.app/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-foreground underline">Privacy Policy</a>
+            </div>
           </div>
         )}
       </div>

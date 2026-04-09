@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { isNativePlatform, signInWithOAuthNative } from "@/lib/capacitor-oauth";
+
 
 export default function Login() {
   const { user, loading } = useAuth();
@@ -16,7 +16,7 @@ export default function Login() {
   const [tab, setTab] = useState<"signin" | "signup">("signup");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const oauthRedirectUri = `${window.location.origin}/auth/callback`;
+  
 
   // Sign In state
   const [email, setEmail] = useState("");
@@ -104,31 +104,6 @@ export default function Login() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    if (isNativePlatform()) {
-      const { error } = await signInWithOAuthNative("google");
-      if (error) toast.error("Google sign-in failed");
-      else navigate("/dashboard");
-      return;
-    }
-    const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: oauthRedirectUri,
-    });
-    if (error) toast.error("Google sign-in failed");
-  };
-
-  const handleAppleSignIn = async () => {
-    if (isNativePlatform()) {
-      const { error } = await signInWithOAuthNative("apple");
-      if (error) toast.error("Apple sign-in failed");
-      else navigate("/dashboard");
-      return;
-    }
-    const { error } = await lovable.auth.signInWithOAuth("apple", {
-      redirect_uri: oauthRedirectUri,
-    });
-    if (error) toast.error("Apple sign-in failed");
-  };
 
   const strength = getPasswordStrength(signupPassword);
 

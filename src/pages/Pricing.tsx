@@ -105,7 +105,7 @@ export default function Pricing() {
 
             {/* Buttons */}
             <div className="space-y-3">
-              {isIAPAvailable() && (
+              {isIAPAvailable() ? (
                 <Button
                   onClick={handleApplePurchase}
                   disabled={purchasing || !iapReady}
@@ -116,20 +116,19 @@ export default function Pricing() {
                   ) : (
                     <Apple className="w-5 h-5" />
                   )}
-                  Subscribe with Apple
+                  {iapReady ? "Subscribe with Apple" : "Loading…"}
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => {
+                    window.open("https://playitforward.app/pricing", "_blank");
+                  }}
+                  className="w-full h-12 text-base gap-2"
+                >
+                  <Globe className="w-5 h-5" />
+                  Subscribe
                 </Button>
               )}
-
-              <Button
-                variant={isIAPAvailable() ? "outline" : "default"}
-                onClick={() => {
-                  window.open("https://playitforward.app/pricing", "_blank");
-                }}
-                className="w-full h-12 text-base gap-2"
-              >
-                <Globe className="w-5 h-5" />
-                Subscribe
-              </Button>
             </div>
 
             <p className="text-xs text-center text-muted-foreground">

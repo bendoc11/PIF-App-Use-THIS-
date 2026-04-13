@@ -60,18 +60,29 @@ export function getProduct(): any | null {
  */
 export async function purchaseSubscription(): Promise<{ error?: string }> {
   const store = (window as any).CdvPurchase?.store;
-  if (!store) return { error: "Store not available" };
+  if (!store) {
+    console.error("[IAP] CdvPurchase store not found on window");
+    return { error: "Store not available — please restart the app" };
+  }
 
   const product = store.get(PRODUCT_ID);
-  if (!product) return { error: "Product not found" };
+  if (!product) {
+    console.error("[IAP] Product not found:", PRODUCT_ID);
+    return { error: "Product not found. Please try again later." };
+  }
 
   const offer = product.getOffer();
-  if (!offer) return { error: "No offer available" };
+  if (!offer) {
+    console.error("[IAP] No offer available for product:", PRODUCT_ID);
+    return { error: "No offer available" };
+  }
 
   try {
+    console.log("[IAP] Ordering offer via native StoreKit…");
     await store.order(offer);
     return {};
   } catch (err: any) {
+    console.error("[IAP] Purchase error:", err);
     return { error: err?.message || "Purchase failed" };
   }
 }

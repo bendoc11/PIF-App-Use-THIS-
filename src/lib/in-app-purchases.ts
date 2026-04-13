@@ -88,13 +88,13 @@ export async function purchaseSubscription(): Promise<{ error?: string }> {
 
   if (!product) {
     console.error("[IAP] Product not found:", PRODUCT_ID);
-    return { error: "Product not found. Please try again later." };
+    return { error: "Purchase unavailable. Please try again or subscribe at playitforward.app" };
   }
 
   const offer = product.getOffer();
   if (!offer) {
     console.error("[IAP] No offer available for product:", PRODUCT_ID);
-    return { error: "No offer available" };
+    return { error: "Purchase unavailable. Please try again or subscribe at playitforward.app" };
   }
 
   // CRITICAL: Prevent any browser/URL-based fallback.

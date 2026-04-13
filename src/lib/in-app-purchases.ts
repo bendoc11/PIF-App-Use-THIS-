@@ -18,13 +18,17 @@ export async function initializeStore(): Promise<void> {
   if (!isIAPAvailable()) return;
 
   // cordova-plugin-purchase exposes window.CdvPurchase
-  const store = (window as any).CdvPurchase?.store;
+  const CdvPurchase = (window as any).CdvPurchase;
+  const store = CdvPurchase?.store;
   if (!store) {
     console.warn("[IAP] CdvPurchase store not available");
     return;
   }
 
-  const { ProductType, Platform } = (window as any).CdvPurchase;
+  const { ProductType, Platform, LogLevel } = CdvPurchase;
+
+  // Enable verbose logging for debugging
+  store.verbosity = LogLevel.DEBUG;
 
   store.register([
     {
@@ -36,14 +40,22 @@ export async function initializeStore(): Promise<void> {
 
   store.when()
     .approved((transaction: any) => {
-      // Verify receipt on our server then finish
+      console.log("[IAP] Transaction approved:", transaction.transactionId);
       verifyAndFinish(transaction);
     })
     .verified((receipt: any) => {
+      console.log("[IAP] Receipt verified, finishing");
       receipt.finish();
     });
 
-  await store.initialize([Platform.APPLE_APPSTORE]);
+  try {
+    await store.initialize([Platform.APPLE_APPSTORE]);
+    console.log("[IAP] Store initialized successfully");
+    const product = store.get(PRODUCT_ID);
+    console.log("[IAP] Product after init:", product?.id, "canPurchase:", product?.canPurchase);
+  } catch (err) {
+    console.error("[IAP] Store initialization failed:", err);
+  }
 }
 
 /**
@@ -59,13 +71,21 @@ export function getProduct(): any | null {
  * Initiate a purchase
  */
 export async function purchaseSubscription(): Promise<{ error?: string }> {
-  const store = (window as any).CdvPurchase?.store;
+  const CdvPurchase = (window as any).CdvPurchase;
+  const store = CdvPurchase?.store;
   if (!store) {
     console.error("[IAP] CdvPurchase store not found on window");
     return { error: "Store not available — please restart the app" };
   }
 
   const product = store.get(PRODUCT_ID);
+  console.log("[IAP] Product lookup result:", JSON.stringify({
+    id: product?.id,
+    canPurchase: product?.canPurchase,
+    owned: product?.owned,
+    offers: product?.offers?.length,
+  }));
+
   if (!product) {
     console.error("[IAP] Product not found:", PRODUCT_ID);
     return { error: "Product not found. Please try again later." };
@@ -77,13 +97,32 @@ export async function purchaseSubscription(): Promise<{ error?: string }> {
     return { error: "No offer available" };
   }
 
+  // CRITICAL: Prevent any browser/URL-based fallback.
+  // cordova-plugin-purchase can sometimes try to open a URL for
+  // subscriptions that aren't configured in App Store Connect.
+  // We intercept window.open to block it during the purchase flow.
+  const originalWindowOpen = window.open;
+  window.open = (...args: any[]) => {
+    console.warn("[IAP] Blocked window.open call during purchase:", args[0]);
+    return null;
+  };
+
   try {
-    console.log("[IAP] Ordering offer via native StoreKit…");
-    await store.order(offer);
+    console.log("[IAP] Ordering offer via native StoreKit…", offer.id);
+    const result = await store.order(offer);
+    
+    if (result && result.isError) {
+      console.error("[IAP] Order returned error:", result);
+      return { error: result.message || "Purchase failed" };
+    }
+    
     return {};
   } catch (err: any) {
     console.error("[IAP] Purchase error:", err);
     return { error: err?.message || "Purchase failed" };
+  } finally {
+    // Restore window.open after purchase flow completes
+    window.open = originalWindowOpen;
   }
 }
 

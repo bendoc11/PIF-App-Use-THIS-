@@ -511,6 +511,48 @@ export type Database = {
           },
         ]
       }
+      outreach_history: {
+        Row: {
+          body: string
+          coach_email: string
+          coach_name: string
+          coach_title: string | null
+          id: string
+          school_name: string
+          sent_at: string
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          coach_email: string
+          coach_name: string
+          coach_title?: string | null
+          id?: string
+          school_name: string
+          sent_at?: string
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          coach_email?: string
+          coach_name?: string
+          coach_title?: string | null
+          id?: string
+          school_name?: string
+          sent_at?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       player_ratings: {
         Row: {
           ball_handling: number
@@ -605,13 +647,19 @@ export type Database = {
       }
       profiles: {
         Row: {
+          aau_team: string | null
           age: number | null
           avatar_url: string | null
           banned: boolean
+          city: string | null
           created_at: string
           email: string | null
           first_name: string | null
+          gpa: number | null
+          grad_year: number | null
           height: string | null
+          high_school_name: string | null
+          highlight_film_url: string | null
           id: string
           last_drill_date: string | null
           last_name: string | null
@@ -623,6 +671,7 @@ export type Database = {
           product_tour_completed: boolean
           role: string
           schedule_setup_completed: boolean
+          state: string | null
           streak_days: number
           strengths: string[] | null
           stripe_customer_id: string | null
@@ -636,13 +685,19 @@ export type Database = {
           weaknesses: string[] | null
         }
         Insert: {
+          aau_team?: string | null
           age?: number | null
           avatar_url?: string | null
           banned?: boolean
+          city?: string | null
           created_at?: string
           email?: string | null
           first_name?: string | null
+          gpa?: number | null
+          grad_year?: number | null
           height?: string | null
+          high_school_name?: string | null
+          highlight_film_url?: string | null
           id: string
           last_drill_date?: string | null
           last_name?: string | null
@@ -654,6 +709,7 @@ export type Database = {
           product_tour_completed?: boolean
           role?: string
           schedule_setup_completed?: boolean
+          state?: string | null
           streak_days?: number
           strengths?: string[] | null
           stripe_customer_id?: string | null
@@ -667,13 +723,19 @@ export type Database = {
           weaknesses?: string[] | null
         }
         Update: {
+          aau_team?: string | null
           age?: number | null
           avatar_url?: string | null
           banned?: boolean
+          city?: string | null
           created_at?: string
           email?: string | null
           first_name?: string | null
+          gpa?: number | null
+          grad_year?: number | null
           height?: string | null
+          high_school_name?: string | null
+          highlight_film_url?: string | null
           id?: string
           last_drill_date?: string | null
           last_name?: string | null
@@ -685,6 +747,7 @@ export type Database = {
           product_tour_completed?: boolean
           role?: string
           schedule_setup_completed?: boolean
+          state?: string | null
           streak_days?: number
           strengths?: string[] | null
           stripe_customer_id?: string | null

@@ -75,6 +75,12 @@ function groupRowsToSchools(rows: CoachRow[]): MockSchool[] {
       const enrollmentNum = isNaN(enrollment) ? 0 : enrollment;
       const gpaNum = r.avg_gpa ? parseFloat(r.avg_gpa) : NaN;
       const stateName = r.state ?? "";
+      const lon = r.longitude == null ? NaN : Number(r.longitude);
+      const lat = r.latitude == null ? NaN : Number(r.latitude);
+      const coords: [number, number] = [
+        Number.isFinite(lon) ? lon : 0,
+        Number.isFinite(lat) ? lat : 0,
+      ];
 
       school = {
         id: key.replace(/\s+/g, "-").toLowerCase(),
@@ -82,7 +88,7 @@ function groupRowsToSchools(rows: CoachRow[]): MockSchool[] {
         city: r.city ?? "",
         state: stateName,
         stateCode: stateToCode(stateName),
-        coordinates: [r.longitude ?? 0, r.latitude ?? 0],
+        coordinates: coords,
         division,
         academicLevel: academicFromGpa(isNaN(gpaNum) ? null : gpaNum),
         enrollment: enrollmentNum,

@@ -708,16 +708,8 @@ function Footer() {
 }
 
 export default function LandingPage() {
-  const { user, profile, loading } = useAuth();
-
-  // Redirect authenticated users away from landing page
-  if (!loading && user) {
-    if (profile && !profile.onboarding_completed) {
-      return <Navigate to="/onboarding" replace />;
-    }
-    return <Navigate to="/dashboard" replace />;
-  }
-
+  // Always render the marketing landing page at "/", regardless of auth state.
+  // Logged-in users can navigate to the app via the navbar.
   return (
     <div className="min-h-screen bg-background text-foreground scroll-smooth">
       <Navbar />

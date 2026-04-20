@@ -178,7 +178,7 @@ export default function Recruit() {
 
   return (
     <AppLayout>
-      {showOnboarding && <RecruitOnboarding onClose={() => setShowOnboarding(false)} />}
+      {showOnboarding && <RecruitTour steps={TOUR_STEPS} onClose={finishTour} />}
       <div className="bg-gray-50 min-h-[calc(100vh-3.5rem)]">
         <div className="flex flex-col lg:flex-row h-[calc(100vh-3.5rem)]">
           {/* Left: Outreach */}
@@ -205,7 +205,9 @@ export default function Recruit() {
 
               {view.kind === "map" && (
                 <>
-                  <MapFiltersBar value={filters} onChange={setFilters} />
+                  <div data-tour="filters">
+                    <MapFiltersBar value={filters} onChange={setFilters} />
+                  </div>
 
                   {loading ? (
                     <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-gray-200">
@@ -222,7 +224,9 @@ export default function Recruit() {
                       <p className="text-xs text-gray-500 mt-3 text-center">
                         Showing {filtered.length.toLocaleString()} of {schools.length.toLocaleString()} schools. Click any dot or row to view coaches.
                       </p>
-                      <SchoolList schools={filtered} onSelect={(s) => setView({ kind: "school", school: s })} />
+                      <div data-tour="school-list">
+                        <SchoolList schools={filtered} onSelect={(s) => setView({ kind: "school", school: s })} />
+                      </div>
                     </>
                   )}
                 </>

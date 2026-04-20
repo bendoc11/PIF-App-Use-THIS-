@@ -76,6 +76,7 @@ export function OutreachSidebar({ rows, onChange, onCompose, onFollowUp }: Props
       {/* Compose action — top, primary */}
       <div className="p-3 border-b border-gray-100">
         <button
+          data-tour="compose"
           onClick={onCompose}
           className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium transition-colors"
         >

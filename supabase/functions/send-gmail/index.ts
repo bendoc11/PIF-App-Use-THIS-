@@ -24,17 +24,17 @@ function base64UrlEncode(str: string): string {
 }
 
 function buildRfc822(from: string, to: string, subject: string, body: string): string {
-  // Encode subject as UTF-8 base64 per RFC 2047
   const subjectEncoded = `=?UTF-8?B?${btoa(unescape(encodeURIComponent(subject)))}?=`;
+  const bodyEncoded = btoa(unescape(encodeURIComponent(body)));
   return [
     `From: ${from}`,
     `To: ${to}`,
     `Subject: ${subjectEncoded}`,
     `MIME-Version: 1.0`,
     `Content-Type: text/plain; charset="UTF-8"`,
-    `Content-Transfer-Encoding: 7bit`,
+    `Content-Transfer-Encoding: base64`,
     ``,
-    body,
+    bodyEncoded,
   ].join("\r\n");
 }
 
@@ -146,7 +146,10 @@ Deno.serve(async (req) => {
     }
 
     let grantedScope = await getAccessTokenScope(accessToken);
-    if (!hasRequiredScope(grantedScope, GMAIL_SEND_SCOPE) && !refreshedForScope) {
+
+    // Only act on a definitive scope response — null means tokeninfo was unreachable,
+    // which should not trigger a reconnect or count as proof that gmail.send is absent.
+    if (grantedScope !== null && !hasRequiredScope(grantedScope, GMAIL_SEND_SCOPE) && !refreshedForScope) {
       try {
         accessToken = await refreshAndPersistToken();
         refreshedForScope = true;
@@ -156,7 +159,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (!hasRequiredScope(grantedScope, GMAIL_SEND_SCOPE)) {
+    if (grantedScope !== null && !hasRequiredScope(grantedScope, GMAIL_SEND_SCOPE)) {
       console.error("[send-gmail] missing gmail.send scope", { userId, email: row.email, grantedScope });
       await admin.from("gmail_tokens").delete().eq("user_id", userId);
       return json({

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { RecruitingSection } from "@/components/landing/RecruitingSection";
+import { PillarsSection } from "@/components/landing/PillarsSection";
 
 // Lazy-load ALL heavy below-fold imports
 const GameAnalyzerSection = lazy(() => import("@/components/landing/GameAnalyzer").then(m => ({ default: m.GameAnalyzerSection })));
@@ -160,10 +161,10 @@ function useFadeIn() {
 function PlatformSection() {
   const fade = useFadeIn();
   const features = [
-    { icon: "📚", title: "DRILL LIBRARY", desc: "Hundreds of on-demand drills organized by skill, position, and level. Watch, rewatch, master." },
-    { icon: "📋", title: "STRUCTURED COURSES", desc: "Multi-week programs built by elite coaches. Track progress and level up systematically." },
-    { icon: "💬", title: "LIVE DISCUSSIONS", desc: "Ask coaches directly. Join live sessions, Q&As, and group film reviews with real former pros." },
-    { icon: "🌍", title: "ELITE NETWORK", desc: "A growing community of coaches uploading weekly — new content every single week." },
+    { title: "DRILL LIBRARY", desc: "Hundreds of on-demand drills organized by skill, position, and level. Watch, rewatch, master." },
+    { title: "STRUCTURED COURSES", desc: "Multi-week programs built by elite coaches. Track progress and level up systematically." },
+    { title: "LIVE DISCUSSIONS", desc: "Ask coaches directly. Join live sessions, Q&As, and group film reviews with real former pros." },
+    { title: "ELITE NETWORK", desc: "A growing community of coaches uploading weekly — new content every single week." },
   ];
 
   return (
@@ -183,8 +184,7 @@ function PlatformSection() {
           </p>
           <div className="space-y-4">
             {features.map((f) => (
-              <div key={f.title} className="bg-card border border-border rounded-xl p-5 flex items-start gap-4">
-                <span className="text-2xl">{f.icon}</span>
+              <div key={f.title} className="bg-card border border-border rounded-xl p-5 flex items-start gap-4 border-l-[3px]" style={{ borderLeftColor: "hsl(5 78% 55%)" }}>
                 <div>
                   <h3 className="font-heading text-sm tracking-widest text-foreground">{f.title}</h3>
                   <p className="font-body text-muted-foreground text-sm mt-1">{f.desc}</p>
@@ -336,10 +336,10 @@ function TrainSection() {
 function HowItWorks() {
   const fade = useFadeIn();
   const steps = [
-    { icon: <UserPlus className="h-6 w-6" />, title: "BUILD YOUR PLAYER PROFILE", desc: "Tell us your position, your goals, and where your game needs work. We use that to build your personalized training plan before you ever touch a drill." },
-    { icon: <Crosshair className="h-6 w-6" />, title: "FOLLOW YOUR WEEKLY SCHEDULE", desc: "Every week you get a structured training schedule built around your goals — skill workouts, shooting sessions, lifting, and recovery. No more guessing what to work on. Just show up and execute." },
-    { icon: <Dumbbell className="h-6 w-6" />, title: "TRAIN WITH ELITE COACHES", desc: "Access a full library of drills and courses taught by former D1 and college players. Every drill has coaching tips, progressions, and real instruction from athletes who've been where you're trying to go." },
-    { icon: <BarChart3 className="h-6 w-6" />, title: "TRACK YOUR PROGRESS", desc: "Log your games, track your shooting percentage, and watch your consistency rings fill up week over week. See your game improving in real numbers — not just feel it." },
+    { num: "01", title: "BUILD YOUR PLAYER PROFILE", desc: "Tell us your position, your goals, and where your game needs work. We use that to build your personalized training plan before you ever touch a drill." },
+    { num: "02", title: "FOLLOW YOUR WEEKLY SCHEDULE", desc: "Every week you get a structured training schedule built around your goals — skill workouts, shooting sessions, lifting, and recovery. No more guessing what to work on. Just show up and execute." },
+    { num: "03", title: "TRAIN WITH ELITE COACHES", desc: "Access a full library of drills and courses taught by former D1 and college players. Every drill has coaching tips, progressions, and real instruction from athletes who've been where you're trying to go." },
+    { num: "04", title: "TRACK YOUR PROGRESS", desc: "Log your games, track your shooting percentage, and watch your consistency rings fill up week over week. See your game improving in real numbers — not just feel it." },
   ];
 
   return (
@@ -355,12 +355,10 @@ function HowItWorks() {
           </h2>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 relative">
-          <div className="hidden lg:block absolute top-8 left-[12.5%] right-[12.5%] h-px bg-border" />
+          <div className="hidden lg:block absolute top-6 left-[12.5%] right-[12.5%] h-px bg-border" />
           {steps.map((s) => (
             <div key={s.title} className="text-center relative">
-              <div className="w-16 h-16 rounded-full border border-border bg-background flex items-center justify-center mx-auto mb-6 text-muted-foreground">
-                {s.icon}
-              </div>
+              <p className="text-4xl font-heading mx-auto mb-4" style={{ color: "hsl(5 78% 55%)" }}>{s.num}</p>
               <h3 className="font-heading text-base tracking-widest text-foreground mb-3">{s.title}</h3>
               <p className="font-body text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
             </div>

@@ -59,6 +59,93 @@ export type Database = {
         }
         Relationships: []
       }
+      college_coaches: {
+        Row: {
+          acceptance_rate: string | null
+          avg_gpa: string | null
+          city: string | null
+          conference: string | null
+          created_at: string
+          division: string | null
+          email: string | null
+          first_name: string | null
+          full_name: string | null
+          gender: string | null
+          id: string
+          instagram_individual: string | null
+          instagram_team: string | null
+          last_name: string | null
+          latitude: number | null
+          longitude: number | null
+          phone: string | null
+          public_private: string | null
+          school_name: string | null
+          school_size: string | null
+          state: string | null
+          title: string | null
+          twitter_individual: string | null
+          twitter_team: string | null
+          undergrad_enrollment: string | null
+          yearly_cost: string | null
+        }
+        Insert: {
+          acceptance_rate?: string | null
+          avg_gpa?: string | null
+          city?: string | null
+          conference?: string | null
+          created_at?: string
+          division?: string | null
+          email?: string | null
+          first_name?: string | null
+          full_name?: string | null
+          gender?: string | null
+          id?: string
+          instagram_individual?: string | null
+          instagram_team?: string | null
+          last_name?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          phone?: string | null
+          public_private?: string | null
+          school_name?: string | null
+          school_size?: string | null
+          state?: string | null
+          title?: string | null
+          twitter_individual?: string | null
+          twitter_team?: string | null
+          undergrad_enrollment?: string | null
+          yearly_cost?: string | null
+        }
+        Update: {
+          acceptance_rate?: string | null
+          avg_gpa?: string | null
+          city?: string | null
+          conference?: string | null
+          created_at?: string
+          division?: string | null
+          email?: string | null
+          first_name?: string | null
+          full_name?: string | null
+          gender?: string | null
+          id?: string
+          instagram_individual?: string | null
+          instagram_team?: string | null
+          last_name?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          phone?: string | null
+          public_private?: string | null
+          school_name?: string | null
+          school_size?: string | null
+          state?: string | null
+          title?: string | null
+          twitter_individual?: string | null
+          twitter_team?: string | null
+          undergrad_enrollment?: string | null
+          yearly_cost?: string | null
+        }
+        Relationships: []
+      }
       community_posts: {
         Row: {
           body: string

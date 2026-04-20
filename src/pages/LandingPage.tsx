@@ -4,8 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Play, ChevronRight, Star, Check, Dribbble, Target, Zap, TrendingUp, UserPlus, Crosshair, Dumbbell, BarChart3, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import heroDrillThumb from "@/assets/hero-drill-thumbnail.webp";
-import zacErvinImg from "@/assets/coaches/zac-ervin.webp";
+import { HeroSection } from "@/components/landing/HeroSection";
+import { RecruitingSection } from "@/components/landing/RecruitingSection";
 
 // Lazy-load ALL heavy below-fold imports
 const GameAnalyzerSection = lazy(() => import("@/components/landing/GameAnalyzer").then(m => ({ default: m.GameAnalyzerSection })));

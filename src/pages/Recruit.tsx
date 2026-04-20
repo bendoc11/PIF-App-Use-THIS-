@@ -12,8 +12,32 @@ import { OutreachSidebar, OutreachRow } from "@/components/recruit/OutreachSideb
 import { RecruitDashboard } from "@/components/recruit/RecruitDashboard";
 import { ProfileCompletionCard } from "@/components/recruit/ProfileCompletionCard";
 import { SchoolList } from "@/components/recruit/SchoolList";
-import { RecruitOnboarding } from "@/components/recruit/RecruitOnboarding";
+import { RecruitTour, TourStep } from "@/components/recruit/RecruitTour";
 import { Loader2, ArrowLeft, PenSquare } from "lucide-react";
+
+const TOUR_STEPS: TourStep[] = [
+  {
+    target: '[data-tour="filters"]',
+    title: "Step 1 of 4",
+    body: "Filter by state, division, and academics to find your perfect-fit schools.",
+  },
+  {
+    target: '[data-tour="school-list"]',
+    title: "Step 2 of 4",
+    body: "Browse 1,800+ programs. Click any school to see their coaching staff.",
+  },
+  {
+    target: '[data-tour="compose"]',
+    title: "Step 3 of 4",
+    body: "Send personalized emails directly from your Gmail — coaches see your real email address.",
+  },
+  {
+    target: '[data-tour="dashboard"]',
+    title: "Step 4 of 4",
+    body: "Track your schools contacted, replies, offers, and recruiting level here.",
+    placement: "left",
+  },
+];
 import { Button } from "@/components/ui/button";
 
 type View =
@@ -66,13 +90,23 @@ export default function Recruit() {
     gpa: "All",
   });
 
-  // Show onboarding once per user (driven by profile flag)
+  // Show contextual tour once per user (driven by profile flag)
   useEffect(() => {
     const p: any = profile;
     if (p && p.recruit_onboarding_completed === false) {
+      // Only run on the default map view so targets exist
       setShowOnboarding(true);
     }
   }, [profile]);
+
+  const finishTour = async () => {
+    setShowOnboarding(false);
+    if (!user) return;
+    await supabase
+      .from("profiles")
+      .update({ recruit_onboarding_completed: true } as any)
+      .eq("id", user.id);
+  };
 
   const loadOutreach = async () => {
     if (!user) return;
@@ -144,7 +178,7 @@ export default function Recruit() {
 
   return (
     <AppLayout>
-      {showOnboarding && <RecruitOnboarding onClose={() => setShowOnboarding(false)} />}
+      {showOnboarding && <RecruitTour steps={TOUR_STEPS} onClose={finishTour} />}
       <div className="bg-gray-50 min-h-[calc(100vh-3.5rem)]">
         <div className="flex flex-col lg:flex-row h-[calc(100vh-3.5rem)]">
           {/* Left: Outreach */}
@@ -171,7 +205,9 @@ export default function Recruit() {
 
               {view.kind === "map" && (
                 <>
-                  <MapFiltersBar value={filters} onChange={setFilters} />
+                  <div data-tour="filters">
+                    <MapFiltersBar value={filters} onChange={setFilters} />
+                  </div>
 
                   {loading ? (
                     <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-gray-200">
@@ -188,7 +224,9 @@ export default function Recruit() {
                       <p className="text-xs text-gray-500 mt-3 text-center">
                         Showing {filtered.length.toLocaleString()} of {schools.length.toLocaleString()} schools. Click any dot or row to view coaches.
                       </p>
-                      <SchoolList schools={filtered} onSelect={(s) => setView({ kind: "school", school: s })} />
+                      <div data-tour="school-list">
+                        <SchoolList schools={filtered} onSelect={(s) => setView({ kind: "school", school: s })} />
+                      </div>
                     </>
                   )}
                 </>
@@ -255,7 +293,9 @@ export default function Recruit() {
           </main>
 
           {/* Right: Dashboard */}
-          <RecruitDashboard rows={outreach} onChange={loadOutreach} />
+          <div data-tour="dashboard" className="w-full lg:w-80 shrink-0 lg:h-full lg:overflow-y-auto">
+            <RecruitDashboard rows={outreach} onChange={loadOutreach} />
+          </div>
         </div>
       </div>
     </AppLayout>

@@ -678,6 +678,7 @@ export default function LandingPage() {
       <Navbar />
       <HeroSection />
       <CoachTicker />
+      <PillarsSection />
       <RecruitingSection />
       <Suspense fallback={<div className="h-96" />}>
         <GameAnalyzerSection />
@@ -686,7 +687,7 @@ export default function LandingPage() {
       <PlatformSection />
       <TrainSection />
       <HowItWorks />
-      <TestimonialsSection />
+      <ParentTestimonialsSection />
       <PricingSection />
       <FinalCTA />
       <Footer />

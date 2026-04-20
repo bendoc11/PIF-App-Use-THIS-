@@ -12,6 +12,7 @@ import { OutreachSidebar, OutreachRow } from "@/components/recruit/OutreachSideb
 import { RecruitDashboard } from "@/components/recruit/RecruitDashboard";
 import { ProfileCompletionCard } from "@/components/recruit/ProfileCompletionCard";
 import { SchoolList } from "@/components/recruit/SchoolList";
+import { RecruitOnboarding } from "@/components/recruit/RecruitOnboarding";
 import { Loader2, ArrowLeft, PenSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

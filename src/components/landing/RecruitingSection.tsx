@@ -2,7 +2,6 @@ import { useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
-/* ── Fade-in on scroll ── */
 function useFadeIn() {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -19,12 +18,10 @@ function useFadeIn() {
   return { ref, className: `transition-all duration-700 ease-out ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}` };
 }
 
-/* ── Animated counter ── */
 function AnimCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const [val, setVal] = useState(0);
   const [started, setStarted] = useState(false);
-
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -35,7 +32,6 @@ function AnimCounter({ target, suffix = "" }: { target: number; suffix?: string 
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
-
   useEffect(() => {
     if (!started) return;
     let current = 0;
@@ -47,12 +43,7 @@ function AnimCounter({ target, suffix = "" }: { target: number; suffix?: string 
     }, 25);
     return () => clearInterval(iv);
   }, [started, target]);
-
-  return (
-    <span ref={ref}>
-      {Math.round(val).toLocaleString()}{suffix}
-    </span>
-  );
+  return <span ref={ref}>{Math.round(val).toLocaleString()}{suffix}</span>;
 }
 
 const STATS = [
@@ -81,16 +72,16 @@ export function RecruitingSection() {
   const fade = useFadeIn();
 
   return (
-    <section className="py-20 lg:py-32" style={{ background: "#060A10" }} ref={fade.ref}>
+    <section className="py-20 lg:py-32" style={{ background: "#0D1220" }} ref={fade.ref}>
       <div className={`px-4 md:px-6 lg:px-12 max-w-[1400px] mx-auto ${fade.className}`}>
         {/* Headline */}
         <div className="text-center mb-16 lg:mb-20">
           <h2 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-heading text-foreground leading-[0.92] mb-4">
             EVERY COACH. EVERY SCHOOL.<br />
-            <span className="text-primary">EVERY DIVISION.</span>
+            <span className="text-secondary">EVERY DIVISION.</span>
           </h2>
           <p className="font-body text-muted-foreground text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed">
-            Most families spend thousands on showcases hoping coaches notice. We give you their direct contact.
+            Most families spend thousands on showcases hoping coaches notice. We give you their direct email.
           </p>
         </div>
 
@@ -98,7 +89,7 @@ export function RecruitingSection() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-10 mb-12 lg:mb-16">
           {STATS.map((s) => (
             <div key={s.label} className="text-center">
-              <p className="text-5xl sm:text-6xl lg:text-7xl font-heading text-foreground leading-none">
+              <p className="text-5xl sm:text-6xl lg:text-7xl font-heading text-secondary leading-none">
                 <AnimCounter target={s.value} />
               </p>
               <p className="font-heading text-[10px] sm:text-xs tracking-[0.2em] text-muted-foreground mt-2">
@@ -109,17 +100,14 @@ export function RecruitingSection() {
         </div>
 
         {/* Divider */}
-        <div className="w-full h-px bg-border mb-12 lg:mb-16" />
+        <div className="w-full h-px mb-12 lg:mb-16" style={{ background: "linear-gradient(90deg, transparent, hsl(217 74% 57% / 0.3), transparent)" }} />
 
         {/* Three feature cards */}
         <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mb-16 lg:mb-20">
           {CARDS.map((c) => (
-            <div key={c.headline} className="relative pt-4">
-              {/* Red top accent */}
-              <div
-                className="absolute top-0 left-0 w-12 h-[3px] rounded-full"
-                style={{ background: "linear-gradient(90deg, hsl(var(--pif-red)), hsl(var(--pif-orange)))" }}
-              />
+            <div key={c.headline} className="relative pt-4 bg-card/50 rounded-xl p-5 border border-secondary/10">
+              <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-xl"
+                style={{ background: "linear-gradient(90deg, hsl(217 74% 57%), hsl(217 74% 57% / 0.3))" }} />
               <h3 className="font-heading text-lg sm:text-xl tracking-wide text-foreground mb-3 leading-tight">
                 {c.headline}
               </h3>
@@ -133,24 +121,13 @@ export function RecruitingSection() {
         {/* Pull quote */}
         <div className="max-w-4xl mx-auto text-center mb-16 lg:mb-20 px-4">
           <div className="relative">
-            {/* Oversized quotation marks */}
-            <span
-              className="absolute -top-8 -left-2 sm:-left-6 text-7xl sm:text-9xl font-display leading-none select-none"
-              style={{ color: "hsl(var(--pif-red) / 0.25)" }}
-            >
-              "
-            </span>
-            <span
-              className="absolute -bottom-12 -right-2 sm:-right-6 text-7xl sm:text-9xl font-display leading-none select-none"
-              style={{ color: "hsl(var(--pif-red) / 0.25)" }}
-            >
-              "
-            </span>
+            <span className="absolute -top-8 -left-2 sm:-left-6 text-7xl sm:text-9xl font-display leading-none select-none text-secondary/25">"</span>
+            <span className="absolute -bottom-12 -right-2 sm:-right-6 text-7xl sm:text-9xl font-display leading-none select-none text-secondary/25">"</span>
             <p className="font-body italic text-xl sm:text-2xl lg:text-3xl text-foreground leading-snug font-semibold relative z-10">
-              NCSA charged us $1,500 and gave us a coordinator. Play it Forward gave us every coach's direct contact.
+              NCSA charged us $1,500 and gave us a coordinator. Play it Forward gave us every coach's direct email.
             </p>
           </div>
-          <p className="font-heading text-xs tracking-widest text-muted-foreground mt-6">
+          <p className="font-heading text-xs tracking-widest text-primary mt-6">
             — BASKETBALL PARENT, PHILADELPHIA PA
           </p>
         </div>
@@ -158,9 +135,7 @@ export function RecruitingSection() {
         {/* CTA */}
         <div className="text-center">
           <Link to="/login">
-            <Button
-              className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg px-10 py-7 text-base min-h-[56px] glow-red glow-red-hover"
-            >
+            <Button className="btn-cta bg-transparent hover:bg-secondary/10 text-secondary border-2 border-secondary rounded-lg px-10 py-7 text-base min-h-[56px]">
               SEE EVERY COACH IN YOUR STATE →
             </Button>
           </Link>

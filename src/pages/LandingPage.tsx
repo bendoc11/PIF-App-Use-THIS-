@@ -1,21 +1,12 @@
-import { Link, Navigate } from "react-router-dom";
-import { lazy, Suspense, useState, useEffect, useRef } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { Play, ChevronRight, Star, Check, Dribbble, Target, Zap, TrendingUp, UserPlus, Crosshair, Dumbbell, BarChart3, Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { RecruitingSection } from "@/components/landing/RecruitingSection";
 import { PillarsSection } from "@/components/landing/PillarsSection";
-
-// Lazy-load ALL heavy below-fold imports
-const GameAnalyzerSection = lazy(() => import("@/components/landing/GameAnalyzer").then(m => ({ default: m.GameAnalyzerSection })));
-
-// Lazy-load coach images (below the fold)
-const bobFisherImg = new URL("@/assets/coaches/bob-fisher.webp", import.meta.url).href;
-const alexWadeImg = new URL("@/assets/coaches/alex-wade.webp", import.meta.url).href;
-const torrenceWatsonImg = new URL("@/assets/coaches/torrence-watson.webp", import.meta.url).href;
-const hunterMcintoshImg = new URL("@/assets/coaches/hunter-mcintosh.webp", import.meta.url).href;
+import { Play, Check, Menu, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 const COACH_NAMES = [
   "RYAN LANGBORG", "BEN DAUGHERTY", "MAC MCCLUNG", "JARED WADE",
@@ -23,9 +14,38 @@ const COACH_NAMES = [
   "ANDREW JUNKIN", "ANDREW DAKICH", "TORRENCE WATSON", "CHASE MANGINI"
 ];
 
-const SCHOOLS = ["NOTRE DAME", "VILLANOVA", "NORTHWESTERN", "HARVARD", "GEORGETOWN", "TEXAS TECH", "MISSISSIPPI STATE", "ELON", "MISSOURI", "NEVADA"];
+// Lazy-load coach images
+const bobFisherImg = new URL("@/assets/coaches/bob-fisher.webp", import.meta.url).href;
+const alexWadeImg = new URL("@/assets/coaches/alex-wade.webp", import.meta.url).href;
+const torrenceWatsonImg = new URL("@/assets/coaches/torrence-watson.webp", import.meta.url).href;
+const hunterMcintoshImg = new URL("@/assets/coaches/hunter-mcintosh.webp", import.meta.url).href;
 
-// Deferred ticker — renders after hero is visible
+/* ---- Fade-in hook ---- */
+function useFadeIn() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold: 0.1 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return { ref, className: `transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}` };
+}
+
+/* ━━━ ANNOUNCEMENT BAR ━━━ */
+function AnnouncementBar() {
+  return (
+    <div className="bg-secondary text-foreground text-center py-2.5 px-4">
+      <Link to="/login" className="font-heading text-xs sm:text-sm tracking-widest hover:opacity-80 transition-opacity">
+        NOW LIVE: EMAIL 7,819 COLLEGE COACHES DIRECTLY FROM YOUR PHONE →
+      </Link>
+    </div>
+  );
+}
+
+/* ━━━ COACH TICKER ━━━ */
 function CoachTicker() {
   const [show, setShow] = useState(false);
   useEffect(() => {
@@ -37,19 +57,14 @@ function CoachTicker() {
       else clearTimeout(id);
     };
   }, []);
-
   if (!show) return <div className="bg-primary/90 h-[37px]" />;
-
   const doubled = [...COACH_NAMES, ...COACH_NAMES];
   return (
     <div className="bg-primary/90 overflow-hidden py-2.5 relative">
-      <div
-        className="flex whitespace-nowrap gap-0 animate-[ticker_30s_linear_infinite]"
-        style={{ willChange: "transform" }}
-      >
+      <div className="flex whitespace-nowrap gap-0 animate-[ticker_30s_linear_infinite]" style={{ willChange: "transform" }}>
         {doubled.map((name, i) => (
           <span key={i} className="font-heading text-sm tracking-widest text-foreground flex items-center gap-4 px-4">
-            {name} <span className="text-primary">•</span>
+            {name} <span className="text-background/30">|</span>
           </span>
         ))}
       </div>
@@ -57,13 +72,14 @@ function CoachTicker() {
   );
 }
 
+/* ━━━ NAVBAR ━━━ */
 function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navLinks = [
     { label: "ABOUT", href: "#about" },
-    { label: "CONTENT", href: "#content" },
     { label: "COACHES", href: "#coaches" },
-    { label: "GET STARTED", href: "#pricing" },
+    { label: "GET RECRUITED", href: "#recruiting" },
+    { label: "SIGN IN", href: "/login", isLink: true },
   ];
 
   return (
@@ -78,22 +94,21 @@ function Navbar() {
         </div>
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((l) => (
-            <a key={l.label} href={l.href} className="font-heading text-sm tracking-widest text-muted-foreground hover:text-foreground transition-colors">{l.label}</a>
+            l.isLink ? (
+              <Link key={l.label} to={l.href} className="font-heading text-sm tracking-widest text-muted-foreground hover:text-foreground transition-colors">{l.label}</Link>
+            ) : (
+              <a key={l.label} href={l.href} className="font-heading text-sm tracking-widest text-muted-foreground hover:text-foreground transition-colors">{l.label}</a>
+            )
           ))}
         </div>
         <div className="hidden md:flex items-center gap-4">
-          <Link to="/login" className="font-heading text-sm tracking-widest text-muted-foreground hover:text-foreground transition-colors">SIGN IN</Link>
           <Link to="/login">
             <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg px-5 py-2.5 text-sm glow-red">
-              BUILD MY FREE RECRUITING PROFILE →
+              START FREE →
             </Button>
           </Link>
         </div>
-        <button
-          className="md:hidden p-2 text-foreground"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Toggle menu"
-        >
+        <button className="md:hidden p-2 text-foreground" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
           {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </nav>
@@ -101,13 +116,14 @@ function Navbar() {
         <div className="md:hidden bg-background border-b border-border overflow-hidden">
           <div className="flex flex-col px-6 py-6 gap-4">
             {navLinks.map((l) => (
-              <a key={l.label} href={l.href} onClick={() => setMobileOpen(false)} className="font-heading text-base tracking-widest text-muted-foreground hover:text-foreground transition-colors">{l.label}</a>
+              l.isLink ? (
+                <Link key={l.label} to={l.href} onClick={() => setMobileOpen(false)} className="font-heading text-base tracking-widest text-muted-foreground hover:text-foreground transition-colors">{l.label}</Link>
+              ) : (
+                <a key={l.label} href={l.href} onClick={() => setMobileOpen(false)} className="font-heading text-base tracking-widest text-muted-foreground hover:text-foreground transition-colors">{l.label}</a>
+              )
             ))}
-            <Link to="/login" onClick={() => setMobileOpen(false)} className="font-heading text-base tracking-widest text-muted-foreground hover:text-foreground transition-colors">SIGN IN</Link>
             <Link to="/login" onClick={() => setMobileOpen(false)}>
-              <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full py-3 text-sm glow-red">
-                BUILD MY FREE RECRUITING PROFILE →
-              </Button>
+              <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full py-3 text-sm glow-red">START FREE →</Button>
             </Link>
           </div>
         </div>
@@ -117,84 +133,92 @@ function Navbar() {
   );
 }
 
-/* Old HeroSection removed — now imported from HeroSection.tsx */
+/* ━━━ COACHES SECTION ━━━ */
+function CoachesSection() {
+  const fade = useFadeIn();
+  const coaches = [
+    {
+      name: "ALEX WADE", school: "D1 PLAYER · NOTRE DAME · NBA SKILLS TRAINER", img: alexWadeImg,
+      bio: "All-time assists leader at Cathedral Catholic HS, D1 player at Notre Dame, and now a certified NBA skills trainer.",
+      stats: ["D1 NOTRE DAME", "NBA SKILLS TRAINER"],
+    },
+    {
+      name: "BOB FISHER", school: "SHOOTING SPECIALIST · GUINNESS WORLD RECORD HOLDER", img: bobFisherImg,
+      bio: "Widely regarded as one of the greatest free-throw shooters in basketball history. Guinness World Record holder.",
+      stats: ["GUINNESS RECORD", "SHOOTING SPECIALIST"],
+    },
+    {
+      name: "TORRENCE WATSON", school: "D1 PLAYER · UNIVERSITY OF MISSOURI", img: torrenceWatsonImg,
+      bio: "Mr. Basketball in the state of Missouri and 1,000 point college scorer at Mizzou.",
+      stats: ["MR. BASKETBALL MO", "1,000 PT. SCORER"],
+    },
+    {
+      name: "HUNTER MCINTOSH", school: "D1 PLAYER · UNIVERSITY OF NEVADA", img: hunterMcintoshImg,
+      bio: "Georgia HS State Player of the Year 2019 and 1,000 point college scorer at Nevada.",
+      stats: ["GA STATE POY 2019", "1,000 PT. SCORER"],
+    },
+  ];
 
-function SchoolsTicker() {
   return (
-    <div className="border-y border-border py-6 overflow-hidden">
-      <div className="flex items-center gap-4 md:gap-12 justify-center flex-wrap px-4 md:px-6">
-        <span className="font-heading text-xs tracking-widest text-muted-foreground">COACHES FROM</span>
-        {SCHOOLS.map((school) => (
-          <span key={school} className="font-heading text-sm tracking-widest text-muted-foreground/60 hover:text-foreground transition-colors">{school}</span>
-        ))}
+    <section id="coaches" className="px-4 md:px-6 lg:px-12 py-16 lg:py-32 max-w-[1400px] mx-auto overflow-hidden" ref={fade.ref}>
+      <div className={fade.className}>
+        <h2 className="text-5xl sm:text-6xl lg:text-7xl leading-[0.9] mb-12">
+          LEARN FROM<br /><span className="text-primary">THE BEST</span>
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {coaches.map((c) => (
+            <div key={c.name} className="bg-card border border-border rounded-xl overflow-hidden group hover:border-secondary/30 transition-colors">
+              <div className="aspect-[3/4] bg-navy-3 overflow-hidden relative">
+                <img src={c.img} alt={c.name} width={400} height={450} className="w-full h-full object-cover object-top" loading="lazy" decoding="async" />
+              </div>
+              <div className="p-5">
+                <p className="font-heading text-[10px] tracking-widest text-muted-foreground mb-1">{c.school}</p>
+                <h3 className="font-heading text-xl text-foreground mb-2">{c.name}</h3>
+                <p className="font-body text-sm text-muted-foreground leading-relaxed mb-4">{c.bio}</p>
+                <div className="flex gap-3 flex-wrap">
+                  {c.stats.map((s) => (
+                    <span key={s} className="font-heading text-[10px] tracking-widest text-secondary bg-secondary/10 px-2 py-1 rounded">{s}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 
-const categoryColorMap: Record<string, string> = {
-  "Ball Handling": "bg-pif-blue",
-  "Shooting": "bg-primary",
-  "Athletics": "bg-pif-green",
-  "Basketball IQ": "bg-pif-purple",
-  "Mental Game": "bg-pif-purple",
-  "Scoring": "bg-pif-orange",
-  "Post Game": "bg-pif-orange",
-  "Speed & Agility": "bg-pif-green",
-};
-
-/* ---- Below-fold sections use IntersectionObserver for fade-in instead of framer-motion ---- */
-
-function useFadeIn() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold: 0.1 });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-  return { ref, className: `transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}` };
-}
-
+/* ━━━ PLATFORM OVERVIEW ━━━ */
 function PlatformSection() {
   const fade = useFadeIn();
   const features = [
     { title: "DRILL LIBRARY", desc: "Hundreds of on-demand drills organized by skill, position, and level. Watch, rewatch, master." },
     { title: "STRUCTURED COURSES", desc: "Multi-week programs built by elite coaches. Track progress and level up systematically." },
     { title: "LIVE DISCUSSIONS", desc: "Ask coaches directly. Join live sessions, Q&As, and group film reviews with real former pros." },
-    { title: "ELITE NETWORK", desc: "A growing community of coaches uploading weekly — new content every single week." },
   ];
 
   return (
-    <section id="about" className="px-4 md:px-6 lg:px-12 py-16 lg:py-32 max-w-[1400px] mx-auto overflow-hidden" ref={fade.ref}>
-      <div className={`grid lg:grid-cols-2 gap-16 items-start ${fade.className}`}>
+    <section id="about" className="py-16 lg:py-32 overflow-hidden" style={{ background: "#0D1220" }} ref={fade.ref}>
+      <div className={`px-4 md:px-6 lg:px-12 max-w-[1400px] mx-auto grid lg:grid-cols-2 gap-16 items-start ${fade.className}`}>
         <div>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-0.5 bg-primary" />
-            <span className="font-heading text-xs tracking-widest text-primary">THE PLATFORM</span>
-          </div>
           <h2 className="text-4xl sm:text-6xl lg:text-7xl leading-[0.9] mb-8">
-            THE FUTURE<br />OF <span className="text-primary">BASKETBALL</span><br />
-            <span className="text-primary italic">DEVELOPMENT</span>
+            THE FUTURE OF<br /><span className="text-secondary">BASKETBALL<br />DEVELOPMENT</span>
           </h2>
           <p className="font-body text-muted-foreground text-lg max-w-lg mb-10 leading-relaxed">
-            Play it Forward connects the next generation of players with a nationwide network of former elite college and pro athletes — all sharing their knowledge, drills, and lived experience on one platform built for serious players who want to reach their full potential.
+            Play it Forward connects the next generation of players with a nationwide network of former elite college and pro athletes — all sharing their knowledge on one platform built for serious players.
           </p>
           <div className="space-y-4">
             {features.map((f) => (
-              <div key={f.title} className="bg-card border border-border rounded-xl p-5 flex items-start gap-4 border-l-[3px]" style={{ borderLeftColor: "hsl(5 78% 55%)" }}>
-                <div>
-                  <h3 className="font-heading text-sm tracking-widest text-foreground">{f.title}</h3>
-                  <p className="font-body text-muted-foreground text-sm mt-1">{f.desc}</p>
-                </div>
+              <div key={f.title} className="bg-card border border-border rounded-xl p-5 border-l-[3px]" style={{ borderLeftColor: "hsl(217 74% 57%)" }}>
+                <h3 className="font-heading text-sm tracking-widest text-foreground">{f.title}</h3>
+                <p className="font-body text-muted-foreground text-sm mt-1">{f.desc}</p>
               </div>
             ))}
           </div>
         </div>
         <div className="relative">
-          <div className="bg-primary rounded-2xl p-6 w-fit mb-6">
+          <div className="bg-secondary rounded-2xl p-6 w-fit mb-6">
             <span className="text-4xl font-heading text-foreground">50+</span>
             <p className="font-heading text-xs tracking-widest text-foreground/80 mt-1">ELITE COACHES</p>
           </div>
@@ -212,36 +236,30 @@ function PlatformSection() {
                   <Play className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-heading text-[10px] tracking-widest text-primary">{d.cat}</p>
+                  <p className="font-heading text-[10px] tracking-widest text-secondary">{d.cat}</p>
                   <p className="font-heading text-sm text-foreground">{d.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">🔴 {d.coach}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{d.coach}</p>
                 </div>
               </div>
             ))}
-            <div className="bg-muted rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[8px] font-heading text-foreground">TW</div>
-                <span className="font-heading text-xs text-foreground">Torrence Watson</span>
-                <span className="text-xs text-muted-foreground">· Missouri · 3h ago</span>
-              </div>
-              <p className="font-body text-sm text-muted-foreground italic">"Work on your off-hand every single day. That's the difference between good and great at every level."</p>
-            </div>
-            <div className="bg-pif-gold/10 border border-pif-gold/20 rounded-lg p-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span>🏆</span>
-                <div>
-                  <p className="font-heading text-xs tracking-widest text-pif-gold">WEEKLY LEADERBOARD</p>
-                  <p className="text-xs text-muted-foreground">You're ranked #17 this week — keep going!</p>
-                </div>
-              </div>
-              <span className="font-heading text-xs text-primary">View →</span>
-            </div>
           </div>
         </div>
       </div>
     </section>
   );
 }
+
+/* ━━━ DRILL SHOWCASE ━━━ */
+const categoryColorMap: Record<string, string> = {
+  "Ball Handling": "bg-secondary",
+  "Shooting": "bg-secondary",
+  "Athletics": "bg-secondary",
+  "Basketball IQ": "bg-secondary",
+  "Mental Game": "bg-secondary",
+  "Scoring": "bg-secondary",
+  "Post Game": "bg-secondary",
+  "Speed & Agility": "bg-secondary",
+};
 
 function TrainSection() {
   const fade = useFadeIn();
@@ -249,83 +267,41 @@ function TrainSection() {
 
   useEffect(() => {
     const fetchWorkouts = async () => {
-      const targetTitles = [
-        "Ball Handling Transformation",
-        "Point Guard Foundations",
-        "Game Ready Mobility System",
-        "Secrets of Shooting",
-      ];
-      const { data } = await supabase
-        .from("courses")
-        .select("id, title, category, level, thumbnail_url, skill_levels")
-        .in("title", targetTitles);
-
-      const sorted = targetTitles
-        .map((t) => (data ?? []).find((c) => c.title === t))
-        .filter(Boolean) as any[];
-
+      const targetTitles = ["Ball Handling Transformation", "Point Guard Foundations", "Game Ready Mobility System", "Secrets of Shooting"];
+      const { data } = await supabase.from("courses").select("id, title, category, level, thumbnail_url, skill_levels").in("title", targetTitles);
+      const sorted = targetTitles.map((t) => (data ?? []).find((c) => c.title === t)).filter(Boolean) as any[];
       setDrills(sorted);
     };
     fetchWorkouts();
   }, []);
 
-  const fallbackCategories = [
-    { label: "BALL HANDLING", sub: "FUNDAMENTALS", title: "BALL HANDLING", level: "Beginner – Pro · On Demand", color: "bg-pif-blue" },
-    { label: "SHOOTING", sub: "SCORING", title: "SHOOTING MECHANICS", level: "All Levels · On Demand", color: "bg-primary" },
-    { label: "SPEED & AGILITY", sub: "ATHLETICS", title: "SPEED & AGILITY", level: "Intermediate · On Demand", color: "bg-pif-green" },
-    { label: "BASKETBALL IQ", sub: "IQ", title: "BASKETBALL IQ", level: "All Levels · On Demand", color: "bg-pif-purple" },
-  ];
-
   return (
     <section id="content" className="px-4 md:px-6 lg:px-12 py-16 lg:py-32 max-w-[1400px] mx-auto overflow-hidden" ref={fade.ref}>
       <div className={fade.className}>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-0.5 bg-primary" />
-          <span className="font-heading text-xs tracking-widest text-primary">ON DEMAND</span>
-        </div>
         <div className="flex items-end justify-between mb-12">
           <h2 className="text-5xl sm:text-6xl lg:text-7xl leading-[0.9]">
             TRAIN<br /><span className="text-primary">EVERY SKILL</span>
           </h2>
-          <a href="#" className="font-heading text-sm tracking-widest text-pif-blue hover:text-foreground transition-colors hidden sm:block">BROWSE ALL →</a>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {drills.length > 0
-            ? drills.map((drill) => {
-                const color = categoryColorMap[drill.category] || "bg-primary";
-                return (
-                  <div key={drill.id} className="group cursor-pointer">
-                    <div className="aspect-[4/3] rounded-xl overflow-hidden relative mb-4 border border-border group-hover:border-primary/40 transition-colors">
-                      <img src={drill.thumbnail_url} alt={drill.title} width={400} height={300} className="absolute inset-0 w-full h-full object-cover object-top" loading="lazy" decoding="async" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                      <div className={`absolute top-3 left-3 ${color} text-foreground font-heading text-[10px] tracking-widest px-3 py-1 rounded-md z-10`}>{drill.category?.toUpperCase()}</div>
-                      {drill.level && (
-                        <div className="absolute top-3 right-3 bg-background/80 text-foreground font-heading text-[10px] tracking-widest px-2 py-1 rounded-md z-10">{drill.level.toUpperCase()}</div>
-                      )}
-                      <div className="absolute inset-0 flex items-center justify-center z-10">
-                        <div className="w-12 h-12 rounded-full bg-primary/80 flex items-center justify-center group-hover:scale-110 transition-transform">
-                          <Play className="h-5 w-5 text-foreground ml-0.5" />
-                        </div>
-                      </div>
-                      <p className="absolute bottom-3 left-3 right-3 font-heading text-sm text-white z-10 line-clamp-2">{drill.title}</p>
-                    </div>
-                  </div>
-                );
-              })
-            : fallbackCategories.map((c) => (
-                <div key={c.title} className="group cursor-pointer">
-                  <div className="aspect-[4/3] bg-navy-3 rounded-xl overflow-hidden relative mb-4 border border-border group-hover:border-primary/40 transition-colors">
-                    <div className={`absolute top-3 left-3 ${c.color} text-foreground font-heading text-[10px] tracking-widest px-3 py-1 rounded-md`}>{c.label}</div>
-                    <div className="absolute inset-0 flex items-center justify-center">
+            ? drills.map((drill) => (
+                <div key={drill.id} className="group cursor-pointer">
+                  <div className="aspect-[4/3] rounded-xl overflow-hidden relative mb-4 border border-border group-hover:border-secondary/40 transition-colors">
+                    <img src={drill.thumbnail_url} alt={drill.title} width={400} height={300} className="absolute inset-0 w-full h-full object-cover object-top" loading="lazy" decoding="async" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                    <div className="absolute top-3 left-3 bg-secondary text-foreground font-heading text-[10px] tracking-widest px-3 py-1 rounded-md z-10">{drill.category?.toUpperCase()}</div>
+                    <div className="absolute inset-0 flex items-center justify-center z-10">
                       <div className="w-12 h-12 rounded-full bg-primary/80 flex items-center justify-center group-hover:scale-110 transition-transform">
                         <Play className="h-5 w-5 text-foreground ml-0.5" />
                       </div>
                     </div>
+                    <p className="absolute bottom-3 left-3 right-3 font-heading text-sm text-white z-10 line-clamp-2">{drill.title}</p>
                   </div>
-                  <p className="font-heading text-[10px] tracking-widest text-muted-foreground">{c.sub}</p>
-                  <p className="font-heading text-lg text-foreground">{c.title}</p>
-                  <p className="font-body text-sm text-muted-foreground">{c.level}</p>
                 </div>
+              ))
+            : [1, 2, 3, 4].map((i) => (
+                <div key={i} className="aspect-[4/3] bg-card rounded-xl border border-border" />
               ))}
         </div>
       </div>
@@ -333,32 +309,51 @@ function TrainSection() {
   );
 }
 
+/* ━━━ TESTIMONIAL ━━━ */
+function TestimonialSection() {
+  const fade = useFadeIn();
+  return (
+    <section className="py-16 lg:py-32" style={{ background: "#0D1220" }} ref={fade.ref}>
+      <div className={`px-4 md:px-6 lg:px-12 max-w-[1000px] mx-auto ${fade.className}`}>
+        <div className="relative border-l-4 border-secondary pl-8 md:pl-12">
+          <span className="absolute -top-6 -left-2 text-8xl sm:text-9xl font-display leading-none select-none text-secondary/20">"</span>
+          <p className="font-body italic text-lg sm:text-xl lg:text-2xl text-foreground leading-relaxed font-semibold relative z-10">
+            Play it Forward completely changed the trajectory of my child's basketball journey — what used to feel confusing and overwhelming is now clear, structured, and real. The training plan gave him purpose every single day, and through the app we found the right AAU team that actually put him in a position to grow and get seen. But the biggest shift was recruiting — we built his profile, created his highlight tape, and reached out to hundreds of college coaches with confidence instead of just hoping someone would find him. This isn't just an app — it gave my child a real shot and gave our family belief that his dream is actually possible.
+          </p>
+          <span className="absolute -bottom-10 right-0 text-8xl sm:text-9xl font-display leading-none select-none text-secondary/20">"</span>
+          <p className="font-heading text-xs tracking-widest text-primary mt-8">
+            — BASKETBALL PARENT, PHILADELPHIA PA
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ━━━ HOW IT WORKS ━━━ */
 function HowItWorks() {
   const fade = useFadeIn();
   const steps = [
-    { num: "01", title: "BUILD YOUR PLAYER PROFILE", desc: "Tell us your position, your goals, and where your game needs work. We use that to build your personalized training plan before you ever touch a drill." },
-    { num: "02", title: "FOLLOW YOUR WEEKLY SCHEDULE", desc: "Every week you get a structured training schedule built around your goals — skill workouts, shooting sessions, lifting, and recovery. No more guessing what to work on. Just show up and execute." },
-    { num: "03", title: "TRAIN WITH ELITE COACHES", desc: "Access a full library of drills and courses taught by former D1 and college players. Every drill has coaching tips, progressions, and real instruction from athletes who've been where you're trying to go." },
-    { num: "04", title: "TRACK YOUR PROGRESS", desc: "Log your games, track your shooting percentage, and watch your consistency rings fill up week over week. See your game improving in real numbers — not just feel it." },
+    { num: "01", title: "BUILD YOUR PROFILE", desc: "Tell us your position, goals, stats, and where your game needs work." },
+    { num: "02", title: "TRAIN WITH ELITE COACHES", desc: "Access hundreds of drills and courses built by former D1 and pro players." },
+    { num: "03", title: "TRACK YOUR PROGRESS", desc: "Log games, track shots, watch your rating climb week over week." },
+    { num: "04", title: "GET RECRUITED", desc: "Email every college coach in the country directly from your phone." },
   ];
 
   return (
     <section className="px-4 md:px-6 lg:px-12 py-16 lg:py-32" ref={fade.ref}>
-      <div className={`max-w-[1200px] mx-auto bg-card border border-border rounded-2xl p-6 md:p-10 lg:p-16 ${fade.className}`}>
+      <div className={`max-w-[1200px] mx-auto ${fade.className}`}>
         <div className="text-center mb-12 md:mb-16">
-          <div className="flex items-center gap-3 justify-center mb-4">
-            <div className="w-8 h-0.5 bg-primary" />
-            <span className="font-heading text-xs tracking-widest text-primary">SIMPLE PROCESS</span>
-          </div>
           <h2 className="text-5xl sm:text-6xl lg:text-7xl">
-            HOW IT <span className="text-primary">WORKS</span>
+            HOW IT <span className="text-secondary">WORKS</span>
           </h2>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 relative">
-          <div className="hidden lg:block absolute top-6 left-[12.5%] right-[12.5%] h-px bg-border" />
+          {/* Connecting line */}
+          <div className="hidden lg:block absolute top-8 left-[12.5%] right-[12.5%] h-px" style={{ background: "linear-gradient(90deg, transparent, hsl(217 74% 57% / 0.3), hsl(217 74% 57% / 0.3), transparent)" }} />
           {steps.map((s) => (
             <div key={s.title} className="text-center relative">
-              <p className="text-4xl font-heading mx-auto mb-4" style={{ color: "hsl(5 78% 55%)" }}>{s.num}</p>
+              <p className="text-5xl font-heading text-primary mb-4">{s.num}</p>
               <h3 className="font-heading text-base tracking-widest text-foreground mb-3">{s.title}</h3>
               <p className="font-body text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
             </div>
@@ -369,157 +364,7 @@ function HowItWorks() {
   );
 }
 
-function CoachesSection() {
-  const fade = useFadeIn();
-  const coaches = [
-    {
-      name: "ALEX WADE", school: "D1 PLAYER · NOTRE DAME · NBA SKILLS TRAINER", initials: "AW", img: alexWadeImg,
-      bio: "All-time assists leader at Cathedral Catholic HS, D1 player at Notre Dame, and now a certified NBA skills trainer working with players at every level.",
-      stats: [{ label: "D1 NOTRE DAME" }, { label: "NBA SKILLS TRAINER" }],
-    },
-    {
-      name: "BOB FISHER", school: "SHOOTING SPECIALIST · GUINNESS WORLD RECORD HOLDER", initials: "BF", img: bobFisherImg,
-      bio: "Widely regarded as one of the greatest free-throw shooters in basketball history. Set a Guinness World Record making 50 free throws in one minute. Nationally recognized shooting specialist teaching players confident, repeatable mechanics.",
-      stats: [{ label: "GUINNESS RECORD" }, { label: "SHOOTING SPECIALIST" }],
-    },
-    {
-      name: "TORRENCE WATSON", school: "D1 PLAYER · UNIVERSITY OF MISSOURI", initials: "TW", img: torrenceWatsonImg,
-      bio: "Mr. Basketball in the state of Missouri and 1,000 point college scorer at Mizzou. One of the most decorated players in Missouri history.",
-      stats: [{ label: "MR. BASKETBALL MO" }, { label: "1,000 PT. SCORER" }],
-    },
-    {
-      name: "HUNTER MCINTOSH", school: "D1 PLAYER · UNIVERSITY OF NEVADA", initials: "HM", img: hunterMcintoshImg,
-      bio: "Georgia HS State Player of the Year 2019 and 1,000 point college scorer at Nevada. Elite guard with championship-level IQ.",
-      stats: [{ label: "GA STATE POY 2019" }, { label: "1,000 PT. SCORER" }],
-    },
-  ];
-
-  return (
-    <section id="coaches" className="px-4 md:px-6 lg:px-12 py-16 lg:py-32 max-w-[1400px] mx-auto overflow-hidden" ref={fade.ref}>
-      <div className={fade.className}>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-0.5 bg-primary" />
-          <span className="font-heading text-xs tracking-widest text-primary">THE NETWORK</span>
-        </div>
-        <h2 className="text-5xl sm:text-6xl lg:text-7xl leading-[0.9] mb-12">
-          LEARN FROM<br /><span className="text-primary">THE BEST</span>
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {coaches.map((c) => (
-            <div key={c.name} className="bg-card border border-border rounded-xl overflow-hidden group hover:border-primary/30 transition-colors">
-              <div className="aspect-[3/4] bg-navy-3 overflow-hidden relative">
-                <img src={c.img} alt={c.name} width={400} height={450} className="w-full h-full object-cover object-top" loading="lazy" decoding="async" />
-              </div>
-              <div className="p-5">
-                <p className="font-heading text-[10px] tracking-widest text-muted-foreground mb-1">{c.school}</p>
-                <h3 className="font-heading text-xl text-foreground mb-2">{c.name}</h3>
-                <p className="font-body text-sm text-muted-foreground leading-relaxed mb-4">{c.bio}</p>
-                <div className="flex gap-4">
-                  {c.stats.map((s) => (
-                    <span key={s.label} className="font-heading text-[10px] tracking-widest text-foreground">{s.label}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function TestimonialsSection() {
-  const fade = useFadeIn();
-  const testimonials = [
-    {
-      quote: "My son went from JV to starting varsity in one season. The ball handling drills from our coaches are on another level.",
-      name: "MARCUS JOHNSON", role: "Parent · Philadelphia, PA", initials: "MJ", color: "bg-primary",
-    },
-    {
-      quote: "I've used YouTube, I've used other apps — nothing comes close to having actual former college players break down the game at this level.",
-      name: "KAYLA THOMPSON", role: "Player · Age 16 · Atlanta, GA", initials: "KT", color: "bg-pif-blue",
-    },
-    {
-      quote: "The live Q&A sessions alone are worth it. My daughter asked Coach Martinez a question and he broke it down specifically for her. That's priceless.",
-      name: "SANDRA RIVERA", role: "Parent · Chicago, IL", initials: "SR", color: "bg-pif-orange",
-    },
-  ];
-
-  return (
-    <section className="px-4 md:px-6 lg:px-12 py-16 lg:py-32" ref={fade.ref}>
-      <div className={`max-w-[1200px] mx-auto bg-card border border-border rounded-2xl p-6 md:p-10 lg:p-16 ${fade.className}`}>
-        <div className="text-center mb-12">
-          <div className="flex items-center gap-3 justify-center mb-4">
-            <div className="w-8 h-0.5 bg-primary" />
-            <span className="font-heading text-xs tracking-widest text-primary">REAL RESULTS</span>
-          </div>
-          <h2 className="text-4xl sm:text-6xl lg:text-7xl">
-            WHAT PLAYERS <span className="text-primary">SAY</span>
-          </h2>
-        </div>
-        <div className="grid md:grid-cols-3 gap-6">
-          {testimonials.map((t) => (
-            <div key={t.name} className="bg-muted border border-border rounded-xl p-6">
-              <div className="flex gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-pif-gold text-pif-gold" />
-                ))}
-              </div>
-              <p className="font-body text-muted-foreground leading-relaxed mb-6">
-                <span className="text-primary text-xl">"</span>{t.quote}<span className="text-primary text-xl">"</span>
-              </p>
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full ${t.color} flex items-center justify-center text-xs font-heading text-foreground`}>{t.initials}</div>
-                <div>
-                  <p className="font-heading text-sm tracking-wider text-foreground">{t.name}</p>
-                  <p className="font-body text-xs text-muted-foreground">{t.role}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ParentTestimonialsSection() {
-  const fade = useFadeIn();
-  const parentTestimonials = [
-    {
-      quote: "Since using Play it Forward, my child has been on a consistent, regimented schedule with drills that actually stick. He's fallen even more in love with basketball and has become the leading scorer on his team.",
-      name: "COURTNEY", city: "San Diego",
-    },
-    {
-      quote: "Before Play it Forward, I had no idea which drills to give my son. Now he's practicing the right way — and he's developed into a college-level player. This app completely transformed his game.",
-      name: "BOB", city: "Nashville",
-    },
-  ];
-
-  return (
-    <section className="px-4 md:px-6 lg:px-12 py-16 lg:py-24 max-w-[1400px] mx-auto overflow-hidden" ref={fade.ref}>
-      <div className={fade.className}>
-        <p className="font-heading text-xs tracking-widest text-muted-foreground mb-8 text-center">WHAT PARENTS ARE SAYING</p>
-        <div className="grid md:grid-cols-2 gap-6 max-w-[900px] mx-auto">
-          {parentTestimonials.map((t) => (
-            <div key={t.name} className="rounded-xl p-6 border border-border" style={{ background: "#13131a" }}>
-              <div className="flex gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-pif-gold text-pif-gold" />
-                ))}
-              </div>
-              <p className="font-body text-muted-foreground leading-relaxed mb-5">
-                <span className="text-primary text-xl">"</span>{t.quote}<span className="text-primary text-xl">"</span>
-              </p>
-              <p className="font-heading text-sm tracking-wider text-foreground">{t.name} <span className="text-muted-foreground font-body text-xs">· {t.city}</span></p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
+/* ━━━ PRICING ━━━ */
 function PricingSection() {
   const fade = useFadeIn();
   const platformFeatures = [
@@ -529,25 +374,15 @@ function PricingSection() {
     "Game logs and shot tracking",
     "Community leaderboard",
     "Recruiting profile",
-    "Browse 1,852 schools",
-  ];
-  const recruitingFeatures = [
-    "Send personalized messages from your Gmail",
-    "Reach every coach in the country",
-    "Auto-fill stats, GPA, and highlight film",
-    "Track replies and offers",
+    "Browse all 1,852 schools and coach emails",
   ];
 
   return (
-    <section id="pricing" className="px-4 md:px-6 lg:px-12 py-16 lg:py-32 max-w-[1400px] mx-auto overflow-hidden" ref={fade.ref}>
-      <div className={fade.className}>
+    <section id="pricing" className="py-16 lg:py-32" style={{ background: "#0D1220" }} ref={fade.ref}>
+      <div className={`px-4 md:px-6 lg:px-12 max-w-[1400px] mx-auto ${fade.className}`}>
         <div className="text-center mb-12">
-          <div className="flex items-center gap-3 justify-center mb-4">
-            <div className="w-8 h-0.5 bg-primary" />
-            <span className="font-heading text-xs tracking-widest text-primary">WHAT YOU GET</span>
-          </div>
           <h2 className="text-4xl sm:text-6xl lg:text-7xl mb-4">
-            START FREE.<br /><span className="text-primary">NO LIMITS.</span>
+            START FREE. <span className="text-secondary">NO LIMITS.</span>
           </h2>
           <p className="font-body text-muted-foreground text-lg max-w-2xl mx-auto">
             Everything a serious player needs to develop their game and get recruited — on one platform, completely free to start.
@@ -556,45 +391,47 @@ function PricingSection() {
 
         <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {/* Left — Platform */}
-          <div className="bg-card border border-border rounded-2xl p-6 md:p-8 relative">
+          <div className="bg-card border border-secondary/20 rounded-2xl p-6 md:p-8 relative">
             <div className="absolute -top-3 left-6">
-              <span className="bg-pif-green text-background font-heading text-[10px] tracking-widest px-4 py-1.5 rounded-full">FREE</span>
+              <span className="bg-pif-green text-background font-heading text-[10px] tracking-widest px-4 py-1.5 rounded-full">FREE FOREVER</span>
             </div>
-            <p className="font-heading text-xs tracking-widest text-pif-blue mt-2 mb-1">THE PLATFORM</p>
+            <p className="font-heading text-xs tracking-widest text-secondary mt-2 mb-1">THE PLATFORM</p>
             <p className="font-heading text-xl text-foreground mb-5">EVERYTHING INCLUDED</p>
             <div className="space-y-3">
               {platformFeatures.map((f) => (
                 <div key={f} className="flex items-center gap-3">
-                  <Check className="h-4 w-4 text-pif-green flex-shrink-0" />
+                  <Check className="h-4 w-4 text-secondary flex-shrink-0" />
                   <span className="font-body text-sm text-foreground">{f}</span>
                 </div>
               ))}
             </div>
             <Link to="/login" className="block mt-6">
               <Button className="w-full btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg py-5 text-sm min-h-[48px] glow-red glow-red-hover">
-                BUILD MY FREE RECRUITING PROFILE →
+                START FREE →
               </Button>
             </Link>
           </div>
 
           {/* Right — Recruiting Outreach */}
-          <div className="bg-card border border-border rounded-2xl p-6 md:p-8 relative opacity-80">
+          <div className="bg-card border border-secondary/20 rounded-2xl p-6 md:p-8 relative">
             <div className="absolute -top-3 left-6">
               <span className="bg-pif-gold text-background font-heading text-[10px] tracking-widest px-4 py-1.5 rounded-full">COMING SOON</span>
             </div>
             <p className="font-heading text-xs tracking-widest text-pif-gold mt-2 mb-1">RECRUITING OUTREACH</p>
             <p className="font-heading text-xl text-foreground mb-5">DIRECT COACH ACCESS</p>
-            <div className="space-y-3">
-              {recruitingFeatures.map((f) => (
-                <div key={f} className="flex items-center gap-3">
-                  <Check className="h-4 w-4 text-pif-gold flex-shrink-0" />
-                  <span className="font-body text-sm text-foreground">{f}</span>
-                </div>
-              ))}
-            </div>
-            <p className="font-body text-sm text-muted-foreground mt-6 leading-relaxed">
-              Be the first to know when recruiting outreach launches. Sign up now to secure early access.
+            <p className="font-body text-muted-foreground leading-relaxed mb-6">
+              Send personalized emails directly from your Gmail to every coach in the country.
             </p>
+            <p className="font-heading text-sm text-foreground mb-4">BE THE FIRST TO KNOW</p>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Your email address"
+                className="bg-muted border-secondary/20 text-foreground placeholder:text-muted-foreground flex-1"
+              />
+              <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg px-6 text-sm whitespace-nowrap">
+                NOTIFY ME
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -602,34 +439,34 @@ function PricingSection() {
   );
 }
 
+/* ━━━ FINAL CTA ━━━ */
 function FinalCTA() {
   const fade = useFadeIn();
   return (
     <section className="px-4 md:px-6 lg:px-12 py-16 lg:py-20 max-w-[1200px] mx-auto" ref={fade.ref}>
-      <div className={`bg-primary rounded-2xl p-6 md:p-10 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-8 relative overflow-hidden ${fade.className}`}>
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.05) 20px, rgba(255,255,255,0.05) 40px)" }} />
+      <div className={`rounded-2xl p-6 md:p-10 lg:p-16 text-center relative overflow-hidden ${fade.className}`}
+        style={{ background: "linear-gradient(135deg, hsl(217 74% 57% / 0.15), hsl(222 47% 8%))" }}>
+        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(59,130,246,0.1) 20px, rgba(59,130,246,0.1) 40px)" }} />
         <div className="relative z-10">
-          <p className="font-heading text-xs tracking-widest text-foreground/80 mb-2">YOUR NEXT LEVEL STARTS TODAY</p>
-          <h2 className="text-3xl sm:text-5xl text-foreground leading-[0.95]">
-            THE GAME IS<br />WAITING FOR YOU.
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl text-foreground leading-[0.95] mb-4">
+            YOUR COLLEGE CAREER<br /><span className="text-primary">STARTS HERE.</span>
           </h2>
-          <p className="font-body text-foreground/80 mt-4 max-w-md">
-            Join thousands of athletes already training with elite former college players. Sign up free today.
+          <p className="font-body text-muted-foreground text-lg max-w-xl mx-auto mb-8">
+            Join thousands of players taking their development and recruiting into their own hands.
           </p>
-        </div>
-        <div className="relative z-10 text-center">
           <Link to="/login">
-            <Button className="btn-cta bg-foreground text-background hover:bg-foreground/90 rounded-full px-10 py-6 text-base">
+            <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg px-10 py-7 text-base min-h-[56px] glow-red glow-red-hover">
               BUILD MY FREE RECRUITING PROFILE →
             </Button>
           </Link>
-          <p className="font-body text-xs text-foreground/60 mt-3">100% free · No credit card required</p>
+          <p className="font-body text-xs text-muted-foreground mt-4">100% free · No credit card · Takes 2 minutes</p>
         </div>
       </div>
     </section>
   );
 }
 
+/* ━━━ FOOTER ━━━ */
 function Footer() {
   return (
     <footer className="border-t border-border px-4 md:px-6 lg:px-12 py-12 md:py-16 max-w-[1400px] mx-auto">
@@ -638,22 +475,21 @@ function Footer() {
           <div className="flex items-center gap-1 mb-4">
             <span className="font-body italic text-lg text-foreground">Play it </span>
             <span className="font-body italic text-lg font-bold text-primary">Forward</span>
-            <span className="ml-1">🏀</span>
           </div>
           <p className="font-body text-sm text-muted-foreground leading-relaxed">
             The premier platform for youth basketball development. Elite former players teaching the next generation how to win — on and off the court.
           </p>
         </div>
         {[
-          { title: "PLATFORM", links: ["Drill Library", "Coaches", "Pricing", "Leaderboard", "Live Sessions"] },
-          { title: "COMPANY", links: ["About Us", "Become a Coach", "Blog", "Contact"] },
-          { title: "SUPPORT", links: ["Help Center", "Community", "Parent FAQ", "App Download"] },
+          { title: "PLATFORM", links: ["Drill Library", "Coaches", "Pricing", "Leaderboard"] },
+          { title: "COMPANY", links: ["About Us", "Become a Coach", "Contact"] },
+          { title: "SUPPORT", links: ["Help Center", "Community", "Parent FAQ"] },
         ].map((col) => (
           <div key={col.title}>
             <p className="font-heading text-sm tracking-widest text-foreground mb-4">{col.title}</p>
             <ul className="space-y-2">
               {col.links.map((link) => (
-                <li key={link}><a href="#" className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors">{link}</a></li>
+                <li key={link}><a href="#" className="font-body text-sm text-muted-foreground hover:text-secondary transition-colors">{link}</a></li>
               ))}
             </ul>
           </div>
@@ -662,30 +498,28 @@ function Footer() {
       <div className="border-t border-border mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="font-body text-xs text-muted-foreground">© 2026 Play it Forward Basketball. All rights reserved.</p>
         <div className="flex gap-6">
-          <Link to="/privacy" className="font-body text-xs text-muted-foreground hover:text-foreground">Privacy</Link>
-          <a href="#" className="font-body text-xs text-muted-foreground hover:text-foreground">Terms</a>
+          <Link to="/privacy" className="font-body text-xs text-muted-foreground hover:text-secondary">Privacy</Link>
+          <Link to="/terms" className="font-body text-xs text-muted-foreground hover:text-secondary">Terms</Link>
         </div>
       </div>
     </footer>
   );
 }
 
+/* ━━━ MAIN ━━━ */
 export default function LandingPage() {
-  // Always render the marketing landing page at "/", regardless of auth state.
-  // Logged-in users can navigate to the app via the navbar.
   return (
     <div className="min-h-screen bg-background text-foreground scroll-smooth">
+      <AnnouncementBar />
       <Navbar />
       <HeroSection />
       <PillarsSection />
       <RecruitingSection />
-      <Suspense fallback={<div className="h-96" />}>
-        <GameAnalyzerSection />
-      </Suspense>
       <CoachesSection />
+      <PlatformSection />
       <TrainSection />
+      <TestimonialSection />
       <HowItWorks />
-      <ParentTestimonialsSection />
       <PricingSection />
       <FinalCTA />
       <Footer />

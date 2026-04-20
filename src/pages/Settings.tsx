@@ -19,6 +19,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { GmailConnectCard } from "@/components/settings/GmailConnectCard";
 
 export default function Settings() {
   const { profile, user, signOut } = useAuth();
@@ -98,6 +99,9 @@ export default function Settings() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Gmail Connection */}
+        <GmailConnectCard />
 
         {/* Delete Account */}
         <Card className="bg-card border-destructive/30">

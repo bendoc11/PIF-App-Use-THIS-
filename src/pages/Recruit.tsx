@@ -293,7 +293,9 @@ export default function Recruit() {
           </main>
 
           {/* Right: Dashboard */}
-          <RecruitDashboard rows={outreach} onChange={loadOutreach} />
+          <div data-tour="dashboard" className="contents">
+            <RecruitDashboard rows={outreach} onChange={loadOutreach} />
+          </div>
         </div>
       </div>
     </AppLayout>

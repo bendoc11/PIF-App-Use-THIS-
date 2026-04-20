@@ -18,6 +18,7 @@ export function GmailConnectCard() {
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
+  const [sendingTest, setSendingTest] = useState(false);
   const [connectedEmail, setConnectedEmail] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -75,6 +76,33 @@ export function GmailConnectCard() {
     }
   };
 
+  const handleSendTest = async () => {
+    setSendingTest(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not authenticated");
+      const res = await supabase.functions.invoke("send-gmail", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: {
+          to: "bdaugherty216@gmail.com",
+          subject: "Test from Play it Forward",
+          body: "Gmail send is working.",
+        },
+      });
+      if (res.error) throw res.error;
+      const data = res.data as { success?: boolean; from?: string; message_id?: string; error?: string };
+      if (!data?.success) throw new Error(data?.error || "Send failed");
+      toast({
+        title: "Test email sent",
+        description: `From ${data.from} → bdaugherty216@gmail.com`,
+      });
+    } catch (e: any) {
+      toast({ title: "Send failed", description: e.message || "Unknown error", variant: "destructive" });
+    } finally {
+      setSendingTest(false);
+    }
+  };
+
   const handleDisconnect = async () => {
     setDisconnecting(true);
     try {
@@ -116,15 +144,25 @@ export function GmailConnectCard() {
               <span className="text-foreground">Connected as</span>
               <span className="text-primary font-medium">{connectedEmail}</span>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleDisconnect}
-              disabled={disconnecting}
-            >
-              {disconnecting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <X className="h-4 w-4 mr-2" />}
-              Disconnect Gmail
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                onClick={handleSendTest}
+                disabled={sendingTest}
+              >
+                {sendingTest ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Mail className="h-4 w-4 mr-2" />}
+                Send test email
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDisconnect}
+                disabled={disconnecting}
+              >
+                {disconnecting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <X className="h-4 w-4 mr-2" />}
+                Disconnect Gmail
+              </Button>
+            </div>
           </div>
         ) : (
           <Button onClick={handleConnect} disabled={connecting}>

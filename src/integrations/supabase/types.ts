@@ -762,6 +762,33 @@ export type Database = {
         }
         Relationships: []
       }
+      recruiting_offers: {
+        Row: {
+          coach_name: string
+          created_at: string
+          id: string
+          offer_date: string
+          school_name: string
+          user_id: string
+        }
+        Insert: {
+          coach_name: string
+          created_at?: string
+          id?: string
+          offer_date?: string
+          school_name: string
+          user_id: string
+        }
+        Update: {
+          coach_name?: string
+          created_at?: string
+          id?: string
+          offer_date?: string
+          school_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       saved_drills: {
         Row: {
           created_at: string

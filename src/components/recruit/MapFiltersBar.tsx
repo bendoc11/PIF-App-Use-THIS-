@@ -33,9 +33,9 @@ export function MapFiltersBar({ value, onChange }: Props) {
           <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1 block">State</label>
           <Select value={value.state} onValueChange={(v) => onChange({ ...value, state: v })}>
             <SelectTrigger className="bg-white border-gray-300 text-gray-900"><SelectValue /></SelectTrigger>
-            <SelectContent className="bg-white max-h-72">
-              <SelectItem value="All">All states</SelectItem>
-              {US_STATES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+            <SelectContent className="bg-white max-h-72 text-gray-900">
+              <SelectItem value="All" className="text-gray-900 focus:text-gray-900">All states</SelectItem>
+              {US_STATES.map((s) => <SelectItem key={s} value={s} className="text-gray-900 focus:text-gray-900">{s}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
@@ -44,11 +44,11 @@ export function MapFiltersBar({ value, onChange }: Props) {
           <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1 block">School size</label>
           <Select value={value.size} onValueChange={(v) => onChange({ ...value, size: v as any })}>
             <SelectTrigger className="bg-white border-gray-300 text-gray-900"><SelectValue /></SelectTrigger>
-            <SelectContent className="bg-white">
-              <SelectItem value="All">All sizes</SelectItem>
-              <SelectItem value="Small">Small (&lt;3000)</SelectItem>
-              <SelectItem value="Medium">Medium (3K–10K)</SelectItem>
-              <SelectItem value="Large">Large (&gt;10K)</SelectItem>
+            <SelectContent className="bg-white text-gray-900">
+              <SelectItem value="All" className="text-gray-900 focus:text-gray-900">All sizes</SelectItem>
+              <SelectItem value="Small" className="text-gray-900 focus:text-gray-900">Small (&lt;3000)</SelectItem>
+              <SelectItem value="Medium" className="text-gray-900 focus:text-gray-900">Medium (3K–10K)</SelectItem>
+              <SelectItem value="Large" className="text-gray-900 focus:text-gray-900">Large (&gt;10K)</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -57,11 +57,11 @@ export function MapFiltersBar({ value, onChange }: Props) {
           <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1 block">Academic</label>
           <Select value={value.academic} onValueChange={(v) => onChange({ ...value, academic: v as any })}>
             <SelectTrigger className="bg-white border-gray-300 text-gray-900"><SelectValue /></SelectTrigger>
-            <SelectContent className="bg-white">
-              <SelectItem value="All">All levels</SelectItem>
-              <SelectItem value="Good">Good</SelectItem>
-              <SelectItem value="Great">Great</SelectItem>
-              <SelectItem value="Elite">Elite</SelectItem>
+            <SelectContent className="bg-white text-gray-900">
+              <SelectItem value="All" className="text-gray-900 focus:text-gray-900">All levels</SelectItem>
+              <SelectItem value="Good" className="text-gray-900 focus:text-gray-900">Good</SelectItem>
+              <SelectItem value="Great" className="text-gray-900 focus:text-gray-900">Great</SelectItem>
+              <SelectItem value="Elite" className="text-gray-900 focus:text-gray-900">Elite</SelectItem>
             </SelectContent>
           </Select>
         </div>

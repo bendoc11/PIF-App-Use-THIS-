@@ -470,6 +470,47 @@ export type Database = {
         }
         Relationships: []
       }
+      gmail_tokens: {
+        Row: {
+          access_token: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          refresh_token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          refresh_token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          refresh_token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gmail_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       player_ratings: {
         Row: {
           ball_handling: number
@@ -867,6 +908,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_gmail_connection: {
+        Args: never
+        Returns: {
+          connected_at: string
+          email: string
+        }[]
+      }
       is_user_banned: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {

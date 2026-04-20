@@ -23,7 +23,14 @@ interface Props {
 
 const ALL_DIVS: Division[] = ["D1", "D2", "D3", "JUCO", "NAIA"];
 
-export function MapFiltersBar({ value, onChange }: Props) {
+export function MapFiltersBar({ value: rawValue, onChange }: Props) {
+  // Defensive: handle stale shape where `states` may be missing
+  const value: MapFilters = {
+    states: Array.isArray(rawValue?.states) ? rawValue.states : [],
+    divisions: Array.isArray(rawValue?.divisions) ? rawValue.divisions : ALL_DIVS,
+    size: rawValue?.size ?? "All",
+    gpa: rawValue?.gpa ?? "All",
+  };
   const [stateSearch, setStateSearch] = useState("");
   const [stateOpen, setStateOpen] = useState(false);
 

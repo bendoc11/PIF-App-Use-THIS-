@@ -116,71 +116,7 @@ function Navbar() {
   );
 }
 
-/* Hero uses pure CSS animations — no framer-motion, no render blocking */
-function HeroSection() {
-  return (
-    <section className="px-4 md:px-6 lg:px-12 py-12 md:py-16 lg:py-32 max-w-[1400px] mx-auto overflow-hidden">
-      <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-        <div className="animate-[fadeInUp_0.5s_ease-out_both]">
-          {/* Stat callout card */}
-          <div className="inline-block rounded-lg px-4 py-2.5 mb-6 md:mb-8" style={{ background: "rgba(192,57,43,0.08)", border: "1px solid rgba(192,57,43,0.3)" }}>
-            <span className="font-heading text-2xl sm:text-3xl text-primary tracking-wide">29% → 56%</span>
-            <p className="font-body text-xs text-muted-foreground mt-0.5">Real parent result — 3-point percentage tracked inside the app.</p>
-          </div>
-
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl leading-[1] mb-6 md:mb-8 text-foreground">
-            GIVE YOUR CHILD A REAL<br />DEVELOPMENT PLAN,<br />
-            <span className="text-primary">BUILT BY D1 AND NBA COACHES.</span>
-          </h1>
-          <p className="font-body text-muted-foreground text-base sm:text-lg max-w-lg mb-6 leading-relaxed">
-            D1 and NBA coaches. Real drills. Shot tracking. Your child finally knows exactly what to work on — and whether it's working.
-          </p>
-
-          <div className="flex gap-8 mb-6">
-            <div>
-              <span className="text-3xl sm:text-4xl font-heading text-foreground">2,400<span className="text-primary">+</span></span>
-              <p className="font-heading text-[10px] sm:text-xs tracking-widest text-muted-foreground mt-1">ATHLETES ENROLLED</p>
-            </div>
-            <div>
-              <span className="text-3xl sm:text-4xl font-heading text-foreground">50<span className="text-primary">+</span></span>
-              <p className="font-heading text-[10px] sm:text-xs tracking-widest text-muted-foreground mt-1">ELITE COACHES</p>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <Link to="/login" className="w-full sm:w-auto">
-              <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base min-h-[48px] glow-red glow-red-hover">
-                GET YOUR CUSTOM TRAINING PLAN FREE →
-              </Button>
-            </Link>
-            <p className="font-body text-xs text-muted-foreground">100% free · No commitment · Sign up and start training</p>
-          </div>
-        </div>
-        <div className="animate-[fadeInUp_0.7s_ease-out_0.15s_both]">
-          <Link to="/login">
-            <div className="bg-card rounded-xl border border-border overflow-hidden shadow-2xl cursor-pointer hover:shadow-primary/20 hover:border-primary/30 transition-all duration-300">
-              <div className="aspect-video bg-navy-3 flex items-center justify-center relative overflow-hidden">
-                <img src={heroDrillThumb} alt="Basketball drill training" width={800} height={450} className="absolute inset-0 w-full h-full object-cover" fetchPriority="high" />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
-                <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center z-10">
-                  <Play className="h-7 w-7 text-foreground ml-1" />
-                </div>
-              </div>
-              <div className="p-4">
-                <p className="font-heading text-xs tracking-widest text-primary">BALL SCREEN READS COURSE</p>
-                <p className="font-heading text-base text-foreground mt-1">SPLITTING THE SCREEN — DRILL 2 OF 6</p>
-                <div className="flex items-center gap-2 mt-3">
-                  <img src={zacErvinImg} alt="Zac Ervin" width={28} height={28} className="w-7 h-7 rounded-full object-cover object-top" loading="lazy" />
-                  <span className="font-heading text-sm tracking-wider text-foreground">ZAC ERVIN · ELON UNIVERSITY</span>
-                </div>
-              </div>
-            </div>
-          </Link>
-        </div>
-      </div>
-    </section>
-  );
-}
+/* Old HeroSection removed — now imported from HeroSection.tsx */
 
 function SchoolsTicker() {
   return (

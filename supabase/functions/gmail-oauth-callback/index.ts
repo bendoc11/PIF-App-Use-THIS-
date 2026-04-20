@@ -3,6 +3,19 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const APP_URL = "https://playitforward.app";
+const GMAIL_SEND_SCOPE = "https://www.googleapis.com/auth/gmail.send";
+
+function hasRequiredScope(scope: string | null | undefined, requiredScope: string) {
+  return (scope ?? "").split(/\s+/).includes(requiredScope);
+}
+
+async function getAccessTokenScope(accessToken: string): Promise<string | null> {
+  const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(accessToken)}`);
+  if (!res.ok) return null;
+
+  const data = await res.json() as { scope?: string };
+  return data.scope ?? null;
+}
 
 function redirect(status: "connected" | "error", message?: string) {
   const url = new URL(`${APP_URL}/settings`);
@@ -48,12 +61,20 @@ Deno.serve(async (req) => {
       access_token: string;
       refresh_token?: string;
       expires_in: number;
+      scope?: string;
     };
 
     if (!tokens.refresh_token) {
       // Happens if user previously consented and Google didn't re-issue a refresh token.
       // We requested prompt=consent to force it, but guard anyway.
       return redirect("error", "no_refresh_token");
+    }
+
+    const grantedScope = (await getAccessTokenScope(tokens.access_token)) ?? tokens.scope ?? null;
+
+    if (!hasRequiredScope(grantedScope, GMAIL_SEND_SCOPE)) {
+      console.error("[gmail-oauth-callback] missing gmail.send scope", grantedScope);
+      return redirect("error", "missing_gmail_send_scope");
     }
 
     // Fetch the connected email address

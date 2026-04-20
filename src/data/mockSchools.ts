@@ -9,6 +9,8 @@ export interface MockCoach {
   name: string;
   title: string;
   email: string;
+  twitter?: string;
+  instagram?: string;
 }
 
 export interface MockSchool {
@@ -24,6 +26,8 @@ export interface MockSchool {
   enrollment: number;
   size: SchoolSize;
   coaches: MockCoach[];
+  teamTwitter?: string;
+  teamInstagram?: string;
 }
 
 const sized = (n: number): SchoolSize => (n < 3000 ? "Small" : n <= 10000 ? "Medium" : "Large");

@@ -9,6 +9,14 @@ function hasRequiredScope(scope: string | null | undefined, requiredScope: strin
   return (scope ?? "").split(/\s+/).includes(requiredScope);
 }
 
+async function getAccessTokenScope(accessToken: string): Promise<string | null> {
+  const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(accessToken)}`);
+  if (!res.ok) return null;
+
+  const data = await res.json() as { scope?: string };
+  return data.scope ?? null;
+}
+
 function redirect(status: "connected" | "error", message?: string) {
   const url = new URL(`${APP_URL}/settings`);
   url.searchParams.set("gmail", status);
@@ -62,8 +70,10 @@ Deno.serve(async (req) => {
       return redirect("error", "no_refresh_token");
     }
 
-    if (!hasRequiredScope(tokens.scope, GMAIL_SEND_SCOPE)) {
-      console.error("[gmail-oauth-callback] missing gmail.send scope", tokens.scope);
+    const grantedScope = (await getAccessTokenScope(tokens.access_token)) ?? tokens.scope ?? null;
+
+    if (!hasRequiredScope(grantedScope, GMAIL_SEND_SCOPE)) {
+      console.error("[gmail-oauth-callback] missing gmail.send scope", grantedScope);
       return redirect("error", "missing_gmail_send_scope");
     }
 

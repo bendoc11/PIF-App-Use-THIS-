@@ -57,7 +57,7 @@ function AnimCounter({ target, suffix = "" }: { target: number; suffix?: string 
 
 const STATS = [
   { value: 1852, label: "COLLEGE PROGRAMS" },
-  { value: 7819, label: "COACH EMAILS" },
+  { value: 7819, label: "COACH CONTACTS" },
   { value: 5, label: "DIVISIONS COVERED" },
   { value: 50, label: "STATES" },
 ];
@@ -65,11 +65,11 @@ const STATS = [
 const CARDS = [
   {
     headline: "THEIR INBOX. NOT THEIR SPAM FOLDER.",
-    body: "Emails send from your own Gmail account. Coaches see a real person — not a recruiting platform. Replies go straight to your inbox.",
+    body: "Messages send from your own Gmail account. Coaches see a real person — not a recruiting platform. Replies go straight to your inbox.",
   },
   {
     headline: "PERSONALIZED. AT SCALE.",
-    body: "Every email auto-fills with your player's name, stats, GPA, grad year, and highlight film. One click sends to every coach at every school you select.",
+    body: "Every message auto-fills with your player's name, stats, GPA, grad year, and highlight film. One click sends to every coach at every school you select.",
   },
   {
     headline: "FIND THE PERFECT FIT.",
@@ -90,7 +90,7 @@ export function RecruitingSection() {
             <span className="text-primary">EVERY DIVISION.</span>
           </h2>
           <p className="font-body text-muted-foreground text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed">
-            Most families spend thousands on showcases hoping coaches notice. We give you their direct email.
+            Most families spend thousands on showcases hoping coaches notice. We give you their direct contact.
           </p>
         </div>
 
@@ -147,7 +147,7 @@ export function RecruitingSection() {
               "
             </span>
             <p className="font-body italic text-xl sm:text-2xl lg:text-3xl text-foreground leading-snug font-semibold relative z-10">
-              NCSA charged us $1,500 and gave us a coordinator. Play it Forward gave us every coach's direct email.
+              NCSA charged us $1,500 and gave us a coordinator. Play it Forward gave us every coach's direct contact.
             </p>
           </div>
           <p className="font-heading text-xs tracking-widest text-muted-foreground mt-6">

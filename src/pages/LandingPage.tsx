@@ -677,14 +677,12 @@ export default function LandingPage() {
     <div className="min-h-screen bg-background text-foreground scroll-smooth">
       <Navbar />
       <HeroSection />
-      <CoachTicker />
       <PillarsSection />
       <RecruitingSection />
       <Suspense fallback={<div className="h-96" />}>
         <GameAnalyzerSection />
       </Suspense>
       <CoachesSection />
-      <PlatformSection />
       <TrainSection />
       <HowItWorks />
       <ParentTestimonialsSection />

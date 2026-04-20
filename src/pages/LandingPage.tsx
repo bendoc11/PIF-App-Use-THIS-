@@ -85,7 +85,7 @@ function Navbar() {
           <Link to="/login" className="font-heading text-sm tracking-widest text-muted-foreground hover:text-foreground transition-colors">SIGN IN</Link>
           <Link to="/login">
             <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg px-5 py-2.5 text-sm glow-red">
-              GET YOUR CUSTOM TRAINING PLAN FREE →
+              BUILD MY FREE RECRUITING PROFILE →
             </Button>
           </Link>
         </div>
@@ -106,7 +106,7 @@ function Navbar() {
             <Link to="/login" onClick={() => setMobileOpen(false)} className="font-heading text-base tracking-widest text-muted-foreground hover:text-foreground transition-colors">SIGN IN</Link>
             <Link to="/login" onClick={() => setMobileOpen(false)}>
               <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full py-3 text-sm glow-red">
-                GET YOUR CUSTOM TRAINING PLAN FREE →
+                BUILD MY FREE RECRUITING PROFILE →
               </Button>
             </Link>
           </div>

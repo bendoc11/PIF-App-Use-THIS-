@@ -12,8 +12,32 @@ import { OutreachSidebar, OutreachRow } from "@/components/recruit/OutreachSideb
 import { RecruitDashboard } from "@/components/recruit/RecruitDashboard";
 import { ProfileCompletionCard } from "@/components/recruit/ProfileCompletionCard";
 import { SchoolList } from "@/components/recruit/SchoolList";
-import { RecruitOnboarding } from "@/components/recruit/RecruitOnboarding";
+import { RecruitTour, TourStep } from "@/components/recruit/RecruitTour";
 import { Loader2, ArrowLeft, PenSquare } from "lucide-react";
+
+const TOUR_STEPS: TourStep[] = [
+  {
+    target: '[data-tour="filters"]',
+    title: "Step 1 of 4",
+    body: "Filter by state, division, and academics to find your perfect-fit schools.",
+  },
+  {
+    target: '[data-tour="school-list"]',
+    title: "Step 2 of 4",
+    body: "Browse 1,800+ programs. Click any school to see their coaching staff.",
+  },
+  {
+    target: '[data-tour="compose"]',
+    title: "Step 3 of 4",
+    body: "Send personalized emails directly from your Gmail — coaches see your real email address.",
+  },
+  {
+    target: '[data-tour="dashboard"]',
+    title: "Step 4 of 4",
+    body: "Track your schools contacted, replies, offers, and recruiting level here.",
+    placement: "left",
+  },
+];
 import { Button } from "@/components/ui/button";
 
 type View =

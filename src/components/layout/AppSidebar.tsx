@@ -1,4 +1,4 @@
-import { LayoutDashboard, BookOpen, Users, MessageSquare, TrendingUp, Settings, LogOut, Shield, Crosshair } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, MessageSquare, TrendingUp, Settings, LogOut, Shield, Crosshair, UserCircle } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,6 +18,7 @@ import {
 const navItems: { title: string; url: string; icon: any; tourId?: string }[] = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Get Recruited", url: "/recruit", icon: Crosshair },
+  { title: "My Profile", url: "/profile", icon: UserCircle },
   { title: "Workouts", url: "/courses", icon: BookOpen },
   { title: "Coaches", url: "/coaches", icon: Users },
   { title: "Community", url: "/community", icon: MessageSquare, tourId: "nav-community" },

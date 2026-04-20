@@ -39,12 +39,7 @@ export default function Login() {
 
   if (loading || (user && !profile)) return null;
   if (user && profile) {
-    const redirectTo = !profile.onboarding_completed
-      ? "/onboarding"
-      : profile.role === "admin" || profile.plan === "pro" || profile.subscription_status === "active"
-        ? "/dashboard"
-        : "/pricing";
-
+    const redirectTo = !profile.onboarding_completed ? "/onboarding" : "/dashboard";
     return <Navigate to={redirectTo} replace />;
   }
 

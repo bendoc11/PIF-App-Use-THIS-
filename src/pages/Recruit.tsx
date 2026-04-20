@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { MOCK_SCHOOLS, MockCoach, MockSchool } from "@/data/mockSchools";
+import { MockCoach, MockSchool } from "@/data/mockSchools";
+import { useColleges } from "@/hooks/useColleges";
 import { UsMap } from "@/components/recruit/UsMap";
 import { MapFiltersBar, MapFilters } from "@/components/recruit/MapFiltersBar";
 import { SchoolDetail } from "@/components/recruit/SchoolDetail";
@@ -11,8 +12,12 @@ import { OutreachSidebar, OutreachRow } from "@/components/recruit/OutreachSideb
 import { RecruitDashboard } from "@/components/recruit/RecruitDashboard";
 import { ProfileCompletionCard } from "@/components/recruit/ProfileCompletionCard";
 import { SchoolList } from "@/components/recruit/SchoolList";
+import { Loader2 } from "lucide-react";
 
-type View = { kind: "map" } | { kind: "school"; school: MockSchool } | { kind: "compose"; school: MockSchool; coaches: MockCoach[] };
+type View =
+  | { kind: "map" }
+  | { kind: "school"; school: MockSchool }
+  | { kind: "compose"; school: MockSchool; coaches: MockCoach[] };
 
 const REQUIRED_FIELDS = [
   "first_name", "last_name", "position", "height", "phone",
@@ -21,13 +26,14 @@ const REQUIRED_FIELDS = [
 
 export default function Recruit() {
   const { user, profile } = useAuth();
+  const { schools, loading, error } = useColleges();
   const [view, setView] = useState<View>({ kind: "map" });
   const [outreach, setOutreach] = useState<OutreachRow[]>([]);
   const [filters, setFilters] = useState<MapFilters>({
     state: "All",
     divisions: ["D1", "D2", "D3", "JUCO", "NAIA"],
     size: "All",
-    academic: "All",
+    gpa: "All",
   });
 
   const loadOutreach = async () => {
@@ -40,17 +46,25 @@ export default function Recruit() {
     setOutreach((data as any) ?? []);
   };
 
-  useEffect(() => { loadOutreach(); /* eslint-disable-next-line */ }, [user?.id]);
+  useEffect(() => {
+    loadOutreach(); /* eslint-disable-next-line */
+  }, [user?.id]);
 
   const filtered = useMemo(() => {
-    return MOCK_SCHOOLS.filter((s) => {
+    return schools.filter((s) => {
       if (filters.state !== "All" && s.state !== filters.state) return false;
       if (!filters.divisions.includes(s.division)) return false;
       if (filters.size !== "All" && s.size !== filters.size) return false;
-      if (filters.academic !== "All" && s.academicLevel !== filters.academic) return false;
+      if (filters.gpa !== "All") {
+        const g = s.avgGpa;
+        if (g == null) return false;
+        if (filters.gpa === "3.7+" && g < 3.7) return false;
+        if (filters.gpa === "3.3-3.7" && (g < 3.3 || g >= 3.7)) return false;
+        if (filters.gpa === "<3.3" && g >= 3.3) return false;
+      }
       return true;
     });
-  }, [filters]);
+  }, [filters, schools]);
 
   const missingFields = useMemo(() => {
     const p: any = profile ?? {};
@@ -81,11 +95,25 @@ export default function Recruit() {
               {view.kind === "map" && (
                 <>
                   <MapFiltersBar value={filters} onChange={setFilters} />
-                  <UsMap schools={filtered} onSelect={(s) => setView({ kind: "school", school: s })} />
-                  <p className="text-xs text-gray-500 mt-3 text-center">
-                    Showing {filtered.length} of {MOCK_SCHOOLS.length} schools. Click any dot or row to view coaches.
-                  </p>
-                  <SchoolList schools={filtered} onSelect={(s) => setView({ kind: "school", school: s })} />
+
+                  {loading ? (
+                    <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-gray-200">
+                      <Loader2 className="h-6 w-6 text-gray-400 animate-spin" />
+                      <p className="text-sm text-gray-500 mt-3">Loading {schools.length || "thousands of"} schools…</p>
+                    </div>
+                  ) : error ? (
+                    <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl p-6 text-sm">
+                      Failed to load schools: {error}
+                    </div>
+                  ) : (
+                    <>
+                      <UsMap schools={filtered} onSelect={(s) => setView({ kind: "school", school: s })} />
+                      <p className="text-xs text-gray-500 mt-3 text-center">
+                        Showing {filtered.length.toLocaleString()} of {schools.length.toLocaleString()} schools. Click any dot or row to view coaches.
+                      </p>
+                      <SchoolList schools={filtered} onSelect={(s) => setView({ kind: "school", school: s })} />
+                    </>
+                  )}
                 </>
               )}
 

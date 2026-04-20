@@ -37,9 +37,15 @@ export function SchoolList({ schools, onSelect }: Props) {
                 </div>
                 <p className="text-xs text-gray-500 flex items-center gap-1.5">
                   <MapPin className="h-3 w-3" />
-                  {s.city}, {s.stateCode}
+                  {s.city}{s.city && s.stateCode ? ", " : ""}{s.stateCode}
+                  {s.avgGpa != null && (
+                    <>
+                      <span className="text-gray-300">·</span>
+                      <span>{s.avgGpa.toFixed(2)} GPA</span>
+                    </>
+                  )}
                   <span className="text-gray-300">·</span>
-                  <span>{s.academicLevel}</span>
+                  <span>{s.coaches.length} coach{s.coaches.length !== 1 ? "es" : ""}</span>
                 </p>
               </div>
               <Button

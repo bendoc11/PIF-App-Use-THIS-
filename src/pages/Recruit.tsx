@@ -10,6 +10,7 @@ import { EmailComposer } from "@/components/recruit/EmailComposer";
 import { OutreachSidebar, OutreachRow } from "@/components/recruit/OutreachSidebar";
 import { RecruitDashboard } from "@/components/recruit/RecruitDashboard";
 import { ProfileCompletionCard } from "@/components/recruit/ProfileCompletionCard";
+import { SchoolList } from "@/components/recruit/SchoolList";
 
 type View = { kind: "map" } | { kind: "school"; school: MockSchool } | { kind: "compose"; school: MockSchool; coaches: MockCoach[] };
 
@@ -82,8 +83,9 @@ export default function Recruit() {
                   <MapFiltersBar value={filters} onChange={setFilters} />
                   <UsMap schools={filtered} onSelect={(s) => setView({ kind: "school", school: s })} />
                   <p className="text-xs text-gray-500 mt-3 text-center">
-                    Showing {filtered.length} of {MOCK_SCHOOLS.length} schools. Click any dot to view coaches.
+                    Showing {filtered.length} of {MOCK_SCHOOLS.length} schools. Click any dot or row to view coaches.
                   </p>
+                  <SchoolList schools={filtered} onSelect={(s) => setView({ kind: "school", school: s })} />
                 </>
               )}
 

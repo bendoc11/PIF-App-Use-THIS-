@@ -90,13 +90,23 @@ export default function Recruit() {
     gpa: "All",
   });
 
-  // Show onboarding once per user (driven by profile flag)
+  // Show contextual tour once per user (driven by profile flag)
   useEffect(() => {
     const p: any = profile;
     if (p && p.recruit_onboarding_completed === false) {
+      // Only run on the default map view so targets exist
       setShowOnboarding(true);
     }
   }, [profile]);
+
+  const finishTour = async () => {
+    setShowOnboarding(false);
+    if (!user) return;
+    await supabase
+      .from("profiles")
+      .update({ recruit_onboarding_completed: true } as any)
+      .eq("id", user.id);
+  };
 
   const loadOutreach = async () => {
     if (!user) return;

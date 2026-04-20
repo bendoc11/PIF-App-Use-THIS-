@@ -734,30 +734,48 @@ export type Database = {
       }
       profiles: {
         Row: {
+          aau_coach_email: string | null
+          aau_coach_name: string | null
           aau_team: string | null
+          academic_honors: string | null
+          act_score: number | null
+          additional_film_links: Json | null
           age: number | null
           avatar_url: string | null
           banned: boolean
+          bio: string | null
           city: string | null
           created_at: string
           email: string | null
           first_name: string | null
           gpa: number | null
+          gpa_unweighted: number | null
           grad_year: number | null
           height: string | null
           high_school_name: string | null
           highlight_film_url: string | null
+          hs_coach_email: string | null
+          hs_coach_name: string | null
+          hs_coach_phone: string | null
+          hs_team_name: string | null
           id: string
+          intended_major: string | null
+          jersey_number: string | null
           last_drill_date: string | null
           last_name: string | null
           onboarding_completed: boolean
+          parent_email: string | null
+          parent_name: string | null
+          parent_phone: string | null
           phone: string | null
           plan: string
           position: string | null
+          positions: string[] | null
           primary_goal: string | null
           product_tour_completed: boolean
           recruit_onboarding_completed: boolean
           role: string
+          sat_score: number | null
           schedule_setup_completed: boolean
           state: string | null
           streak_days: number
@@ -768,35 +786,57 @@ export type Database = {
           total_drills_completed: number
           training_days_per_week: number | null
           training_hours_per_session: string | null
+          upcoming_events: Json | null
           updated_at: string
           user_type: string | null
+          username: string | null
           weaknesses: string[] | null
+          weight: string | null
+          wingspan: string | null
         }
         Insert: {
+          aau_coach_email?: string | null
+          aau_coach_name?: string | null
           aau_team?: string | null
+          academic_honors?: string | null
+          act_score?: number | null
+          additional_film_links?: Json | null
           age?: number | null
           avatar_url?: string | null
           banned?: boolean
+          bio?: string | null
           city?: string | null
           created_at?: string
           email?: string | null
           first_name?: string | null
           gpa?: number | null
+          gpa_unweighted?: number | null
           grad_year?: number | null
           height?: string | null
           high_school_name?: string | null
           highlight_film_url?: string | null
+          hs_coach_email?: string | null
+          hs_coach_name?: string | null
+          hs_coach_phone?: string | null
+          hs_team_name?: string | null
           id: string
+          intended_major?: string | null
+          jersey_number?: string | null
           last_drill_date?: string | null
           last_name?: string | null
           onboarding_completed?: boolean
+          parent_email?: string | null
+          parent_name?: string | null
+          parent_phone?: string | null
           phone?: string | null
           plan?: string
           position?: string | null
+          positions?: string[] | null
           primary_goal?: string | null
           product_tour_completed?: boolean
           recruit_onboarding_completed?: boolean
           role?: string
+          sat_score?: number | null
           schedule_setup_completed?: boolean
           state?: string | null
           streak_days?: number
@@ -807,35 +847,57 @@ export type Database = {
           total_drills_completed?: number
           training_days_per_week?: number | null
           training_hours_per_session?: string | null
+          upcoming_events?: Json | null
           updated_at?: string
           user_type?: string | null
+          username?: string | null
           weaknesses?: string[] | null
+          weight?: string | null
+          wingspan?: string | null
         }
         Update: {
+          aau_coach_email?: string | null
+          aau_coach_name?: string | null
           aau_team?: string | null
+          academic_honors?: string | null
+          act_score?: number | null
+          additional_film_links?: Json | null
           age?: number | null
           avatar_url?: string | null
           banned?: boolean
+          bio?: string | null
           city?: string | null
           created_at?: string
           email?: string | null
           first_name?: string | null
           gpa?: number | null
+          gpa_unweighted?: number | null
           grad_year?: number | null
           height?: string | null
           high_school_name?: string | null
           highlight_film_url?: string | null
+          hs_coach_email?: string | null
+          hs_coach_name?: string | null
+          hs_coach_phone?: string | null
+          hs_team_name?: string | null
           id?: string
+          intended_major?: string | null
+          jersey_number?: string | null
           last_drill_date?: string | null
           last_name?: string | null
           onboarding_completed?: boolean
+          parent_email?: string | null
+          parent_name?: string | null
+          parent_phone?: string | null
           phone?: string | null
           plan?: string
           position?: string | null
+          positions?: string[] | null
           primary_goal?: string | null
           product_tour_completed?: boolean
           recruit_onboarding_completed?: boolean
           role?: string
+          sat_score?: number | null
           schedule_setup_completed?: boolean
           state?: string | null
           streak_days?: number
@@ -846,9 +908,13 @@ export type Database = {
           total_drills_completed?: number
           training_days_per_week?: number | null
           training_hours_per_session?: string | null
+          upcoming_events?: Json | null
           updated_at?: string
           user_type?: string | null
+          username?: string | null
           weaknesses?: string[] | null
+          weight?: string | null
+          wingspan?: string | null
         }
         Relationships: []
       }
@@ -901,6 +967,53 @@ export type Database = {
             columns: ["drill_id"]
             isOneToOne: false
             referencedRelation: "drills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      target_schools: {
+        Row: {
+          classification: string
+          college_coach_id: string | null
+          created_at: string
+          division: string | null
+          id: string
+          school_name: string
+          state: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          classification?: string
+          college_coach_id?: string | null
+          created_at?: string
+          division?: string | null
+          id?: string
+          school_name: string
+          state?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          classification?: string
+          college_coach_id?: string | null
+          created_at?: string
+          division?: string | null
+          id?: string
+          school_name?: string
+          state?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "target_schools_college_coach_id_fkey"
+            columns: ["college_coach_id"]
+            isOneToOne: false
+            referencedRelation: "college_coaches"
             referencedColumns: ["id"]
           },
         ]

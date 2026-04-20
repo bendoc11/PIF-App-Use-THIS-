@@ -6,16 +6,6 @@ import heroPlayerCutout from "@/assets/hero-player-cutout.png";
 export function HeroSection() {
   return (
     <>
-      {/* Announcement bar */}
-      <div
-        className="w-full py-2.5 text-center"
-        style={{ background: "linear-gradient(90deg, hsl(var(--pif-red)), hsl(var(--pif-orange)))" }}
-      >
-        <Link to="/login" className="inline-flex items-center gap-2 font-heading text-xs sm:text-sm tracking-widest text-foreground">
-          NEW: EMAIL 7,800+ COLLEGE COACHES DIRECTLY FROM YOUR PHONE
-          <ChevronRight className="h-4 w-4" />
-        </Link>
-      </div>
 
       {/* Hero */}
       <section className="relative overflow-hidden">
@@ -39,7 +29,7 @@ export function HeroSection() {
               </h1>
 
               <p className="font-body text-muted-foreground text-lg sm:text-xl max-w-lg mb-8 leading-relaxed">
-                Email every college basketball coach in the country — directly from your phone. Free to start.
+                Message every college basketball coach in the country — directly from your phone. Free to start.
               </p>
 
               <div className="flex flex-col gap-3">

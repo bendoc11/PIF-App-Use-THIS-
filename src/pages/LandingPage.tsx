@@ -532,7 +532,7 @@ function PricingSection() {
     "Browse 1,852 schools",
   ];
   const recruitingFeatures = [
-    "Send personalized emails from your Gmail",
+    "Send personalized messages from your Gmail",
     "Reach every coach in the country",
     "Auto-fill stats, GPA, and highlight film",
     "Track replies and offers",
@@ -677,14 +677,12 @@ export default function LandingPage() {
     <div className="min-h-screen bg-background text-foreground scroll-smooth">
       <Navbar />
       <HeroSection />
-      <CoachTicker />
       <PillarsSection />
       <RecruitingSection />
       <Suspense fallback={<div className="h-96" />}>
         <GameAnalyzerSection />
       </Suspense>
       <CoachesSection />
-      <PlatformSection />
       <TrainSection />
       <HowItWorks />
       <ParentTestimonialsSection />

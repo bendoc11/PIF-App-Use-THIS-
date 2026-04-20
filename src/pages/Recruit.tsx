@@ -144,6 +144,7 @@ export default function Recruit() {
 
   return (
     <AppLayout>
+      {showOnboarding && <RecruitOnboarding onClose={() => setShowOnboarding(false)} />}
       <div className="bg-gray-50 min-h-[calc(100vh-3.5rem)]">
         <div className="flex flex-col lg:flex-row h-[calc(100vh-3.5rem)]">
           {/* Left: Outreach */}

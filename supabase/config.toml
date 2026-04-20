@@ -17,3 +17,5 @@ project_id = "feblgdfxkuegmjqsdycp"
     verify_jwt = false
   [functions.verify-apple-receipt]
     verify_jwt = false
+  [functions.gmail-oauth-callback]
+    verify_jwt = false

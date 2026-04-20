@@ -650,8 +650,8 @@ export default function LandingPage() {
     <div className="min-h-screen bg-background text-foreground scroll-smooth">
       <Navbar />
       <HeroSection />
-      <SchoolsTicker />
-      <ParentTestimonialsSection />
+      <CoachTicker />
+      <RecruitingSection />
       <Suspense fallback={<div className="h-96" />}>
         <GameAnalyzerSection />
       </Suspense>

@@ -12,6 +12,7 @@ import { OutreachSidebar, OutreachRow } from "@/components/recruit/OutreachSideb
 import { RecruitDashboard } from "@/components/recruit/RecruitDashboard";
 import { ProfileCompletionCard } from "@/components/recruit/ProfileCompletionCard";
 import { SchoolList } from "@/components/recruit/SchoolList";
+import { RecruitOnboarding } from "@/components/recruit/RecruitOnboarding";
 import { Loader2, ArrowLeft, PenSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -57,12 +58,21 @@ export default function Recruit() {
   const { schools, loading, error } = useColleges();
   const [view, setView] = useState<View>({ kind: "map" });
   const [outreach, setOutreach] = useState<OutreachRow[]>([]);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [filters, setFilters] = useState<MapFilters>({
     states: [],
     divisions: ["D1", "D2", "D3", "JUCO", "NAIA"],
     size: "All",
     gpa: "All",
   });
+
+  // Show onboarding once per user (driven by profile flag)
+  useEffect(() => {
+    const p: any = profile;
+    if (p && p.recruit_onboarding_completed === false) {
+      setShowOnboarding(true);
+    }
+  }, [profile]);
 
   const loadOutreach = async () => {
     if (!user) return;
@@ -134,6 +144,7 @@ export default function Recruit() {
 
   return (
     <AppLayout>
+      {showOnboarding && <RecruitOnboarding onClose={() => setShowOnboarding(false)} />}
       <div className="bg-gray-50 min-h-[calc(100vh-3.5rem)]">
         <div className="flex flex-col lg:flex-row h-[calc(100vh-3.5rem)]">
           {/* Left: Outreach */}

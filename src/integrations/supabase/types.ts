@@ -756,6 +756,7 @@ export type Database = {
           position: string | null
           primary_goal: string | null
           product_tour_completed: boolean
+          recruit_onboarding_completed: boolean
           role: string
           schedule_setup_completed: boolean
           state: string | null
@@ -794,6 +795,7 @@ export type Database = {
           position?: string | null
           primary_goal?: string | null
           product_tour_completed?: boolean
+          recruit_onboarding_completed?: boolean
           role?: string
           schedule_setup_completed?: boolean
           state?: string | null
@@ -832,6 +834,7 @@ export type Database = {
           position?: string | null
           primary_goal?: string | null
           product_tour_completed?: boolean
+          recruit_onboarding_completed?: boolean
           role?: string
           schedule_setup_completed?: boolean
           state?: string | null

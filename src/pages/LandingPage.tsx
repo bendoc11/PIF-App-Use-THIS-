@@ -532,7 +532,7 @@ function PricingSection() {
     "Browse 1,852 schools",
   ];
   const recruitingFeatures = [
-    "Send personalized emails from your Gmail",
+    "Send personalized messages from your Gmail",
     "Reach every coach in the country",
     "Auto-fill stats, GPA, and highlight film",
     "Track replies and offers",

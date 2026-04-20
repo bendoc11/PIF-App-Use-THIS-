@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 
 export default function Login() {
-  const { user, loading } = useAuth();
+  const { user, loading, profile } = useAuth();
   const navigate = useNavigate();
   const [tab, setTab] = useState<"signin" | "signup">("signup");
   const [showPassword, setShowPassword] = useState(false);
@@ -37,8 +37,16 @@ export default function Login() {
     return () => window.removeEventListener("account-banned", handleBanned);
   }, []);
 
-  if (loading) return null;
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (loading || (user && !profile)) return null;
+  if (user && profile) {
+    const redirectTo = !profile.onboarding_completed
+      ? "/onboarding"
+      : profile.role === "admin" || profile.plan === "pro" || profile.subscription_status === "active"
+        ? "/dashboard"
+        : "/pricing";
+
+    return <Navigate to={redirectTo} replace />;
+  }
 
   const getPasswordStrength = (pw: string) => {
     let score = 0;

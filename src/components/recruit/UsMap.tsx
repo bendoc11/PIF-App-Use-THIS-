@@ -9,15 +9,19 @@ interface Props {
 }
 
 export function UsMap({ schools, onSelect }: Props) {
-  // Only render markers with valid coordinates
-  const mapped = schools.filter(
-    (s) =>
-      s.coordinates &&
-      s.coordinates[0] !== 0 &&
-      s.coordinates[1] !== 0 &&
-      Number.isFinite(s.coordinates[0]) &&
-      Number.isFinite(s.coordinates[1])
-  );
+  // Only render markers with valid numeric coordinates within plausible US bounds
+  const mapped = schools.filter((s) => {
+    const c = s.coordinates;
+    if (!Array.isArray(c) || c.length !== 2) return false;
+    const [lon, lat] = c;
+    if (typeof lon !== "number" || typeof lat !== "number") return false;
+    if (!Number.isFinite(lon) || !Number.isFinite(lat)) return false;
+    if (lon === 0 && lat === 0) return false;
+    // Rough bounds for US + territories handled by geoAlbersUsa
+    if (lat < 15 || lat > 72) return false;
+    if (lon < -180 || lon > -65) return false;
+    return true;
+  });
 
   return (
     <div className="w-full bg-white rounded-2xl border border-gray-200 overflow-hidden">

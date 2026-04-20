@@ -18,6 +18,7 @@ import Community from "./pages/Community";
 import Progress from "./pages/Progress";
 import Pricing from "./pages/Pricing";
 import Settings from "./pages/Settings";
+import Recruit from "./pages/Recruit";
 
 import SignupSuccess from "./pages/SignupSuccess";
 import ResetPassword from "./pages/ResetPassword";
@@ -67,6 +68,7 @@ const App = () => (
             <Route path="/coaches" element={<AuthGuard><SubscriptionGuard><Coaches /></SubscriptionGuard></AuthGuard>} />
             <Route path="/community" element={<AuthGuard><SubscriptionGuard><Community /></SubscriptionGuard></AuthGuard>} />
             <Route path="/progress" element={<AuthGuard><SubscriptionGuard><Progress /></SubscriptionGuard></AuthGuard>} />
+            <Route path="/recruit" element={<AuthGuard><SubscriptionGuard><Recruit /></SubscriptionGuard></AuthGuard>} />
             {/* Admin Routes */}
             <Route path="/admin" element={<Navigate to="/admin/courses" replace />} />
             <Route path="/admin/courses" element={<AdminGuard><AdminCourses /></AdminGuard>} />

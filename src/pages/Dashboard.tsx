@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -6,7 +6,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
-import { Flame, Play, TrendingUp, Trophy, ArrowRight, Lock } from "lucide-react";
+import { Flame, Play, TrendingUp, Trophy, ArrowRight, Lock, Mail, Target } from "lucide-react";
 import ProductTour from "@/components/tour/ProductTour";
 
 interface CourseWithCoach {
@@ -32,6 +32,14 @@ interface DrillWithCoach {
   coaches: { name: string; initials: string; avatar_color: string; avatar_url: string | null } | null;
 }
 
+interface OutreachRow {
+  id: string;
+  coach_name: string;
+  school_name: string;
+  status: string;
+  sent_at: string;
+}
+
 const categoryColors: Record<string, string> = {
   "Ball Handling": "bg-primary",
   "Shooting": "bg-secondary",
@@ -41,6 +49,21 @@ const categoryColors: Record<string, string> = {
   "Scoring": "bg-pif-orange",
   "Post Game": "bg-pif-orange",
 };
+
+const RECRUIT_LEVELS = [
+  { label: "Unrecruited", min: 0 },
+  { label: "On the Radar", min: 5 },
+  { label: "Getting Noticed", min: 15 },
+  { label: "In Demand", min: 30 },
+  { label: "Recruited", min: 50 },
+] as const;
+
+function getRecruitLevel(contacted: number) {
+  for (let i = RECRUIT_LEVELS.length - 1; i >= 0; i--) {
+    if (contacted >= RECRUIT_LEVELS[i].min) return { index: i, ...RECRUIT_LEVELS[i] };
+  }
+  return { index: 0, ...RECRUIT_LEVELS[0] };
+}
 
 function AnimatedCounter({ value, label, icon: Icon, delay = 0 }: { value: number | string; label: string; icon: any; delay?: number }) {
   const [displayValue, setDisplayValue] = useState<string | number>(typeof value === "string" ? value : 0);
@@ -85,6 +108,14 @@ function AnimatedCounter({ value, label, icon: Icon, delay = 0 }: { value: numbe
   );
 }
 
+function relativeDate(iso: string) {
+  const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+  if (d === 0) return "Today";
+  if (d === 1) return "Yesterday";
+  if (d < 7) return `${d}d ago`;
+  return `${Math.floor(d / 7)}w ago`;
+}
+
 export default function Dashboard() {
   const { profile, user } = useAuth();
   const [courses, setCourses] = useState<CourseWithCoach[]>([]);
@@ -92,6 +123,9 @@ export default function Dashboard() {
   const [statDrillsDone, setStatDrillsDone] = useState(0);
   const [statHours, setStatHours] = useState("0m");
   const [statRank, setStatRank] = useState("#—");
+  const [outreach, setOutreach] = useState<OutreachRow[]>([]);
+  const [drillsThisWeek, setDrillsThisWeek] = useState(0);
+  const [coachesThisWeek, setCoachesThisWeek] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -105,12 +139,23 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
+  // Week start helper
+  const weekStartISO = useMemo(() => {
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - mondayOffset);
+    weekStart.setHours(0, 0, 0, 0);
+    return weekStart.toISOString();
+  }, []);
+
   // Fetch live stats for the logged-in user
   useEffect(() => {
     if (!user) return;
 
     const fetchStats = async () => {
-      // 1. Drills Done — count completed drill progress rows
+      // 1. Drills Done
       const { count: drillCount } = await supabase
         .from("user_drill_progress")
         .select("id", { count: "exact", head: true })
@@ -119,7 +164,7 @@ export default function Dashboard() {
       const done = drillCount ?? 0;
       setStatDrillsDone(done);
 
-      // 2. Hours Trained — sum duration_seconds from joined drills
+      // 2. Hours Trained
       const { data: progressRows } = await supabase
         .from("user_drill_progress")
         .select("drill_id, drills(duration_seconds)")
@@ -136,16 +181,7 @@ export default function Dashboard() {
         setStatHours("0m");
       }
 
-      // 3. Weekly Rank — count users with more drills this week
-      const now = new Date();
-      const dayOfWeek = now.getDay(); // 0=Sun
-      const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-      const weekStart = new Date(now);
-      weekStart.setDate(now.getDate() - mondayOffset);
-      weekStart.setHours(0, 0, 0, 0);
-      const weekStartISO = weekStart.toISOString();
-
-      // Get current user's drill count this week
+      // 3. Weekly Rank
       const { count: myWeekCount } = await supabase
         .from("user_drill_progress")
         .select("id", { count: "exact", head: true })
@@ -153,8 +189,8 @@ export default function Dashboard() {
         .eq("completed", true)
         .gte("completed_at", weekStartISO);
       const myCount = myWeekCount ?? 0;
+      setDrillsThisWeek(myCount);
 
-      // Get all users' weekly counts to determine rank
       const { data: allWeekly } = await supabase
         .from("user_drill_progress")
         .select("user_id")
@@ -167,48 +203,131 @@ export default function Dashboard() {
       });
       const usersAbove = Object.values(userCounts).filter((c) => c > myCount).length;
       setStatRank(`#${usersAbove + 1}`);
+
+      // 4. Outreach data
+      const { data: outreachData } = await supabase
+        .from("outreach_history")
+        .select("id, coach_name, school_name, status, sent_at")
+        .eq("user_id", user.id)
+        .order("sent_at", { ascending: false })
+        .limit(5);
+      setOutreach((outreachData as any) ?? []);
+
+      // 5. Coaches contacted this week
+      const { count: weekCoaches } = await supabase
+        .from("outreach_history")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .gte("sent_at", weekStartISO);
+      setCoachesThisWeek(weekCoaches ?? 0);
     };
 
     fetchStats();
-  }, [user]);
+  }, [user, weekStartISO]);
+
+  const totalContacted = outreach.length > 0
+    ? outreach.length // We fetched limit(5), so use a count query for exact total
+    : 0;
+
+  // Use a separate count for total contacted (not capped at 5)
+  const [totalContactedCount, setTotalContactedCount] = useState(0);
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("outreach_history")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .then(({ count }) => setTotalContactedCount(count ?? 0));
+  }, [user, outreach.length]);
+
+  const recruitLevel = getRecruitLevel(totalContactedCount);
+  const levelProgress = recruitLevel.index === RECRUIT_LEVELS.length - 1
+    ? 100
+    : Math.min(100, ((totalContactedCount - recruitLevel.min) / (RECRUIT_LEVELS[recruitLevel.index + 1].min - recruitLevel.min)) * 100);
+
+  // Dynamic headline logic
+  const greeting = useMemo(() => {
+    const name = profile?.first_name || "";
+    if (!name) return null;
+
+    const hasOutreach = totalContactedCount > 0;
+    const p = profile as any;
+
+    // Pool of headlines
+    const trainingHeadlines = [
+      p?.primary_goal?.toLowerCase().includes("next level")
+        ? `Let's get you to the next level, ${name}`
+        : p?.primary_goal?.toLowerCase().includes("starting spot")
+        ? `Let's earn that starting spot, ${name}`
+        : p?.primary_goal?.toLowerCase().includes("make the team")
+        ? `Let's make the team, ${name}`
+        : p?.primary_goal?.toLowerCase().includes("professionally")
+        ? `Let's go pro, ${name}`
+        : `Let's get to work, ${name}`,
+    ];
+
+    if (!hasOutreach) return { text: trainingHeadlines[0], emoji: "🏀" };
+
+    const recruitingHeadlines = [
+      { text: `Keep building your recruiting profile, ${name}`, emoji: "🏀" },
+      { text: `You're ${recruitLevel.label} — keep going, ${name}`, emoji: "🎯" },
+      { text: `${totalContactedCount} coaches and counting, ${name}`, emoji: "📬" },
+    ];
+
+    // Rotate based on current minute for variety
+    const pool = [...trainingHeadlines.map(t => ({ text: t, emoji: "🏀" })), ...recruitingHeadlines];
+    const pick = pool[Math.floor(Date.now() / 60000) % pool.length];
+    return pick;
+  }, [profile, totalContactedCount, recruitLevel.label]);
+
+  const statusDot: Record<string, string> = {
+    sent: "bg-muted-foreground/40",
+    replied: "bg-primary",
+    offer: "bg-pif-green",
+  };
 
   return (
     <AppLayout>
-      {/* Product Tour */}
-      {profile && !(profile as any).product_tour_completed && (
-        <ProductTour />
-      )}
+      {profile && !(profile as any).product_tour_completed && <ProductTour />}
       <div className="p-4 lg:p-6 space-y-6 max-w-7xl mx-auto">
         {/* Personalized Greeting */}
-        {profile?.first_name && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="relative"
-          >
+        {greeting && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="relative">
             <div className="absolute -top-8 -left-8 w-72 h-48 rounded-full bg-[radial-gradient(ellipse_at_top_left,hsl(var(--pif-red)/0.09),transparent_70%)] pointer-events-none" />
             <h1 className="text-2xl md:text-3xl font-heading text-foreground relative z-10">
-              {(profile as any).primary_goal?.toLowerCase().includes("next level")
-                ? `Let's get you to the next level, ${profile.first_name}`
-                : (profile as any).primary_goal?.toLowerCase().includes("starting spot")
-                ? `Let's earn that starting spot, ${profile.first_name}`
-                : (profile as any).primary_goal?.toLowerCase().includes("make the team")
-                ? `Let's make the team, ${profile.first_name}`
-                : (profile as any).primary_goal?.toLowerCase().includes("professionally")
-                ? `Let's go pro, ${profile.first_name}`
-                : `Let's get to work, ${profile.first_name}`
-              } 🏀
+              {greeting.text} {greeting.emoji}
             </h1>
           </motion.div>
         )}
 
-        {/* Stats Row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {/* Stats Row — 6 cards: existing 4 + 2 recruiting */}
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
           <AnimatedCounter value={profile?.streak_days || 0} label="Day Streak" icon={Flame} delay={0} />
           <AnimatedCounter value={statDrillsDone} label="Drills Done" icon={Play} delay={100} />
           <AnimatedCounter value={statHours} label="Hours Trained" icon={TrendingUp} delay={200} />
           <AnimatedCounter value={statRank} label="Weekly Rank" icon={Trophy} delay={300} />
+          <AnimatedCounter value={totalContactedCount} label="Schools Contacted" icon={Mail} delay={400} />
+          <AnimatedCounter value={recruitLevel.label} label="Current Level" icon={Target} delay={500} />
         </div>
+
+        {/* This Week Summary — Training + Recruiting side by side */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+          <Card className="bg-card border-border">
+            <CardContent className="p-5">
+              <h3 className="text-xs font-heading tracking-wider text-muted-foreground uppercase mb-4">This Week</h3>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="text-center">
+                  <p className="text-3xl font-heading text-foreground">{drillsThisWeek}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Drills Completed</p>
+                </div>
+                <div className="text-center border-l border-border">
+                  <p className="text-3xl font-heading text-foreground">{coachesThisWeek}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Coaches Contacted</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
         {/* Today's Training / Continue Where You Left Off */}
         {courses.length > 0 && (
@@ -300,6 +419,91 @@ export default function Dashboard() {
             })}
           </div>
         </div>
+
+        {/* Your Recruiting Journey */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
+          <Card className="bg-card border-border overflow-hidden">
+            <CardContent className="p-5 space-y-5">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-heading text-foreground">Your Recruiting Journey</h2>
+                <Link
+                  to="/recruit"
+                  className="text-sm text-primary hover:underline font-heading tracking-wider flex items-center gap-1"
+                >
+                  Contact More Coaches <ArrowRight className="h-3 w-3" />
+                </Link>
+              </div>
+
+              {/* Level progress bar */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  {RECRUIT_LEVELS.map((lvl, i) => (
+                    <span
+                      key={lvl.label}
+                      className={`text-[10px] font-heading tracking-wider ${
+                        i <= recruitLevel.index ? "text-primary" : "text-muted-foreground"
+                      }`}
+                    >
+                      {lvl.label}
+                    </span>
+                  ))}
+                </div>
+                <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="absolute inset-y-0 left-0 bg-primary rounded-full transition-all duration-700"
+                    style={{
+                      width: `${((recruitLevel.index / (RECRUIT_LEVELS.length - 1)) * 100) + (levelProgress / (RECRUIT_LEVELS.length - 1))}%`,
+                    }}
+                  />
+                </div>
+                {/* Level stage dots */}
+                <div className="relative h-0">
+                  {RECRUIT_LEVELS.map((_, i) => (
+                    <div
+                      key={i}
+                      className={`absolute -top-[13px] w-3 h-3 rounded-full border-2 border-card ${
+                        i <= recruitLevel.index ? "bg-primary" : "bg-muted"
+                      }`}
+                      style={{ left: `${(i / (RECRUIT_LEVELS.length - 1)) * 100}%`, transform: "translateX(-50%)" }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Recent outreach or empty state */}
+              <div className="pt-2">
+                {totalContactedCount === 0 ? (
+                  <div className="text-center py-6">
+                    <p className="text-sm text-muted-foreground mb-3">You haven't contacted any coaches yet.</p>
+                    <Link
+                      to="/recruit"
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-heading tracking-wider hover:bg-primary/90 transition-colors"
+                    >
+                      Start your recruiting journey <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground font-heading tracking-wider uppercase">Recent Outreach</p>
+                    {outreach.slice(0, 3).map((row) => (
+                      <div key={row.id} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${statusDot[row.status] || "bg-muted-foreground/40"}`} />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-foreground truncate">{row.school_name}</p>
+                          <p className="text-xs text-muted-foreground truncate">{row.coach_name}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="text-[10px] text-muted-foreground">{relativeDate(row.sent_at)}</span>
+                          <span className="block text-[10px] font-heading tracking-wider text-muted-foreground capitalize">{row.status}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
         {/* Workouts */}
         <div>

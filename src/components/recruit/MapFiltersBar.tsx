@@ -1,13 +1,15 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Division, AcademicLevel, SchoolSize, US_STATES, DIVISION_COLORS } from "@/data/mockSchools";
+import { Division, SchoolSize, US_STATES, DIVISION_COLORS } from "@/data/mockSchools";
 import { X } from "lucide-react";
+
+export type GpaBand = "All" | "3.7+" | "3.3-3.7" | "<3.3";
 
 export interface MapFilters {
   state: string;
   divisions: Division[];
   size: SchoolSize | "All";
-  academic: AcademicLevel | "All";
+  gpa: GpaBand;
 }
 
 interface Props {
@@ -24,7 +26,7 @@ export function MapFiltersBar({ value, onChange }: Props) {
   };
 
   const reset = () =>
-    onChange({ state: "All", divisions: ALL_DIVS, size: "All", academic: "All" });
+    onChange({ state: "All", divisions: ALL_DIVS, size: "All", gpa: "All" });
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-4">
@@ -54,14 +56,14 @@ export function MapFiltersBar({ value, onChange }: Props) {
         </div>
 
         <div className="flex-1 min-w-[160px]">
-          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1 block">Academic</label>
-          <Select value={value.academic} onValueChange={(v) => onChange({ ...value, academic: v as any })}>
+          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1 block">Avg GPA</label>
+          <Select value={value.gpa} onValueChange={(v) => onChange({ ...value, gpa: v as GpaBand })}>
             <SelectTrigger className="bg-white border-gray-300 text-gray-900"><SelectValue /></SelectTrigger>
             <SelectContent className="bg-white text-gray-900">
-              <SelectItem value="All" className="text-gray-900 focus:text-gray-900">All levels</SelectItem>
-              <SelectItem value="Good" className="text-gray-900 focus:text-gray-900">Good</SelectItem>
-              <SelectItem value="Great" className="text-gray-900 focus:text-gray-900">Great</SelectItem>
-              <SelectItem value="Elite" className="text-gray-900 focus:text-gray-900">Elite</SelectItem>
+              <SelectItem value="All" className="text-gray-900 focus:text-gray-900">All GPAs</SelectItem>
+              <SelectItem value="3.7+" className="text-gray-900 focus:text-gray-900">Elite (3.7+)</SelectItem>
+              <SelectItem value="3.3-3.7" className="text-gray-900 focus:text-gray-900">Great (3.3–3.7)</SelectItem>
+              <SelectItem value="<3.3" className="text-gray-900 focus:text-gray-900">Good (&lt;3.3)</SelectItem>
             </SelectContent>
           </Select>
         </div>

@@ -1,7 +1,6 @@
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
 import { MockSchool, DIVISION_COLORS } from "@/data/mockSchools";
 
-// TopoJSON of US states from the react-simple-maps maintainer's CDN
 const GEO_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
 
 interface Props {
@@ -10,6 +9,16 @@ interface Props {
 }
 
 export function UsMap({ schools, onSelect }: Props) {
+  // Only render markers with valid coordinates
+  const mapped = schools.filter(
+    (s) =>
+      s.coordinates &&
+      s.coordinates[0] !== 0 &&
+      s.coordinates[1] !== 0 &&
+      Number.isFinite(s.coordinates[0]) &&
+      Number.isFinite(s.coordinates[1])
+  );
+
   return (
     <div className="w-full bg-white rounded-2xl border border-gray-200 overflow-hidden">
       <ComposableMap
@@ -38,7 +47,7 @@ export function UsMap({ schools, onSelect }: Props) {
           }
         </Geographies>
 
-        {schools.map((s) => (
+        {mapped.map((s) => (
           <Marker
             key={s.id}
             coordinates={s.coordinates}
@@ -46,11 +55,12 @@ export function UsMap({ schools, onSelect }: Props) {
             style={{ default: { cursor: "pointer" } }}
           >
             <circle
-              r={6}
+              r={4}
               fill={DIVISION_COLORS[s.division]}
               stroke="#fff"
-              strokeWidth={1.5}
-              className="transition-all hover:r-8"
+              strokeWidth={1}
+              fillOpacity={0.85}
+              className="transition-all"
             >
               <title>{`${s.name} (${s.division})`}</title>
             </circle>

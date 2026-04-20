@@ -522,51 +522,80 @@ function ParentTestimonialsSection() {
 
 function PricingSection() {
   const fade = useFadeIn();
-  const features = [
+  const platformFeatures = [
     "Full drill library — every skill and level",
-    "All courses from all coaches",
-    "Live Q&A sessions with elite coaches",
-    "Community access & leaderboard",
-    "Progress tracking & streaks",
-    "New content added every week",
-    "Access on any device, anytime",
+    "All coach courses and programs",
+    "Progress tracking and streaks",
+    "Game logs and shot tracking",
+    "Community leaderboard",
+    "Recruiting profile",
+    "Browse 1,852 schools",
+  ];
+  const recruitingFeatures = [
+    "Send personalized emails from your Gmail",
+    "Reach every coach in the country",
+    "Auto-fill stats, GPA, and highlight film",
+    "Track replies and offers",
   ];
 
   return (
-    <section id="pricing" className="px-4 md:px-6 lg:px-12 py-16 lg:py-32 max-w-[1400px] mx-auto text-center overflow-hidden" ref={fade.ref}>
+    <section id="pricing" className="px-4 md:px-6 lg:px-12 py-16 lg:py-32 max-w-[1400px] mx-auto overflow-hidden" ref={fade.ref}>
       <div className={fade.className}>
-        <div className="flex items-center gap-3 justify-center mb-4">
-          <div className="w-8 h-0.5 bg-primary" />
-          <span className="font-heading text-xs tracking-widest text-primary">WHAT YOU GET</span>
+        <div className="text-center mb-12">
+          <div className="flex items-center gap-3 justify-center mb-4">
+            <div className="w-8 h-0.5 bg-primary" />
+            <span className="font-heading text-xs tracking-widest text-primary">WHAT YOU GET</span>
+          </div>
+          <h2 className="text-4xl sm:text-6xl lg:text-7xl mb-4">
+            START FREE.<br /><span className="text-primary">NO LIMITS.</span>
+          </h2>
+          <p className="font-body text-muted-foreground text-lg max-w-2xl mx-auto">
+            Everything a serious player needs to develop their game and get recruited — on one platform, completely free to start.
+          </p>
         </div>
-        <h2 className="text-4xl sm:text-6xl lg:text-7xl mb-4">
-          100% FREE.<br /><span className="text-primary">EVERYTHING INCLUDED.</span>
-        </h2>
-        <p className="font-body text-muted-foreground text-lg mb-12">Full access to every drill, course, and coach. No payment required.</p>
 
-        <div className="max-w-lg mx-auto bg-card border border-border rounded-2xl p-6 md:p-8 text-left relative">
-          <div className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap">
-            <span className="bg-primary text-foreground font-heading text-[10px] md:text-xs tracking-widest px-3 md:px-5 py-2 rounded-full">START TODAY — FREE FOREVER</span>
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          {/* Left — Platform */}
+          <div className="bg-card border border-border rounded-2xl p-6 md:p-8 relative">
+            <div className="absolute -top-3 left-6">
+              <span className="bg-pif-green text-background font-heading text-[10px] tracking-widest px-4 py-1.5 rounded-full">FREE</span>
+            </div>
+            <p className="font-heading text-xs tracking-widest text-pif-blue mt-2 mb-1">THE PLATFORM</p>
+            <p className="font-heading text-xl text-foreground mb-5">EVERYTHING INCLUDED</p>
+            <div className="space-y-3">
+              {platformFeatures.map((f) => (
+                <div key={f} className="flex items-center gap-3">
+                  <Check className="h-4 w-4 text-pif-green flex-shrink-0" />
+                  <span className="font-body text-sm text-foreground">{f}</span>
+                </div>
+              ))}
+            </div>
+            <Link to="/login" className="block mt-6">
+              <Button className="w-full btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg py-5 text-sm min-h-[48px] glow-red glow-red-hover">
+                BUILD MY FREE RECRUITING PROFILE →
+              </Button>
+            </Link>
           </div>
-          <p className="font-heading text-xs tracking-widest text-pif-blue mt-2">FULL ACCESS</p>
-          <p className="font-heading text-2xl text-foreground mb-4">PLAY IT FORWARD</p>
-          <div className="flex items-baseline gap-2 mb-2">
-            <span className="text-6xl font-heading text-foreground">FREE</span>
+
+          {/* Right — Recruiting Outreach */}
+          <div className="bg-card border border-border rounded-2xl p-6 md:p-8 relative opacity-80">
+            <div className="absolute -top-3 left-6">
+              <span className="bg-pif-gold text-background font-heading text-[10px] tracking-widest px-4 py-1.5 rounded-full">COMING SOON</span>
+            </div>
+            <p className="font-heading text-xs tracking-widest text-pif-gold mt-2 mb-1">RECRUITING OUTREACH</p>
+            <p className="font-heading text-xl text-foreground mb-5">DIRECT COACH ACCESS</p>
+            <div className="space-y-3">
+              {recruitingFeatures.map((f) => (
+                <div key={f} className="flex items-center gap-3">
+                  <Check className="h-4 w-4 text-pif-gold flex-shrink-0" />
+                  <span className="font-body text-sm text-foreground">{f}</span>
+                </div>
+              ))}
+            </div>
+            <p className="font-body text-sm text-muted-foreground mt-6 leading-relaxed">
+              Be the first to know when recruiting outreach launches. Sign up now to secure early access.
+            </p>
           </div>
-          <p className="font-body text-sm text-muted-foreground mb-6">Everything included. No credit card needed.</p>
-          <div className="border-t border-border pt-6 space-y-3 mb-8">
-            {features.map((f) => (
-              <div key={f} className="flex items-center gap-3">
-                <Check className="h-4 w-4 text-pif-green flex-shrink-0" />
-                <span className="font-body text-sm text-foreground">{f}</span>
-              </div>
-            ))}
-          </div>
-          <Link to="/login">
-            <Button className="w-full btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg py-5 md:py-6 text-sm md:text-base min-h-[48px] glow-red glow-red-hover">
-              GET YOUR CUSTOM TRAINING PLAN FREE →
-            </Button>
-          </Link>
         </div>
       </div>
     </section>
@@ -591,7 +620,7 @@ function FinalCTA() {
         <div className="relative z-10 text-center">
           <Link to="/login">
             <Button className="btn-cta bg-foreground text-background hover:bg-foreground/90 rounded-full px-10 py-6 text-base">
-              GET YOUR CUSTOM TRAINING PLAN FREE →
+              BUILD MY FREE RECRUITING PROFILE →
             </Button>
           </Link>
           <p className="font-body text-xs text-foreground/60 mt-3">100% free · No credit card required</p>

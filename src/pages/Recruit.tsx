@@ -58,12 +58,21 @@ export default function Recruit() {
   const { schools, loading, error } = useColleges();
   const [view, setView] = useState<View>({ kind: "map" });
   const [outreach, setOutreach] = useState<OutreachRow[]>([]);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [filters, setFilters] = useState<MapFilters>({
     states: [],
     divisions: ["D1", "D2", "D3", "JUCO", "NAIA"],
     size: "All",
     gpa: "All",
   });
+
+  // Show onboarding once per user (driven by profile flag)
+  useEffect(() => {
+    const p: any = profile;
+    if (p && p.recruit_onboarding_completed === false) {
+      setShowOnboarding(true);
+    }
+  }, [profile]);
 
   const loadOutreach = async () => {
     if (!user) return;

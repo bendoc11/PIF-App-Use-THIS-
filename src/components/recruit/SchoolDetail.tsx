@@ -3,13 +3,36 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, GraduationCap, MapPin, Users } from "lucide-react";
+import { ArrowLeft, GraduationCap, MapPin, Users, Twitter, Instagram } from "lucide-react";
 import { MockCoach, MockSchool, DIVISION_COLORS } from "@/data/mockSchools";
 
 interface Props {
   school: MockSchool;
   onBack: () => void;
   onCompose: (coaches: MockCoach[]) => void;
+}
+
+function SocialIcon({
+  href,
+  label,
+  children,
+}: {
+  href: string;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={(e) => e.stopPropagation()}
+      aria-label={label}
+      className="inline-flex items-center justify-center h-7 w-7 rounded-full text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+    >
+      {children}
+    </a>
+  );
 }
 
 export function SchoolDetail({ school, onBack, onCompose }: Props) {
@@ -25,6 +48,9 @@ export function SchoolDetail({ school, onBack, onCompose }: Props) {
 
   const selectedCoaches = school.coaches.filter((c) => picked.has(c.email));
 
+  const teamTwitter = school.teamTwitter || "https://twitter.com";
+  const teamInstagram = school.teamInstagram || "https://instagram.com";
+
   return (
     <Card className="p-6 bg-white border-gray-200">
       <Button variant="ghost" size="sm" onClick={onBack} className="text-gray-600 mb-4 -ml-2">
@@ -33,7 +59,17 @@ export function SchoolDetail({ school, onBack, onCompose }: Props) {
 
       <div className="mb-5">
         <div className="flex items-start justify-between gap-3">
-          <h2 className="text-2xl font-semibold text-gray-900">{school.name}</h2>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="text-2xl font-semibold text-gray-900">{school.name}</h2>
+            <div className="flex items-center gap-0.5">
+              <SocialIcon href={teamTwitter} label={`${school.name} on X`}>
+                <Twitter className="h-4 w-4" />
+              </SocialIcon>
+              <SocialIcon href={teamInstagram} label={`${school.name} on Instagram`}>
+                <Instagram className="h-4 w-4" />
+              </SocialIcon>
+            </div>
+          </div>
           <Badge
             style={{ backgroundColor: DIVISION_COLORS[school.division], color: "white" }}
             className="border-0"
@@ -50,21 +86,33 @@ export function SchoolDetail({ school, onBack, onCompose }: Props) {
 
       <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Coaching staff</h3>
       <div className="space-y-2 mb-5">
-        {school.coaches.map((c) => (
-          <label
-            key={c.email}
-            className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
-          >
-            <Checkbox
-              checked={picked.has(c.email)}
-              onCheckedChange={() => toggle(c.email)}
-            />
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-900">{c.name}</p>
-              <p className="text-xs text-gray-500">{c.title} · {c.email}</p>
-            </div>
-          </label>
-        ))}
+        {school.coaches.map((c) => {
+          const tw = c.twitter || "https://twitter.com";
+          const ig = c.instagram || "https://instagram.com";
+          return (
+            <label
+              key={c.email}
+              className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
+            >
+              <Checkbox
+                checked={picked.has(c.email)}
+                onCheckedChange={() => toggle(c.email)}
+              />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <p className="font-medium text-gray-900">{c.name}</p>
+                  <SocialIcon href={tw} label={`${c.name} on X`}>
+                    <Twitter className="h-3.5 w-3.5" />
+                  </SocialIcon>
+                  <SocialIcon href={ig} label={`${c.name} on Instagram`}>
+                    <Instagram className="h-3.5 w-3.5" />
+                  </SocialIcon>
+                </div>
+                <p className="text-xs text-gray-500">{c.title} · {c.email}</p>
+              </div>
+            </label>
+          );
+        })}
       </div>
 
       <Button

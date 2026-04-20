@@ -16,6 +16,8 @@ interface Props {
   onBack: () => void;
   onRemoveCoach: (email: string) => void;
   onSent: () => void;
+  /** Optional pre-filled draft (used for follow-ups). */
+  initialDraft?: { subject: string; body: string } | null;
 }
 
 function lastNameOf(full: string) {
@@ -42,7 +44,7 @@ ${p.high_school_name ?? ""}
 ${p.phone ?? ""}`;
 }
 
-export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent }: Props) {
+export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent, initialDraft }: Props) {
   const { profile, user } = useAuth();
   const p: any = profile ?? {};
 
@@ -51,9 +53,8 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent 
     [p],
   );
 
-  const [subject, setSubject] = useState(defaultSubject);
-  // Body uses [Coach Last Name] as a placeholder we substitute per-recipient
-  const [body, setBody] = useState(buildBody(p, school, "[Coach Last Name]"));
+  const [subject, setSubject] = useState(initialDraft?.subject ?? defaultSubject);
+  const [body, setBody] = useState(initialDraft?.body ?? buildBody(p, school, "[Coach Last Name]"));
   const [sending, setSending] = useState(false);
 
   const send = async () => {

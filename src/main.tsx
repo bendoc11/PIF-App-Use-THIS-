@@ -5,11 +5,11 @@ import { initializeStore, restorePurchases, isIAPAvailable } from "./lib/in-app-
 
 createRoot(document.getElementById("root")!).render(<App />);
 
-// Initialize In-App Purchases and restore existing subscriptions on native platforms
-if (isIAPAvailable()) {
-  initializeStore().then(() => {
-    restorePurchases().catch((err) =>
-      console.warn("[IAP] Restore purchases failed:", err)
-    );
-  });
-}
+// Hidden for App Store review — IAP initialization disabled
+// if (isIAPAvailable()) {
+//   initializeStore().then(() => {
+//     restorePurchases().catch((err) =>
+//       console.warn("[IAP] Restore purchases failed:", err)
+//     );
+//   });
+// }

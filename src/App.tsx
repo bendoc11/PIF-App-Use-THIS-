@@ -63,7 +63,8 @@ const App = () => (
             <Route path="/courses/:courseId/:drillIndex" element={<AuthGuard><SubscriptionGuard><CoursePlayer /></SubscriptionGuard></AuthGuard>} />
             <Route path="/drill/:courseId/:drillIndex" element={<AuthGuard><SubscriptionGuard><DrillExperience /></SubscriptionGuard></AuthGuard>} />
             <Route path="/drills/:drillId" element={<AuthGuard><SubscriptionGuard><DrillExperience /></SubscriptionGuard></AuthGuard>} />
-            <Route path="/pricing" element={<AuthGuard><Pricing /></AuthGuard>} />
+            {/* Hidden for App Store review — pricing/paywall disabled */}
+            {/* <Route path="/pricing" element={<AuthGuard><Pricing /></AuthGuard>} /> */}
             <Route path="/settings" element={<AuthGuard><Settings /></AuthGuard>} />
             
             <Route path="/coaches" element={<AuthGuard><SubscriptionGuard><Coaches /></SubscriptionGuard></AuthGuard>} />

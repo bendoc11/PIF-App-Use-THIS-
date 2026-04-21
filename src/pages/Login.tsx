@@ -16,18 +16,14 @@ export default function Login() {
   const [tab, setTab] = useState<"signin" | "signup">("signup");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
 
-  // Sign In state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // Sign Up state
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
-  
 
   useEffect(() => {
     const handleBanned = () => {
@@ -50,10 +46,10 @@ export default function Login() {
     if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
     if (/\d/.test(pw)) score++;
     if (/[^A-Za-z0-9]/.test(pw)) score++;
-    if (score <= 1) return { level: "Weak", color: "bg-primary", width: "25%" };
-    if (score <= 2) return { level: "Fair", color: "bg-pif-gold", width: "50%" };
-    if (score <= 3) return { level: "Good", color: "bg-secondary", width: "75%" };
-    return { level: "Strong", color: "bg-pif-green", width: "100%" };
+    if (score <= 1) return { level: "Weak", color: "bg-[#E8391D]", width: "25%" };
+    if (score <= 2) return { level: "Fair", color: "bg-yellow-500", width: "50%" };
+    if (score <= 3) return { level: "Good", color: "bg-[#3B82F6]", width: "75%" };
+    return { level: "Strong", color: "bg-green-500", width: "100%" };
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -88,9 +84,7 @@ export default function Login() {
 
       if (signUpError) throw signUpError;
 
-      // Auto-confirm is enabled, so we should have a session
       if (!signUpData?.session) {
-        // Try signing in if auto-confirm created the user without a session
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: signupEmail.trim(),
           password: signupPassword,
@@ -98,7 +92,6 @@ export default function Login() {
         if (signInError) throw signInError;
       }
 
-      // Account created — AuthGuard will redirect to /onboarding since onboarding_completed is false
       navigate("/dashboard");
     } catch (err: any) {
       toast.error(err.message || "Could not create account");
@@ -107,82 +100,144 @@ export default function Login() {
     }
   };
 
-
   const strength = getPasswordStrength(signupPassword);
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex" style={{ backgroundColor: '#0A0F1E' }}>
       {/* Left Brand Panel */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-background items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-secondary/10" />
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center" style={{ backgroundColor: '#0A0F1E' }}>
+        {/* Subtle electric blue glow top-left */}
+        <div className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full opacity-[0.08]" style={{ background: 'radial-gradient(circle, #3B82F6 0%, transparent 70%)' }} />
+        {/* Faint watermark */}
         <div className="absolute inset-0 flex items-center justify-center opacity-[0.03]">
-          <span className="font-display text-[20rem] leading-none text-foreground select-none">PIF</span>
+          <span className="font-display text-[20rem] leading-none text-white select-none">PIF</span>
         </div>
+
         <div className="relative z-10 px-12 space-y-8 max-w-lg">
-          <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
-            <span className="font-heading text-xl text-primary-foreground">PIF</span>
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#E8391D' }}>
+            <span className="font-heading text-xl text-white">PIF</span>
           </div>
-          <h1 className="font-display text-6xl text-foreground leading-none">
-            Train Like<br />The Best.<br />
-            <span className="text-primary">Become One.</span>
+
+          <h1 className="font-display text-5xl xl:text-6xl text-white leading-none tracking-tight">
+            YOUR RECRUITING<br />JOURNEY<br />
+            <span style={{ color: '#3B82F6' }}>STARTS HERE.</span>
           </h1>
-          <div className="flex items-center gap-2 mt-8">
-            {["ZE", "AW", "TW", "HM"].map((initials, i) => (
-              <div key={i} className="w-10 h-10 rounded-full bg-muted border-2 border-background flex items-center justify-center -ml-2 first:ml-0">
-                <span className="text-xs font-heading text-muted-foreground">{initials}</span>
+
+          <p className="text-base leading-relaxed" style={{ color: '#A0ADB8' }}>
+            Build your free recruiting profile, access elite coaching, and reach every college coach in the country — all in one place.
+          </p>
+
+          <div className="space-y-3">
+            {[
+              '1,852 college programs in our database',
+              '7,819 coach emails, all divisions',
+              '500+ drills from D1 and NBA coaches',
+            ].map((line, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <span className="font-bold" style={{ color: '#3B82F6' }}>—</span>
+                <span className="text-sm text-white/80">{line}</span>
               </div>
             ))}
-            <div className="w-10 h-10 rounded-full bg-primary/20 border-2 border-background flex items-center justify-center -ml-2">
-              <span className="text-xs font-heading text-primary">+50</span>
+          </div>
+
+          <div className="flex items-center gap-2 mt-8">
+            {["ZE", "AW", "TW", "HM"].map((initials, i) => (
+              <div
+                key={i}
+                className="w-10 h-10 rounded-full border-2 flex items-center justify-center -ml-2 first:ml-0"
+                style={{ backgroundColor: '#111827', borderColor: '#0A0F1E' }}
+              >
+                <span className="text-xs font-heading" style={{ color: '#A0ADB8' }}>{initials}</span>
+              </div>
+            ))}
+            <div
+              className="w-10 h-10 rounded-full border-2 flex items-center justify-center -ml-2"
+              style={{ backgroundColor: 'rgba(59,130,246,0.2)', borderColor: '#0A0F1E' }}
+            >
+              <span className="text-xs font-heading" style={{ color: '#3B82F6' }}>+50</span>
             </div>
           </div>
-          <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <span><strong className="text-foreground">2,400+</strong> Athletes</span>
+
+          <div className="flex items-center gap-6 text-sm" style={{ color: '#A0ADB8' }}>
+            <span><strong className="text-white">2,400+</strong> Players Already Recruited</span>
           </div>
         </div>
       </div>
 
       {/* Right Form Panel */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 bg-card">
+      <div className="flex-1 flex items-center justify-center p-6 lg:p-12" style={{ backgroundColor: '#111827' }}>
         <div className="w-full max-w-md space-y-8">
           {/* Tab Switcher */}
-          <div className="flex gap-1 p-1 rounded-xl bg-muted">
+          <div className="flex gap-1 p-1 rounded-xl" style={{ backgroundColor: '#0A0F1E' }}>
             <button
               onClick={() => setTab("signin")}
-              className={`flex-1 py-2.5 rounded-lg font-heading text-sm tracking-wider transition-all ${tab === "signin" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}
+              className={`flex-1 py-2.5 rounded-lg font-heading text-sm tracking-wider transition-all ${
+                tab === "signin"
+                  ? "text-white shadow-sm"
+                  : ""
+              }`}
+              style={{
+                backgroundColor: tab === "signin" ? '#111827' : 'transparent',
+                color: tab === "signin" ? '#fff' : '#A0ADB8',
+              }}
             >
-              Sign In
+              SIGN IN
             </button>
             <button
               onClick={() => setTab("signup")}
-              className={`flex-1 py-2.5 rounded-lg font-heading text-sm tracking-wider transition-all ${tab === "signup" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}
+              className={`flex-1 py-2.5 rounded-lg font-heading text-sm tracking-wider transition-all ${
+                tab === "signup"
+                  ? "text-white shadow-sm"
+                  : ""
+              }`}
+              style={{
+                backgroundColor: tab === "signup" ? '#111827' : 'transparent',
+                color: tab === "signup" ? '#fff' : '#A0ADB8',
+              }}
             >
-              Start Training
+              START TRAINING
             </button>
           </div>
 
           {tab === "signin" ? (
             <form onSubmit={handleSignIn} className="space-y-6">
               <div>
-                <h2 className="text-3xl font-heading text-foreground">Welcome Back</h2>
-                <p className="text-muted-foreground mt-1">Sign in to continue your training</p>
+                <h2 className="text-3xl font-heading text-white tracking-tight">WELCOME BACK</h2>
+                <p className="mt-1" style={{ color: '#A0ADB8' }}>Continue your recruiting journey.</p>
               </div>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="font-heading text-xs tracking-wider text-muted-foreground">Email</Label>
-                  <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="bg-muted border-border h-12" required />
+                  <Label className="font-heading text-xs tracking-wider" style={{ color: '#A0ADB8' }}>EMAIL</Label>
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className="h-12 border text-white placeholder:text-white/30 focus-visible:ring-1 focus-visible:ring-offset-0"
+                    style={{ backgroundColor: '#0A0F1E', borderColor: 'rgba(59,130,246,0.3)' }}
+                    required
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-heading text-xs tracking-wider text-muted-foreground">Password</Label>
+                  <Label className="font-heading text-xs tracking-wider" style={{ color: '#A0ADB8' }}>PASSWORD</Label>
                   <div className="relative">
-                    <Input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="bg-muted border-border h-12 pr-10" required />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="h-12 border pr-10 text-white placeholder:text-white/30 focus-visible:ring-1 focus-visible:ring-offset-0"
+                      style={{ backgroundColor: '#0A0F1E', borderColor: 'rgba(59,130,246,0.3)' }}
+                      required
+                    />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white">
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                   <button
                     type="button"
-                    className="text-xs text-primary hover:underline"
+                    className="text-xs hover:underline"
+                    style={{ color: '#3B82F6' }}
                     onClick={async () => {
                       if (!email.trim()) {
                         toast.error("Enter your email first");
@@ -199,48 +254,88 @@ export default function Login() {
                   </button>
                 </div>
               </div>
-              <Button type="submit" disabled={isLoading} className="w-full h-12 btn-cta bg-primary hover:bg-primary/90 glow-red-hover text-base">
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Sign In <ArrowRight className="h-4 w-4 ml-1" /></>}
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full h-12 text-base font-heading tracking-wider text-white border-0"
+                style={{ backgroundColor: '#E8391D' }}
+              >
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>SIGN IN <ArrowRight className="h-4 w-4 ml-1" /></>}
               </Button>
             </form>
           ) : (
             <form onSubmit={handleSignUp} className="space-y-6">
               <div>
-                <h2 className="text-3xl font-heading text-foreground">Start Your Training Journey</h2>
-                <p className="text-muted-foreground mt-1">Create your account and start training today.</p>
+                <h2 className="text-2xl font-heading text-white tracking-tight">BUILD YOUR FREE RECRUITING PROFILE</h2>
+                <p className="mt-1" style={{ color: '#A0ADB8' }}>Free forever. No credit card required.</p>
               </div>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label className="font-heading text-xs tracking-wider text-muted-foreground">First Name</Label>
-                    <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="First" className="bg-muted border-border h-12" required />
+                    <Label className="font-heading text-xs tracking-wider" style={{ color: '#A0ADB8' }}>FIRST NAME</Label>
+                    <Input
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="First"
+                      className="h-12 border text-white placeholder:text-white/30 focus-visible:ring-1 focus-visible:ring-offset-0"
+                      style={{ backgroundColor: '#0A0F1E', borderColor: 'rgba(59,130,246,0.3)' }}
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label className="font-heading text-xs tracking-wider text-muted-foreground">Last Name</Label>
-                    <Input value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Last" className="bg-muted border-border h-12" />
+                    <Label className="font-heading text-xs tracking-wider" style={{ color: '#A0ADB8' }}>LAST NAME</Label>
+                    <Input
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Last"
+                      className="h-12 border text-white placeholder:text-white/30 focus-visible:ring-1 focus-visible:ring-offset-0"
+                      style={{ backgroundColor: '#0A0F1E', borderColor: 'rgba(59,130,246,0.3)' }}
+                    />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-heading text-xs tracking-wider text-muted-foreground">Email</Label>
-                  <Input type="email" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} placeholder="you@example.com" className="bg-muted border-border h-12" required />
+                  <Label className="font-heading text-xs tracking-wider" style={{ color: '#A0ADB8' }}>EMAIL</Label>
+                  <Input
+                    type="email"
+                    value={signupEmail}
+                    onChange={(e) => setSignupEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className="h-12 border text-white placeholder:text-white/30 focus-visible:ring-1 focus-visible:ring-offset-0"
+                    style={{ backgroundColor: '#0A0F1E', borderColor: 'rgba(59,130,246,0.3)' }}
+                    required
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-heading text-xs tracking-wider text-muted-foreground">Password</Label>
-                  <Input type="password" value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} placeholder="••••••••" className="bg-muted border-border h-12" required minLength={6} />
+                  <Label className="font-heading text-xs tracking-wider" style={{ color: '#A0ADB8' }}>PASSWORD</Label>
+                  <Input
+                    type="password"
+                    value={signupPassword}
+                    onChange={(e) => setSignupPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="h-12 border text-white placeholder:text-white/30 focus-visible:ring-1 focus-visible:ring-offset-0"
+                    style={{ backgroundColor: '#0A0F1E', borderColor: 'rgba(59,130,246,0.3)' }}
+                    required
+                    minLength={6}
+                  />
                   {signupPassword && (
                     <div className="space-y-1">
-                      <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                      <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#0A0F1E' }}>
                         <div className={`h-full ${strength.color} transition-all duration-300 rounded-full`} style={{ width: strength.width }} />
                       </div>
-                      <p className="text-xs text-muted-foreground">{strength.level}</p>
+                      <p className="text-xs" style={{ color: '#A0ADB8' }}>{strength.level}</p>
                     </div>
                   )}
                 </div>
               </div>
-              <Button type="submit" disabled={isLoading} className="w-full h-12 btn-cta bg-primary hover:bg-primary/90 glow-red-hover text-base">
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Create Account <ArrowRight className="h-4 w-4 ml-1" /></>}
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full h-12 text-base font-heading tracking-wider text-white border-0"
+                style={{ backgroundColor: '#E8391D' }}
+              >
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>CREATE ACCOUNT <ArrowRight className="h-4 w-4 ml-1" /></>}
               </Button>
-              <p className="text-xs text-center text-muted-foreground">
+              <p className="text-xs text-center" style={{ color: '#A0ADB8' }}>
                 By continuing, you agree to our Terms of Service and Privacy Policy.
               </p>
             </form>

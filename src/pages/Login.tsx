@@ -333,7 +333,7 @@ export default function Login() {
                 className="w-full h-12 text-base font-heading tracking-wider text-white border-0"
                 style={{ backgroundColor: '#E8391D' }}
               >
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>CREATE ACCOUNT <ArrowRight className="h-4 w-4 ml-1" /></>}
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>BUILD MY PROFILE <ArrowRight className="h-4 w-4 ml-1" /></>}
               </Button>
               <p className="text-xs text-center" style={{ color: '#A0ADB8' }}>
                 By continuing, you agree to our Terms of Service and Privacy Policy.

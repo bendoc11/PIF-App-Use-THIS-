@@ -100,8 +100,8 @@ export default function Settings() {
           </CardContent>
         </Card>
 
-        {/* Gmail Connection */}
-        <GmailConnectCard />
+        {/* Gmail Connection — hidden for App Store review */}
+        {/* <GmailConnectCard /> */}
 
         {/* Delete Account */}
         <Card className="bg-card border-destructive/30">

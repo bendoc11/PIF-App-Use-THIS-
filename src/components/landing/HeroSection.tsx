@@ -1,69 +1,88 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import zacHeroImg from "@/assets/zac-ervin-hero.jpg";
 
-/* Simple US map dots mockup for the hero */
-function RecruitMapMockup() {
-  // Approximate US state capital positions normalized 0-100
-  const dots = [
-    // Northeast
-    {x:82,y:22},{x:85,y:26},{x:80,y:28},{x:78,y:30},{x:83,y:30},{x:76,y:32},{x:79,y:34},{x:75,y:25},{x:73,y:28},
-    // Southeast
-    {x:78,y:40},{x:72,y:42},{x:68,y:45},{x:75,y:48},{x:70,y:50},{x:65,y:52},{x:60,y:55},{x:78,y:52},{x:82,y:46},
-    // Midwest
-    {x:55,y:28},{x:60,y:30},{x:65,y:32},{x:58,y:34},{x:52,y:30},{x:62,y:26},{x:68,y:28},{x:50,y:26},{x:55,y:36},
-    {x:60,y:38},{x:65,y:36},{x:48,y:32},{x:56,y:24},{x:62,y:22},{x:70,y:34},
-    // South
-    {x:55,y:50},{x:50,y:48},{x:45,y:52},{x:58,y:48},{x:62,y:46},{x:48,y:55},{x:52,y:58},{x:68,y:56},{x:72,y:55},
-    // Mountain/West
-    {x:30,y:32},{x:35,y:28},{x:28,y:40},{x:32,y:45},{x:38,y:38},{x:42,y:42},{x:40,y:34},{x:25,y:35},{x:35,y:50},
-    // Pacific
-    {x:12,y:30},{x:14,y:38},{x:10,y:45},{x:15,y:50},{x:18,y:55},{x:8,y:35},{x:20,y:42},
-    // Extra spread
-    {x:45,y:40},{x:50,y:38},{x:55,y:42},{x:42,y:28},{x:38,y:30},{x:22,y:48},{x:26,y:52},{x:72,y:38},{x:58,y:56},
+function RecruitingProfileCard() {
+  return (
+    <div
+      className="absolute top-6 left-6 md:top-10 md:left-10 w-[280px] md:w-[320px] rounded-2xl border p-4 md:p-5 z-20"
+      style={{
+        background: "rgba(10, 15, 30, 0.75)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        borderColor: "rgba(59, 130, 246, 0.35)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 40px rgba(59,130,246,0.1)",
+      }}
+    >
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-11 h-11 rounded-full overflow-hidden border-2 flex-shrink-0" style={{ borderColor: "rgba(59,130,246,0.5)" }}>
+          <img src={zacHeroImg} alt="Zac Ervin" className="w-full h-full object-cover object-top" />
+        </div>
+        <div>
+          <p className="font-heading text-sm text-foreground tracking-wide">ZAC ERVIN</p>
+          <p className="text-xs text-muted-foreground">2025 · SG/SF · 6'5"</p>
+        </div>
+      </div>
+
+      {/* Stat badges */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        <span
+          className="text-[10px] font-heading tracking-wider px-2.5 py-1 rounded-md text-foreground"
+          style={{ backgroundColor: "rgba(59,130,246,0.85)" }}
+        >
+          42 OFFERS
+        </span>
+        <span
+          className="text-[10px] font-heading tracking-wider px-2.5 py-1 rounded-md text-foreground bg-primary"
+        >
+          #9 PLAYER IN VA
+        </span>
+        <span
+          className="text-[10px] font-heading tracking-wider px-2.5 py-1 rounded-md text-foreground border"
+          style={{ backgroundColor: "rgba(10,15,30,0.8)", borderColor: "rgba(59,130,246,0.4)" }}
+        >
+          6 NEW MESSAGES
+        </span>
+      </div>
+
+      {/* Progress bar */}
+      <div className="mb-2">
+        <div className="flex justify-between items-center mb-1.5">
+          <span className="text-[10px] font-heading tracking-wider text-muted-foreground">PROFILE COMPLETE</span>
+          <span className="text-[10px] font-heading text-secondary">94%</span>
+        </div>
+        <div className="w-full h-1.5 rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
+          <div className="h-full rounded-full bg-secondary" style={{ width: "94%" }} />
+        </div>
+      </div>
+
+      <p className="text-[10px] text-muted-foreground">Last viewed by 3 coaches today</p>
+    </div>
+  );
+}
+
+function StatsBar() {
+  const stats = [
+    { value: "1,852+", label: "College Programs" },
+    { value: "7,819+", label: "Coach Emails" },
+    { value: "500+", label: "Elite Drills" },
+    { value: "100%", label: "Free to Start" },
   ];
-  const colors = ["#E8391D", "#3B82F6", "#3B82F6", "#E8391D", "#3B82F6"];
 
   return (
-    <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden border border-secondary/30"
-      style={{ background: "#0D1220", boxShadow: "0 0 60px rgba(59,130,246,0.15)" }}>
-      {/* Header bar */}
-      <div className="h-8 bg-white/[0.03] border-b border-white/5 flex items-center px-3 gap-1.5">
-        <div className="w-2 h-2 rounded-full bg-primary/60" />
-        <div className="w-2 h-2 rounded-full bg-pif-gold/60" />
-        <div className="w-2 h-2 rounded-full bg-pif-green/60" />
-        <span className="ml-3 text-[8px] font-heading text-muted-foreground tracking-widest">PLAY IT FORWARD — RECRUIT</span>
-      </div>
-      {/* Map area */}
-      <div className="relative w-full h-[calc(100%-32px)] p-4">
-        {/* Filter bar mockup */}
-        <div className="flex gap-2 mb-3">
-          {["ALL DIVISIONS", "ALL STATES", "ALL SIZES"].map(f => (
-            <div key={f} className="bg-white/[0.04] border border-secondary/20 rounded px-2 py-0.5">
-              <span className="text-[7px] font-heading text-muted-foreground tracking-wider">{f}</span>
+    <div className="border-t border-b border-border/50 bg-card/30">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-12 py-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-0">
+          {stats.map((s, i) => (
+            <div
+              key={s.label}
+              className={`text-center ${i < stats.length - 1 ? "md:border-r md:border-border/30" : ""}`}
+            >
+              <p className="font-heading text-lg md:text-xl text-foreground">{s.value}</p>
+              <p className="text-[11px] font-heading tracking-widest text-muted-foreground">{s.label}</p>
             </div>
           ))}
-        </div>
-        {/* Dots */}
-        <div className="relative w-full h-[70%]">
-          {dots.map((d, i) => (
-            <div
-              key={i}
-              className="absolute w-1.5 h-1.5 rounded-full animate-pulse"
-              style={{
-                left: `${d.x}%`,
-                top: `${d.y}%`,
-                background: colors[i % colors.length],
-                opacity: 0.7 + Math.random() * 0.3,
-                animationDelay: `${i * 50}ms`,
-                animationDuration: `${2 + Math.random() * 2}s`,
-              }}
-            />
-          ))}
-        </div>
-        {/* Bottom stats */}
-        <div className="absolute bottom-3 left-4 right-4 flex justify-between">
-          <span className="text-[8px] font-heading text-secondary tracking-widest">1,852 PROGRAMS</span>
-          <span className="text-[8px] font-heading text-primary tracking-widest">7,819 COACHES</span>
         </div>
       </div>
     </div>
@@ -72,54 +91,121 @@ function RecruitMapMockup() {
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden">
-      {/* Subtle electric blue glow */}
-      <div
-        className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full opacity-[0.07] blur-[120px] pointer-events-none"
-        style={{ background: "hsl(var(--pif-blue))" }}
-      />
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.02]"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)",
-          backgroundSize: "80px 80px",
-        }}
-      />
+    <>
+      <section className="relative overflow-hidden" style={{ background: "#0A0F1E" }}>
+        <div className="relative z-10 max-w-[1400px] mx-auto px-4 md:px-6 lg:px-12">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-0 items-center min-h-[85vh] py-16 lg:py-0">
+            {/* Left — copy */}
+            <div className="animate-[fadeInUp_0.5s_ease-out_both] lg:pr-12">
+              <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl xl:text-[4.2rem] leading-[1.08] mb-6 text-foreground">
+                This is where players<br />get recruited.
+              </h1>
 
-      <div className="relative z-10 px-4 md:px-6 lg:px-12 max-w-[1400px] mx-auto py-16 md:py-20 lg:py-28">
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          {/* Left — copy */}
-          <div className="animate-[fadeInUp_0.5s_ease-out_both]">
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl xl:text-[5.5rem] leading-[0.92] mb-6 text-foreground">
-              DO YOU WANT<br />YOUR KID TO GET<br />
-              <span className="text-secondary">RECRUITED?</span>
-            </h1>
-
-            <p className="font-body text-muted-foreground text-lg sm:text-xl max-w-lg mb-8 leading-relaxed">
-              The complete basketball platform — develop your game, track your progress, and reach every college coach in the country. Free to start.
-            </p>
-
-            <div className="flex flex-col gap-3">
-              <Link to="/login" className="w-full sm:w-auto">
-                <Button
-                  className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full sm:w-auto px-10 py-7 text-base min-h-[56px] glow-red glow-red-hover"
-                >
-                  BUILD MY FREE RECRUITING PROFILE →
-                </Button>
-              </Link>
-              <p className="font-body text-sm text-muted-foreground">
-                100% free · No credit card · Takes 2 minutes
+              <p className="font-body text-muted-foreground text-base sm:text-lg max-w-lg mb-8 leading-relaxed">
+                Build your free recruiting profile, reach every college coach in the country, and develop your game — all in one place.
               </p>
+
+              <div className="flex flex-col gap-3">
+                <Link to="/login" className="w-full sm:w-auto">
+                  <Button
+                    className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full sm:w-auto px-10 py-7 text-base min-h-[56px] glow-red glow-red-hover"
+                  >
+                    Build My Free Profile →
+                  </Button>
+                </Link>
+                <p className="font-body text-sm text-muted-foreground">
+                  100% free · No credit card required
+                </p>
+              </div>
+            </div>
+
+            {/* Right — athlete photo with floating card */}
+            <div className="relative hidden lg:block animate-[fadeInUp_0.7s_ease-out_0.15s_both]">
+              <div className="relative rounded-2xl overflow-hidden" style={{ boxShadow: "0 25px 60px rgba(0,0,0,0.5)" }}>
+                {/* Photo */}
+                <img
+                  src={zacHeroImg}
+                  alt="Zac Ervin going up for a layup in a packed gym"
+                  className="w-full h-[600px] xl:h-[650px] object-cover object-top"
+                />
+                {/* Left gradient fade into navy */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: "linear-gradient(to right, #0A0F1E 0%, rgba(10,15,30,0.6) 25%, transparent 50%)",
+                  }}
+                />
+                {/* Bottom gradient */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: "linear-gradient(to top, #0A0F1E 0%, transparent 40%)",
+                  }}
+                />
+                {/* Floating profile card */}
+                <RecruitingProfileCard />
+              </div>
+            </div>
+
+            {/* Mobile — show card only, no photo */}
+            <div className="lg:hidden">
+              <div className="relative">
+                <div className="rounded-2xl overflow-hidden" style={{ maxHeight: "400px" }}>
+                  <img
+                    src={zacHeroImg}
+                    alt="Zac Ervin going up for a layup"
+                    className="w-full h-[400px] object-cover object-top"
+                  />
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background: "linear-gradient(to top, #0A0F1E 0%, transparent 50%)",
+                    }}
+                  />
+                </div>
+                <div className="relative -mt-16 mx-auto w-[90%] max-w-[320px]">
+                  <div
+                    className="rounded-2xl border p-4 z-20"
+                    style={{
+                      background: "rgba(10, 15, 30, 0.85)",
+                      backdropFilter: "blur(20px)",
+                      WebkitBackdropFilter: "blur(20px)",
+                      borderColor: "rgba(59, 130, 246, 0.35)",
+                      boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+                    }}
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-full overflow-hidden border-2 flex-shrink-0" style={{ borderColor: "rgba(59,130,246,0.5)" }}>
+                        <img src={zacHeroImg} alt="Zac Ervin" className="w-full h-full object-cover object-top" />
+                      </div>
+                      <div>
+                        <p className="font-heading text-sm text-foreground tracking-wide">ZAC ERVIN</p>
+                        <p className="text-xs text-muted-foreground">2025 · SG/SF · 6'5"</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                      <span className="text-[9px] font-heading tracking-wider px-2 py-0.5 rounded text-foreground" style={{ backgroundColor: "rgba(59,130,246,0.85)" }}>42 OFFERS</span>
+                      <span className="text-[9px] font-heading tracking-wider px-2 py-0.5 rounded text-foreground bg-primary">#9 IN VA</span>
+                      <span className="text-[9px] font-heading tracking-wider px-2 py-0.5 rounded text-foreground border" style={{ backgroundColor: "rgba(10,15,30,0.8)", borderColor: "rgba(59,130,246,0.4)" }}>6 MESSAGES</span>
+                    </div>
+                    <div className="mb-1.5">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-[9px] font-heading tracking-wider text-muted-foreground">PROFILE COMPLETE</span>
+                        <span className="text-[9px] font-heading text-secondary">94%</span>
+                      </div>
+                      <div className="w-full h-1 rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
+                        <div className="h-full rounded-full bg-secondary" style={{ width: "94%" }} />
+                      </div>
+                    </div>
+                    <p className="text-[9px] text-muted-foreground">Last viewed by 3 coaches today</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-
-          {/* Right — recruit page mockup */}
-          <div className="hidden lg:block animate-[fadeInUp_0.7s_ease-out_0.15s_both]">
-            <RecruitMapMockup />
-          </div>
         </div>
-      </div>
-    </section>
+      </section>
+      <StatsBar />
+    </>
   );
 }

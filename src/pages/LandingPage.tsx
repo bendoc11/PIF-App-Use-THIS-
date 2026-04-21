@@ -375,6 +375,7 @@ function PricingSection() {
     "Community leaderboard",
     "Recruiting profile",
     "Browse all 1,852 schools and coach emails",
+    "Direct coach access — message any coach",
   ];
 
   return (
@@ -389,8 +390,7 @@ function PricingSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          {/* Left — Platform */}
+        <div className="max-w-xl mx-auto">
           <div className="bg-card border border-secondary/20 rounded-2xl p-6 md:p-8 relative">
             <div className="absolute -top-3 left-6">
               <span className="bg-pif-green text-background font-heading text-[10px] tracking-widest px-4 py-1.5 rounded-full">FREE FOREVER</span>
@@ -410,28 +410,6 @@ function PricingSection() {
                 START FREE →
               </Button>
             </Link>
-          </div>
-
-          {/* Right — Recruiting Outreach */}
-          <div className="bg-card border border-secondary/20 rounded-2xl p-6 md:p-8 relative">
-            <div className="absolute -top-3 left-6">
-              <span className="bg-pif-gold text-background font-heading text-[10px] tracking-widest px-4 py-1.5 rounded-full">COMING SOON</span>
-            </div>
-            <p className="font-heading text-xs tracking-widest text-pif-gold mt-2 mb-1">RECRUITING OUTREACH</p>
-            <p className="font-heading text-xl text-foreground mb-5">DIRECT COACH ACCESS</p>
-            <p className="font-body text-muted-foreground leading-relaxed mb-6">
-              Send personalized emails directly from your Gmail to every coach in the country.
-            </p>
-            <p className="font-heading text-sm text-foreground mb-4">BE THE FIRST TO KNOW</p>
-            <div className="flex gap-2">
-              <Input
-                placeholder="Your email address"
-                className="bg-muted border-secondary/20 text-foreground placeholder:text-muted-foreground flex-1"
-              />
-              <Button className="btn-cta bg-primary hover:bg-primary/90 text-foreground rounded-lg px-6 text-sm whitespace-nowrap">
-                NOTIFY ME
-              </Button>
-            </div>
           </div>
         </div>
       </div>

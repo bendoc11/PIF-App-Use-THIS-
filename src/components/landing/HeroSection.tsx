@@ -5,7 +5,7 @@ import zacErvinHero from "@/assets/zac-ervin-hero.jpg";
 function RecruitingProfileCard() {
   return (
     <div
-      className="absolute bottom-6 right-6 md:bottom-10 md:right-10 w-[260px] md:w-[300px] rounded-2xl border p-4 z-20"
+      className="absolute -bottom-4 left-4 md:-bottom-6 md:left-6 w-[260px] md:w-[300px] rounded-2xl border p-4 z-20"
       style={{
         background: "rgba(10, 15, 30, 0.85)",
         backdropFilter: "blur(20px)",
@@ -158,8 +158,8 @@ export function HeroSection() {
                   <img
                     src={zacErvinHero}
                     alt="Basketball player going up for a layup"
-                    className="w-full h-auto object-cover"
-                    style={{ aspectRatio: "3/4" }}
+                    className="w-full h-auto object-cover object-top"
+                    style={{ aspectRatio: "3/4", maxHeight: "650px" }}
                   />
                   {/* Gradient overlay on left edge to blend into background */}
                   <div

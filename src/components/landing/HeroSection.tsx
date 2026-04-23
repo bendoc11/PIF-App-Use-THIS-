@@ -5,7 +5,7 @@ import zacErvinHero from "@/assets/zac-ervin-hero.jpg";
 function RecruitingProfileCard() {
   return (
     <div
-      className="absolute bottom-6 right-6 md:bottom-10 md:right-10 w-[260px] md:w-[300px] rounded-2xl border p-4 z-20"
+      className="absolute -bottom-4 left-4 md:-bottom-6 md:left-6 w-[260px] md:w-[300px] rounded-2xl border p-4 z-20"
       style={{
         background: "rgba(10, 15, 30, 0.85)",
         backdropFilter: "blur(20px)",

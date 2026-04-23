@@ -128,11 +128,11 @@ export function HeroSection() {
                 </p>
 
                 <h1 className="font-sans text-4xl sm:text-5xl lg:text-[3.25rem] font-bold leading-[1.12] mb-6 text-foreground">
-                  This is where players get recruited.
+                  Give Every Athlete at Your School a Real Shot at Playing in College
                 </h1>
 
                 <p className="text-muted-foreground text-base sm:text-lg max-w-xl mb-8 leading-relaxed">
-                  Build your free recruiting profile, reach every college coach in the country, and develop your game — all in one place.
+                  Play it Forward gives every student athlete at your school the tools to build a recruiting profile and contact every college coach in the country — white labeled with your school's branding.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -140,11 +140,11 @@ export function HeroSection() {
                     <Button
                       className="bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base font-semibold min-h-[52px] glow-red glow-red-hover"
                     >
-                      Build My Free Profile <ArrowRight className="h-4 w-4 ml-2" />
+                      Request a Demo <ArrowRight className="h-4 w-4 ml-2" />
                     </Button>
                   </a>
                   <p className="text-sm text-muted-foreground">
-                    100% free · No credit card required
+                    Contact us for school and district pricing
                   </p>
                 </div>
               </div>

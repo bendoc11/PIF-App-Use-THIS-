@@ -158,8 +158,8 @@ export function HeroSection() {
                   <img
                     src={zacErvinHero}
                     alt="Basketball player going up for a layup"
-                    className="w-full h-auto object-cover"
-                    style={{ aspectRatio: "3/4" }}
+                    className="w-full h-auto object-cover object-top"
+                    style={{ aspectRatio: "3/4", maxHeight: "650px" }}
                   />
                   {/* Gradient overlay on left edge to blend into background */}
                   <div

@@ -260,11 +260,11 @@ function Footer() {
             <span className="font-sans text-lg font-bold text-primary">Forward</span>
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            The recruiting platform built for high school athletic departments. Give every student athlete a real path to playing in college.
+            The free recruiting platform built for high school athletes. Build your profile, find your schools, and email college coaches directly.
           </p>
         </div>
         {[
-          { title: "Platform", links: ["Recruiting Profiles", "Coach Database", "School Branding"] },
+          { title: "Platform", links: ["My Profile", "Coach Database", "Highlight Tape"] },
           { title: "Company", links: ["About Us", "Contact", "Partnerships"] },
           { title: "Legal", links: ["Privacy", "Terms"] },
         ].map((col) => (

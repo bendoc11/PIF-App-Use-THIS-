@@ -44,11 +44,11 @@ function Navbar() {
           ))}
         </div>
         <div className="hidden md:flex items-center gap-4">
-          <a href="mailto:info@playitforward.app?subject=Demo%20Request">
+          <Link to="/login">
             <Button className="bg-primary hover:bg-primary/90 text-foreground rounded-lg px-5 py-2.5 text-sm font-semibold glow-red">
-              Request a Demo
+              Build My Free Profile
             </Button>
-          </a>
+          </Link>
         </div>
         <button className="md:hidden p-2 text-foreground" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
           {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -64,9 +64,9 @@ function Navbar() {
                 <a key={l.label} href={l.href} onClick={() => setMobileOpen(false)} className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors">{l.label}</a>
               )
             ))}
-            <a href="mailto:info@playitforward.app?subject=Demo%20Request" onClick={() => setMobileOpen(false)}>
-              <Button className="bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full py-3 text-sm font-semibold glow-red">Request a Demo</Button>
-            </a>
+            <Link to="/login" onClick={() => setMobileOpen(false)}>
+              <Button className="bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full py-3 text-sm font-semibold glow-red">Build My Free Profile</Button>
+            </Link>
           </div>
         </div>
       )}
@@ -79,16 +79,16 @@ function ValueProps() {
   const fade = useFadeIn();
   const props = [
     {
-      title: "Every College Coach in the Country",
-      desc: "Your athletes can contact any D1, D2, D3, or NAIA coach directly from their own email account.",
+      title: "Reach Every College Coach",
+      desc: "Contact any D1, D2, D3, or NAIA coach in the country directly from your own email — not a recruiting platform inbox.",
     },
     {
-      title: "White Labeled for Your School",
-      desc: "Your branding, your colors, your program's name on every profile your athletes send to coaches.",
+      title: "A Profile Coaches Actually Open",
+      desc: "Stats, film, academics, and intro video — packaged in a profile built for the way college coaches really evaluate.",
     },
     {
-      title: "Every Sport. Every Athlete.",
-      desc: "From basketball to soccer to swimming — every student athlete at your school gets access on day one.",
+      title: "Free. Forever. Everything Included.",
+      desc: "No paywall, no upsell. Direct coach access, profile builder, school database, and outreach tools — all included.",
     },
   ];
 
@@ -97,10 +97,10 @@ function ValueProps() {
       <div className={`px-4 md:px-6 lg:px-12 max-w-[1200px] mx-auto ${fade.className}`}>
         <div className="text-center mb-14">
           <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            One Platform for Your Entire Athletic Department
+            Everything You Need to Get Recruited
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Everything your student athletes need to get seen by college coaches — built for schools, not individuals.
+            The same tools the top recruits use — built for every athlete who's serious about playing in college.
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-6 lg:gap-8">

@@ -128,9 +128,9 @@ function ValueProps() {
 function HowItWorks() {
   const fade = useFadeIn();
   const steps = [
-    { num: "01", title: "Partner with Play it Forward", desc: "We set up a white-labeled instance of the platform branded for your school and athletic department." },
-    { num: "02", title: "Athletes Build Profiles", desc: "Every student athlete creates a recruiting profile with their stats, academics, and highlight film." },
-    { num: "03", title: "Reach Every Coach", desc: "Athletes contact college coaches across all divisions and sports — directly from their own email." },
+    { num: "01", title: "Build Your Profile", desc: "Stats, academics, height, weight, position, hometown, intro video, and highlight tape — everything a coach needs to evaluate you." },
+    { num: "02", title: "Find Your Schools", desc: "Search every college program in the country. Filter by division, region, school size, and academics to build your target list." },
+    { num: "03", title: "Email Coaches Directly", desc: "Send personalized outreach to coaches from your own email. Replies come straight back to you. No middleman, no platform inbox." },
   ];
 
   return (
@@ -160,9 +160,9 @@ function HowItWorks() {
 function RecruitingOverview() {
   const fade = useFadeIn();
   const features = [
-    { title: "Direct Coach Outreach", desc: "Messages send from your athletes' own email accounts. Coaches see a real person — not a platform. Replies go straight to the athlete." },
-    { title: "Complete School Database", desc: "Filter every program in the country by division, state, school size, and academics. Athletes find their best fit before reaching out." },
-    { title: "Profile & Highlights", desc: "Each athlete builds a recruiting profile with stats, academics, and film — ready to share with any coach in seconds." },
+    { title: "Direct Coach Outreach", desc: "Email college coaches from your own inbox. Coaches see a real athlete — not a service. Their replies come straight to you." },
+    { title: "Complete School Database", desc: "Every program in the country, filterable by division, state, school size, and academics. Find your best fit before you reach out." },
+    { title: "Profile & Highlights", desc: "Stats, intro video, highlight tape, academics, and game log — packaged into one profile you can share with any coach in seconds." },
   ];
 
   return (
@@ -171,10 +171,10 @@ function RecruitingOverview() {
         <div className="grid lg:grid-cols-2 gap-16 items-start">
           <div>
             <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground leading-tight mb-6">
-              The Recruiting Tools Your Athletes Deserve
+              Stop Waiting to Be Discovered
             </h2>
             <p className="text-muted-foreground text-lg max-w-lg mb-10 leading-relaxed">
-              Most families spend thousands on showcases and recruiting services hoping coaches notice. Give your athletes direct access to every college coach in the country — for free.
+              Most families spend thousands on showcases and recruiting services hoping a coach notices. Take control. Reach every college coach in the country yourself — for free.
             </p>
             <div className="space-y-4">
               {features.map((f) => (
@@ -188,7 +188,7 @@ function RecruitingOverview() {
           <div className="space-y-6">
             <div className="bg-secondary/10 border border-secondary/20 rounded-2xl p-6">
               <p className="text-4xl font-bold text-secondary">7,819</p>
-              <p className="text-sm font-medium text-muted-foreground mt-1 uppercase tracking-wider">Coach Contacts in Database</p>
+              <p className="text-sm font-medium text-muted-foreground mt-1 uppercase tracking-wider">Coach Contacts at Your Fingertips</p>
             </div>
             <div className="bg-secondary/10 border border-secondary/20 rounded-2xl p-6">
               <p className="text-4xl font-bold text-secondary">1,852</p>
@@ -213,10 +213,10 @@ function TestimonialSection() {
       <div className={`px-4 md:px-6 lg:px-12 max-w-[900px] mx-auto ${fade.className}`}>
         <div className="relative border-l-4 border-secondary pl-8 md:pl-12">
           <p className="text-lg sm:text-xl lg:text-2xl text-foreground leading-relaxed font-medium italic">
-            "Play it Forward completely changed how we think about recruiting for our athletes. Instead of hoping someone notices them at a showcase, our student athletes now have direct access to every college coach in the country. It leveled the playing field for our entire athletic department."
+            "I sent emails to 40 coaches in one weekend. By the next week I had three schools fly out to watch me play. Play it Forward changed everything for me — I didn't need a $3,000 recruiting service. I just needed a profile and the coaches' emails."
           </p>
           <p className="text-sm font-medium text-primary mt-6 uppercase tracking-wider">
-            — High School Athletic Director
+            — D1 Commit, Class of 2025
           </p>
         </div>
       </div>
@@ -231,18 +231,18 @@ function PricingCTA() {
     <section className="py-20 lg:py-28" style={{ background: "#0D1220" }} ref={fade.ref}>
       <div className={`px-4 md:px-6 lg:px-12 max-w-[800px] mx-auto text-center ${fade.className}`}>
         <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-          Ready to Give Your Athletes an Edge?
+          Your Recruiting Starts Today.
         </h2>
         <p className="text-muted-foreground text-lg max-w-xl mx-auto mb-6 leading-relaxed">
-          Contact us for school and district pricing. We'll set up a personalized demo for your athletic department.
+          Build your free profile, find your schools, and start contacting coaches in the next 10 minutes.
         </p>
-        <a href="mailto:info@playitforward.app?subject=Demo%20Request">
+        <Link to="/login">
           <Button className="bg-primary hover:bg-primary/90 text-foreground rounded-lg px-10 py-7 text-base font-semibold min-h-[56px] glow-red glow-red-hover">
-            Request a Demo <ArrowRight className="h-4 w-4 ml-2" />
+            Build My Free Profile <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
-        </a>
+        </Link>
         <p className="text-sm text-muted-foreground mt-6">
-          Contact us for school and district pricing
+          Free forever. Direct coach access included. No credit card required.
         </p>
       </div>
     </section>

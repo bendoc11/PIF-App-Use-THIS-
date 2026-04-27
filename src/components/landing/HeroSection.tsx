@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { ArrowRight, Mail, TrendingUp, Award } from "lucide-react";
 import zacErvinHero from "@/assets/zac-ervin-hero.jpg";
 
@@ -124,27 +125,27 @@ export function HeroSection() {
             <div className="flex flex-col justify-center order-2 lg:order-1">
               <div className="animate-[fadeInUp_0.5s_ease-out_both]">
                 <p className="text-sm font-medium tracking-wider text-secondary uppercase mb-4">
-                  White-Label Recruiting Platform for High Schools
+                  Built for High School Athletes Who Want to Play in College
                 </p>
 
                 <h1 className="font-sans text-4xl sm:text-5xl lg:text-[3.25rem] font-bold leading-[1.12] mb-6 text-foreground">
-                  Give Every Athlete at Your School a Real Shot at Playing in College
+                  Get Recruited. On Your Terms.
                 </h1>
 
                 <p className="text-muted-foreground text-base sm:text-lg max-w-xl mb-8 leading-relaxed">
-                  Play it Forward gives every student athlete at your school the tools to build a recruiting profile and contact every college coach in the country — white labeled with your school's branding.
+                  Build a recruiting profile coaches actually open. Contact every college program in the country — D1, D2, D3, NAIA — directly from your own email. Stop waiting to be discovered.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                  <a href="mailto:info@playitforward.app?subject=Demo%20Request" className="w-full sm:w-auto">
+                  <Link to="/login" className="w-full sm:w-auto">
                     <Button
                       className="bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base font-semibold min-h-[52px] glow-red glow-red-hover"
                     >
-                      Request a Demo <ArrowRight className="h-4 w-4 ml-2" />
+                      Build My Free Profile <ArrowRight className="h-4 w-4 ml-2" />
                     </Button>
-                  </a>
+                  </Link>
                   <p className="text-sm text-muted-foreground">
-                    Contact us for school and district pricing
+                    Free forever. Everything included.
                   </p>
                 </div>
               </div>

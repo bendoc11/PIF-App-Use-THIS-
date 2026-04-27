@@ -20,6 +20,7 @@ import Pricing from "./pages/Pricing";
 import Settings from "./pages/Settings";
 import Recruit from "./pages/Recruit";
 import RecruitProfile from "./pages/RecruitProfile";
+import MyProfile from "./pages/MyProfile";
 
 import SignupSuccess from "./pages/SignupSuccess";
 import ResetPassword from "./pages/ResetPassword";
@@ -71,7 +72,8 @@ const App = () => (
             <Route path="/community" element={<AuthGuard><SubscriptionGuard><Community /></SubscriptionGuard></AuthGuard>} />
             <Route path="/progress" element={<AuthGuard><SubscriptionGuard><Progress /></SubscriptionGuard></AuthGuard>} />
             <Route path="/recruit" element={<AuthGuard><SubscriptionGuard><Recruit /></SubscriptionGuard></AuthGuard>} />
-            <Route path="/profile" element={<AuthGuard><SubscriptionGuard><RecruitProfile /></SubscriptionGuard></AuthGuard>} />
+            <Route path="/profile" element={<AuthGuard><SubscriptionGuard><MyProfile /></SubscriptionGuard></AuthGuard>} />
+            <Route path="/profile/edit" element={<AuthGuard><SubscriptionGuard><RecruitProfile /></SubscriptionGuard></AuthGuard>} />
             <Route path="/profile/:username" element={<RecruitProfile />} />
             {/* Admin Routes */}
             <Route path="/admin" element={<Navigate to="/admin/courses" replace />} />

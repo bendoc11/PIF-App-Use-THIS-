@@ -1,230 +1,249 @@
-import { useState, useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+
 import OnboardingBackground from "@/components/onboarding/OnboardingBackground";
 import OnboardingProgress from "@/components/onboarding/OnboardingProgress";
-import ScreenHook from "@/components/onboarding/ScreenHook";
-import ScreenUserType from "@/components/onboarding/ScreenUserType";
-import ScreenBasicInfo from "@/components/onboarding/ScreenBasicInfo";
-import ScreenGoal from "@/components/onboarding/ScreenGoal";
-import ScreenStrengths from "@/components/onboarding/ScreenStrengths";
-import ScreenSchedule from "@/components/onboarding/ScreenSchedule";
-import BuildingPlanScreen from "@/components/onboarding/BuildingPlanScreen";
 
-const TOTAL_STEPS = 6;
+import StepBasic, { BasicData } from "@/components/onboarding/recruit/StepBasic";
+import StepAthletic, { AthleticData } from "@/components/onboarding/recruit/StepAthletic";
+import StepAcademic, { AcademicData } from "@/components/onboarding/recruit/StepAcademic";
+import StepStory from "@/components/onboarding/recruit/StepStory";
+import StepPhoto from "@/components/onboarding/recruit/StepPhoto";
+import StepPrefs, { PrefsData } from "@/components/onboarding/recruit/StepPrefs";
+import StepFilm from "@/components/onboarding/recruit/StepFilm";
+import StepPreview from "@/components/onboarding/recruit/StepPreview";
 
-// Schedule templates based on goal
-function generateSchedule(goal: string, daysPerWeek: number) {
-  const sessionMap: Record<string, string[]> = {
-    "Play Professionally": ["skill_workout", "shooting", "lifting", "shooting", "skill_workout", "lifting", "game"],
-    "Play at the Next Level (D1/D2/D3/JUCO)": ["skill_workout", "shooting", "lifting", "shooting", "skill_workout", "game", "rest"],
-    "Earn a Starting Spot": ["skill_workout", "shooting", "lifting", "skill_workout", "shooting", "rest", "rest"],
-    "Make the Team": ["skill_workout", "shooting", "skill_workout", "shooting", "rest", "rest", "rest"],
-    "Improve My Overall Game": ["skill_workout", "shooting", "skill_workout", "rest", "shooting", "rest", "rest"],
-  };
-  const sessions = sessionMap[goal] || sessionMap["Improve My Overall Game"];
-  const templates: { day_of_week: number; session_type: string; order_index: number }[] = [];
+const TOTAL_STEPS = 8;
 
-  for (let i = 0; i < 7; i++) {
-    if (i < daysPerWeek) {
-      templates.push({ day_of_week: i, session_type: sessions[i % sessions.length], order_index: 0 });
-    } else {
-      templates.push({ day_of_week: i, session_type: "rest", order_index: 0 });
-    }
-  }
-  return templates;
-}
+// Field weights drive the live profile completion percentage.
+const FIELD_WEIGHTS: Record<string, number> = {
+  basic: 18,
+  athletic: 16,
+  academic: 14,
+  story: 14,
+  photo: 12,
+  prefs: 10,
+  film: 16,
+};
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const { user, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
+
   const [step, setStep] = useState(1);
-  const [saving, setSaving] = useState(false);
-  const [showBuildingPlan, setShowBuildingPlan] = useState(false);
-
-  // Collected data
-  const [userType, setUserType] = useState<"player" | "parent">("player");
-  const [firstName, setFirstName] = useState("");
-  const [position, setPosition] = useState("");
-  const [age, setAge] = useState("");
-  const [feet, setFeet] = useState("");
-  const [inches, setInches] = useState("");
-  const [primaryGoal, setPrimaryGoal] = useState("");
-  const [strengths, setStrengths] = useState<string[]>([]);
-  const [weaknesses, setWeaknesses] = useState<string[]>([]);
-  const [trainingDays, setTrainingDays] = useState(0);
-  const [trainingHours, setTrainingHours] = useState("");
-  const [phone, setPhone] = useState("");
-
-  const progress = showBuildingPlan ? 100 : (step / TOTAL_STEPS) * 100;
-
-  const goNext = () => setStep((s) => s + 1);
-
-  const handleUserType = (type: "player" | "parent") => {
-    setUserType(type);
-    setTimeout(goNext, 400);
-  };
-
-  const handleBasicInfo = (data: { firstName: string; position: string; age: string; feet: string; inches: string }) => {
-    setFirstName(data.firstName);
-    setPosition(data.position);
-    setAge(data.age);
-    setFeet(data.feet);
-    setInches(data.inches);
-    goNext();
-  };
-
-  const handleGoal = (goal: string) => {
-    setPrimaryGoal(goal);
-    goNext();
-  };
-
-  const handleStrengths = (s: string[], w: string[]) => {
-    setStrengths(s);
-    setWeaknesses(w);
-    goNext();
-  };
-
-  const handleSchedule = async (data: { trainingDays: number; trainingHours: string; phone: string }) => {
-    if (!user) return;
-    setSaving(true);
-    setTrainingDays(data.trainingDays);
-    setTrainingHours(data.trainingHours);
-    setPhone(data.phone);
-
-    try {
-      const heightStr = `${feet}'${inches}`;
-
-      // Save profile data
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          user_type: userType,
-          first_name: firstName,
-          position,
-          height: heightStr,
-          age: Number(age),
-          phone: data.phone || null,
-          strengths,
-          weaknesses,
-          primary_goal: primaryGoal,
-          training_days_per_week: data.trainingDays,
-          training_hours_per_session: data.trainingHours,
-          onboarding_completed: true,
-        } as any)
-        .eq("id", user.id);
-
-      if (error) throw error;
-
-      // Generate weekly schedule
-      const schedule = generateSchedule(primaryGoal, data.trainingDays);
-      // Delete existing schedule first
-      await supabase.from("weekly_schedule_templates").delete().eq("user_id", user.id);
-      // Insert new schedule
-      const { error: schedError } = await supabase
-        .from("weekly_schedule_templates")
-        .insert(schedule.map((s) => ({ ...s, user_id: user.id })));
-      if (schedError) throw schedError;
-
-      // Show building plan animation
-      setShowBuildingPlan(true);
-    } catch (err: any) {
-      toast.error("Failed to save. Please try again.");
-      setSaving(false);
-    }
-  };
-
-  const handleBuildingComplete = useCallback(async () => {
-    await refreshProfile();
-    navigate("/onboarding/results", { replace: true });
-  }, [refreshProfile, navigate]);
-
-  const slideVariants = {
-    enter: (direction: number) => ({ x: direction > 0 ? "100%" : "-100%", opacity: 0 }),
-    center: { x: 0, opacity: 1 },
-    exit: (direction: number) => ({ x: direction > 0 ? "-100%" : "100%", opacity: 0 }),
-  };
-
   const [direction, setDirection] = useState(1);
+  const [saving, setSaving] = useState(false);
 
-  const goBack = () => {
+  // Hydrate initial values from existing profile so re-entry works.
+  const p: any = profile || {};
+  const [basic, setBasic] = useState<BasicData>({
+    firstName: p.first_name || "",
+    lastName: p.last_name || "",
+    gradYear: p.grad_year ? String(p.grad_year) : "",
+    dob: p.date_of_birth || "",
+    city: p.city || "",
+    state: p.state || "",
+  });
+
+  const initialFeet = (p.height || "").split("'")[0] || "";
+  const initialInches = ((p.height || "").split("'")[1] || "").replace(/[^0-9]/g, "") || "";
+  const [athletic, setAthletic] = useState<AthleticData>({
+    positions: Array.isArray(p.positions) && p.positions.length ? p.positions : p.position ? [p.position] : [],
+    jerseyNumber: p.jersey_number || "",
+    feet: initialFeet,
+    inches: initialInches,
+    weight: (p.weight || "").replace(/[^0-9]/g, ""),
+    dominantHand: p.dominant_hand || "",
+  });
+
+  const [academic, setAcademic] = useState<AcademicData>({
+    highSchool: p.high_school_name || "",
+    gpa: p.gpa ? String(p.gpa) : "",
+    satScore: p.sat_score ? String(p.sat_score) : "",
+    actScore: p.act_score ? String(p.act_score) : "",
+    intendedMajor: p.intended_major || "",
+  });
+
+  const [story, setStory] = useState<string>(p.bio || "");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(p.avatar_url || null);
+
+  const [prefs, setPrefs] = useState<PrefsData>({
+    targetDivision: p.target_division || "",
+    geoPreference: p.geo_preference || "",
+    recruitingTimeline: p.recruiting_timeline || "",
+  });
+
+  const [film, setFilm] = useState<string>(p.highlight_film_url || "");
+
+  // Live profile completion %
+  const completion = useMemo(() => {
+    let pct = 0;
+    if (basic.firstName && basic.lastName && basic.gradYear && basic.dob && basic.city && basic.state) {
+      pct += FIELD_WEIGHTS.basic;
+    }
+    if (athletic.positions.length && athletic.feet && athletic.inches !== "" && athletic.weight && athletic.dominantHand) {
+      pct += FIELD_WEIGHTS.athletic;
+    }
+    if (academic.highSchool && academic.gpa && academic.intendedMajor) pct += FIELD_WEIGHTS.academic;
+    if (story.trim().length >= 40) pct += FIELD_WEIGHTS.story;
+    if (avatarUrl) pct += FIELD_WEIGHTS.photo;
+    if (prefs.targetDivision && prefs.geoPreference && prefs.recruitingTimeline) pct += FIELD_WEIGHTS.prefs;
+    if (film) pct += FIELD_WEIGHTS.film;
+    return Math.min(100, pct);
+  }, [basic, athletic, academic, story, avatarUrl, prefs, film]);
+
+  const progressBar = step === TOTAL_STEPS ? 100 : ((step - 1) / TOTAL_STEPS) * 100 + completion / TOTAL_STEPS;
+
+  const advance = () => {
+    setDirection(1);
+    setStep((s) => Math.min(TOTAL_STEPS, s + 1));
+  };
+  const back = () => {
     setDirection(-1);
     setStep((s) => Math.max(1, s - 1));
   };
 
-  const handleStepChange = (newStep: number) => {
-    setDirection(newStep > step ? 1 : -1);
-    setStep(newStep);
+  // Save partial profile after each step so progress is never lost.
+  const persist = useCallback(
+    async (patch: Record<string, any>) => {
+      if (!user) return;
+      const { error } = await supabase.from("profiles").update(patch).eq("id", user.id);
+      if (error) {
+        console.error("[onboarding] save failed", error);
+        toast.error("Couldn't save that step. Check your connection and try again.");
+        throw error;
+      }
+    },
+    [user]
+  );
+
+  const handleBasic = async (d: BasicData) => {
+    setBasic(d);
+    try {
+      await persist({
+        first_name: d.firstName,
+        last_name: d.lastName,
+        grad_year: Number(d.gradYear),
+        date_of_birth: d.dob,
+        city: d.city,
+        state: d.state,
+      });
+      advance();
+    } catch {}
   };
 
-  // Override goNext to set direction
-  const advanceStep = () => {
-    setDirection(1);
-    setStep((s) => s + 1);
+  const handleAthletic = async (d: AthleticData) => {
+    setAthletic(d);
+    try {
+      await persist({
+        positions: d.positions,
+        position: d.positions[0] || null,
+        jersey_number: d.jerseyNumber || null,
+        height: `${d.feet}'${d.inches}`,
+        weight: d.weight ? `${d.weight} lbs` : null,
+        dominant_hand: d.dominantHand,
+      });
+      advance();
+    } catch {}
   };
 
-  // Rewire handlers to use advanceStep
-  const handleUserTypeWrapped = (type: "player" | "parent") => {
-    setUserType(type);
-    setTimeout(() => { setDirection(1); setStep((s) => s + 1); }, 400);
+  const handleAcademic = async (d: AcademicData) => {
+    setAcademic(d);
+    try {
+      await persist({
+        high_school_name: d.highSchool,
+        gpa: Number(d.gpa),
+        sat_score: d.satScore ? Number(d.satScore) : null,
+        act_score: d.actScore ? Number(d.actScore) : null,
+        intended_major: d.intendedMajor,
+      });
+      advance();
+    } catch {}
   };
 
-  const handleBasicInfoWrapped = (data: { firstName: string; position: string; age: string; feet: string; inches: string }) => {
-    setFirstName(data.firstName);
-    setPosition(data.position);
-    setAge(data.age);
-    setFeet(data.feet);
-    setInches(data.inches);
-    setDirection(1);
-    setStep((s) => s + 1);
+  const handleStory = async (bio: string) => {
+    setStory(bio);
+    try {
+      await persist({ bio });
+      advance();
+    } catch {}
   };
 
-  const handleGoalWrapped = (goal: string) => {
-    setPrimaryGoal(goal);
-    setDirection(1);
-    setStep((s) => s + 1);
+  const handlePhoto = async (url: string) => {
+    setAvatarUrl(url);
+    try {
+      await persist({ avatar_url: url });
+      advance();
+    } catch {}
   };
 
-  const handleStrengthsWrapped = (s: string[], w: string[]) => {
-    setStrengths(s);
-    setWeaknesses(w);
-    setDirection(1);
-    setStep((s) => s + 1);
+  const handlePrefs = async (d: PrefsData) => {
+    setPrefs(d);
+    try {
+      await persist({
+        target_division: d.targetDivision,
+        geo_preference: d.geoPreference,
+        recruiting_timeline: d.recruitingTimeline,
+      });
+      advance();
+    } catch {}
   };
 
-  if (showBuildingPlan) {
-    return (
-      <div className="relative">
-        <OnboardingBackground />
-        <OnboardingProgress progress={100} />
-        <div className="relative z-10">
-          <BuildingPlanScreen onComplete={handleBuildingComplete} />
-        </div>
-      </div>
-    );
-  }
+  const handleFilm = async (url: string) => {
+    setFilm(url);
+    try {
+      await persist({ highlight_film_url: url });
+      advance();
+    } catch {}
+  };
+
+  const handleFinish = async () => {
+    if (!user || saving) return;
+    setSaving(true);
+    try {
+      await persist({ onboarding_completed: true, recruit_onboarding_completed: true });
+      await refreshProfile();
+      navigate("/dashboard", { replace: true });
+    } catch {
+      setSaving(false);
+    }
+  };
+
+  const slideVariants = {
+    enter: (dir: number) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (dir: number) => ({ x: dir > 0 ? "-100%" : "100%", opacity: 0 }),
+  };
+
+  const identifier = (p.username && String(p.username).trim()) || user?.id || "your-profile";
 
   return (
     <div className="relative overflow-hidden">
       <OnboardingBackground />
-      <OnboardingProgress progress={progress} />
+      <OnboardingProgress progress={Math.round(progressBar)} />
 
-      {/* Back button */}
-      {step > 1 && (
+      {step > 1 && step < TOTAL_STEPS && (
         <motion.button
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          onClick={goBack}
+          onClick={back}
           className="fixed top-6 left-5 z-50 w-10 h-10 flex items-center justify-center rounded-full bg-white/5 backdrop-blur-sm border border-white/10 text-foreground"
+          aria-label="Back"
         >
           <ArrowLeft className="h-4 w-4" />
         </motion.button>
       )}
+
+      {/* Live completion pill */}
+      <div className="fixed top-5 right-5 z-50 px-3 py-1.5 rounded-full bg-card/80 backdrop-blur-sm border border-border text-[11px] font-heading tracking-wider text-foreground">
+        {completion}% PROFILE
+      </div>
 
       <div className="relative z-10">
         <AnimatePresence mode="wait" custom={direction}>
@@ -235,14 +254,41 @@ export default function Onboarding() {
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
           >
-            {step === 1 && <ScreenHook onNext={() => { setDirection(1); setStep(2); }} />}
-            {step === 2 && <ScreenUserType onSelect={handleUserTypeWrapped} />}
-            {step === 3 && <ScreenBasicInfo userType={userType} onNext={handleBasicInfoWrapped} />}
-            {step === 4 && <ScreenGoal onSelect={handleGoalWrapped} />}
-            {step === 5 && <ScreenStrengths onNext={handleStrengthsWrapped} />}
-            {step === 6 && <ScreenSchedule onSubmit={handleSchedule} saving={saving} />}
+            {step === 1 && <StepBasic initial={basic} onNext={handleBasic} />}
+            {step === 2 && <StepAthletic initial={athletic} onNext={handleAthletic} />}
+            {step === 3 && <StepAcademic initial={academic} onNext={handleAcademic} />}
+            {step === 4 && <StepStory initial={story} onNext={handleStory} />}
+            {step === 5 && (
+              <StepPhoto
+                initialUrl={avatarUrl}
+                onNext={handlePhoto}
+                onSkip={advance}
+              />
+            )}
+            {step === 6 && <StepPrefs initial={prefs} onNext={handlePrefs} />}
+            {step === 7 && (
+              <StepFilm initial={film} onNext={handleFilm} onSkip={advance} />
+            )}
+            {step === 8 && (
+              <StepPreview
+                data={{
+                  firstName: basic.firstName,
+                  lastName: basic.lastName,
+                  position: athletic.positions[0] || "",
+                  height: athletic.feet && athletic.inches !== "" ? `${athletic.feet}'${athletic.inches}"` : "",
+                  city: basic.city,
+                  state: basic.state,
+                  gradYear: basic.gradYear,
+                  gpa: academic.gpa,
+                  avatarUrl,
+                  identifier,
+                  completion,
+                }}
+                onFinish={handleFinish}
+              />
+            )}
           </motion.div>
         </AnimatePresence>
       </div>

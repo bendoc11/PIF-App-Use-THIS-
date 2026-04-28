@@ -23,6 +23,8 @@ interface Props {
   onChange: () => void;
   onCompose: () => void;
   onFollowUp: (row: OutreachRow) => void;
+  /** When false, the compose entry becomes a "Connect Gmail" prompt CTA. */
+  gmailConnected?: boolean;
 }
 
 const STATUS_DOT: Record<string, string> = {

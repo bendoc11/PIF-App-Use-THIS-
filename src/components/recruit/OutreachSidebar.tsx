@@ -59,7 +59,7 @@ function relativeTime(iso: string): string {
   return `${Math.floor(d / 30)}mo ago`;
 }
 
-export function OutreachSidebar({ rows, onChange, onCompose, onFollowUp }: Props) {
+export function OutreachSidebar({ rows, onChange, onCompose, onFollowUp, gmailConnected = true }: Props) {
   const [openId, setOpenId] = useState<string | null>(null);
   const { profile } = useAuth();
   const programCount = useProgramCount();

@@ -273,6 +273,9 @@ export default function Onboarding() {
               <StepFilm initial={film} onNext={handleFilm} onSkip={advance} />
             )}
             {step === 8 && (
+              <StepGmail onConnected={advance} onSkip={advance} />
+            )}
+            {step === 9 && (
               <StepPreview
                 data={{
                   firstName: basic.firstName,

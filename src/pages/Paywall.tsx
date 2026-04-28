@@ -43,7 +43,7 @@ export default function Paywall() {
       await refreshProfile();
       if (data?.subscribed) {
         toast.success("Subscription found — welcome in!");
-        navigate(profile?.onboarding_completed ? "/dashboard" : "/onboarding");
+        navigate(profile?.onboarding_completed ? "/recruit" : "/onboarding");
       } else {
         toast.error("No active subscription found on this account.");
       }

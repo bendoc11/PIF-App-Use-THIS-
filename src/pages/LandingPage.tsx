@@ -28,7 +28,7 @@ function Navbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border/50">
+    <header className="sticky top-0 z-50 bg-background border-b border-border/50">
       <nav className="flex items-center justify-between px-4 md:px-6 lg:px-12 h-16 max-w-[1200px] mx-auto">
         <div className="flex items-baseline gap-1">
           <span className="font-sans text-lg text-foreground font-medium">Play it</span>

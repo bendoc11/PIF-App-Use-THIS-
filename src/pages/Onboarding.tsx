@@ -234,7 +234,7 @@ export default function Onboarding() {
     try {
       await persist({ onboarding_completed: true, recruit_onboarding_completed: true });
       await refreshProfile();
-      navigate("/dashboard", { replace: true });
+      navigate("/recruit", { replace: true });
     } catch {
       setSaving(false);
     }

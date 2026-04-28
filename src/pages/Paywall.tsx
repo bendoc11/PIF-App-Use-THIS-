@@ -27,7 +27,7 @@ export default function Paywall() {
   if (loading || (user && !profile)) return null;
   if (!user) return <Navigate to="/login" replace />;
   if (isSubscribed(profile)) {
-    const dest = profile?.onboarding_completed ? "/dashboard" : "/onboarding";
+    const dest = profile?.onboarding_completed ? "/recruit" : "/onboarding";
     return <Navigate to={dest} replace />;
   }
 
@@ -43,7 +43,7 @@ export default function Paywall() {
       await refreshProfile();
       if (data?.subscribed) {
         toast.success("Subscription found — welcome in!");
-        navigate(profile?.onboarding_completed ? "/dashboard" : "/onboarding");
+        navigate(profile?.onboarding_completed ? "/recruit" : "/onboarding");
       } else {
         toast.error("No active subscription found on this account.");
       }

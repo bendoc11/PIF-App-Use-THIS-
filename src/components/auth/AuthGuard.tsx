@@ -2,6 +2,16 @@ import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
+const ACTIVE_STATUSES = ["active", "trialing", "trial", "past_due"];
+
+function isSubscribed(profile: any): boolean {
+  if (!profile) return false;
+  if (profile.role === "admin" || profile.role === "creator") return true;
+  if (profile.plan && ["pro", "premium", "lifetime"].includes(profile.plan)) return true;
+  if (profile.subscription_status && ACTIVE_STATUSES.includes(profile.subscription_status)) return true;
+  return false;
+}
+
 export function AuthGuard({ children }: { children: ReactNode }) {
   const { user, loading, profile } = useAuth();
   const location = useLocation();
@@ -27,13 +37,23 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     );
   }
 
-  // Redirect to onboarding if not completed (skip for settings/admin/onboarding routes)
+  // PAYWALL FIRST: any signed-in user without an active subscription must
+  // see the paywall before onboarding, settings, dashboard, or anything
+  // else on the platform. Admins/creators bypass.
+  const isPaywallRoute = location.pathname.startsWith("/paywall");
+  const isAdminRoute = location.pathname.startsWith("/admin");
+  if (!isSubscribed(profile) && !isPaywallRoute && !isAdminRoute) {
+    return <Navigate to="/paywall" replace />;
+  }
+
+  // Subscribed users who haven't completed onboarding go through it first
+  // (admins can still hit /admin and /settings directly).
   const isOnboardingRoute = location.pathname.startsWith("/onboarding");
   if (
     !profile.onboarding_completed &&
     !isOnboardingRoute &&
-    !location.pathname.startsWith("/settings") &&
-    !location.pathname.startsWith("/admin")
+    !isAdminRoute &&
+    !location.pathname.startsWith("/settings")
   ) {
     return <Navigate to="/onboarding" replace />;
   }

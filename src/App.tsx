@@ -21,6 +21,7 @@ import Settings from "./pages/Settings";
 import Recruit from "./pages/Recruit";
 import RecruitProfile from "./pages/RecruitProfile";
 import MyProfile from "./pages/MyProfile";
+import PublicAthleteProfile from "./pages/PublicAthleteProfile";
 
 import SignupSuccess from "./pages/SignupSuccess";
 import ResetPassword from "./pages/ResetPassword";
@@ -75,6 +76,9 @@ const App = () => (
             <Route path="/profile" element={<AuthGuard><SubscriptionGuard><MyProfile /></SubscriptionGuard></AuthGuard>} />
             <Route path="/profile/edit" element={<AuthGuard><SubscriptionGuard><RecruitProfile /></SubscriptionGuard></AuthGuard>} />
             <Route path="/profile/:username" element={<RecruitProfile />} />
+            {/* Public, no-login recruiting profile — shareable with coaches */}
+            <Route path="/p/:identifier" element={<PublicAthleteProfile />} />
+            <Route path="/athlete/:identifier" element={<PublicAthleteProfile />} />
             {/* Admin Routes */}
             <Route path="/admin" element={<Navigate to="/admin/courses" replace />} />
             <Route path="/admin/courses" element={<AdminGuard><AdminCourses /></AdminGuard>} />

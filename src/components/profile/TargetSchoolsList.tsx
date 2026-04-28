@@ -141,10 +141,15 @@ export function TargetSchoolsList({ userId }: { userId?: string }) {
       )}
 
       {schools.length === 0 ? (
-        <div className="text-center py-8">
-          <GraduationCap className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">No target schools yet. Add schools you're interested in.</p>
-        </div>
+        <EmptyState
+          icon={GraduationCap}
+          eyebrow="Build your list"
+          title={`${firstName}, pick the schools you want to play for.`}
+          description="Your target list keeps your outreach focused and your goals visible. Start with one dream school, one realistic match, and one safety."
+          stat={`${formatProgramCount(programCount)} college programs to choose from.`}
+          actionLabel="Add a school"
+          onAction={() => setShowAdd(true)}
+        />
       ) : (
         <div className="space-y-2">
           {schools.map((school) => {

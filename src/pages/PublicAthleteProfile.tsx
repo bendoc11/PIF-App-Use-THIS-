@@ -104,6 +104,34 @@ function getInitials(p: PublicProfile): string {
   return i.toUpperCase() || "PIF";
 }
 
+/**
+ * Cap any percentage value at 100. Logs a warning so bad data is visible
+ * in the console without ever leaking an above-100% number to a coach.
+ * Returns null when the input is missing or non-numeric.
+ */
+function safePct(value: unknown, fieldName = "percentage"): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const n = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(n) || n < 0) {
+    console.warn(`[PublicProfile] Invalid ${fieldName} value rejected:`, value);
+    return null;
+  }
+  if (n > 100) {
+    console.error(
+      `[PublicProfile] ${fieldName} value ${n} exceeds 100 — capping at 100. ` +
+        `This indicates a data error upstream that should be corrected.`
+    );
+    return 100;
+  }
+  return Math.round(n * 10) / 10;
+}
+
+/** Format a capped percentage for display. Returns "—" when missing. */
+function formatPct(value: unknown, fieldName = "percentage"): string {
+  const n = safePct(value, fieldName);
+  return n === null ? "—" : `${n}%`;
+}
+
 function getVideoEmbedUrl(url: string): string | null {
   if (!url) return null;
   // YouTube

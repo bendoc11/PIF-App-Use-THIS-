@@ -71,7 +71,9 @@ export default function Login() {
     if (error) {
       toast.error(error.message);
     } else {
-      navigate("/dashboard");
+      // Send to paywall first; the redirect logic on mount will route the
+      // user onward (paywall → onboarding → recruit) once profile loads.
+      navigate("/paywall", { replace: true });
     }
   };
 

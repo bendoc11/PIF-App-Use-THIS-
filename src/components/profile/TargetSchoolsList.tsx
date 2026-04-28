@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Trash2, GraduationCap } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
+import { useProgramCount, formatProgramCount } from "@/hooks/useProgramCount";
+import { useAuth } from "@/contexts/AuthContext";
 
 const CLASS_COLORS: Record<string, string> = {
   Dream: "bg-pif-gold/20 text-pif-gold border-pif-gold/30",
@@ -26,6 +29,9 @@ export function TargetSchoolsList({ userId }: { userId?: string }) {
   const [schools, setSchools] = useState<TargetSchool[]>([]);
   const [showAdd, setShowAdd] = useState(false);
   const [newSchool, setNewSchool] = useState({ school_name: "", division: "", state: "", classification: "Target" });
+  const { profile } = useAuth();
+  const programCount = useProgramCount();
+  const firstName = (profile as any)?.first_name?.trim() || "Champ";
 
   useEffect(() => {
     if (!userId) return;
@@ -135,10 +141,15 @@ export function TargetSchoolsList({ userId }: { userId?: string }) {
       )}
 
       {schools.length === 0 ? (
-        <div className="text-center py-8">
-          <GraduationCap className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">No target schools yet. Add schools you're interested in.</p>
-        </div>
+        <EmptyState
+          icon={GraduationCap}
+          eyebrow="Build your list"
+          title={`${firstName}, pick the schools you want to play for.`}
+          description="Your target list keeps your outreach focused and your goals visible. Start with one dream school, one realistic match, and one safety."
+          stat={`${formatProgramCount(programCount)} college programs to choose from.`}
+          actionLabel="Add a school"
+          onAction={() => setShowAdd(true)}
+        />
       ) : (
         <div className="space-y-2">
           {schools.map((school) => {

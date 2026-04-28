@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { PenSquare, Mail, ChevronRight, Clock } from "lucide-react";
+import { PenSquare, Mail, ChevronRight, Clock, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { EmptyState } from "@/components/ui/empty-state";
+import { useProgramCount, formatProgramCount } from "@/hooks/useProgramCount";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface OutreachRow {
   id: string;
@@ -56,6 +59,9 @@ function relativeTime(iso: string): string {
 
 export function OutreachSidebar({ rows, onChange, onCompose, onFollowUp }: Props) {
   const [openId, setOpenId] = useState<string | null>(null);
+  const { profile } = useAuth();
+  const programCount = useProgramCount();
+  const firstName = (profile as any)?.first_name?.trim() || "Champ";
 
   const cycleStatus = async (e: React.MouseEvent, row: OutreachRow) => {
     e.stopPropagation();
@@ -94,12 +100,17 @@ export function OutreachSidebar({ rows, onChange, onCompose, onFollowUp }: Props
 
       <div className="flex-1 overflow-y-auto">
         {rows.length === 0 ? (
-          <div className="px-6 py-12 text-center">
-            <div className="mx-auto w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-              <Mail className="h-4 w-4 text-gray-400" />
-            </div>
-            <p className="text-sm text-gray-600 font-medium">No outreach yet</p>
-            <p className="text-xs text-gray-400 mt-1">Compose your first email to get started.</p>
+          <div className="p-4">
+            <EmptyState
+              tone="light"
+              icon={Send}
+              eyebrow="Your starting line"
+              title={`${firstName}, your recruiting journey starts here.`}
+              description="Coaches don't find players — players find coaches. Send your first email and put your name on a coach's desk this week."
+              stat={`${formatProgramCount(programCount)} college programs are waiting to hear from you.`}
+              actionLabel="Compose first email"
+              onAction={onCompose}
+            />
           </div>
         ) : (
           <ul>

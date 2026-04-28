@@ -5,7 +5,9 @@ import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 
 const GOOGLE_CLIENT_ID = "617641714400-jjlh0v9fpecmc6a4ccikrkure3bn8kmg.apps.googleusercontent.com";
-const REDIRECT_URI = `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1/gmail-oauth-callback`;
+// Redirect URI must match what's registered in Google Cloud Console.
+// Using playitforward.app so the consent screen shows our brand domain.
+const REDIRECT_URI = "https://playitforward.app/gmail/callback";
 const SCOPE = "https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email";
 
 export function useGmailConnection() {

@@ -81,16 +81,25 @@ export function OutreachSidebar({ rows, onChange, onCompose, onFollowUp, gmailCo
 
   return (
     <aside className="w-full lg:w-80 shrink-0 border-r border-gray-200 bg-white flex flex-col h-full">
-      {/* Compose action — top, primary */}
+      {/* Compose action — top, primary. Becomes a Gmail connect prompt when not connected. */}
       <div className="p-3 border-b border-gray-100">
         <button
           data-tour="compose"
           onClick={onCompose}
-          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium transition-colors"
+          className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+            gmailConnected
+              ? "bg-gray-900 hover:bg-gray-800 text-white"
+              : "bg-pif-red hover:bg-pif-red/90 text-white"
+          }`}
         >
-          <PenSquare className="h-4 w-4" />
-          Compose new outreach
+          <Mail className="h-4 w-4" />
+          {gmailConnected ? "Compose new outreach" : "Connect Gmail to send"}
         </button>
+        {!gmailConnected && (
+          <p className="mt-2 text-[11px] text-gray-500 leading-snug">
+            Coaches respond to real emails — connect your Gmail to start reaching out.
+          </p>
+        )}
       </div>
 
       {/* Past outreach header */}

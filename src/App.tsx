@@ -27,6 +27,7 @@ import SignupSuccess from "./pages/SignupSuccess";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import OAuthCallback from "./pages/OAuthCallback";
+import GmailCallback from "./pages/GmailCallback";
 import Onboarding from "./pages/Onboarding";
 import OnboardingResults from "./pages/OnboardingResults";
 import AdminCourses from "./pages/admin/AdminCourses";
@@ -58,6 +59,7 @@ const App = () => (
             <Route path="/signup-success" element={<SignupSuccess />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/auth/callback" element={<OAuthCallback />} />
+            <Route path="/gmail/callback" element={<GmailCallback />} />
             <Route path="/onboarding" element={<AuthGuard><Onboarding /></AuthGuard>} />
             <Route path="/onboarding/results" element={<AuthGuard><OnboardingResults /></AuthGuard>} />
             <Route path="/dashboard" element={<AuthGuard><SubscriptionGuard><Dashboard /></SubscriptionGuard></AuthGuard>} />

@@ -239,7 +239,7 @@ export default function Onboarding() {
     }
     // Navigate immediately so the user never sees a blank screen, even if
     // the background profile refresh is slow or fails.
-    navigate("/recruit", { replace: true });
+    navigate("/dashboard", { replace: true });
     // Fire-and-forget so other pages see the updated profile.
     refreshProfile().catch(() => {});
   };

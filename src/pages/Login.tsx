@@ -69,10 +69,8 @@ export default function Login() {
     setIsLoading(false);
     if (error) {
       toast.error(error.message);
-    } else {
-      // Send to paywall first; the redirect logic on mount will route the
-      // user onward (paywall → onboarding → recruit) once profile loads.
-      navigate("/paywall", { replace: true });
+      // AuthGuard will route onward (subscribe → onboarding → dashboard) once profile loads.
+      navigate("/subscribe", { replace: true });
     }
   };
 
@@ -103,8 +101,8 @@ export default function Login() {
         if (signInError) throw signInError;
       }
 
-      // New user → paywall is the very first screen they see, before onboarding.
-      navigate("/paywall", { replace: true });
+      // New user → subscribe is the very first screen they see, before onboarding.
+      navigate("/subscribe", { replace: true });
 
     } catch (err: any) {
       toast.error(err.message || "Could not create account");

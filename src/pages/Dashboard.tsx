@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
 import { Flame, Play, TrendingUp, Trophy, ArrowRight, Lock, Mail, Target } from "lucide-react";
-import ProductTour from "@/components/tour/ProductTour";
+
 
 interface CourseWithCoach {
   id: string;

@@ -13,6 +13,8 @@ import { RecruitDashboard } from "@/components/recruit/RecruitDashboard";
 import { ProfileCompletionCard } from "@/components/recruit/ProfileCompletionCard";
 import { SchoolList } from "@/components/recruit/SchoolList";
 import { RecruitTour, TourStep } from "@/components/recruit/RecruitTour";
+import { ConnectGmailPrompt } from "@/components/recruit/ConnectGmailPrompt";
+import { useGmailConnection } from "@/hooks/useGmailConnection";
 import { Loader2, ArrowLeft, PenSquare } from "lucide-react";
 
 const TOUR_STEPS: TourStep[] = [

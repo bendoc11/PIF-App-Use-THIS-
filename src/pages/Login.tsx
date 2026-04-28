@@ -35,16 +35,15 @@ export default function Login() {
 
   if (loading || (user && !profile)) return null;
   if (user && profile) {
-    // Paywall always comes first for users without an active subscription.
     const ACTIVE = ["active", "trialing", "trial", "past_due"];
     const isSub =
       profile.role === "admin" ||
       profile.role === "creator" ||
       ["pro", "premium", "lifetime"].includes(profile.plan as any) ||
       (profile.subscription_status && ACTIVE.includes(profile.subscription_status));
-    let redirectTo = "/paywall";
+    let redirectTo = "/subscribe";
     if (isSub) {
-      redirectTo = !profile.onboarding_completed ? "/onboarding" : "/recruit";
+      redirectTo = !profile.onboarding_completed ? "/onboarding" : "/dashboard";
     }
     return <Navigate to={redirectTo} replace />;
   }
@@ -70,10 +69,8 @@ export default function Login() {
     setIsLoading(false);
     if (error) {
       toast.error(error.message);
-    } else {
-      // Send to paywall first; the redirect logic on mount will route the
-      // user onward (paywall → onboarding → recruit) once profile loads.
-      navigate("/paywall", { replace: true });
+      // AuthGuard will route onward (subscribe → onboarding → dashboard) once profile loads.
+      navigate("/subscribe", { replace: true });
     }
   };
 
@@ -104,8 +101,8 @@ export default function Login() {
         if (signInError) throw signInError;
       }
 
-      // New user → paywall is the very first screen they see, before onboarding.
-      navigate("/paywall", { replace: true });
+      // New user → subscribe is the very first screen they see, before onboarding.
+      navigate("/subscribe", { replace: true });
 
     } catch (err: any) {
       toast.error(err.message || "Could not create account");

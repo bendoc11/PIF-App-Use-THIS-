@@ -61,10 +61,13 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/auth/callback" element={<OAuthCallback />} />
             <Route path="/gmail/callback" element={<GmailCallback />} />
-            <Route path="/paywall" element={<AuthGuard><Paywall /></AuthGuard>} />
-            <Route path="/onboarding" element={<AuthGuard><SubscriptionGuard><Onboarding /></SubscriptionGuard></AuthGuard>} />
-            <Route path="/onboarding/results" element={<AuthGuard><SubscriptionGuard><OnboardingResults /></SubscriptionGuard></AuthGuard>} />
-            <Route path="/dashboard" element={<AuthGuard><SubscriptionGuard><Dashboard /></SubscriptionGuard></AuthGuard>} />
+            <Route path="/subscribe" element={<AuthGuard><Paywall /></AuthGuard>} />
+            <Route path="/paywall" element={<Navigate to="/subscribe" replace />} />
+            <Route path="/onboarding" element={<AuthGuard><Onboarding /></AuthGuard>} />
+            <Route path="/onboarding/results" element={<AuthGuard><OnboardingResults /></AuthGuard>} />
+            {/* /dashboard is the Get Recruited page per product spec */}
+            <Route path="/dashboard" element={<AuthGuard><Recruit /></AuthGuard>} />
+            <Route path="/home" element={<AuthGuard><Dashboard /></AuthGuard>} />
             <Route path="/courses" element={<AuthGuard><SubscriptionGuard><Courses /></SubscriptionGuard></AuthGuard>} />
             <Route path="/courses/:courseId/:drillIndex" element={<AuthGuard><SubscriptionGuard><CoursePlayer /></SubscriptionGuard></AuthGuard>} />
             <Route path="/drill/:courseId/:drillIndex" element={<AuthGuard><SubscriptionGuard><DrillExperience /></SubscriptionGuard></AuthGuard>} />

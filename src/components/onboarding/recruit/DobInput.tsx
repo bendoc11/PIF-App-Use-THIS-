@@ -39,7 +39,8 @@ export default function DobInput({ value, onChange }: Props) {
       const dd = Number(digits.slice(2, 4));
       const yyyy = Number(digits.slice(4, 8));
       const iso = `${yyyy.toString().padStart(4, "0")}-${digits.slice(0, 2)}-${digits.slice(2, 4)}`;
-      const d = new Date(iso);
+      // Construct in local time to avoid UTC off-by-one near timezone boundaries.
+      const d = new Date(yyyy, mm - 1, dd);
       const today = new Date();
       const valid =
         mm >= 1 &&

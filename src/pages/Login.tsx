@@ -35,16 +35,15 @@ export default function Login() {
 
   if (loading || (user && !profile)) return null;
   if (user && profile) {
-    // Paywall always comes first for users without an active subscription.
     const ACTIVE = ["active", "trialing", "trial", "past_due"];
     const isSub =
       profile.role === "admin" ||
       profile.role === "creator" ||
       ["pro", "premium", "lifetime"].includes(profile.plan as any) ||
       (profile.subscription_status && ACTIVE.includes(profile.subscription_status));
-    let redirectTo = "/paywall";
+    let redirectTo = "/subscribe";
     if (isSub) {
-      redirectTo = !profile.onboarding_completed ? "/onboarding" : "/recruit";
+      redirectTo = !profile.onboarding_completed ? "/onboarding" : "/dashboard";
     }
     return <Navigate to={redirectTo} replace />;
   }

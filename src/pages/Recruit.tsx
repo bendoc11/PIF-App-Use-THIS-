@@ -52,7 +52,9 @@ type View =
       initialDraft?: { subject: string; body: string } | null;
     }
   // "Compose new outreach" entry — pick a school first
-  | { kind: "compose-pick" };
+  | { kind: "compose-pick" }
+  // Shown whenever the user tries to compose without a connected Gmail
+  | { kind: "connect-gmail" };
 
 const REQUIRED_FIELDS = [
   "first_name", "last_name", "position", "height", "phone",

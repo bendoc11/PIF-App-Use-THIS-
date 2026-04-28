@@ -35,11 +35,39 @@ const FIELD_WEIGHTS: Record<string, number> = {
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile, refreshSubscription } = useAuth();
 
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [saving, setSaving] = useState(false);
+
+  // Stripe success redirects here. Insert an active subscription row for
+  // this user (idempotent: ignore the unique-violation if one already
+  // exists), then refresh the in-memory subscription flag so the paywall
+  // never re-appears.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const { data: existing } = await supabase
+        .from("subscriptions")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .limit(1)
+        .maybeSingle();
+      if (cancelled) return;
+      if (!existing) {
+        await supabase
+          .from("subscriptions")
+          .insert({ user_id: user.id, status: "active" });
+      }
+      await refreshSubscription();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, refreshSubscription]);
 
   // Hydrate initial values from existing profile so re-entry works.
   // CRITICAL: only hydrate from a profile that belongs to the currently

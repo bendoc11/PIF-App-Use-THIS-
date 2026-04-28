@@ -25,8 +25,10 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
+  hasActiveSubscription: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  refreshSubscription: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -34,8 +36,10 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   profile: null,
   loading: true,
+  hasActiveSubscription: false,
   signOut: async () => {},
   refreshProfile: async () => {},
+  refreshSubscription: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -45,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
 
   const fetchProfile = async (userId: string): Promise<boolean> => {
     const { data } = await supabase
@@ -58,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
       setSession(null);
       setProfile(null);
+      setHasActiveSubscription(false);
       window.dispatchEvent(new CustomEvent("account-banned"));
       return false;
     }
@@ -66,32 +72,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return true;
   };
 
+  const checkSubscription = async (userId: string) => {
+    const { data, error } = await supabase
+      .from("subscriptions")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("status", "active")
+      .limit(1)
+      .maybeSingle();
+    if (error) {
+      console.warn("[auth] subscription check failed", error);
+      setHasActiveSubscription(false);
+      return;
+    }
+    setHasActiveSubscription(!!data);
+  };
+
   const refreshProfile = async () => {
     if (user) await fetchProfile(user.id);
   };
 
+  const refreshSubscription = async () => {
+    if (user) await checkSubscription(user.id);
+  };
+
   useEffect(() => {
     const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
+          const uid = session.user.id;
           setTimeout(async () => {
-            await fetchProfile(session.user.id);
+            await fetchProfile(uid);
+            await checkSubscription(uid);
+            setLoading(false);
           }, 0);
         } else {
           setProfile(null);
+          setHasActiveSubscription(false);
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
 
     supabase.auth.getSession().then(async ({ data: { session: existingSession } }) => {
       setSession(existingSession);
       setUser(existingSession?.user ?? null);
-
       if (existingSession?.user) {
         await fetchProfile(existingSession.user.id);
+        await checkSubscription(existingSession.user.id);
       }
       setLoading(false);
     });
@@ -104,10 +134,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setSession(null);
     setProfile(null);
+    setHasActiveSubscription(false);
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, signOut, refreshProfile }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        profile,
+        loading,
+        hasActiveSubscription,
+        signOut,
+        refreshProfile,
+        refreshSubscription,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

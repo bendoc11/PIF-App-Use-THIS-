@@ -29,6 +29,7 @@ import NotFound from "./pages/NotFound";
 import OAuthCallback from "./pages/OAuthCallback";
 import GmailCallback from "./pages/GmailCallback";
 import Onboarding from "./pages/Onboarding";
+import Paywall from "./pages/Paywall";
 import OnboardingResults from "./pages/OnboardingResults";
 import AdminCourses from "./pages/admin/AdminCourses";
 import AdminCourseEditor from "./pages/admin/AdminCourseEditor";
@@ -60,8 +61,9 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/auth/callback" element={<OAuthCallback />} />
             <Route path="/gmail/callback" element={<GmailCallback />} />
-            <Route path="/onboarding" element={<AuthGuard><Onboarding /></AuthGuard>} />
-            <Route path="/onboarding/results" element={<AuthGuard><OnboardingResults /></AuthGuard>} />
+            <Route path="/paywall" element={<AuthGuard><Paywall /></AuthGuard>} />
+            <Route path="/onboarding" element={<AuthGuard><SubscriptionGuard><Onboarding /></SubscriptionGuard></AuthGuard>} />
+            <Route path="/onboarding/results" element={<AuthGuard><SubscriptionGuard><OnboardingResults /></SubscriptionGuard></AuthGuard>} />
             <Route path="/dashboard" element={<AuthGuard><SubscriptionGuard><Dashboard /></SubscriptionGuard></AuthGuard>} />
             <Route path="/courses" element={<AuthGuard><SubscriptionGuard><Courses /></SubscriptionGuard></AuthGuard>} />
             <Route path="/courses/:courseId/:drillIndex" element={<AuthGuard><SubscriptionGuard><CoursePlayer /></SubscriptionGuard></AuthGuard>} />

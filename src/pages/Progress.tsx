@@ -1,102 +1,122 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { WeeklyStatusCard } from "@/components/progress/WeeklyStatusCard";
-import { TrainingCalendar } from "@/components/progress/TrainingCalendar";
-import { PlayerCard } from "@/components/progress/PlayerCard";
-import { ShootingTracker } from "@/components/progress/ShootingTracker";
+import { MomentumHero } from "@/components/progress/MomentumHero";
+import { OutreachTracker } from "@/components/progress/OutreachTracker";
+import { RecruitingPipeline } from "@/components/progress/RecruitingPipeline";
 import { GameLog } from "@/components/progress/GameLog";
-import { DrillStatsRow } from "@/components/progress/DrillStatsRow";
+import { MediaWall } from "@/components/progress/MediaWall";
+import { OffersAndVisits } from "@/components/progress/OffersAndVisits";
 import { Separator } from "@/components/ui/separator";
+
+interface OutreachItem {
+  id: string;
+  sent_at: string;
+  status: "sent" | "replied" | "offer";
+  school_name: string;
+  coach_name: string;
+}
+
+interface OfferItem {
+  id: string;
+  school_name: string;
+  coach_name: string;
+  offer_date: string;
+}
+
+const PROFILE_FIELDS = [
+  "first_name", "last_name", "position", "height", "weight",
+  "grad_year", "high_school_name", "city", "state", "gpa",
+  "highlight_film_url", "hs_coach_name", "hs_coach_email", "bio", "jersey_number",
+];
 
 export default function Progress() {
   const { user, profile } = useAuth();
-  const [completedDates, setCompletedDates] = useState<string[]>([]);
-  const [drillCategories, setDrillCategories] = useState<string[]>([]);
-  const [hoursDisplay, setHoursDisplay] = useState("0m");
-  const [totalDrills, setTotalDrills] = useState(0);
+  const [outreach, setOutreach] = useState<OutreachItem[]>([]);
+  const [offers, setOffers] = useState<OfferItem[]>([]);
 
-  useEffect(() => {
+  const fetchAll = useCallback(async () => {
     if (!user) return;
-
-    // Fetch completed drill dates and categories
-    supabase
-      .from("user_drill_progress")
-      .select("completed_at, drills(category, duration_seconds)")
-      .eq("user_id", user.id)
-      .eq("completed", true)
-      .then(({ data }) => {
-        if (!data) return;
-        const dates: string[] = [];
-        const cats: string[] = [];
-        let totalSeconds = 0;
-        (data as any[]).forEach((row) => {
-          if (row.completed_at) dates.push(row.completed_at);
-          if (row.drills?.category) cats.push(row.drills.category);
-          totalSeconds += row.drills?.duration_seconds ?? 0;
-        });
-        setCompletedDates(dates);
-        setDrillCategories(cats);
-        setTotalDrills(data.length);
-
-        if (totalSeconds >= 3600) {
-          setHoursDisplay(`${(totalSeconds / 3600).toFixed(1)}h`);
-        } else if (totalSeconds > 0) {
-          setHoursDisplay(`${Math.round(totalSeconds / 60)}m`);
-        }
-      });
+    const [{ data: oData }, { data: fData }] = await Promise.all([
+      supabase
+        .from("outreach_history")
+        .select("id, sent_at, status, school_name, coach_name")
+        .eq("user_id", user.id)
+        .order("sent_at", { ascending: false }),
+      supabase
+        .from("recruiting_offers")
+        .select("id, school_name, coach_name, offer_date")
+        .eq("user_id", user.id)
+        .order("offer_date", { ascending: false }),
+    ]);
+    if (oData) setOutreach(oData as any);
+    if (fData) setOffers(fData as any);
   }, [user]);
 
-  const topSkill = useMemo(() => {
-    if (drillCategories.length === 0) return "";
-    const counts: Record<string, number> = {};
-    drillCategories.forEach(c => { counts[c] = (counts[c] || 0) + 1; });
-    const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
-    return `${top[0]} — ${top[1]} drills`;
-  }, [drillCategories]);
+  useEffect(() => { fetchAll(); }, [fetchAll]);
 
-  const streakDays = profile?.streak_days || 0;
+  const profileCompletion = useMemo(() => {
+    if (!profile) return 0;
+    const filled = PROFILE_FIELDS.filter((f) => {
+      const v = (profile as any)[f];
+      return v !== null && v !== undefined && String(v).trim() !== "";
+    }).length;
+    return Math.round((filled / PROFILE_FIELDS.length) * 100);
+  }, [profile]);
+
+  const daysSinceLastOutreach = useMemo(() => {
+    if (outreach.length === 0) return null;
+    const latest = outreach[0];
+    return Math.floor((Date.now() - new Date(latest.sent_at).getTime()) / (1000 * 60 * 60 * 24));
+  }, [outreach]);
+
+  const replies = outreach.filter((o) => o.status === "replied" || o.status === "offer").length;
+  const firstName = (profile as any)?.first_name?.trim() || "Champ";
 
   return (
     <AppLayout>
-      <div className="p-4 lg:p-6 max-w-5xl mx-auto space-y-6">
+      <div className="p-4 lg:p-6 max-w-6xl mx-auto space-y-8">
         {/* Page header */}
         <div>
-          <h1 className="text-3xl font-heading text-foreground">MY PROGRESS</h1>
-          <p className="text-muted-foreground text-sm mt-1">Your basketball development at a glance</p>
+          <h1 className="text-3xl font-heading text-foreground">RECRUITING COMMAND CENTER</h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            How visible are you to college coaches — and is that visibility growing?
+          </p>
         </div>
 
-        {/* Section 0: Weekly Status */}
-        <WeeklyStatusCard drillCompletedDates={completedDates} />
+        {/* Hero — Recruiting Momentum Score */}
+        <MomentumHero
+          profileCompletion={profileCompletion}
+          contacted={outreach.length}
+          replies={replies}
+          offers={offers.length}
+          daysSinceLastOutreach={daysSinceLastOutreach}
+          athleteName={firstName}
+        />
 
-        {/* Section 1: Player Card */}
-        <PlayerCard />
-
-        <Separator className="bg-border" />
-
-        {/* Section 2: Training Calendar */}
-        <TrainingCalendar drillCompletedDates={completedDates} streakDays={streakDays} />
-
-        <Separator className="bg-border" />
-
-        {/* Section 3: Shooting Tracker */}
-        <ShootingTracker />
+        {/* Section 1 — Outreach Tracker */}
+        <OutreachTracker rows={outreach} />
 
         <Separator className="bg-border" />
 
-        {/* Section 4: Game Log */}
+        {/* Section 2 — Recruiting Pipeline */}
+        <RecruitingPipeline outreach={outreach} offers={offers} onChange={fetchAll} />
+
+        <Separator className="bg-border" />
+
+        {/* Section 3 — Recent Games */}
         <GameLog />
 
         <Separator className="bg-border" />
 
-        {/* Section 5: Drill Stats */}
-        <DrillStatsRow
-          totalDrills={totalDrills || profile?.total_drills_completed || 0}
-          hoursDisplay={hoursDisplay}
-          topSkill={topSkill}
-          streakDays={streakDays}
-        />
+        {/* Section 4 — Media & Highlights */}
+        <MediaWall />
+
+        <Separator className="bg-border" />
+
+        {/* Section 5 — Offers & Visits */}
+        <OffersAndVisits offers={offers} onChange={fetchAll} />
       </div>
     </AppLayout>
   );

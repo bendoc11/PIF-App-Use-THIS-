@@ -106,7 +106,7 @@ export default function Paywall() {
             $50 <span className="text-2xl" style={{ color: "#A0ADB8" }}>/ month</span>
           </div>
           <p className="text-sm mt-2" style={{ color: "#A0ADB8" }}>
-            7-day free trial included. Cancel anytime.
+            Cancel anytime.
           </p>
         </div>
 
@@ -116,7 +116,7 @@ export default function Paywall() {
           className="w-full h-14 text-base font-heading tracking-wider text-white border-0 mb-4"
           style={{ backgroundColor: "#E8391D" }}
         >
-          START MY FREE TRIAL
+          SUBSCRIBE NOW
         </Button>
 
         {/* Restore */}

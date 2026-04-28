@@ -27,7 +27,7 @@ export default function Paywall() {
   if (loading || (user && !profile)) return null;
   if (!user) return <Navigate to="/login" replace />;
   if (isSubscribed(profile)) {
-    const dest = profile?.onboarding_completed ? "/dashboard" : "/onboarding";
+    const dest = profile?.onboarding_completed ? "/recruit" : "/onboarding";
     return <Navigate to={dest} replace />;
   }
 

@@ -193,7 +193,7 @@ export function RecruitDashboard({ rows, onChange }: Props) {
             </span>
           </div>
           <span className="text-xs font-semibold text-gray-900">
-            {thisWeekSent}<span className="text-gray-400 font-normal"> / {WEEKLY_GOAL}</span>
+            <AnimatedNumber value={thisWeekSent} /><span className="text-gray-400 font-normal"> / {WEEKLY_GOAL}</span>
           </span>
         </div>
         <Progress value={weeklyProgress} className="h-2 mb-2" />

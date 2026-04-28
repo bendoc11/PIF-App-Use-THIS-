@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AnimatedNumber } from "@/components/ui/animated-number";
+import { useProgramCount, formatProgramCount } from "@/hooks/useProgramCount";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";

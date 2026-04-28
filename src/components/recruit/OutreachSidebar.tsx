@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { PenSquare, Mail, ChevronRight, Clock } from "lucide-react";
+import { PenSquare, Mail, ChevronRight, Clock, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { EmptyState } from "@/components/ui/empty-state";
+import { useProgramCount, formatProgramCount } from "@/hooks/useProgramCount";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface OutreachRow {
   id: string;

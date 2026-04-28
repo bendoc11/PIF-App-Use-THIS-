@@ -20,7 +20,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
           {/* Topbar */}
-          <header className="h-16 flex items-center justify-between border-b border-border px-4 lg:px-6 sticky top-0 z-30 bg-background/80 backdrop-blur-md">
+          <header className="h-16 flex items-center justify-between border-b border-border px-4 lg:px-6 sticky top-0 z-30 bg-background">
             <div className="flex items-center gap-3">
               <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
               <h2 className="text-lg font-heading tracking-wider text-foreground hidden sm:block">

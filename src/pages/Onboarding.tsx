@@ -281,7 +281,7 @@ export default function Onboarding() {
   const identifier = (p.username && String(p.username).trim()) || user?.id || "your-profile";
 
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative min-h-screen w-full overflow-x-hidden" style={{ backgroundColor: "#080D14" }}>
       <OnboardingBackground />
       <OnboardingProgress progress={Math.round(progressBar)} />
 

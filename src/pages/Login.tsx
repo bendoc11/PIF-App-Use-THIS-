@@ -35,17 +35,9 @@ export default function Login() {
 
   if (loading || (user && !profile)) return null;
   if (user && profile) {
-    const ACTIVE = ["active", "trialing", "trial", "past_due"];
-    const isSub =
-      profile.role === "admin" ||
-      profile.role === "creator" ||
-      ["pro", "premium", "lifetime"].includes(profile.plan as any) ||
-      (profile.subscription_status && ACTIVE.includes(profile.subscription_status));
-    let redirectTo = "/subscribe";
-    if (isSub) {
-      redirectTo = !profile.onboarding_completed ? "/onboarding" : "/dashboard";
-    }
-    return <Navigate to={redirectTo} replace />;
+    // Always send signed-in users to /dashboard. AuthGuard will display
+    // the paywall overlay if they don't have an active subscription.
+    return <Navigate to="/dashboard" replace />;
   }
 
   const getPasswordStrength = (pw: string) => {
@@ -69,9 +61,11 @@ export default function Login() {
     setIsLoading(false);
     if (error) {
       toast.error(error.message);
-      // AuthGuard will route onward (subscribe → onboarding → dashboard) once profile loads.
-      navigate("/subscribe", { replace: true });
+      return;
     }
+    // Existing users land on dashboard. AuthGuard will show the paywall
+    // overlay if they don't have an active subscription.
+    navigate("/dashboard", { replace: true });
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -101,12 +95,13 @@ export default function Login() {
         if (signInError) throw signInError;
       }
 
-      // New user → subscribe is the very first screen they see, before onboarding.
-      navigate("/subscribe", { replace: true });
-
+      // New user → straight to Stripe checkout. Stripe success URL points
+      // back to /onboarding where we grant the active subscription row
+      // and start step 1 of the recruiting profile setup.
+      window.location.href =
+        "https://pay.philadelphiabasketballschool.com/b/cNi28q0NS5hBa3Z7Ud9R60S";
     } catch (err: any) {
       toast.error(err.message || "Could not create account");
-    } finally {
       setIsLoading(false);
     }
   };

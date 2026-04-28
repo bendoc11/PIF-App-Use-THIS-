@@ -339,6 +339,7 @@ function ProfileHeader() {
 
 function IntroVideoSection() {
   const [hasVideo] = useState(false); // demo empty state
+  const programCount = useProgramCount();
 
   return (
     <section>
@@ -362,12 +363,18 @@ function IntroVideoSection() {
             <div className="w-16 h-16 rounded-2xl bg-secondary/15 border border-secondary/30 flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
               <Video className="w-8 h-8 text-secondary" />
             </div>
+            <p className="text-[11px] font-bold tracking-[0.22em] uppercase text-secondary mb-2">
+              Step One
+            </p>
             <h3 className="text-lg md:text-xl font-bold text-foreground mb-2">
-              Upload your intro video
+              {ATHLETE.firstName}, introduce yourself to college coaches.
             </h3>
-            <p className="text-sm text-muted-foreground max-w-md mb-6">
-              Coaches want to see who you are beyond the highlights. 60–90 seconds. Look at the camera.
-              Tell them your name, school, position, and what you bring to a team.
+            <p className="text-sm text-muted-foreground max-w-md mb-3">
+              60–90 seconds, eye-to-camera. Your name, school, position, and what you bring to a team.
+              This is your handshake — make it land.
+            </p>
+            <p className="text-xs font-semibold tracking-wide text-secondary/90 mb-6">
+              {formatProgramCount(programCount)} college programs are waiting to hear from you.
             </p>
             <Button className="rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground">
               <Upload className="w-4 h-4 mr-2" />

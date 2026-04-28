@@ -101,12 +101,13 @@ export default function Login() {
         if (signInError) throw signInError;
       }
 
-      // New user → subscribe is the very first screen they see, before onboarding.
-      navigate("/subscribe", { replace: true });
-
+      // New user → straight to Stripe checkout. Stripe success URL points
+      // back to /onboarding where we grant the active subscription row
+      // and start step 1 of the recruiting profile setup.
+      window.location.href =
+        "https://pay.philadelphiabasketballschool.com/b/cNi28q0NS5hBa3Z7Ud9R60S";
     } catch (err: any) {
       toast.error(err.message || "Could not create account");
-    } finally {
       setIsLoading(false);
     }
   };

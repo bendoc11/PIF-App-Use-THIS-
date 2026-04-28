@@ -326,8 +326,8 @@ export default function PublicAthleteProfile() {
 
               {/* Quick facts */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-5">
-                {p.height && <Fact label="Height" value={p.height} />}
-                {p.weight && <Fact label="Weight" value={p.weight} />}
+                <Fact label="Height" value={p.height || "—"} />
+                <Fact label="Weight" value={p.weight || "—"} />
                 {(p.gpa || p.gpa_unweighted) && (
                   <Fact label="GPA" value={String(p.gpa ?? p.gpa_unweighted)} />
                 )}
@@ -435,9 +435,9 @@ export default function PublicAthleteProfile() {
                 <Stat label="APG" value={averages.apg} />
                 <Stat label="SPG" value={averages.spg} />
                 <Stat label="BPG" value={averages.bpg} />
-                <Stat label="FG%" value={`${averages.fg_pct}%`} />
-                <Stat label="3P%" value={`${averages.three_pct}%`} />
-                <Stat label="FT%" value={`${averages.ft_pct}%`} />
+                <Stat label="FG%" value={formatPct(averages.fg_pct, "season FG%")} />
+                <Stat label="3P%" value={formatPct(averages.three_pct, "season 3P%")} />
+                <Stat label="FT%" value={formatPct(averages.ft_pct, "season FT%")} />
               </div>
             </div>
           </Section>
@@ -477,7 +477,7 @@ export default function PublicAthleteProfile() {
                     <Inline label="AST" value={g.assists} />
                     <Inline label="STL" value={g.steals} />
                     <Inline label="BLK" value={g.blocks} />
-                    <Inline label="FG%" value={`${g.fg_percentage}%`} />
+                    <Inline label="FG%" value={formatPct(g.fg_percentage, "game FG%")} />
                   </div>
                 </div>
               ))}

@@ -18,8 +18,9 @@ import StepPhoto from "@/components/onboarding/recruit/StepPhoto";
 import StepPrefs, { PrefsData } from "@/components/onboarding/recruit/StepPrefs";
 import StepFilm from "@/components/onboarding/recruit/StepFilm";
 import StepPreview from "@/components/onboarding/recruit/StepPreview";
+import StepGmail from "@/components/onboarding/recruit/StepGmail";
 
-const TOTAL_STEPS = 8;
+const TOTAL_STEPS = 9;
 
 // Field weights drive the live profile completion percentage.
 const FIELD_WEIGHTS: Record<string, number> = {

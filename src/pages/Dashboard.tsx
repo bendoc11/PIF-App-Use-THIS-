@@ -290,6 +290,7 @@ export default function Dashboard() {
     <AppLayout>
       
       <div className="p-4 lg:p-6 space-y-6 max-w-7xl mx-auto">
+        <GmailReminderBanner />
         {/* Personalized Greeting */}
         {greeting && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="relative">

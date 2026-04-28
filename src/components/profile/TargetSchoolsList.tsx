@@ -29,6 +29,9 @@ export function TargetSchoolsList({ userId }: { userId?: string }) {
   const [schools, setSchools] = useState<TargetSchool[]>([]);
   const [showAdd, setShowAdd] = useState(false);
   const [newSchool, setNewSchool] = useState({ school_name: "", division: "", state: "", classification: "Target" });
+  const { profile } = useAuth();
+  const programCount = useProgramCount();
+  const firstName = (profile as any)?.first_name?.trim() || "Champ";
 
   useEffect(() => {
     if (!userId) return;

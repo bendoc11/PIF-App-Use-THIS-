@@ -1,5 +1,6 @@
 import { useState } from "react";
 import StepShell, { PrimaryCTA, FieldLabel, TextInput } from "./StepShell";
+import DobInput from "./DobInput";
 import { ArrowRight } from "lucide-react";
 
 export interface BasicData {
@@ -85,12 +86,7 @@ export default function StepBasic({ initial, onNext }: { initial: Partial<BasicD
 
       <div>
         <FieldLabel>DATE OF BIRTH</FieldLabel>
-        <TextInput
-          type="date"
-          value={data.dob}
-          onChange={(e) => setData({ ...data, dob: e.target.value })}
-          max={new Date().toISOString().split("T")[0]}
-        />
+        <DobInput value={data.dob} onChange={(iso) => setData({ ...data, dob: iso })} />
       </div>
 
       <div className="grid grid-cols-3 gap-3">

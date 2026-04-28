@@ -185,6 +185,26 @@ function StatChip({ label, value, accent }: { label: string; value: string | num
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 function ProfileHeader() {
+  // Animate completion bar from 0 → target on mount for a satisfying fill
+  const [completion, setCompletion] = useState(0);
+  // Live-tick coach views during the demo so the pulse fires periodically
+  const [views, setViews] = useState(ATHLETE.weeklyViews);
+  const [pulse, setPulse] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setCompletion(ATHLETE.completion), 250);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setViews((v) => v + 1);
+      setPulse(true);
+      setTimeout(() => setPulse(false), 1400);
+    }, 11000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section className="relative rounded-3xl overflow-hidden border border-border/60 bg-card">
       {/* Hero gradient backdrop */}

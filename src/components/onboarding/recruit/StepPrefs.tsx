@@ -1,0 +1,114 @@
+import { useState } from "react";
+import StepShell, { PrimaryCTA, FieldLabel } from "./StepShell";
+import { ArrowRight } from "lucide-react";
+
+export interface PrefsData {
+  targetDivision: string;
+  geoPreference: string;
+  recruitingTimeline: string;
+}
+
+const DIVISIONS = ["D1", "D2", "D3", "JUCO", "NAIA", "Open to all"];
+const GEO = [
+  "No preference",
+  "Northeast",
+  "Southeast",
+  "Midwest",
+  "South",
+  "West",
+  "Stay close to home",
+];
+const TIMELINES = [
+  { id: "senior_urgent", label: "Senior — need offers now", sub: "Urgency mode. Every day matters." },
+  { id: "junior_active", label: "Junior — actively recruiting", sub: "Prime year. Coaches are watching." },
+  { id: "sophomore_planning", label: "Sophomore — planning ahead", sub: "Smart move. Build the foundation." },
+  { id: "freshman_early", label: "Freshman or younger", sub: "You're way ahead of the game." },
+];
+
+export default function StepPrefs({
+  initial,
+  onNext,
+}: {
+  initial: Partial<PrefsData>;
+  onNext: (d: PrefsData) => void;
+}) {
+  const [data, setData] = useState<PrefsData>({
+    targetDivision: initial.targetDivision || "",
+    geoPreference: initial.geoPreference || "",
+    recruitingTimeline: initial.recruitingTimeline || "",
+  });
+
+  const can = data.targetDivision && data.geoPreference && data.recruitingTimeline;
+
+  return (
+    <StepShell
+      eyebrow="STEP 6 OF 8 · PREFERENCES"
+      title="Where do you want to play?"
+      subtitle="We'll match you to the programs that fit."
+      footer={
+        <PrimaryCTA onClick={() => onNext(data)} disabled={!can}>
+          NEXT <ArrowRight className="h-4 w-4" />
+        </PrimaryCTA>
+      }
+    >
+      <div>
+        <FieldLabel>TARGET DIVISION</FieldLabel>
+        <div className="grid grid-cols-3 gap-2">
+          {DIVISIONS.map((d) => (
+            <button
+              key={d}
+              onClick={() => setData({ ...data, targetDivision: d })}
+              className={`py-3 rounded-xl text-sm font-heading transition-all border ${
+                data.targetDivision === d
+                  ? "bg-primary text-primary-foreground border-primary glow-red"
+                  : "bg-card text-foreground border-border"
+              }`}
+            >
+              {d}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <FieldLabel>GEOGRAPHIC PREFERENCE</FieldLabel>
+        <div className="flex flex-wrap gap-2">
+          {GEO.map((g) => (
+            <button
+              key={g}
+              onClick={() => setData({ ...data, geoPreference: g })}
+              className={`px-4 py-2.5 rounded-full text-sm transition-all border ${
+                data.geoPreference === g
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-card text-foreground border-border"
+              }`}
+            >
+              {g}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <FieldLabel>YOUR TIMELINE</FieldLabel>
+        <div className="space-y-2">
+          {TIMELINES.map((t) => {
+            const active = data.recruitingTimeline === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setData({ ...data, recruitingTimeline: t.id })}
+                className={`w-full text-left p-4 rounded-xl border transition-all ${
+                  active ? "border-primary bg-primary/10 glow-red" : "border-border bg-card"
+                }`}
+              >
+                <p className={`font-heading text-sm ${active ? "text-primary" : "text-foreground"}`}>{t.label}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t.sub}</p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </StepShell>
+  );
+}

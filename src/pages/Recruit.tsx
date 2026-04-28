@@ -13,6 +13,8 @@ import { RecruitDashboard } from "@/components/recruit/RecruitDashboard";
 import { ProfileCompletionCard } from "@/components/recruit/ProfileCompletionCard";
 import { SchoolList } from "@/components/recruit/SchoolList";
 import { RecruitTour, TourStep } from "@/components/recruit/RecruitTour";
+import { ConnectGmailPrompt } from "@/components/recruit/ConnectGmailPrompt";
+import { useGmailConnection } from "@/hooks/useGmailConnection";
 import { Loader2, ArrowLeft, PenSquare } from "lucide-react";
 
 const TOUR_STEPS: TourStep[] = [
@@ -50,7 +52,9 @@ type View =
       initialDraft?: { subject: string; body: string } | null;
     }
   // "Compose new outreach" entry — pick a school first
-  | { kind: "compose-pick" };
+  | { kind: "compose-pick" }
+  // Shown whenever the user tries to compose without a connected Gmail
+  | { kind: "connect-gmail" };
 
 const REQUIRED_FIELDS = [
   "first_name", "last_name", "position", "height", "phone",
@@ -80,6 +84,7 @@ Best regards,`;
 export default function Recruit() {
   const { user, profile } = useAuth();
   const { schools, loading, error } = useColleges();
+  const { connected: gmailConnected, loading: gmailLoading, refresh: refreshGmail } = useGmailConnection();
   const [view, setView] = useState<View>({ kind: "map" });
   const [outreach, setOutreach] = useState<OutreachRow[]>([]);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -89,6 +94,13 @@ export default function Recruit() {
     size: "All",
     gpa: "All",
   });
+
+  // Re-check Gmail connection when returning from OAuth
+  useEffect(() => {
+    const onFocus = () => refreshGmail();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [refreshGmail]);
 
   // Show contextual tour once per user (driven by profile flag)
   useEffect(() => {
@@ -144,6 +156,10 @@ export default function Recruit() {
   }, [profile]);
 
   const handleFollowUp = (row: OutreachRow) => {
+    if (!gmailConnected) {
+      setView({ kind: "connect-gmail" });
+      return;
+    }
     // Find the school in our list, or build a minimal stub from the outreach row
     const school =
       schools.find((s) => s.name === row.school_name) ??
@@ -176,6 +192,15 @@ export default function Recruit() {
     });
   };
 
+  // Single gateway for any "I want to compose" intent.
+  const requestCompose = (next: View) => {
+    if (!gmailConnected) {
+      setView({ kind: "connect-gmail" });
+      return;
+    }
+    setView(next);
+  };
+
   return (
     <AppLayout>
       {showOnboarding && <RecruitTour steps={TOUR_STEPS} onClose={finishTour} />}
@@ -185,7 +210,8 @@ export default function Recruit() {
           <OutreachSidebar
             rows={outreach}
             onChange={loadOutreach}
-            onCompose={() => setView({ kind: "compose-pick" })}
+            gmailConnected={gmailConnected}
+            onCompose={() => requestCompose({ kind: "compose-pick" })}
             onFollowUp={handleFollowUp}
           />
 
@@ -267,11 +293,33 @@ export default function Recruit() {
                 <SchoolDetail
                   school={view.school}
                   onBack={() => setView({ kind: "map" })}
-                  onCompose={(coaches) => setView({ kind: "compose", school: view.school, coaches })}
+                  onCompose={(coaches) =>
+                    requestCompose({ kind: "compose", school: view.school, coaches })
+                  }
                 />
               )}
 
-              {view.kind === "compose" && (
+              {view.kind === "connect-gmail" && (
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setView({ kind: "map" })}
+                      className="text-gray-600 -ml-2"
+                    >
+                      <ArrowLeft className="h-4 w-4 mr-1" /> Back
+                    </Button>
+                    <div className="inline-flex items-center gap-1.5 text-sm text-gray-500">
+                      <PenSquare className="h-3.5 w-3.5" />
+                      Compose new outreach
+                    </div>
+                  </div>
+                  <ConnectGmailPrompt />
+                </div>
+              )}
+
+              {view.kind === "compose" && gmailConnected && (
                 <EmailComposer
                   school={view.school}
                   selected={view.coaches}
@@ -288,6 +336,10 @@ export default function Recruit() {
                     setView({ kind: "map" });
                   }}
                 />
+              )}
+
+              {view.kind === "compose" && !gmailConnected && !gmailLoading && (
+                <ConnectGmailPrompt />
               )}
             </div>
           </main>

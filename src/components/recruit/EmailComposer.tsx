@@ -63,6 +63,7 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
 
     let success = 0;
     let failed = 0;
+    let notConnected = false;
 
     for (const coach of selected) {
       const personalizedBody = body.replace(/\[Coach Last Name\]/g, lastNameOf(coach.name));
@@ -70,8 +71,17 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
         const { data, error } = await supabase.functions.invoke("send-gmail", {
           body: { to: coach.email, subject, body: personalizedBody },
         });
+        const errMsg =
+          (data as any)?.error ||
+          (error as any)?.context?.error ||
+          (error as any)?.message ||
+          "";
         if (error || (data as any)?.error) {
           failed++;
+          if (typeof errMsg === "string" && errMsg.toLowerCase().includes("gmail not connected")) {
+            notConnected = true;
+            break; // no point trying the rest
+          }
           console.error("send failed", coach.email, error || data);
           continue;
         }
@@ -93,6 +103,16 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
     }
 
     setSending(false);
+
+    if (notConnected) {
+      toast({
+        title: "Connect your Gmail to send",
+        description: "Head to Settings → Gmail to connect your inbox, then try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (success > 0) {
       toast({
         title: `Sent ${success} email${success > 1 ? "s" : ""}`,

@@ -746,8 +746,11 @@ export type Database = {
           bio: string | null
           city: string | null
           created_at: string
+          date_of_birth: string | null
+          dominant_hand: string | null
           email: string | null
           first_name: string | null
+          geo_preference: string | null
           gpa: number | null
           gpa_unweighted: number | null
           grad_year: number | null
@@ -774,6 +777,7 @@ export type Database = {
           primary_goal: string | null
           product_tour_completed: boolean
           recruit_onboarding_completed: boolean
+          recruiting_timeline: string | null
           role: string
           sat_score: number | null
           schedule_setup_completed: boolean
@@ -783,6 +787,7 @@ export type Database = {
           stripe_customer_id: string | null
           subscription_checked_at: string | null
           subscription_status: string | null
+          target_division: string | null
           total_drills_completed: number
           training_days_per_week: number | null
           training_hours_per_session: string | null
@@ -807,8 +812,11 @@ export type Database = {
           bio?: string | null
           city?: string | null
           created_at?: string
+          date_of_birth?: string | null
+          dominant_hand?: string | null
           email?: string | null
           first_name?: string | null
+          geo_preference?: string | null
           gpa?: number | null
           gpa_unweighted?: number | null
           grad_year?: number | null
@@ -835,6 +843,7 @@ export type Database = {
           primary_goal?: string | null
           product_tour_completed?: boolean
           recruit_onboarding_completed?: boolean
+          recruiting_timeline?: string | null
           role?: string
           sat_score?: number | null
           schedule_setup_completed?: boolean
@@ -844,6 +853,7 @@ export type Database = {
           stripe_customer_id?: string | null
           subscription_checked_at?: string | null
           subscription_status?: string | null
+          target_division?: string | null
           total_drills_completed?: number
           training_days_per_week?: number | null
           training_hours_per_session?: string | null
@@ -868,8 +878,11 @@ export type Database = {
           bio?: string | null
           city?: string | null
           created_at?: string
+          date_of_birth?: string | null
+          dominant_hand?: string | null
           email?: string | null
           first_name?: string | null
+          geo_preference?: string | null
           gpa?: number | null
           gpa_unweighted?: number | null
           grad_year?: number | null
@@ -896,6 +909,7 @@ export type Database = {
           primary_goal?: string | null
           product_tour_completed?: boolean
           recruit_onboarding_completed?: boolean
+          recruiting_timeline?: string | null
           role?: string
           sat_score?: number | null
           schedule_setup_completed?: boolean
@@ -905,6 +919,7 @@ export type Database = {
           stripe_customer_id?: string | null
           subscription_checked_at?: string | null
           subscription_status?: string | null
+          target_division?: string | null
           total_drills_completed?: number
           training_days_per_week?: number | null
           training_hours_per_session?: string | null

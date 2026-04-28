@@ -34,11 +34,26 @@ export default function StepPrefs({
 }) {
   const [data, setData] = useState<PrefsData>({
     targetDivision: initial.targetDivision || "",
-    geoPreference: initial.geoPreference || "",
+    geoPreference: initial.geoPreference || GEO_SUGGESTED,
     recruitingTimeline: initial.recruitingTimeline || "",
   });
 
-  const can = data.targetDivision && data.geoPreference && data.recruitingTimeline;
+  const selectedGeos = data.geoPreference
+    ? data.geoPreference.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
+
+  const toggleGeo = (g: string) => {
+    let next: string[];
+    if (g === GEO_SUGGESTED) {
+      next = selectedGeos.includes(GEO_SUGGESTED) ? [] : [GEO_SUGGESTED];
+    } else {
+      const without = selectedGeos.filter((x) => x !== GEO_SUGGESTED);
+      next = without.includes(g) ? without.filter((x) => x !== g) : [...without, g];
+    }
+    setData({ ...data, geoPreference: next.join(", ") });
+  };
+
+  const can = data.targetDivision && selectedGeos.length > 0 && data.recruitingTimeline;
 
   return (
     <StepShell

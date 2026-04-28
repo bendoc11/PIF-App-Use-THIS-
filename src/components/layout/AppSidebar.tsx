@@ -16,14 +16,9 @@ import {
 } from "@/components/ui/sidebar";
 
 const navItems: { title: string; url: string; icon: any; tourId?: string }[] = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Get Recruited", url: "/recruit", icon: Crosshair },
   { title: "My Profile", url: "/profile", icon: UserCircle },
-  { title: "Workouts", url: "/courses", icon: BookOpen },
-  { title: "Coaches", url: "/coaches", icon: Users },
-  { title: "Community", url: "/community", icon: MessageSquare, tourId: "nav-community" },
   { title: "My Progress", url: "/progress", icon: TrendingUp, tourId: "nav-progress" },
-  { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 export function AppSidebar() {

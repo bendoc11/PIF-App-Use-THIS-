@@ -59,6 +59,9 @@ function relativeTime(iso: string): string {
 
 export function OutreachSidebar({ rows, onChange, onCompose, onFollowUp }: Props) {
   const [openId, setOpenId] = useState<string | null>(null);
+  const { profile } = useAuth();
+  const programCount = useProgramCount();
+  const firstName = (profile as any)?.first_name?.trim() || "Champ";
 
   const cycleStatus = async (e: React.MouseEvent, row: OutreachRow) => {
     e.stopPropagation();

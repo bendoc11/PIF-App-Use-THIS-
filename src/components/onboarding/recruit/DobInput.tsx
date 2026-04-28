@@ -79,7 +79,12 @@ export default function DobInput({ value, onChange }: Props) {
         />
         <button
           type="button"
-          onClick={() => nativeRef.current?.showPicker?.() || nativeRef.current?.click()}
+          onClick={() => {
+            const el = nativeRef.current;
+            if (!el) return;
+            if (typeof (el as any).showPicker === "function") (el as any).showPicker();
+            else el.click();
+          }}
           className="shrink-0 h-13 px-4 rounded-xl bg-card border border-border text-sm text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors"
           aria-label="Open calendar"
         >

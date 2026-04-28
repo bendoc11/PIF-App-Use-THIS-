@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { OutreachRow } from "./OutreachSidebar";
 import { AddOfferDialog } from "./AddOfferDialog";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 

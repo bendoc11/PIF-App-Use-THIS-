@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { OutreachRow } from "./OutreachSidebar";
 import { AddOfferDialog } from "./AddOfferDialog";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -154,7 +155,9 @@ export function RecruitDashboard({ rows, onChange }: Props) {
         </div>
         <div className="px-5 py-3 bg-white border-t border-gray-100 flex items-center justify-between text-xs">
           <span className="text-gray-500">Profile strength</span>
-          <span className="font-semibold text-gray-900">{completionPct}%</span>
+          <span className="font-semibold text-gray-900">
+            <AnimatedNumber value={completionPct} />%
+          </span>
         </div>
         <div className="px-5 pb-4">
           <Progress value={completionPct} className="h-1.5" />
@@ -190,7 +193,7 @@ export function RecruitDashboard({ rows, onChange }: Props) {
             </span>
           </div>
           <span className="text-xs font-semibold text-gray-900">
-            {thisWeekSent}<span className="text-gray-400 font-normal"> / {WEEKLY_GOAL}</span>
+            <AnimatedNumber value={thisWeekSent} /><span className="text-gray-400 font-normal"> / {WEEKLY_GOAL}</span>
           </span>
         </div>
         <Progress value={weeklyProgress} className="h-2 mb-2" />
@@ -208,8 +211,12 @@ export function RecruitDashboard({ rows, onChange }: Props) {
             <Mail className="h-3.5 w-3.5 text-gray-400" />
             <span className="text-[10px] font-medium text-gray-400 uppercase">Sent</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900 leading-none">{contacted}</p>
-          <p className="text-[10px] text-gray-500 mt-1">{uniqueSchools} school{uniqueSchools !== 1 ? "s" : ""}</p>
+          <p className="text-2xl font-bold text-gray-900 leading-none">
+            <AnimatedNumber value={contacted} />
+          </p>
+          <p className="text-[10px] text-gray-500 mt-1">
+            <AnimatedNumber value={uniqueSchools} /> school{uniqueSchools !== 1 ? "s" : ""}
+          </p>
         </Card>
 
         <Card className="p-3.5 bg-white border-gray-200">
@@ -217,8 +224,12 @@ export function RecruitDashboard({ rows, onChange }: Props) {
             <Reply className="h-3.5 w-3.5 text-blue-500" />
             <span className="text-[10px] font-medium text-blue-500 uppercase">Replies</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900 leading-none">{replies}</p>
-          <p className="text-[10px] text-gray-500 mt-1">{replyRate}% reply rate</p>
+          <p className="text-2xl font-bold text-gray-900 leading-none">
+            <AnimatedNumber value={replies} />
+          </p>
+          <p className="text-[10px] text-gray-500 mt-1">
+            <AnimatedNumber value={replyRate} />% reply rate
+          </p>
         </Card>
 
         <Card className="p-3.5 bg-white border-gray-200">
@@ -226,10 +237,14 @@ export function RecruitDashboard({ rows, onChange }: Props) {
             <MailOpen className="h-3.5 w-3.5 text-gray-400" />
             <span className="text-[10px] font-medium text-gray-400 uppercase">Pending</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900 leading-none">{sentNoReply}</p>
+          <p className="text-2xl font-bold text-gray-900 leading-none">
+            <AnimatedNumber value={sentNoReply} />
+          </p>
           <p className="text-[10px] text-gray-500 mt-1">
             {needsFollowUp > 0 ? (
-              <span className="text-amber-600 font-medium">{needsFollowUp} stale</span>
+              <span className="text-amber-600 font-medium">
+                <AnimatedNumber value={needsFollowUp} /> stale
+              </span>
             ) : "Awaiting reply"}
           </p>
         </Card>
@@ -239,7 +254,9 @@ export function RecruitDashboard({ rows, onChange }: Props) {
             <Award className="h-3.5 w-3.5 text-emerald-500" />
             <span className="text-[10px] font-medium text-emerald-500 uppercase">Offers</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900 leading-none">{offersCount}</p>
+          <p className="text-2xl font-bold text-gray-900 leading-none">
+            <AnimatedNumber value={offersCount} />
+          </p>
           <p className="text-[10px] text-gray-500 mt-1">
             {offersCount > 0 ? "Strong position" : "None yet"}
           </p>

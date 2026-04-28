@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -184,6 +185,26 @@ function StatChip({ label, value, accent }: { label: string; value: string | num
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 function ProfileHeader() {
+  // Animate completion bar from 0 → target on mount for a satisfying fill
+  const [completion, setCompletion] = useState(0);
+  // Live-tick coach views during the demo so the pulse fires periodically
+  const [views, setViews] = useState(ATHLETE.weeklyViews);
+  const [pulse, setPulse] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setCompletion(ATHLETE.completion), 250);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setViews((v) => v + 1);
+      setPulse(true);
+      setTimeout(() => setPulse(false), 1400);
+    }, 11000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section className="relative rounded-3xl overflow-hidden border border-border/60 bg-card">
       {/* Hero gradient backdrop */}
@@ -276,23 +297,29 @@ function ProfileHeader() {
                   <Award className="w-4 h-4 text-secondary" />
                   <span className="text-xs font-semibold tracking-wider text-foreground uppercase">Profile Completion</span>
                 </div>
-                <span className="text-sm font-bold text-secondary">{ATHLETE.completion}%</span>
+                <span className="text-sm font-bold text-secondary">
+                  <AnimatedNumber value={completion} duration={1200} />%
+                </span>
               </div>
-              <Progress value={ATHLETE.completion} className="h-2 bg-muted" />
+              <Progress value={completion} className="h-2 bg-muted" />
               <p className="text-[11px] text-muted-foreground mt-2">
                 Add academic transcripts to reach 100% — coaches request this most.
               </p>
             </div>
 
             <div
-              className="rounded-xl border border-secondary/30 px-5 py-4 flex items-center gap-3 min-w-[180px]"
+              className={`rounded-xl border border-secondary/30 px-5 py-4 flex items-center gap-3 min-w-[180px] transition-all ${
+                pulse ? "animate-view-pulse border-secondary/70" : ""
+              }`}
               style={{ background: "linear-gradient(135deg, rgba(59,130,246,0.18), rgba(59,130,246,0.04))" }}
             >
-              <div className="w-10 h-10 rounded-lg bg-secondary/20 flex items-center justify-center">
+              <div className={`w-10 h-10 rounded-lg bg-secondary/20 flex items-center justify-center ${pulse ? "animate-metric-bump" : ""}`}>
                 <Eye className="w-5 h-5 text-secondary" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground leading-none">{ATHLETE.weeklyViews}</p>
+                <p className="text-2xl font-bold text-foreground leading-none">
+                  <AnimatedNumber value={views} />
+                </p>
                 <p className="text-[10px] font-semibold tracking-wider text-muted-foreground uppercase mt-1">
                   Coach views this week
                 </p>

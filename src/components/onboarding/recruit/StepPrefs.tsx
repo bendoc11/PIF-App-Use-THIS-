@@ -86,21 +86,37 @@ export default function StepPrefs({
       </div>
 
       <div>
-        <FieldLabel>GEOGRAPHIC PREFERENCE</FieldLabel>
+        <FieldLabel>GEOGRAPHIC PREFERENCE · PICK ONE OR MORE</FieldLabel>
+        <button
+          onClick={() => toggleGeo(GEO_SUGGESTED)}
+          className={`w-full mb-2 px-4 py-3 rounded-xl text-sm font-heading transition-all border flex items-center justify-between ${
+            selectedGeos.includes(GEO_SUGGESTED)
+              ? "bg-primary text-primary-foreground border-primary glow-red"
+              : "bg-card text-foreground border-primary/40"
+          }`}
+        >
+          <span>{GEO_SUGGESTED}</span>
+          <span className={`text-[10px] px-2 py-0.5 rounded-full ${selectedGeos.includes(GEO_SUGGESTED) ? "bg-primary-foreground/20" : "bg-primary/15 text-primary"}`}>
+            SUGGESTED
+          </span>
+        </button>
         <div className="flex flex-wrap gap-2">
-          {GEO.map((g) => (
-            <button
-              key={g}
-              onClick={() => setData({ ...data, geoPreference: g })}
-              className={`px-4 py-2.5 rounded-full text-sm transition-all border ${
-                data.geoPreference === g
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-card text-foreground border-border"
-              }`}
-            >
-              {g}
-            </button>
-          ))}
+          {GEO.map((g) => {
+            const active = selectedGeos.includes(g);
+            return (
+              <button
+                key={g}
+                onClick={() => toggleGeo(g)}
+                className={`px-4 py-2.5 rounded-full text-sm transition-all border ${
+                  active
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-foreground border-border"
+                }`}
+              >
+                {g}
+              </button>
+            );
+          })}
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
@@ -42,7 +42,11 @@ export default function Onboarding() {
   const [saving, setSaving] = useState(false);
 
   // Hydrate initial values from existing profile so re-entry works.
-  const p: any = profile || {};
+  // CRITICAL: only hydrate from a profile that belongs to the currently
+  // authenticated user. Otherwise a stale profile left over from a
+  // previous session could leak someone else's answers into a brand
+  // new account that just signed up in the same browser.
+  const p: any = profile && user && (profile as any).id === user.id ? profile : {};
   const [basic, setBasic] = useState<BasicData>({
     firstName: p.first_name || "",
     lastName: p.last_name || "",
@@ -81,6 +85,26 @@ export default function Onboarding() {
   });
 
   const [film, setFilm] = useState<string>(p.highlight_film_url || "");
+
+  // If the authenticated user id changes while Onboarding is mounted
+  // (sign out then sign up in the same tab), reset every field so the
+  // new account starts from a clean slate.
+  const lastHydratedUserId = useRef<string | null>(user?.id ?? null);
+  useEffect(() => {
+    const uid = user?.id ?? null;
+    if (!uid) return;
+    if (lastHydratedUserId.current && lastHydratedUserId.current !== uid) {
+      setStep(1);
+      setBasic({ firstName: "", lastName: "", gradYear: "", dob: "", city: "", state: "" });
+      setAthletic({ positions: [], jerseyNumber: "", feet: "", inches: "", weight: "", dominantHand: "" });
+      setAcademic({ highSchool: "", gpa: "", satScore: "", actScore: "", intendedMajor: "" });
+      setStory("");
+      setAvatarUrl(null);
+      setPrefs({ targetDivision: "", geoPreference: "", recruitingTimeline: "" });
+      setFilm("");
+    }
+    lastHydratedUserId.current = uid;
+  }, [user?.id]);
 
   // Live profile completion %
   const completion = useMemo(() => {

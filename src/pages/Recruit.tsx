@@ -82,6 +82,7 @@ Best regards,`;
 export default function Recruit() {
   const { user, profile } = useAuth();
   const { schools, loading, error } = useColleges();
+  const { connected: gmailConnected, loading: gmailLoading, refresh: refreshGmail } = useGmailConnection();
   const [view, setView] = useState<View>({ kind: "map" });
   const [outreach, setOutreach] = useState<OutreachRow[]>([]);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -91,6 +92,13 @@ export default function Recruit() {
     size: "All",
     gpa: "All",
   });
+
+  // Re-check Gmail connection when returning from OAuth
+  useEffect(() => {
+    const onFocus = () => refreshGmail();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [refreshGmail]);
 
   // Show contextual tour once per user (driven by profile flag)
   useEffect(() => {

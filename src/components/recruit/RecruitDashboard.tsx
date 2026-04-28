@@ -155,7 +155,9 @@ export function RecruitDashboard({ rows, onChange }: Props) {
         </div>
         <div className="px-5 py-3 bg-white border-t border-gray-100 flex items-center justify-between text-xs">
           <span className="text-gray-500">Profile strength</span>
-          <span className="font-semibold text-gray-900">{completionPct}%</span>
+          <span className="font-semibold text-gray-900">
+            <AnimatedNumber value={completionPct} />%
+          </span>
         </div>
         <div className="px-5 pb-4">
           <Progress value={completionPct} className="h-1.5" />

@@ -293,11 +293,33 @@ export default function Recruit() {
                 <SchoolDetail
                   school={view.school}
                   onBack={() => setView({ kind: "map" })}
-                  onCompose={(coaches) => setView({ kind: "compose", school: view.school, coaches })}
+                  onCompose={(coaches) =>
+                    requestCompose({ kind: "compose", school: view.school, coaches })
+                  }
                 />
               )}
 
-              {view.kind === "compose" && (
+              {view.kind === "connect-gmail" && (
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setView({ kind: "map" })}
+                      className="text-gray-600 -ml-2"
+                    >
+                      <ArrowLeft className="h-4 w-4 mr-1" /> Back
+                    </Button>
+                    <div className="inline-flex items-center gap-1.5 text-sm text-gray-500">
+                      <PenSquare className="h-3.5 w-3.5" />
+                      Compose new outreach
+                    </div>
+                  </div>
+                  <ConnectGmailPrompt />
+                </div>
+              )}
+
+              {view.kind === "compose" && gmailConnected && (
                 <EmailComposer
                   school={view.school}
                   selected={view.coaches}
@@ -314,6 +336,10 @@ export default function Recruit() {
                     setView({ kind: "map" });
                   }}
                 />
+              )}
+
+              {view.kind === "compose" && !gmailConnected && !gmailLoading && (
+                <ConnectGmailPrompt />
               )}
             </div>
           </main>

@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Trash2, GraduationCap } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
+import { useProgramCount, formatProgramCount } from "@/hooks/useProgramCount";
+import { useAuth } from "@/contexts/AuthContext";
 
 const CLASS_COLORS: Record<string, string> = {
   Dream: "bg-pif-gold/20 text-pif-gold border-pif-gold/30",

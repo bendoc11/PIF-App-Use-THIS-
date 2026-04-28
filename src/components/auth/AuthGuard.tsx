@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import LoadingScreen from "@/components/LoadingScreen";
+import PaywallOverlay from "@/components/auth/PaywallOverlay";
 
 const ACTIVE_STATUSES = ["active", "trialing", "trial", "past_due"];
 
@@ -17,12 +18,12 @@ export function isSubscribed(profile: any): boolean {
  * Single source of truth for auth + flow gating.
  *
  *  Not signed in           → /login
- *  Signed in, no sub       → /subscribe
+ *  Signed in, no sub       → render PaywallOverlay on top of current page
  *  Subscribed, no onboard  → /onboarding
- *  Fully onboarded         → /dashboard
+ *  Fully onboarded         → normal access
  *
  * Admin routes bypass the subscription/onboarding gates.
- * /settings is always reachable for signed-in users.
+ * /settings is always reachable (overlay still shown if unsubscribed).
  */
 export function AuthGuard({ children }: { children: ReactNode }) {
   const { user, loading, profile } = useAuth();
@@ -35,32 +36,32 @@ export function AuthGuard({ children }: { children: ReactNode }) {
 
   const isAdminRoute = path.startsWith("/admin");
   const isSettingsRoute = path.startsWith("/settings");
-  const isSubscribeRoute = path === "/subscribe" || path === "/paywall";
   const isOnboardingRoute = path.startsWith("/onboarding");
 
-  // Admins/creators bypass subscription + onboarding gates entirely.
+  // Admins/creators bypass everything.
   if (isAdminRoute) return <>{children}</>;
 
   const subscribed = isSubscribed(profile);
   const onboardingDone = !!profile.onboarding_completed;
 
-  // Step 1: Subscription gate
+  // Subscription gate — render the overlay on top of whatever page they hit.
   if (!subscribed) {
-    if (isSubscribeRoute) return <>{children}</>;
-    if (isSettingsRoute) return <>{children}</>;
-    return <Navigate to="/subscribe" replace />;
+    return (
+      <>
+        {isSettingsRoute ? children : null}
+        <PaywallOverlay />
+      </>
+    );
   }
 
-  // Step 2: Onboarding gate
+  // Onboarding gate
   if (!onboardingDone) {
-    if (isOnboardingRoute) return <>{children}</>;
-    if (isSettingsRoute) return <>{children}</>;
-    if (isSubscribeRoute) return <Navigate to="/onboarding" replace />;
+    if (isOnboardingRoute || isSettingsRoute) return <>{children}</>;
     return <Navigate to="/onboarding" replace />;
   }
 
-  // Step 3: Fully onboarded — never re-show subscribe/onboarding
-  if (isSubscribeRoute || isOnboardingRoute) {
+  // Fully onboarded — never re-show onboarding
+  if (isOnboardingRoute) {
     return <Navigate to="/dashboard" replace />;
   }
 

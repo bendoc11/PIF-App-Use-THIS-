@@ -61,8 +61,8 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/auth/callback" element={<OAuthCallback />} />
             <Route path="/gmail/callback" element={<GmailCallback />} />
-            <Route path="/subscribe" element={<AuthGuard><Paywall /></AuthGuard>} />
-            <Route path="/paywall" element={<Navigate to="/subscribe" replace />} />
+            <Route path="/subscribe" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/paywall" element={<Navigate to="/dashboard" replace />} />
             <Route path="/onboarding" element={<AuthGuard><Onboarding /></AuthGuard>} />
             <Route path="/onboarding/results" element={<AuthGuard><OnboardingResults /></AuthGuard>} />
             {/* /dashboard is the Get Recruited page per product spec */}

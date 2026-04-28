@@ -14,7 +14,13 @@ function isSubscribed(profile: any): boolean {
 
 export function SubscriptionGuard({ children }: { children: ReactNode }) {
   const { loading, profile } = useAuth();
-  if (loading || !profile) return null;
+  if (loading || !profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
   if (!isSubscribed(profile)) return <Navigate to="/paywall" replace />;
   return <>{children}</>;
 }

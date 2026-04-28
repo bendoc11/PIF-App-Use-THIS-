@@ -58,5 +58,11 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     return <Navigate to="/onboarding" replace />;
   }
 
+  // If onboarding is already complete and they somehow land on /onboarding,
+  // bounce them to the Get Recruited page so they never see a blank screen.
+  if (profile.onboarding_completed && isOnboardingRoute) {
+    return <Navigate to="/recruit" replace />;
+  }
+
   return <>{children}</>;
 }

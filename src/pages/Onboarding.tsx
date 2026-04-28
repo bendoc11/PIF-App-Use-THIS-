@@ -233,11 +233,15 @@ export default function Onboarding() {
     setSaving(true);
     try {
       await persist({ onboarding_completed: true, recruit_onboarding_completed: true });
-      await refreshProfile();
-      navigate("/recruit", { replace: true });
     } catch {
       setSaving(false);
+      return;
     }
+    // Navigate immediately so the user never sees a blank screen, even if
+    // the background profile refresh is slow or fails.
+    navigate("/recruit", { replace: true });
+    // Fire-and-forget so other pages see the updated profile.
+    refreshProfile().catch(() => {});
   };
 
   const slideVariants = {

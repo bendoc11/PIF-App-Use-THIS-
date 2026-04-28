@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import StepShell, { PrimaryCTA } from "./StepShell";
 import { ArrowRight, Mail } from "lucide-react";
 
 const PLACEHOLDER =
-  "I am a 6'2 point guard from Richmond, Virginia known for my court vision and leadership. I averaged 18 points and 7 assists last season and have a 3.8 GPA. I am looking for a program where I can compete at a high level and pursue a degree in business.";
+  `Example: I'm a 6'2 point guard from Richmond, VA known for my court vision and leadership. I averaged 18 PPG and 7 APG last season with a 3.8 GPA. Looking for a program where I can compete and pursue a business degree.`;
 
 export default function StepStory({
   initial,
@@ -13,8 +13,16 @@ export default function StepStory({
   onNext: (bio: string) => void;
 }) {
   const [bio, setBio] = useState(initial || "");
+  const ref = useRef<HTMLTextAreaElement>(null);
   const trimmed = bio.trim();
   const can = trimmed.length >= 40;
+
+  // Make sure the textarea can be focused immediately on this step.
+  // (Avoids iOS Safari issues with focus inside animated/transformed parents.)
+  useEffect(() => {
+    const t = setTimeout(() => ref.current?.focus({ preventScroll: true }), 350);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
     <StepShell
@@ -34,13 +42,18 @@ export default function StepStory({
         </p>
       </div>
 
-      <div>
+      <div onClick={() => ref.current?.focus()}>
         <textarea
+          ref={ref}
           value={bio}
           onChange={(e) => setBio(e.target.value.slice(0, 600))}
           placeholder={PLACEHOLDER}
-          rows={9}
-          className="w-full p-4 rounded-xl bg-card border border-border text-foreground text-base placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none leading-relaxed"
+          rows={8}
+          autoComplete="off"
+          autoCorrect="on"
+          spellCheck
+          style={{ touchAction: "manipulation", WebkitUserSelect: "text", userSelect: "text" }}
+          className="block w-full p-4 rounded-xl bg-card border border-border text-foreground text-base placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 resize-none leading-relaxed pointer-events-auto"
         />
         <div className="flex justify-between mt-2 text-xs">
           <span className={can ? "text-muted-foreground" : "text-primary"}>

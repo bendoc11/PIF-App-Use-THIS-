@@ -104,7 +104,9 @@ export default function Login() {
         if (signInError) throw signInError;
       }
 
-      navigate("/dashboard");
+      // New user → paywall is the very first screen they see, before onboarding.
+      navigate("/paywall", { replace: true });
+
     } catch (err: any) {
       toast.error(err.message || "Could not create account");
     } finally {

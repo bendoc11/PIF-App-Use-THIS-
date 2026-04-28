@@ -1208,6 +1208,10 @@ export type Database = {
           email: string
         }[]
       }
+      get_public_athlete_profile: {
+        Args: { _identifier: string }
+        Returns: Json
+      }
       is_user_banned: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {

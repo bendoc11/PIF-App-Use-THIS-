@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { ShareProfileButton } from "@/components/profile/ShareProfileButton";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { useProgramCount, formatProgramCount } from "@/hooks/useProgramCount";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -275,10 +277,7 @@ function ProfileHeader() {
                 <Pencil className="w-4 h-4 mr-1.5" />
                 Edit
               </Button>
-              <Button size="sm" className="rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground">
-                <Share2 className="w-4 h-4 mr-1.5" />
-                Share Profile
-              </Button>
+              <ShareIdentityButton size="sm" />
             </div>
           </div>
 
@@ -621,10 +620,46 @@ function OffersSection() {
 /*  PAGE                                         */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
+// Wrapper that pulls the live identifier from auth so the demo header keeps working
+function ShareIdentityButton({ size = "default" as "sm" | "default" | "lg" }) {
+  const { profile, user } = useAuth();
+  const identifier = (profile as any)?.username || user?.id || null;
+  return <ShareProfileButton identifier={identifier} size={size} />;
+}
+
+function TopShareBar() {
+  const { profile, user } = useAuth();
+  const identifier = (profile as any)?.username || user?.id || null;
+  const url = identifier ? `${window.location.origin}/p/${identifier}` : "";
+  return (
+    <div
+      className="rounded-2xl border border-primary/30 bg-card p-4 md:p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
+      style={{
+        backgroundImage:
+          "linear-gradient(135deg, hsl(var(--pif-red) / 0.10), hsl(var(--pif-blue) / 0.06))",
+      }}
+    >
+      <div className="min-w-0">
+        <p className="text-[11px] font-bold tracking-[0.22em] text-primary uppercase mb-1">
+          Your shareable profile
+        </p>
+        <p className="text-sm text-foreground font-semibold">
+          A digital recruiting card that travels with every coach email.
+        </p>
+        {url && (
+          <p className="text-[11px] text-muted-foreground mt-1 truncate font-mono">{url}</p>
+        )}
+      </div>
+      <ShareIdentityButton size="lg" />
+    </div>
+  );
+}
+
 export default function MyProfile() {
   return (
     <AppLayout>
       <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8 space-y-10 md:space-y-12">
+        <TopShareBar />
         <ProfileHeader />
         <IntroVideoSection />
         <HighlightTapeSection />

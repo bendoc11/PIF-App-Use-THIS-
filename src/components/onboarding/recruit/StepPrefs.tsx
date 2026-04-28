@@ -9,8 +9,8 @@ export interface PrefsData {
 }
 
 const DIVISIONS = ["D1", "D2", "D3", "JUCO", "NAIA", "Open to all"];
+const GEO_SUGGESTED = "Open to all";
 const GEO = [
-  "No preference",
   "Northeast",
   "Southeast",
   "Midwest",

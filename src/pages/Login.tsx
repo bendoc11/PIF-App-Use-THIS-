@@ -35,17 +35,9 @@ export default function Login() {
 
   if (loading || (user && !profile)) return null;
   if (user && profile) {
-    const ACTIVE = ["active", "trialing", "trial", "past_due"];
-    const isSub =
-      profile.role === "admin" ||
-      profile.role === "creator" ||
-      ["pro", "premium", "lifetime"].includes(profile.plan as any) ||
-      (profile.subscription_status && ACTIVE.includes(profile.subscription_status));
-    let redirectTo = "/subscribe";
-    if (isSub) {
-      redirectTo = !profile.onboarding_completed ? "/onboarding" : "/dashboard";
-    }
-    return <Navigate to={redirectTo} replace />;
+    // Always send signed-in users to /dashboard. AuthGuard will display
+    // the paywall overlay if they don't have an active subscription.
+    return <Navigate to="/dashboard" replace />;
   }
 
   const getPasswordStrength = (pw: string) => {

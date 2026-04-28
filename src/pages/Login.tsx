@@ -272,8 +272,8 @@ export default function Login() {
           ) : (
             <form onSubmit={handleSignUp} className="space-y-6">
               <div>
-                <h2 className="text-2xl font-heading text-white tracking-tight">BUILD YOUR FREE RECRUITING PROFILE</h2>
-                <p className="mt-1" style={{ color: '#A0ADB8' }}>Free forever. No credit card required.</p>
+                <h2 className="text-2xl font-heading text-white tracking-tight">BUILD YOUR RECRUITING PROFILE</h2>
+                <p className="mt-1" style={{ color: '#A0ADB8' }}>Get in front of every college coach.</p>
               </div>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">

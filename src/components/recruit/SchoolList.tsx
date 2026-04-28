@@ -17,7 +17,12 @@ export function SchoolList({ schools, onSelect }: Props) {
       </div>
       <div className="max-h-[420px] overflow-y-auto divide-y divide-gray-100">
         {schools.length === 0 ? (
-          <div className="p-8 text-center text-sm text-gray-500">No schools match your filters.</div>
+          <div className="p-8 text-center">
+            <p className="text-sm font-semibold text-gray-900">No matches — yet.</p>
+            <p className="text-xs text-gray-500 mt-1">
+              Loosen a filter to bring more programs into view. Your next opportunity is one click away.
+            </p>
+          </div>
         ) : (
           schools.map((s) => (
             <button

@@ -8,8 +8,9 @@ function RecruitingProfileCard() {
     <div
       className="absolute -bottom-4 left-4 md:-bottom-6 md:left-6 w-[260px] md:w-[300px] rounded-2xl border p-4 z-20"
       style={{
-        background: "rgba(10, 15, 30, 0.85)",
-        backdropFilter: "blur(20px)",
+        // Solid background instead of backdrop-filter — backdrop-filter over
+        // animated content causes severe lag/unresponsiveness in Safari/WebKit.
+        background: "rgb(10, 15, 30)",
         borderColor: "rgba(59, 130, 246, 0.4)",
         boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 60px rgba(59,130,246,0.1)",
       }}

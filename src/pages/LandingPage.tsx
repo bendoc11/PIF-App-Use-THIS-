@@ -46,7 +46,7 @@ function Navbar() {
         <div className="hidden md:flex items-center gap-4">
           <Link to="/login">
             <Button className="bg-primary hover:bg-primary/90 text-foreground rounded-lg px-5 py-2.5 text-sm font-semibold glow-red">
-              Build My Free Profile
+              Build My Profile
             </Button>
           </Link>
         </div>
@@ -65,7 +65,7 @@ function Navbar() {
               )
             ))}
             <Link to="/login" onClick={() => setMobileOpen(false)}>
-              <Button className="bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full py-3 text-sm font-semibold glow-red">Build My Free Profile</Button>
+              <Button className="bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full py-3 text-sm font-semibold glow-red">Build My Profile</Button>
             </Link>
           </div>
         </div>
@@ -238,7 +238,7 @@ function PricingCTA() {
         </p>
         <Link to="/login">
           <Button className="bg-primary hover:bg-primary/90 text-foreground rounded-lg px-10 py-7 text-base font-semibold min-h-[56px] glow-red glow-red-hover">
-            Build My Free Profile <ArrowRight className="h-4 w-4 ml-2" />
+            Build My Profile <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </Link>
         <p className="text-sm text-muted-foreground mt-6">

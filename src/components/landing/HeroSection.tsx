@@ -142,7 +142,7 @@ export function HeroSection() {
                     <Button
                       className="bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base font-semibold min-h-[52px] glow-red glow-red-hover"
                     >
-                      Build My Free Profile <ArrowRight className="h-4 w-4 ml-2" />
+                      Build My Profile <ArrowRight className="h-4 w-4 ml-2" />
                     </Button>
                   </Link>
                   <p className="text-sm text-muted-foreground">

@@ -69,9 +69,11 @@ export default function Login() {
     setIsLoading(false);
     if (error) {
       toast.error(error.message);
-      // AuthGuard will route onward (subscribe → onboarding → dashboard) once profile loads.
-      navigate("/subscribe", { replace: true });
+      return;
     }
+    // Existing users land on dashboard. AuthGuard will show the paywall
+    // overlay if they don't have an active subscription.
+    navigate("/dashboard", { replace: true });
   };
 
   const handleSignUp = async (e: React.FormEvent) => {

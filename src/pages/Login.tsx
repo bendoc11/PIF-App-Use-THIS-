@@ -95,11 +95,10 @@ export default function Login() {
         if (signInError) throw signInError;
       }
 
-      // New user → straight to Stripe checkout. Stripe success URL points
-      // back to /onboarding where we grant the active subscription row
-      // and start step 1 of the recruiting profile setup.
-      window.location.href =
-        "https://pay.philadelphiabasketballschool.com/b/cNi28q0NS5hBa3Z7Ud9R60S";
+      // New user → send to dashboard. AuthGuard will render the paywall
+      // since they don't have an active subscription yet. They click the
+      // CTA themselves to go to Stripe.
+      window.location.href = "/dashboard";
     } catch (err: any) {
       toast.error(err.message || "Could not create account");
       setIsLoading(false);

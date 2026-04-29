@@ -165,7 +165,7 @@ function Paywall() {
             boxSizing: "border-box",
           }}
         >
-          START MY FREE TRIAL
+          GET STARTED
         </a>
       </div>
     </div>

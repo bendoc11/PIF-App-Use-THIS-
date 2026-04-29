@@ -87,19 +87,33 @@ export function RecruitTour({ steps, onClose }: Props) {
     height: target.height + PADDING * 2,
   };
 
-  // Tooltip placement: prefer below, else above
+  // Tooltip placement: prefer below, else above. Use a realistic tooltip
+  // height estimate so the Next button never lands off-screen.
+  const ESTIMATED_TIP_HEIGHT = 220;
   const desired = step.placement ?? "bottom";
   const spaceBelow = vh - (spot.top + spot.height);
   const spaceAbove = spot.top;
-  const placement: "top" | "bottom" =
-    desired === "top"
-      ? "top"
-      : spaceBelow < 180 && spaceAbove > spaceBelow
-        ? "top"
-        : "bottom";
+  const fitsBelow = spaceBelow >= ESTIMATED_TIP_HEIGHT + TOOLTIP_OFFSET + 12;
+  const fitsAbove = spaceAbove >= ESTIMATED_TIP_HEIGHT + TOOLTIP_OFFSET + 12;
+  let placement: "top" | "bottom";
+  if (desired === "top" && fitsAbove) placement = "top";
+  else if (desired === "bottom" && fitsBelow) placement = "bottom";
+  else if (fitsBelow) placement = "bottom";
+  else if (fitsAbove) placement = "top";
+  else placement = spaceAbove > spaceBelow ? "top" : "bottom";
 
   let tipTop = placement === "bottom" ? spot.top + spot.height + TOOLTIP_OFFSET : 0;
-  if (placement === "top") tipTop = spot.top - TOOLTIP_OFFSET; // we'll translateY(-100%)
+  if (placement === "top") tipTop = spot.top - TOOLTIP_OFFSET; // translateY(-100%)
+
+  // Hard-clamp the tooltip inside the viewport so the Next button is
+  // always reachable without scrolling.
+  if (placement === "bottom") {
+    const maxTop = vh - ESTIMATED_TIP_HEIGHT - 12;
+    if (tipTop > maxTop) tipTop = Math.max(12, maxTop);
+  } else {
+    const minTop = ESTIMATED_TIP_HEIGHT + 12;
+    if (tipTop < minTop) tipTop = Math.min(vh - 12, minTop);
+  }
 
   let tipLeft = spot.left + spot.width / 2 - TOOLTIP_WIDTH / 2;
   tipLeft = Math.max(12, Math.min(vw - TOOLTIP_WIDTH - 12, tipLeft));

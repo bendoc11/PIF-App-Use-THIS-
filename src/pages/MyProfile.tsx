@@ -129,6 +129,7 @@ function ProfileHeader() {
   const { profile, user } = useAuth();
   const p: any = profile || {};
   const targetCompletion = useMemo(() => calcCompletion(p), [profile]);
+  const [editOpen, setEditOpen] = useState(false);
 
   const [completion, setCompletion] = useState(0);
   useEffect(() => {

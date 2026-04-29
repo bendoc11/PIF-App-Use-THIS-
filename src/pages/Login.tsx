@@ -74,6 +74,12 @@ export default function Login() {
     setIsLoading(true);
 
     try {
+      // CRITICAL: kill any existing session first. Otherwise a previous
+      // tester's session could remain authenticated even though the new
+      // signup uses a different email — the app would then load the
+      // previous user's profile (e.g. showing "Zac Ervin" on /my-profile).
+      await supabase.auth.signOut();
+
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: signupEmail.trim(),
         password: signupPassword,

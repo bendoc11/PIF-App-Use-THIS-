@@ -24,7 +24,7 @@ function Navbar() {
   const navLinks = [
     { label: "Platform", href: "#platform" },
     { label: "How It Works", href: "#how-it-works" },
-    { label: "Sign In", href: "/login", isLink: true },
+    { label: "Sign In", href: "/login?mode=signin", isLink: true },
   ];
 
   return (

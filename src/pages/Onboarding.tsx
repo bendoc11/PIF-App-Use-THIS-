@@ -118,14 +118,20 @@ export default function Onboarding() {
 
   const [film, setFilm] = useState<string>(p.highlight_film_url || "");
 
-  // If the authenticated user id changes while Onboarding is mounted
-  // (sign out then sign up in the same tab), reset every field so the
-  // new account starts from a clean slate.
+  // Reset every field whenever the authenticated user changes OR the
+  // currently loaded profile shows the user has NOT yet completed
+  // onboarding. This guarantees a brand-new subscriber starts with a
+  // pristine form even if React state was somehow seeded from a stale
+  // value (e.g. profile loaded after first render, or the same browser
+  // tab was just used by a different test account).
   const lastHydratedUserId = useRef<string | null>(user?.id ?? null);
+  const didForceClear = useRef(false);
   useEffect(() => {
     const uid = user?.id ?? null;
     if (!uid) return;
-    if (lastHydratedUserId.current && lastHydratedUserId.current !== uid) {
+    const userChanged = lastHydratedUserId.current && lastHydratedUserId.current !== uid;
+    const isFreshSubscriber = !!profile && (profile as any).id === uid && (profile as any).onboarding_completed !== true;
+    if (userChanged || (isFreshSubscriber && !didForceClear.current)) {
       setStep(1);
       setBasic({ firstName: "", lastName: "", gradYear: "", dob: "", city: "", state: "" });
       setAthletic({ positions: [], jerseyNumber: "", feet: "", inches: "", weight: "", dominantHand: "" });
@@ -134,9 +140,10 @@ export default function Onboarding() {
       setAvatarUrl(null);
       setPrefs({ targetDivision: "", geoPreference: "", recruitingTimeline: "" });
       setFilm("");
+      didForceClear.current = true;
     }
     lastHydratedUserId.current = uid;
-  }, [user?.id]);
+  }, [user?.id, profile]);
 
   // Live profile completion %
   const completion = useMemo(() => {

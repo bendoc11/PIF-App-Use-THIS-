@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { ShareProfileButton } from "@/components/profile/ShareProfileButton";
+import { EditProfileSheet } from "@/components/profile/EditProfileSheet";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { useProgramCount, formatProgramCount } from "@/hooks/useProgramCount";
 import { AppLayout } from "@/components/layout/AppLayout";

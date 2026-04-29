@@ -223,11 +223,9 @@ export default function Recruit() {
                 <p className="text-gray-500 mt-1">Find programs, contact coaches, track your outreach.</p>
               </header>
 
-              {missingFields.length > 0 && (
-                <div className="mb-5">
-                  <ProfileCompletionCard missing={missingFields} onSaved={() => { /* profile auto-refreshes */ }} />
-                </div>
-              )}
+              {/* Profile completion card is shown only inside the email composer flow,
+                  where these fields are actually required. The Get Recruited browse
+                  experience must be usable immediately on first visit. */}
 
               {view.kind === "map" && (
                 <>

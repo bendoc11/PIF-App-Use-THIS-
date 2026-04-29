@@ -270,6 +270,7 @@ function ProfileHeader() {
           </div>
         </div>
       </div>
+      <EditProfileSheet open={editOpen} onOpenChange={setEditOpen} />
     </section>
   );
 }

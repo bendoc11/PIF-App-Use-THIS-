@@ -70,11 +70,15 @@ export default function Onboarding() {
   }, [user, refreshSubscription]);
 
   // Hydrate initial values from existing profile so re-entry works.
-  // CRITICAL: only hydrate from a profile that belongs to the currently
-  // authenticated user. Otherwise a stale profile left over from a
-  // previous session could leak someone else's answers into a brand
-  // new account that just signed up in the same browser.
-  const p: any = profile && user && (profile as any).id === user.id ? profile : {};
+  // CRITICAL RULES:
+  // 1. The profile must belong to the currently authenticated user.
+  // 2. We only pre-fill if the user has ALREADY completed onboarding once
+  //    (i.e. they're editing). For a brand-new subscriber landing here from
+  //    Stripe for the first time, every field must start empty so leftover
+  //    values from a previous tester in the same browser never leak in.
+  const profileBelongsToUser = !!(profile && user && (profile as any).id === user.id);
+  const hasCompletedOnboarding = profileBelongsToUser && (profile as any).onboarding_completed === true;
+  const p: any = hasCompletedOnboarding ? profile : {};
   const [basic, setBasic] = useState<BasicData>({
     firstName: p.first_name || "",
     lastName: p.last_name || "",

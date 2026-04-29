@@ -229,7 +229,7 @@ function ProfileHeader() {
                 variant="outline"
                 size="sm"
                 className="rounded-lg border-border/70 text-foreground hover:bg-muted"
-                onClick={() => (window.location.href = "/profile/edit")}
+                onClick={() => setEditOpen(true)}
               >
                 <Pencil className="w-4 h-4 mr-1.5" />
                 Edit

@@ -57,6 +57,11 @@ export default function Login() {
     e.preventDefault();
     if (!email.trim() || !password.trim()) return;
     setIsLoading(true);
+    // Kill any existing session before signing in. Otherwise a previous
+    // tester's session in the same browser could remain authenticated if
+    // the new sign-in fails, causing the app to load that prior user's
+    // data (e.g. "Zac Ervin" appearing on a fresh tester's profile).
+    await supabase.auth.signOut();
     const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     setIsLoading(false);
     if (error) {

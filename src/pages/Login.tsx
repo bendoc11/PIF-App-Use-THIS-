@@ -13,7 +13,16 @@ import { toast } from "sonner";
 export default function Login() {
   const { user, loading, profile } = useAuth();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<"signin" | "signup">("signup");
+  const [searchParams] = useSearchParams();
+  const initialTab: "signin" | "signup" = searchParams.get("mode") === "signin" ? "signin" : "signup";
+  const [tab, setTab] = useState<"signin" | "signup">(initialTab);
+
+  // Keep tab in sync if user navigates between /login and /login?mode=signin
+  useEffect(() => {
+    const mode = searchParams.get("mode");
+    if (mode === "signin") setTab("signin");
+    else if (mode === "signup") setTab("signup");
+  }, [searchParams]);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 

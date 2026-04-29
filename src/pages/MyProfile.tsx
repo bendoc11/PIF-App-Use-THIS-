@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { ShareProfileButton } from "@/components/profile/ShareProfileButton";
+import { EditProfileSheet } from "@/components/profile/EditProfileSheet";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { useProgramCount, formatProgramCount } from "@/hooks/useProgramCount";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -128,6 +129,7 @@ function ProfileHeader() {
   const { profile, user } = useAuth();
   const p: any = profile || {};
   const targetCompletion = useMemo(() => calcCompletion(p), [profile]);
+  const [editOpen, setEditOpen] = useState(false);
 
   const [completion, setCompletion] = useState(0);
   useEffect(() => {
@@ -227,7 +229,7 @@ function ProfileHeader() {
                 variant="outline"
                 size="sm"
                 className="rounded-lg border-border/70 text-foreground hover:bg-muted"
-                onClick={() => (window.location.href = "/profile/edit")}
+                onClick={() => setEditOpen(true)}
               >
                 <Pencil className="w-4 h-4 mr-1.5" />
                 Edit
@@ -268,6 +270,7 @@ function ProfileHeader() {
           </div>
         </div>
       </div>
+      <EditProfileSheet open={editOpen} onOpenChange={setEditOpen} />
     </section>
   );
 }

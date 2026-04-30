@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const CHECKOUT_URL =
-  "https://pay.philadelphiabasketballschool.com/b/cNi28q0NS5hBa3Z7Ud9R60S";
+  "https://subscribe.playitforward.app/b/4gM00i4Wzc0g7w0buvcEw00";
 
 const ACTIVE_STATUSES = ["active", "trialing", "trial", "past_due"];
 

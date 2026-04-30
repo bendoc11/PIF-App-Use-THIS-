@@ -20,7 +20,10 @@ export default function StepGmail({ onConnected, onSkip }: Props) {
 
   const handleConnect = async () => {
     setConnecting(true);
-    await startConnect();
+    // After Google redirects back through /gmail/callback we want the
+    // user to land on the Get Recruited dashboard with Gmail already
+    // wired up — NOT on /settings (which is the default fallback).
+    await startConnect("/dashboard");
     // Browser redirects to Google — onConnected fires on return when status refresh sees it.
   };
 

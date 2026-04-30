@@ -16,8 +16,23 @@ export default function GmailCallback() {
     const state = params.get("state");
     const errParam = params.get("error");
 
+    // Decode the returnTo path baked into state by useGmailConnection.
+    // Falls back to /settings for backward compatibility with old states
+    // that were just a raw user id string.
+    let returnTo = "/settings";
+    if (state) {
+      try {
+        const decoded = JSON.parse(atob(state));
+        if (decoded && typeof decoded.rt === "string" && decoded.rt.startsWith("/")) {
+          returnTo = decoded.rt;
+        }
+      } catch {
+        // legacy state (raw uid) — keep default returnTo
+      }
+    }
+
     const goError = (msg: string) =>
-      navigate(`/settings?gmail=error&msg=${encodeURIComponent(msg)}`, { replace: true });
+      navigate(`${returnTo}?gmail=error&msg=${encodeURIComponent(msg)}`, { replace: true });
 
     if (errParam) return goError(errParam);
     if (!code || !state) return goError("missing_code_or_state");
@@ -33,7 +48,7 @@ export default function GmailCallback() {
         }
         const data = res.data as { success?: boolean; error?: string };
         if (!data?.success) return goError(data?.error || "exchange_failed");
-        navigate("/settings?gmail=connected", { replace: true });
+        navigate(`${returnTo}?gmail=connected`, { replace: true });
       } catch (e: any) {
         goError(e?.message || "unexpected");
       }

@@ -94,13 +94,19 @@ export default function Login() {
       // previous user's profile (e.g. showing "Zac Ervin" on /my-profile).
       await supabase.auth.signOut();
 
+      const trimmedFirst = firstName.trim();
+      const trimmedLast = lastName.trim();
+      const fullName = `${trimmedFirst} ${trimmedLast}`.trim();
+
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: signupEmail.trim(),
         password: signupPassword,
         options: {
           data: {
-            first_name: firstName.trim(),
-            last_name: lastName.trim(),
+            first_name: trimmedFirst,
+            last_name: trimmedLast,
+            full_name: fullName,
+            display_name: fullName,
           },
         },
       });
@@ -113,6 +119,21 @@ export default function Login() {
           password: signupPassword,
         });
         if (signInError) throw signInError;
+      }
+
+      // Belt-and-suspenders: ensure first/last name are saved to the profile row
+      // immediately after signup, even if the handle_new_user trigger raced or
+      // metadata was missed. RLS allows users to update their own profile.
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (currentUser?.id) {
+        await supabase
+          .from("profiles")
+          .update({
+            first_name: trimmedFirst,
+            last_name: trimmedLast,
+            email: signupEmail.trim(),
+          })
+          .eq("id", currentUser.id);
       }
 
       // New user → send to dashboard. AuthGuard will render the paywall

@@ -87,8 +87,8 @@ function ValueProps() {
       desc: "Stats, film, academics, and intro video — packaged in a profile built for the way college coaches really evaluate.",
     },
     {
-      title: "Free. Forever. Everything Included.",
-      desc: "No paywall, no upsell. Direct coach access, profile builder, school database, and outreach tools — all included.",
+      title: "Free for 7 Days. Everything Included.",
+      desc: "Start with full access to direct coach outreach, the profile builder, school database, and recruiting tools.",
     },
   ];
 
@@ -174,7 +174,7 @@ function RecruitingOverview() {
               Stop Waiting to Be Discovered
             </h2>
             <p className="text-muted-foreground text-lg max-w-lg mb-10 leading-relaxed">
-              Most families spend thousands on showcases and recruiting services hoping a coach notices. Take control. Reach every college coach in the country yourself — for free.
+              Most families spend thousands on showcases and recruiting services hoping a coach notices. Take control. Reach every college coach in the country yourself.
             </p>
             <div className="space-y-4">
               {features.map((f) => (
@@ -257,7 +257,7 @@ function Footer() {
             <span className="font-sans text-lg font-bold text-primary">Forward</span>
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            The free recruiting platform built for high school athletes. Build your profile, find your schools, and email college coaches directly.
+            The recruiting platform built for high school athletes. Build your profile, find your schools, and email college coaches directly.
           </p>
         </div>
         {[

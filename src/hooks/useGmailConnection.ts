@@ -31,22 +31,34 @@ export function useGmailConnection() {
     refresh();
   }, [refresh]);
 
-  const startConnect = useCallback(async () => {
-    if (!user) return;
-    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    url.searchParams.set("client_id", GOOGLE_CLIENT_ID);
-    url.searchParams.set("redirect_uri", REDIRECT_URI);
-    url.searchParams.set("response_type", "code");
-    url.searchParams.set("scope", SCOPE);
-    url.searchParams.set("access_type", "offline");
-    url.searchParams.set("prompt", "consent");
-    url.searchParams.set("state", user.id);
-    if (Capacitor.isNativePlatform()) {
-      await Browser.open({ url: url.toString() });
-    } else {
-      window.location.href = url.toString();
-    }
-  }, [user]);
+  const startConnect = useCallback(
+    async (returnTo?: string) => {
+      if (!user) return;
+      // Encode user id + return path into state so the callback page can
+      // both (a) attribute the token to the right user and (b) bounce the
+      // user back to wherever they started — e.g. /dashboard when the
+      // connect happens during onboarding instead of always /settings.
+      const statePayload = {
+        uid: user.id,
+        rt: returnTo || "/settings",
+      };
+      const stateStr = btoa(JSON.stringify(statePayload));
+      const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+      url.searchParams.set("client_id", GOOGLE_CLIENT_ID);
+      url.searchParams.set("redirect_uri", REDIRECT_URI);
+      url.searchParams.set("response_type", "code");
+      url.searchParams.set("scope", SCOPE);
+      url.searchParams.set("access_type", "offline");
+      url.searchParams.set("prompt", "consent");
+      url.searchParams.set("state", stateStr);
+      if (Capacitor.isNativePlatform()) {
+        await Browser.open({ url: url.toString() });
+      } else {
+        window.location.href = url.toString();
+      }
+    },
+    [user]
+  );
 
   return {
     loading,

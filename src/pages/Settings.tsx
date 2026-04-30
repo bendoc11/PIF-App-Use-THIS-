@@ -27,7 +27,15 @@ export default function Settings() {
   const [deleting, setDeleting] = useState(false);
   const navigate = useNavigate();
 
-  const initials = [profile?.first_name?.[0], profile?.last_name?.[0]].filter(Boolean).join("").toUpperCase() || "?";
+  // Only trust profile data when it matches the currently authenticated
+  // user. Otherwise a stale profile from a previous tester in the same
+  // browser tab could leak through (e.g. wrong name shown next to the
+  // logged-in email).
+  const profileMatchesUser = !!(profile && user && (profile as any).id === user.id);
+  const safeFirstName = profileMatchesUser ? profile?.first_name : null;
+  const safeLastName = profileMatchesUser ? profile?.last_name : null;
+  const safeAvatar = profileMatchesUser ? profile?.avatar_url : null;
+  const initials = [safeFirstName?.[0], safeLastName?.[0]].filter(Boolean).join("").toUpperCase() || "?";
 
   const handleDeleteAccount = async () => {
     setDeleting(true);
@@ -66,8 +74,8 @@ export default function Settings() {
             >
               {uploading ? (
                 <Loader2 className="h-8 w-8 text-primary animate-spin" />
-              ) : profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+              ) : safeAvatar ? (
+                <img src={safeAvatar} alt="Profile" className="w-full h-full object-cover" />
               ) : (
                 <span className="text-3xl font-heading text-primary">{initials}</span>
               )}
@@ -91,7 +99,7 @@ export default function Settings() {
           <CardContent className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Name</span>
-              <span className="text-foreground">{profile?.first_name} {profile?.last_name}</span>
+              <span className="text-foreground">{[safeFirstName, safeLastName].filter(Boolean).join(" ") || "—"}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Email</span>

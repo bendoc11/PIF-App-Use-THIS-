@@ -107,7 +107,7 @@ Deno.serve(async (req) => {
     const { error: upsertErr } = await supabase
       .from("gmail_tokens")
       .upsert({
-        user_id: state,
+        user_id: userId,
         access_token: tokens.access_token,
         refresh_token: tokens.refresh_token,
         expires_at: expiresAt,

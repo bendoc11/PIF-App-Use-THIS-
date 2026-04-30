@@ -41,6 +41,18 @@ Deno.serve(async (req) => {
     const { code, state } = await req.json() as { code?: string; state?: string };
     if (!code || !state) return json({ error: "missing_code_or_state" }, 400);
 
+    // State is either:
+    //   1) Legacy: raw user_id string (uuid)
+    //   2) New: base64(JSON({ uid, rt })) so the callback page can route
+    //      back to wherever onboarding/settings/dashboard initiated it.
+    let userId = state;
+    try {
+      const decoded = JSON.parse(atob(state));
+      if (decoded && typeof decoded.uid === "string") userId = decoded.uid;
+    } catch {
+      // legacy raw uid — keep state as userId
+    }
+
     const clientId = Deno.env.get("GOOGLE_GMAIL_CLIENT_ID")!;
     const clientSecret = Deno.env.get("GOOGLE_GMAIL_CLIENT_SECRET")!;
 

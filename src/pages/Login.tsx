@@ -220,7 +220,7 @@ export default function Login() {
                 color: tab === "signup" ? '#fff' : '#A0ADB8',
               }}
             >
-              START TRAINING
+              GET RECRUITED
             </button>
           </div>
 

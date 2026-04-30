@@ -169,8 +169,8 @@ export default function Login() {
             <span style={{ color: '#3B82F6' }}>STARTS HERE.</span>
           </h1>
 
-          <p className="text-base leading-relaxed" style={{ color: '#A0ADB8' }}>
-            Build your free recruiting profile, access elite coaching, and reach every college coach in the country — all in one place.
+              <p className="text-base leading-relaxed" style={{ color: '#A0ADB8' }}>
+            Build your recruiting profile, access elite coaching, and reach every college coach in the country — all in one place.
           </p>
 
           <div className="space-y-3">
@@ -379,7 +379,7 @@ export default function Login() {
                 className="w-full h-12 text-base font-heading tracking-wider text-white border-0"
                 style={{ backgroundColor: '#E8391D' }}
               >
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>BUILD MY PROFILE <ArrowRight className="h-4 w-4 ml-1" /></>}
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>START FOR FREE <ArrowRight className="h-4 w-4 ml-1" /></>}
               </Button>
               <p className="text-xs text-center" style={{ color: '#A0ADB8' }}>
                 By continuing, you agree to our Terms of Service and Privacy Policy.

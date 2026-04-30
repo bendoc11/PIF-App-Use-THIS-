@@ -144,9 +144,9 @@ function Paywall() {
 
         <div style={{ marginBottom: 24 }}>
           <div style={{ fontSize: 40, fontWeight: 800, color: "#FFFFFF" }}>
-            $50 <span style={{ fontSize: 18, color: "#A0ADB8", fontWeight: 400 }}>/ month</span>
+            Free <span style={{ fontSize: 18, color: "#A0ADB8", fontWeight: 400 }}>for 7 days</span>
           </div>
-          <div style={{ color: "#A0ADB8", fontSize: 13, marginTop: 6 }}>Cancel anytime.</div>
+          <div style={{ color: "#A0ADB8", fontSize: 12, marginTop: 6 }}>then $49.99 per month. Cancel anytime.</div>
         </div>
 
         <a
@@ -165,7 +165,7 @@ function Paywall() {
             boxSizing: "border-box",
           }}
         >
-          GET STARTED
+          START FOR FREE
         </a>
       </div>
     </div>

@@ -97,7 +97,7 @@ export default function PaywallOverlay() {
           className="w-full h-14 text-base font-heading tracking-wider text-white border-0 mb-4"
           style={{ backgroundColor: "#E8391D" }}
         >
-          SUBSCRIBE NOW
+          START FOR FREE
         </Button>
 
         <button

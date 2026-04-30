@@ -74,8 +74,8 @@ export default function Settings() {
             >
               {uploading ? (
                 <Loader2 className="h-8 w-8 text-primary animate-spin" />
-              ) : profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+              ) : safeAvatar ? (
+                <img src={safeAvatar} alt="Profile" className="w-full h-full object-cover" />
               ) : (
                 <span className="text-3xl font-heading text-primary">{initials}</span>
               )}

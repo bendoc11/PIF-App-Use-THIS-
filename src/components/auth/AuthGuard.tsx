@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import LoadingScreen from "@/components/LoadingScreen";
 
 const CHECKOUT_URL =
-  "https://pay.philadelphiabasketballschool.com/b/cNi28q0NS5hBa3Z7Ud9R60S";
+  "https://subscribe.playitforward.app/b/4gM00i4Wzc0g7w0buvcEw00";
 
 // Kept for any legacy imports; trivial check used elsewhere.
 export function isSubscribed(_profile: any): boolean {

@@ -99,7 +99,7 @@ export default function Settings() {
           <CardContent className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Name</span>
-              <span className="text-foreground">{profile?.first_name} {profile?.last_name}</span>
+              <span className="text-foreground">{[safeFirstName, safeLastName].filter(Boolean).join(" ") || "—"}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Email</span>

@@ -36,7 +36,7 @@ export function RecruitOnboarding({ onClose }: Props) {
 
   const completeCount = fieldStatus.filter((f) => f.filled).length;
 
-  const finish = async (goToSettings: boolean) => {
+  const finish = async (editProfile: boolean) => {
     if (user) {
       await supabase
         .from("profiles")
@@ -44,7 +44,10 @@ export function RecruitOnboarding({ onClose }: Props) {
         .eq("id", user.id);
     }
     onClose();
-    if (goToSettings) navigate("/settings");
+    // "Complete my profile" → take athlete to their own profile page,
+    // NOT /settings. Skip just dismisses the modal so they can browse
+    // schools on the Get Recruited dashboard.
+    if (editProfile) navigate("/profile");
   };
 
   const next = () => {

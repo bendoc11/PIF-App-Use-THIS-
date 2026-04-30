@@ -241,9 +241,6 @@ function PricingCTA() {
             Build My Free Profile <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </Link>
-        <p className="text-sm text-muted-foreground mt-6">
-          Free forever. Direct coach access included. No credit card required.
-        </p>
       </div>
     </section>
   );

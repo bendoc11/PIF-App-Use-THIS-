@@ -31,7 +31,7 @@ export function ConnectGmailPrompt({ variant = "panel", title }: Props) {
             open and respond to a real person's email than a platform message.
           </p>
           <Button
-            onClick={startConnect}
+            onClick={() => startConnect()}
             disabled={loading}
             className="mt-4 bg-pif-red hover:bg-pif-red/90 text-white font-semibold h-11 px-5 w-full sm:w-auto"
           >

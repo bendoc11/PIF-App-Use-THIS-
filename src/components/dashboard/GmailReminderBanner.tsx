@@ -25,7 +25,7 @@ export function GmailReminderBanner() {
         </p>
       </div>
       <button
-        onClick={startConnect}
+        onClick={() => startConnect()}
         className="w-full sm:w-auto h-10 px-4 rounded-lg bg-pif-red hover:bg-pif-red/90 text-white text-sm font-semibold inline-flex items-center justify-center gap-1.5 shrink-0"
       >
         {loading ? (

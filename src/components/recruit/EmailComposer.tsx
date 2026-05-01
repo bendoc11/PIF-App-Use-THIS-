@@ -4,10 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Loader2, Send, X } from "lucide-react";
+import { ArrowLeft, Loader2, Mail, Send, X } from "lucide-react";
 import { MockCoach, MockSchool } from "@/data/mockSchools";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useGmailConnection } from "@/hooks/useGmailConnection";
 import { toast } from "@/hooks/use-toast";
 
 interface Props {
@@ -46,6 +47,7 @@ ${p.phone ?? ""}`;
 
 export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent, initialDraft }: Props) {
   const { profile, user } = useAuth();
+  const { connected: gmailConnected, loading: gmailLoading, startConnect } = useGmailConnection();
   const p: any = profile ?? {};
 
   const defaultSubject = useMemo(
@@ -56,10 +58,18 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
   const [subject, setSubject] = useState(initialDraft?.subject ?? defaultSubject);
   const [body, setBody] = useState(initialDraft?.body ?? buildBody(p, school, "[Coach Last Name]"));
   const [sending, setSending] = useState(false);
+  const [showGmailGate, setShowGmailGate] = useState(false);
+  const [gmailGateDismissed, setGmailGateDismissed] = useState(false);
+  const [connecting, setConnecting] = useState(false);
 
   const send = async () => {
     if (!user || selected.length === 0) return;
+    if (!gmailLoading && !gmailConnected) {
+      setShowGmailGate(true);
+      return;
+    }
     setSending(true);
+
 
     let success = 0;
     let failed = 0;
@@ -124,8 +134,69 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
     }
   };
 
+  const handleConnectGmail = async () => {
+    setConnecting(true);
+    await startConnect("/recruit");
+  };
+
+  // Focused Gmail gate — shown when the user tries to send and Gmail isn't connected.
+  if (showGmailGate && !gmailConnected) {
+    return (
+      <Card className="p-8 bg-white border-gray-200 max-w-xl mx-auto text-center">
+        <div className="mx-auto h-14 w-14 rounded-full bg-pif-red/10 flex items-center justify-center mb-5">
+          <Mail className="h-7 w-7 text-pif-red" />
+        </div>
+        <h2 className="text-2xl font-semibold text-gray-900 leading-tight">
+          Connect your Gmail to start reaching coaches
+        </h2>
+        <p className="mt-3 text-base text-gray-600 leading-relaxed">
+          Your emails will come from your own address — which coaches are more likely to open and respond to.
+        </p>
+        <div className="mt-7 flex flex-col gap-2">
+          <Button
+            onClick={handleConnectGmail}
+            disabled={connecting || gmailLoading}
+            className="bg-pif-red hover:bg-pif-red/90 text-white h-12 text-base font-semibold"
+          >
+            {connecting ? (
+              <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Opening Google…</>
+            ) : (
+              <><Mail className="h-4 w-4 mr-2" /> Connect Gmail</>
+            )}
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setShowGmailGate(false);
+              setGmailGateDismissed(true);
+            }}
+            className="text-gray-600 hover:text-gray-900"
+          >
+            Not now
+          </Button>
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card className="p-6 bg-white border-gray-200">
+      {gmailGateDismissed && !gmailConnected && !gmailLoading && (
+        <div className="mb-4 rounded-lg border border-pif-red/30 bg-pif-red/5 p-3 flex items-center gap-3">
+          <Mail className="h-4 w-4 text-pif-red shrink-0" />
+          <p className="text-sm text-gray-700 flex-1">
+            Connect your Gmail to send outreach to coaches.
+          </p>
+          <Button
+            size="sm"
+            onClick={handleConnectGmail}
+            disabled={connecting}
+            className="bg-pif-red hover:bg-pif-red/90 text-white h-8"
+          >
+            Connect
+          </Button>
+        </div>
+      )}
       <div className="flex items-center justify-between mb-4">
         <Button variant="ghost" size="sm" onClick={onBack} className="text-gray-600">
           <ArrowLeft className="h-4 w-4 mr-1" /> Back

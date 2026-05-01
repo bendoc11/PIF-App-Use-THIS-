@@ -18,9 +18,8 @@ import StepPhoto from "@/components/onboarding/recruit/StepPhoto";
 import StepPrefs, { PrefsData } from "@/components/onboarding/recruit/StepPrefs";
 import StepFilm from "@/components/onboarding/recruit/StepFilm";
 import StepPreview from "@/components/onboarding/recruit/StepPreview";
-import StepGmail from "@/components/onboarding/recruit/StepGmail";
 
-const TOTAL_STEPS = 9;
+const TOTAL_STEPS = 8;
 
 // Field weights drive the live profile completion percentage.
 const FIELD_WEIGHTS: Record<string, number> = {
@@ -199,8 +198,6 @@ export default function Onboarding() {
       !!(hydratedPrefs.targetDivision && hydratedPrefs.geoPreference && hydratedPrefs.recruitingTimeline),
       // Step 7: film (optional)
       !!hydratedFilm,
-      // Step 8: gmail (no profile field — never auto-complete)
-      false,
     ];
 
     let resumeStep = 1;
@@ -418,9 +415,6 @@ export default function Onboarding() {
               <StepFilm initial={film} onNext={handleFilm} onSkip={advance} />
             )}
             {step === 8 && (
-              <StepGmail onConnected={advance} onSkip={advance} />
-            )}
-            {step === 9 && (
               <StepPreview
                 data={{
                   firstName: basic.firstName,

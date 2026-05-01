@@ -3,22 +3,33 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import LoadingScreen from "@/components/LoadingScreen";
 
-const CHECKOUT_URL =
-  "https://subscribe.playitforward.app/b/4gM00i4Wzc0g7w0buvcEw00";
-
-// Kept for any legacy imports; trivial check used elsewhere.
+// Kept for any legacy imports.
 export function isSubscribed(_profile: any): boolean {
   return true;
 }
 
+// Routes a signed-in, unpaid user can always access — own profile, settings,
+// the paywall itself, and auxiliary pages. Anything not in this list and not
+// matched explicitly below will route through the paywall once onboarding
+// is complete.
+const ALWAYS_ALLOWED_PREFIXES = [
+  "/profile",
+  "/settings",
+  "/paywall",
+  "/p/",
+  "/athlete/",
+  "/privacy",
+  "/terms",
+];
+
 /**
  * Auth gate.
- *  - Not signed in            → /login
- *  - Signed in, no active sub → static paywall div (no router, no state)
- *  - Signed in, subscribed    → render children
- *
- * Onboarding gating is intentionally NOT enforced here — Stripe success
- * lands users on /onboarding and we want them to see it.
+ *  Flow:
+ *   - Not signed in                                   → /login
+ *   - Signed in, onboarding NOT complete              → /onboarding
+ *   - Signed in, onboarding complete, no active sub   → /paywall
+ *     (except /profile, /settings, /paywall — always allowed)
+ *   - Signed in, subscribed                            → render children
  */
 export function AuthGuard({ children }: { children: ReactNode }) {
   const { user, loading, profile, hasActiveSubscription } = useAuth();
@@ -34,12 +45,24 @@ export function AuthGuard({ children }: { children: ReactNode }) {
   if (path.startsWith("/admin")) return <>{children}</>;
   if (isAdminUser) return <>{children}</>;
 
-  // The /onboarding route handles its own subscription grant after Stripe redirect.
-  if (path.startsWith("/onboarding")) return <>{children}</>;
+  const onboardingDone = (profile as any).onboarding_completed === true;
 
-  if (!hasActiveSubscription) return <Paywall />;
+  // Onboarding always takes precedence — finish profile build first.
+  if (path.startsWith("/onboarding")) {
+    return <>{children}</>;
+  }
+  if (!onboardingDone) {
+    return <Navigate to="/onboarding" replace />;
+  }
 
-  return <>{children}</>;
+  // Onboarding is done. Subscribed users see everything.
+  if (hasActiveSubscription) return <>{children}</>;
+
+  // Unpaid but onboarded: allow profile/settings/paywall, gate everything else.
+  const isAllowed = ALWAYS_ALLOWED_PREFIXES.some((p) => path === p || path.startsWith(p + "/") || path === p);
+  if (isAllowed) return <>{children}</>;
+
+  return <Navigate to="/paywall" replace />;
 }
 
 function Paywall() {

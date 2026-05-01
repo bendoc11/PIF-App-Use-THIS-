@@ -40,12 +40,17 @@ export default function Onboarding() {
   const [direction, setDirection] = useState(1);
   const [saving, setSaving] = useState(false);
 
-  // Stripe success redirects here. Insert an active subscription row for
-  // this user (idempotent: ignore the unique-violation if one already
-  // exists), then refresh the in-memory subscription flag so the paywall
-  // never re-appears.
+  // Stripe success redirects here with ?checkout=success. ONLY in that case
+  // do we insert an active subscription row (idempotent). Without this guard,
+  // every visitor to /onboarding was being granted a free subscription, which
+  // bypassed the paywall after finishing onboarding.
   useEffect(() => {
     if (!user) return;
+    const params = new URLSearchParams(window.location.search);
+    const isCheckoutSuccess =
+      params.get("checkout") === "success" || params.get("session_id");
+    if (!isCheckoutSuccess) return;
+
     let cancelled = false;
     (async () => {
       const { data: existing } = await supabase

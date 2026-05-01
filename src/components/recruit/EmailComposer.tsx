@@ -47,6 +47,7 @@ ${p.phone ?? ""}`;
 
 export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent, initialDraft }: Props) {
   const { profile, user } = useAuth();
+  const { connected: gmailConnected, loading: gmailLoading, startConnect } = useGmailConnection();
   const p: any = profile ?? {};
 
   const defaultSubject = useMemo(
@@ -57,10 +58,18 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
   const [subject, setSubject] = useState(initialDraft?.subject ?? defaultSubject);
   const [body, setBody] = useState(initialDraft?.body ?? buildBody(p, school, "[Coach Last Name]"));
   const [sending, setSending] = useState(false);
+  const [showGmailGate, setShowGmailGate] = useState(false);
+  const [gmailGateDismissed, setGmailGateDismissed] = useState(false);
+  const [connecting, setConnecting] = useState(false);
 
   const send = async () => {
     if (!user || selected.length === 0) return;
+    if (!gmailLoading && !gmailConnected) {
+      setShowGmailGate(true);
+      return;
+    }
     setSending(true);
+
 
     let success = 0;
     let failed = 0;

@@ -368,7 +368,11 @@ export default function Onboarding() {
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden" style={{ backgroundColor: "#080D14" }}>
       <OnboardingBackground />
-      <OnboardingProgress progress={Math.round(progressBar)} />
+      <OnboardingProgress
+        progress={Math.round(progressBar)}
+        currentStep={step}
+        totalSteps={TOTAL_STEPS}
+      />
 
       {step > 1 && step < TOTAL_STEPS && (
         <motion.button

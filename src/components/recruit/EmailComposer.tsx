@@ -4,10 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Loader2, Send, X } from "lucide-react";
+import { ArrowLeft, Loader2, Mail, Send, X } from "lucide-react";
 import { MockCoach, MockSchool } from "@/data/mockSchools";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useGmailConnection } from "@/hooks/useGmailConnection";
 import { toast } from "@/hooks/use-toast";
 
 interface Props {

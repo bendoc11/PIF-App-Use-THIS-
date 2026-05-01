@@ -347,11 +347,13 @@ export default function Onboarding() {
       setSaving(false);
       return;
     }
-    // Navigate immediately so the user never sees a blank screen, even if
-    // the background profile refresh is slow or fails.
+    // CRITICAL: wait for the in-memory profile to reflect
+    // onboarding_completed=true BEFORE navigating. Otherwise AuthGuard sees
+    // stale state and bounces the user right back to /onboarding.
+    try {
+      await refreshProfile();
+    } catch {}
     navigate("/dashboard", { replace: true });
-    // Fire-and-forget so other pages see the updated profile.
-    refreshProfile().catch(() => {});
   };
 
   const slideVariants = {

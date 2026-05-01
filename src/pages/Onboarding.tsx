@@ -118,30 +118,104 @@ export default function Onboarding() {
 
   const [film, setFilm] = useState<string>(p.highlight_film_url || "");
 
-  // Reset every field whenever the authenticated user changes OR the
-  // currently loaded profile shows the user has NOT yet completed
-  // onboarding. This guarantees a brand-new subscriber starts with a
-  // pristine form even if React state was somehow seeded from a stale
-  // value (e.g. profile loaded after first render, or the same browser
-  // tab was just used by a different test account).
+  // Reset every field whenever the authenticated user changes. For brand
+  // new subscribers we also wipe any stale state — but unlike before we DO
+  // hydrate from the saved profile if partial onboarding data exists, so
+  // the user resumes where they left off.
   const lastHydratedUserId = useRef<string | null>(user?.id ?? null);
-  const didForceClear = useRef(false);
+  const didResume = useRef(false);
   useEffect(() => {
     const uid = user?.id ?? null;
     if (!uid) return;
     const userChanged = lastHydratedUserId.current && lastHydratedUserId.current !== uid;
-    const isFreshSubscriber = !!profile && (profile as any).id === uid && (profile as any).onboarding_completed !== true;
-    if (userChanged || (isFreshSubscriber && !didForceClear.current)) {
-      setStep(1);
-      setBasic({ firstName: "", lastName: "", gradYear: "", dob: "", city: "", state: "" });
-      setAthletic({ positions: [], jerseyNumber: "", feet: "", inches: "", weight: "", dominantHand: "" });
-      setAcademic({ highSchool: "", gpa: "", satScore: "", actScore: "", intendedMajor: "" });
-      setStory("");
-      setAvatarUrl(null);
-      setPrefs({ targetDivision: "", geoPreference: "", recruitingTimeline: "" });
-      setFilm("");
-      didForceClear.current = true;
+    const profileLoaded = !!profile && (profile as any).id === uid;
+    if (!profileLoaded) return;
+
+    if (userChanged) {
+      didResume.current = false;
     }
+    if (didResume.current) {
+      lastHydratedUserId.current = uid;
+      return;
+    }
+
+    const pp: any = profile;
+    // Hydrate from any saved fields (works whether onboarding was completed before or just partially).
+    const hydratedBasic: BasicData = {
+      firstName: pp.first_name || "",
+      lastName: pp.last_name || "",
+      gradYear: pp.grad_year ? String(pp.grad_year) : "",
+      dob: pp.date_of_birth || "",
+      city: pp.city || "",
+      state: pp.state || "",
+    };
+    const feet = (pp.height || "").split("'")[0] || "";
+    const inches = ((pp.height || "").split("'")[1] || "").replace(/[^0-9]/g, "") || "";
+    const hydratedAthletic: AthleticData = {
+      positions: Array.isArray(pp.positions) && pp.positions.length ? pp.positions : pp.position ? [pp.position] : [],
+      jerseyNumber: pp.jersey_number || "",
+      feet,
+      inches,
+      weight: (pp.weight || "").replace(/[^0-9]/g, ""),
+      dominantHand: pp.dominant_hand || "",
+    };
+    const hydratedAcademic: AcademicData = {
+      highSchool: pp.high_school_name || "",
+      gpa: pp.gpa ? String(pp.gpa) : "",
+      satScore: pp.sat_score ? String(pp.sat_score) : "",
+      actScore: pp.act_score ? String(pp.act_score) : "",
+      intendedMajor: pp.intended_major || "",
+    };
+    const hydratedStory = pp.bio || "";
+    const hydratedAvatar = pp.avatar_url || null;
+    const hydratedPrefs: PrefsData = {
+      targetDivision: pp.target_division || "",
+      geoPreference: pp.geo_preference || "",
+      recruitingTimeline: pp.recruiting_timeline || "",
+    };
+    const hydratedFilm = pp.highlight_film_url || "";
+
+    setBasic(hydratedBasic);
+    setAthletic(hydratedAthletic);
+    setAcademic(hydratedAcademic);
+    setStory(hydratedStory);
+    setAvatarUrl(hydratedAvatar);
+    setPrefs(hydratedPrefs);
+    setFilm(hydratedFilm);
+
+    // Determine resume step: find the first step whose data isn't fully filled.
+    const stepComplete: boolean[] = [
+      // Step 1: basic
+      !!(hydratedBasic.firstName && hydratedBasic.lastName && hydratedBasic.gradYear && hydratedBasic.dob && hydratedBasic.city && hydratedBasic.state),
+      // Step 2: athletic
+      !!(hydratedAthletic.positions.length && hydratedAthletic.feet && hydratedAthletic.inches !== "" && hydratedAthletic.weight && hydratedAthletic.dominantHand),
+      // Step 3: academic
+      !!(hydratedAcademic.highSchool && hydratedAcademic.gpa && hydratedAcademic.intendedMajor),
+      // Step 4: story
+      hydratedStory.trim().length >= 40,
+      // Step 5: photo (optional — count as complete if either skipped previously or present)
+      !!hydratedAvatar,
+      // Step 6: prefs
+      !!(hydratedPrefs.targetDivision && hydratedPrefs.geoPreference && hydratedPrefs.recruitingTimeline),
+      // Step 7: film (optional)
+      !!hydratedFilm,
+      // Step 8: gmail (no profile field — never auto-complete)
+      false,
+    ];
+
+    let resumeStep = 1;
+    for (let i = 0; i < stepComplete.length; i++) {
+      if (stepComplete[i]) {
+        resumeStep = i + 2; // jump past the last completed step
+      } else {
+        break;
+      }
+    }
+    // Cap at last step
+    resumeStep = Math.min(TOTAL_STEPS, Math.max(1, resumeStep));
+    setStep(resumeStep);
+
+    didResume.current = true;
     lastHydratedUserId.current = uid;
   }, [user?.id, profile]);
 
@@ -294,7 +368,11 @@ export default function Onboarding() {
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden" style={{ backgroundColor: "#080D14" }}>
       <OnboardingBackground />
-      <OnboardingProgress progress={Math.round(progressBar)} />
+      <OnboardingProgress
+        progress={Math.round(progressBar)}
+        currentStep={step}
+        totalSteps={TOTAL_STEPS}
+      />
 
       {step > 1 && step < TOTAL_STEPS && (
         <motion.button

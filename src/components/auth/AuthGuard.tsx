@@ -55,13 +55,7 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     return <Navigate to="/onboarding" replace />;
   }
 
-  // Onboarding is done. Subscribed users see everything.
-  if (hasActiveSubscription) return <>{children}</>;
-
-  // Unpaid but onboarded: allow profile/settings/paywall, gate everything else.
-  const isAllowed = ALWAYS_ALLOWED_PREFIXES.some((p) => path === p || path.startsWith(p + "/") || path === p);
-  if (isAllowed) return <>{children}</>;
-
-  return <Navigate to="/paywall" replace />;
+  // Paywall temporarily disabled — allow all onboarded users through.
+  return <>{children}</>;
 }
 

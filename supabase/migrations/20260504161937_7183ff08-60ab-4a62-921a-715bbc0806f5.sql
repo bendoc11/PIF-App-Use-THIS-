@@ -1,0 +1,1 @@
+DELETE FROM public.gmail_tokens WHERE user_id IN ('b6baa1d8-e981-4b9b-a4de-76d89e360778','01bd7e1f-36b2-4f0b-8276-e9842e8ba882');

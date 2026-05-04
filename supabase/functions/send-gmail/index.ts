@@ -141,7 +141,10 @@ Deno.serve(async (req) => {
         refreshedForScope = true;
       } catch (e) {
         console.error("[send-gmail] refresh failed", e);
-        return json({ error: "Token refresh failed. Please reconnect Gmail.", code: "token_refresh_failed" }, 401);
+        // Token is dead (revoked/expired). Clear it so the UI shows the
+        // Connect button again instead of a silent "already connected" state.
+        await admin.from("gmail_tokens").delete().eq("user_id", userId);
+        return json({ error: "Gmail not connected", code: "token_refresh_failed" }, 400);
       }
     }
 

@@ -766,6 +766,7 @@ export type Database = {
           jersey_number: string | null
           last_drill_date: string | null
           last_name: string | null
+          matched_coaches: Json | null
           onboarding_completed: boolean
           parent_email: string | null
           parent_name: string | null
@@ -832,6 +833,7 @@ export type Database = {
           jersey_number?: string | null
           last_drill_date?: string | null
           last_name?: string | null
+          matched_coaches?: Json | null
           onboarding_completed?: boolean
           parent_email?: string | null
           parent_name?: string | null
@@ -898,6 +900,7 @@ export type Database = {
           jersey_number?: string | null
           last_drill_date?: string | null
           last_name?: string | null
+          matched_coaches?: Json | null
           onboarding_completed?: boolean
           parent_email?: string | null
           parent_name?: string | null

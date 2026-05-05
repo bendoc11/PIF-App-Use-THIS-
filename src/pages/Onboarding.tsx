@@ -358,7 +358,7 @@ export default function Onboarding() {
     try {
       await refreshProfile();
     } catch {}
-    navigate("/dashboard", { replace: true });
+    navigate("/onboarding/results", { replace: true });
   };
 
   const slideVariants = {

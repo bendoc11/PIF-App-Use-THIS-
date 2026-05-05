@@ -66,6 +66,10 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
 
   const send = async () => {
     if (!user || selected.length === 0) return;
+    if (!hasActiveSubscription) {
+      setShowPaywall(true);
+      return;
+    }
     if (!gmailLoading && !gmailConnected) {
       setShowGmailGate(true);
       return;

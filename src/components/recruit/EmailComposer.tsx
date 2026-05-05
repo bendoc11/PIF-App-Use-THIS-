@@ -255,6 +255,7 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
           Send to {selected.length} coach{selected.length !== 1 ? "es" : ""}
         </Button>
       </div>
+      <PaywallModal open={showPaywall} onClose={() => setShowPaywall(false)} />
     </Card>
   );
 }

@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGmailConnection } from "@/hooks/useGmailConnection";
 import { toast } from "@/hooks/use-toast";
+import { PaywallModal } from "@/components/recruit/PaywallModal";
 
 interface Props {
   school: MockSchool;

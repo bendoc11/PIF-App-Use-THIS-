@@ -47,8 +47,9 @@ ${p.phone ?? ""}`;
 }
 
 export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent, initialDraft }: Props) {
-  const { profile, user } = useAuth();
+  const { profile, user, hasActiveSubscription } = useAuth();
   const { connected: gmailConnected, loading: gmailLoading, startConnect } = useGmailConnection();
+  const [showPaywall, setShowPaywall] = useState(false);
   const p: any = profile ?? {};
 
   const defaultSubject = useMemo(

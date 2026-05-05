@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGmailConnection } from "@/hooks/useGmailConnection";
 import { toast } from "@/hooks/use-toast";
+import { PaywallModal } from "@/components/recruit/PaywallModal";
 
 interface Props {
   school: MockSchool;
@@ -46,8 +47,9 @@ ${p.phone ?? ""}`;
 }
 
 export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent, initialDraft }: Props) {
-  const { profile, user } = useAuth();
+  const { profile, user, hasActiveSubscription } = useAuth();
   const { connected: gmailConnected, loading: gmailLoading, startConnect } = useGmailConnection();
+  const [showPaywall, setShowPaywall] = useState(false);
   const p: any = profile ?? {};
 
   const defaultSubject = useMemo(
@@ -64,6 +66,10 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
 
   const send = async () => {
     if (!user || selected.length === 0) return;
+    if (!hasActiveSubscription) {
+      setShowPaywall(true);
+      return;
+    }
     if (!gmailLoading && !gmailConnected) {
       setShowGmailGate(true);
       return;
@@ -249,6 +255,7 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
           Send to {selected.length} coach{selected.length !== 1 ? "es" : ""}
         </Button>
       </div>
+      <PaywallModal open={showPaywall} onClose={() => setShowPaywall(false)} />
     </Card>
   );
 }

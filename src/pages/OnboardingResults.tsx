@@ -1,122 +1,149 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Lock, Loader2, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { motion } from "framer-motion";
 import OnboardingBackground from "@/components/onboarding/OnboardingBackground";
-
-const GOAL_QUOTES: Record<string, string> = {
-  "Make the Team": "Players who train 4+ days a week make their team 73% more often.",
-  "Earn a Starting Spot": "Starters don't get chosen — they make it impossible to sit them.",
-  "Play at the Next Level (D1/D2/D3/JUCO)": "The average D1 player trained consistently for 3+ years before their offer.",
-  "Play Professionally": "Elite players don't wait for motivation. They train on a system.",
-  "Improve My Overall Game": "Consistency beats intensity. Every single time.",
-};
+import { ensureMatchedCoaches, MatchedCoach } from "@/lib/coachMatching";
+import { PaywallModal } from "@/components/recruit/PaywallModal";
+import { LockedCoachComposer } from "@/components/recruit/LockedCoachComposer";
 
 export default function OnboardingResults() {
   const navigate = useNavigate();
-  const { user, refreshProfile } = useAuth();
-  const [profileData, setProfileData] = useState<any>(null);
+  const { user, profile, hasActiveSubscription } = useAuth();
+  const [coaches, setCoaches] = useState<MatchedCoach[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<MatchedCoach | null>(null);
+  const [showPaywall, setShowPaywall] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single()
-      .then(({ data }) => setProfileData(data));
-  }, [user]);
+    if (!user || !profile) return;
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      const existing = (profile as any).matched_coaches;
+      if (Array.isArray(existing) && existing.length >= 5) {
+        if (!cancelled) {
+          setCoaches(existing.slice(0, 5));
+          setLoading(false);
+        }
+        return;
+      }
+      const fresh = await ensureMatchedCoaches(user.id, profile);
+      if (!cancelled) {
+        setCoaches(fresh);
+        setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, profile]);
 
-  const handleContinue = async () => {
-    if (user) {
-      await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", user.id);
-      await refreshProfile();
-    }
-    navigate("/dashboard", { replace: true });
-  };
+  const subtitle = useMemo(() => {
+    const p: any = profile ?? {};
+    const div = p.target_division || "your division";
+    const region = p.geo_preference || "your region";
+    return `${div} · ${region}`;
+  }, [profile]);
 
-  const p = profileData;
-  const position = p?.position || "—";
-  const height = p?.height || "—";
-  const primaryGoal = p?.primary_goal || "Improve My Overall Game";
-  const weaknesses: string[] = p?.weaknesses || [];
-  const trainingDays = p?.training_days_per_week;
-  const trainingHours = p?.training_hours_per_session;
-  const focusArea = weaknesses.length > 0 ? weaknesses.slice(0, 2).join(" & ") : "Overall Development";
-  const scheduleText = trainingDays && trainingHours ? `${trainingDays} days/week · ${trainingHours}` : "—";
-  const quote = GOAL_QUOTES[primaryGoal] || GOAL_QUOTES["Improve My Overall Game"];
+  if (selected) {
+    return (
+      <LockedCoachComposer
+        coach={selected}
+        locked={!hasActiveSubscription}
+        onBack={() => setSelected(null)}
+        onSendIntercept={() => setShowPaywall(true)}
+      />
+    );
+  }
 
   return (
     <div className="relative min-h-[100dvh]">
       <OnboardingBackground />
-      <div className="relative z-10 min-h-[100dvh] flex flex-col items-center justify-center px-6 py-12">
+      <div className="relative z-10 min-h-[100dvh] flex flex-col items-center px-6 py-10">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="max-w-md w-full space-y-8"
+          transition={{ duration: 0.5 }}
+          className="max-w-md w-full space-y-6"
         >
           <div className="text-center space-y-2">
             <h1 className="text-3xl md:text-4xl font-heading text-foreground leading-tight">
-              YOUR PLAN IS READY
+              YOUR TOP 5 COACH MATCHES
             </h1>
-            <p className="text-sm text-muted-foreground">Full access to every coach, drill, and tracking tool.</p>
+            <p className="text-sm text-muted-foreground">{subtitle}</p>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="rounded-2xl border border-border bg-card/60 backdrop-blur-md overflow-hidden"
-          >
-            <div className="p-6 space-y-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-heading tracking-wider text-muted-foreground">POSITION & HEIGHT</p>
-                  <p className="text-foreground font-medium text-lg">{position} · {height}</p>
-                </div>
-              </div>
-              <div>
-                <p className="text-xs font-heading tracking-wider text-muted-foreground">PRIMARY GOAL</p>
-                <p className="text-primary font-heading text-lg">{primaryGoal.toUpperCase()}</p>
-              </div>
-              <div>
-                <p className="text-xs font-heading tracking-wider text-muted-foreground">FOCUS AREA</p>
-                <p className="text-foreground font-medium">{focusArea}</p>
-              </div>
-              <div>
-                <p className="text-xs font-heading tracking-wider text-muted-foreground">TRAINING COMMITMENT</p>
-                <p className="text-foreground font-medium">{scheduleText}</p>
-              </div>
+          {loading ? (
+            <div className="flex justify-center py-16">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
-          </motion.div>
+          ) : coaches.length === 0 ? (
+            <p className="text-center text-sm text-muted-foreground">
+              We couldn't match coaches yet. Continue to your dashboard.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {coaches.map((c, i) => (
+                <motion.button
+                  key={c.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + i * 0.06 }}
+                  onClick={() => setSelected(c)}
+                  className="w-full text-left rounded-xl border border-border bg-card/70 backdrop-blur-md p-4 hover:border-primary/50 transition-colors"
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <p className="text-foreground font-semibold text-base leading-tight pr-3">
+                      {c.school_name || "—"}
+                    </p>
+                    <span className="text-[10px] font-heading tracking-wider text-primary bg-primary/10 px-2 py-1 rounded">
+                      {c.division || "—"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    {[c.city, c.state].filter(Boolean).join(", ") || "—"}
+                  </p>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="text-sm text-center text-muted-foreground italic leading-relaxed px-2"
-          >
-            "{quote}"
-          </motion.p>
+                  {/* Locked coach contact */}
+                  {!hasActiveSubscription ? (
+                    <div className="flex items-center gap-2 rounded-md bg-background/40 border border-border px-3 py-2">
+                      <Lock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                      <span
+                        className="text-sm text-foreground/80 select-none"
+                        style={{ filter: "blur(5px)" }}
+                      >
+                        Coach Name · coach@school.edu
+                      </span>
+                      <span className="ml-auto text-[10px] font-heading tracking-wider text-primary">
+                        UNLOCK
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 rounded-md bg-background/40 border border-border px-3 py-2">
+                      <Mail className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                      <span className="text-sm text-foreground truncate">
+                        {c.full_name || `${c.first_name ?? ""} ${c.last_name ?? ""}`.trim()} · {c.email}
+                      </span>
+                    </div>
+                  )}
+                </motion.button>
+              ))}
+            </div>
+          )}
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
-            className="space-y-3 text-center"
+          <button
+            onClick={() => navigate("/dashboard", { replace: true })}
+            className="w-full h-12 rounded-xl bg-card/60 border border-border text-foreground text-sm font-heading tracking-wider hover:bg-card/80"
           >
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={handleContinue}
-              className="w-full h-14 rounded-xl bg-primary text-primary-foreground btn-cta text-base glow-red"
-            >
-              GO TO DASHBOARD →
-            </motion.button>
-          </motion.div>
+            CONTINUE TO DASHBOARD →
+          </button>
         </motion.div>
       </div>
+
+      <PaywallModal open={showPaywall} onClose={() => setShowPaywall(false)} />
     </div>
   );
 }

@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS matched_coaches jsonb DEFAULT '[]'::jsonb;

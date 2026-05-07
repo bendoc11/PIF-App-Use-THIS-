@@ -358,10 +358,13 @@ export default function Recruit() {
                     onRemoveCoach={(email) =>
                       setView({ ...view, coaches: view.coaches.filter((c) => c.email !== email) })
                     }
-                    onSent={() => {
-                      loadOutreach();
+                    onSent={async (justHitFreeLimit) => {
+                      await loadOutreach();
+                      await refreshProfile();
                       setView({ kind: "map" });
+                      if (justHitFreeLimit) setPaywallVariant("post-send-3");
                     }}
+                    onUpgradeNeeded={() => setPaywallVariant("upgrade")}
                   />
                 </div>
               )}

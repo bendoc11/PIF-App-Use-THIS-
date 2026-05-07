@@ -151,12 +151,12 @@ export function FindYourSchoolMap({
                   <Geography
                     key={geo.rsmKey}
                     geography={geo}
-                    fill="#2D2D2F"
-                    stroke="#3D3D3F"
+                    fill="#FFFFFF"
+                    stroke="#D2D2D7"
                     strokeWidth={1}
                     style={{
                       default: { outline: "none" },
-                      hover: { outline: "none", fill: "#353537" },
+                      hover: { outline: "none", fill: "#F5F5F7" },
                       pressed: { outline: "none" },
                     }}
                   />

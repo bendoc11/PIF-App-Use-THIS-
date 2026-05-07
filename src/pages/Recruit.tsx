@@ -59,9 +59,20 @@ function daysAgo(iso: string): number {
 }
 
 export default function Recruit() {
-  const { user, profile } = useAuth();
-  const { schools, loading, error } = useColleges();
+  const { user, profile, hasActiveSubscription, refreshProfile } = useAuth();
+  const { schools: rawSchools, loading, error } = useColleges();
   const p: any = profile ?? {};
+  const freeSendsUsed = (p.free_sends_used as number | undefined) ?? 0;
+
+  // Deduplicate schools by id (prevents duplicates like Alabama A&M appearing twice)
+  const schools = useMemo(() => {
+    const seen = new Set<string>();
+    return rawSchools.filter((s) => {
+      if (seen.has(s.id)) return false;
+      seen.add(s.id);
+      return true;
+    });
+  }, [rawSchools]);
 
   const [view, setView] = useState<View>({ kind: "map" });
   const [outreach, setOutreach] = useState<OutreachRow[]>([]);
@@ -69,6 +80,7 @@ export default function Recruit() {
   const [offersCount, setOffersCount] = useState(0);
   const [interestedSchools, setInterestedSchools] = useState<Set<string>>(new Set());
   const [showOfferDialog, setShowOfferDialog] = useState(false);
+  const [paywallVariant, setPaywallVariant] = useState<null | "post-send-3" | "upgrade">(null);
 
   const [filters, setFilters] = useState<MapFilters>({
     states: [],

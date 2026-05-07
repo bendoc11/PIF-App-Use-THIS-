@@ -84,17 +84,7 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
   // Split body around the film-link sentinel for inline link rendering
   const bodyParts = previewBody.split("[[FILM_LINK]]");
 
-  const send = async () => {
-    if (!user || selected.length === 0) return;
-    if (!fromAddress) {
-      toast({
-        title: "Email alias missing",
-        description: "Please complete your profile (name and graduation year) to send emails.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setSending(true);
+  const doSend = async () => {
 
     let success = 0;
     let failed = 0;

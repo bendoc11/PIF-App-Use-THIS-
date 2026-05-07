@@ -22,6 +22,8 @@ import "@/components/recruit/scoreboard/tokens.css";
 import { RecruitTopBar } from "@/components/recruit/scoreboard/RecruitTopBar";
 import { HeroMetrics } from "@/components/recruit/scoreboard/HeroMetrics";
 import { FindYourSchoolMap } from "@/components/recruit/scoreboard/FindYourSchoolMap";
+import { RecommendedSchools } from "@/components/recruit/RecommendedSchools";
+import { FreemiumPaywall } from "@/components/recruit/FreemiumPaywall";
 import { NextMoves, QuestItem } from "@/components/recruit/scoreboard/NextMoves";
 import { WeeklyGoalDark } from "@/components/recruit/scoreboard/WeeklyGoalDark";
 import { YourSchoolsCard } from "@/components/recruit/scoreboard/YourSchoolsCard";

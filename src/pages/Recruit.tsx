@@ -15,6 +15,7 @@ import { SchoolList } from "@/components/recruit/SchoolList";
 import { RecruitTour, TourStep } from "@/components/recruit/RecruitTour";
 import { ConnectGmailPrompt } from "@/components/recruit/ConnectGmailPrompt";
 import { useGmailConnection } from "@/hooks/useGmailConnection";
+import { RepliesPanel } from "@/components/recruit/RepliesPanel";
 import { Loader2, ArrowLeft, PenSquare } from "lucide-react";
 
 const TOUR_STEPS: TourStep[] = [

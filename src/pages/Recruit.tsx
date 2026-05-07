@@ -188,12 +188,7 @@ export default function Recruit() {
     });
   };
 
-  // Single gateway for any "I want to compose" intent.
   const requestCompose = (next: View) => {
-    if (!gmailConnected) {
-      setView({ kind: "connect-gmail" });
-      return;
-    }
     setView(next);
   };
 

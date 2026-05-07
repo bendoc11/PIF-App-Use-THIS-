@@ -10,16 +10,16 @@ const DIVISIONS: Division[] = ["D1", "D2", "D3", "JUCO", "NAIA"];
 const DIV_DOT: Record<Division, string> = {
   D1: "#2E8B57",
   D2: "#0071E3",
-  D3: "#D4780A",
-  JUCO: "#6B50D6",
+  D3: "#FF1F1F",
+  JUCO: "#E5FF00",
   NAIA: "#86868B",
 };
 
 const DIV_TEXT: Record<Division, string> = {
   D1: "#0051A8",
   D2: "#1A6B2A",
-  D3: "#8A4B00",
-  JUCO: "#4B35B0",
+  D3: "#A80000",
+  JUCO: "#6B6B00",
   NAIA: "#6E6E73",
 };
 
@@ -195,9 +195,12 @@ export function FindYourSchoolMap({
                     />
                   )}
                   <circle
-                    r={5}
+                    r={4}
                     fill={fill}
+                    stroke="#1D1D1F"
+                    strokeWidth={0.5}
                     fillOpacity={visible ? 1 : 0}
+                    shapeRendering="geometricPrecision"
                     style={{ transition: "fill-opacity 200ms" }}
                   >
                     <title>{`${s.name} (${s.division})`}</title>

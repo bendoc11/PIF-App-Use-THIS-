@@ -21,3 +21,5 @@ project_id = "feblgdfxkuegmjqsdycp"
     verify_jwt = false
   [functions.gmail-oauth-exchange]
     verify_jwt = false
+  [functions.sendgrid-inbound]
+    verify_jwt = false

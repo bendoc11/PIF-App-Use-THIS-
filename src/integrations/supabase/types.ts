@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      coach_replies: {
+        Row: {
+          athlete_id: string
+          coach_email: string | null
+          coach_name: string | null
+          id: string
+          is_read: boolean
+          received_at: string
+          reply_body_text: string | null
+          reply_subject: string | null
+          school_name: string | null
+        }
+        Insert: {
+          athlete_id: string
+          coach_email?: string | null
+          coach_name?: string | null
+          id?: string
+          is_read?: boolean
+          received_at?: string
+          reply_body_text?: string | null
+          reply_subject?: string | null
+          school_name?: string | null
+        }
+        Update: {
+          athlete_id?: string
+          coach_email?: string | null
+          coach_name?: string | null
+          id?: string
+          is_read?: boolean
+          received_at?: string
+          reply_body_text?: string | null
+          reply_subject?: string | null
+          school_name?: string | null
+        }
+        Relationships: []
+      }
       coaches: {
         Row: {
           avatar_color: string | null
@@ -473,6 +509,24 @@ export type Database = {
           },
         ]
       }
+      email_send_counters: {
+        Row: {
+          count: number
+          day: string
+          user_id: string
+        }
+        Insert: {
+          count?: number
+          day: string
+          user_id: string
+        }
+        Update: {
+          count?: number
+          day?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       game_logs: {
         Row: {
           assists: number
@@ -749,6 +803,7 @@ export type Database = {
           date_of_birth: string | null
           dominant_hand: string | null
           email: string | null
+          email_alias: string | null
           first_name: string | null
           geo_preference: string | null
           gpa: number | null
@@ -816,6 +871,7 @@ export type Database = {
           date_of_birth?: string | null
           dominant_hand?: string | null
           email?: string | null
+          email_alias?: string | null
           first_name?: string | null
           geo_preference?: string | null
           gpa?: number | null
@@ -883,6 +939,7 @@ export type Database = {
           date_of_birth?: string | null
           dominant_hand?: string | null
           email?: string | null
+          email_alias?: string | null
           first_name?: string | null
           geo_preference?: string | null
           gpa?: number | null
@@ -1243,6 +1300,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_email_alias: {
+        Args: { _first: string; _grad: number; _last: string }
+        Returns: string
+      }
       get_gmail_connection: {
         Args: never
         Returns: {

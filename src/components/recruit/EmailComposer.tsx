@@ -4,11 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Loader2, Mail, Send, X } from "lucide-react";
+import { ArrowLeft, Loader2, Send, X } from "lucide-react";
 import { MockCoach, MockSchool } from "@/data/mockSchools";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useGmailConnection } from "@/hooks/useGmailConnection";
 import { toast } from "@/hooks/use-toast";
 import { PaywallModal } from "@/components/recruit/PaywallModal";
 
@@ -18,7 +17,6 @@ interface Props {
   onBack: () => void;
   onRemoveCoach: (email: string) => void;
   onSent: () => void;
-  /** Optional pre-filled draft (used for follow-ups). */
   initialDraft?: { subject: string; body: string } | null;
 }
 
@@ -47,10 +45,11 @@ ${p.phone ?? ""}`;
 }
 
 export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent, initialDraft }: Props) {
-  const { profile, user, hasActiveSubscription } = useAuth();
-  const { connected: gmailConnected, loading: gmailLoading, startConnect } = useGmailConnection();
+  const { profile, user } = useAuth();
   const [showPaywall, setShowPaywall] = useState(false);
   const p: any = profile ?? {};
+  const alias = p.email_alias as string | undefined;
+  const fromAddress = alias ? `${alias}@mail.playitforward.app` : null;
 
   const defaultSubject = useMemo(
     () => `${p.first_name ?? ""} ${p.last_name ?? ""} | ${p.height ?? ""} ${p.position ?? ""} - ${p.city ?? ""}`.trim(),
@@ -60,44 +59,36 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
   const [subject, setSubject] = useState(initialDraft?.subject ?? defaultSubject);
   const [body, setBody] = useState(initialDraft?.body ?? buildBody(p, school, "[Coach Last Name]"));
   const [sending, setSending] = useState(false);
-  const [showGmailGate, setShowGmailGate] = useState(false);
-  const [gmailGateDismissed, setGmailGateDismissed] = useState(false);
-  const [connecting, setConnecting] = useState(false);
 
   const send = async () => {
     if (!user || selected.length === 0) return;
-    if (!hasActiveSubscription) {
-      setShowPaywall(true);
-      return;
-    }
-    if (!gmailLoading && !gmailConnected) {
-      setShowGmailGate(true);
+    if (!fromAddress) {
+      toast({
+        title: "Email alias missing",
+        description: "Please complete your profile (name and graduation year) to send emails.",
+        variant: "destructive",
+      });
       return;
     }
     setSending(true);
 
-
     let success = 0;
     let failed = 0;
-    let notConnected = false;
+    let dailyHit = false;
+    let freeHit = false;
 
     for (const coach of selected) {
       const personalizedBody = body.replace(/\[Coach Last Name\]/g, lastNameOf(coach.name));
       try {
-        const { data, error } = await supabase.functions.invoke("send-gmail", {
+        const { data, error } = await supabase.functions.invoke("send-outreach-email", {
           body: { to: coach.email, subject, body: personalizedBody },
         });
-        const errMsg =
-          (data as any)?.error ||
-          (error as any)?.context?.error ||
-          (error as any)?.message ||
-          "";
+        const errCode = (data as any)?.error || (error as any)?.context?.error;
+        const errMsg = (data as any)?.message || (error as any)?.context?.message || "";
         if (error || (data as any)?.error) {
           failed++;
-          if (typeof errMsg === "string" && errMsg.toLowerCase().includes("gmail not connected")) {
-            notConnected = true;
-            break; // no point trying the rest
-          }
+          if (errCode === "daily_limit_reached") { dailyHit = true; break; }
+          if (errCode === "free_limit_reached") { freeHit = true; break; }
           console.error("send failed", coach.email, error || data);
           continue;
         }
@@ -120,89 +111,32 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
 
     setSending(false);
 
-    if (notConnected) {
+    if (dailyHit) {
       toast({
-        title: "Connect your Gmail to send",
-        description: "Head to Settings → Gmail to connect your inbox, then try again.",
+        title: "Daily limit reached",
+        description: "You have reached your daily outreach limit. This protects our sending reputation and ensures your emails continue to reach coaches. Your limit resets tomorrow.",
         variant: "destructive",
       });
+      return;
+    }
+    if (freeHit) {
+      setShowPaywall(true);
       return;
     }
 
     if (success > 0) {
       toast({
         title: `Sent ${success} email${success > 1 ? "s" : ""}`,
-        description: failed > 0 ? `${failed} failed — check your Gmail connection.` : "Saved to outreach history.",
+        description: failed > 0 ? `${failed} failed.` : "Saved to outreach history.",
       });
       onSent();
     } else {
-      toast({ title: "Send failed", description: "Connect Gmail in Settings first.", variant: "destructive" });
+      toast({ title: "Send failed", description: "Please try again.", variant: "destructive" });
     }
   };
 
-  const handleConnectGmail = async () => {
-    setConnecting(true);
-    await startConnect("/recruit");
-  };
-
-  // Focused Gmail gate — shown when the user tries to send and Gmail isn't connected.
-  if (showGmailGate && !gmailConnected) {
-    return (
-      <Card className="p-8 bg-white border-gray-200 max-w-xl mx-auto text-center">
-        <div className="mx-auto h-14 w-14 rounded-full bg-pif-red/10 flex items-center justify-center mb-5">
-          <Mail className="h-7 w-7 text-pif-red" />
-        </div>
-        <h2 className="text-2xl font-semibold text-gray-900 leading-tight">
-          Connect your Gmail to start reaching coaches
-        </h2>
-        <p className="mt-3 text-base text-gray-600 leading-relaxed">
-          Your emails will come from your own address — which coaches are more likely to open and respond to.
-        </p>
-        <div className="mt-7 flex flex-col gap-2">
-          <Button
-            onClick={handleConnectGmail}
-            disabled={connecting || gmailLoading}
-            className="bg-pif-red hover:bg-pif-red/90 text-white h-12 text-base font-semibold"
-          >
-            {connecting ? (
-              <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Opening Google…</>
-            ) : (
-              <><Mail className="h-4 w-4 mr-2" /> Connect Gmail</>
-            )}
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setShowGmailGate(false);
-              setGmailGateDismissed(true);
-            }}
-            className="text-gray-600 hover:text-gray-900"
-          >
-            Not now
-          </Button>
-        </div>
-      </Card>
-    );
-  }
-
   return (
     <Card className="p-6 bg-white border-gray-200">
-      {gmailGateDismissed && !gmailConnected && !gmailLoading && (
-        <div className="mb-4 rounded-lg border border-pif-red/30 bg-pif-red/5 p-3 flex items-center gap-3">
-          <Mail className="h-4 w-4 text-pif-red shrink-0" />
-          <p className="text-sm text-gray-700 flex-1">
-            Connect your Gmail to send outreach to coaches.
-          </p>
-          <Button
-            size="sm"
-            onClick={handleConnectGmail}
-            disabled={connecting}
-            className="bg-pif-red hover:bg-pif-red/90 text-white h-8"
-          >
-            Connect
-          </Button>
-        </div>
-      )}
       <div className="flex items-center justify-between mb-4">
         <Button variant="ghost" size="sm" onClick={onBack} className="text-gray-600">
           <ArrowLeft className="h-4 w-4 mr-1" /> Back
@@ -210,7 +144,12 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
         <span className="text-sm text-gray-500">{school.name}</span>
       </div>
 
-      {/* Recipient chips */}
+      {fromAddress && (
+        <div className="mb-3 text-xs text-gray-500">
+          Sending from <span className="font-medium text-gray-800">{fromAddress}</span>
+        </div>
+      )}
+
       <div className="flex flex-wrap gap-2 mb-4">
         {selected.map((c) => (
           <Badge key={c.email} variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 gap-1.5 pl-3 pr-2 py-1.5">

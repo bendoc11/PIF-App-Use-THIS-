@@ -15,6 +15,7 @@ import { SchoolList } from "@/components/recruit/SchoolList";
 import { RecruitTour, TourStep } from "@/components/recruit/RecruitTour";
 import { ConnectGmailPrompt } from "@/components/recruit/ConnectGmailPrompt";
 import { useGmailConnection } from "@/hooks/useGmailConnection";
+import { RepliesPanel } from "@/components/recruit/RepliesPanel";
 import { Loader2, ArrowLeft, PenSquare } from "lucide-react";
 
 const TOUR_STEPS: TourStep[] = [
@@ -156,11 +157,6 @@ export default function Recruit() {
   }, [profile]);
 
   const handleFollowUp = (row: OutreachRow) => {
-    if (!gmailConnected) {
-      setView({ kind: "connect-gmail" });
-      return;
-    }
-    // Find the school in our list, or build a minimal stub from the outreach row
     const school =
       schools.find((s) => s.name === row.school_name) ??
       ({
@@ -192,12 +188,7 @@ export default function Recruit() {
     });
   };
 
-  // Single gateway for any "I want to compose" intent.
   const requestCompose = (next: View) => {
-    if (!gmailConnected) {
-      setView({ kind: "connect-gmail" });
-      return;
-    }
     setView(next);
   };
 
@@ -317,7 +308,7 @@ export default function Recruit() {
                 </div>
               )}
 
-              {view.kind === "compose" && gmailConnected && (
+              {view.kind === "compose" && (
                 <EmailComposer
                   school={view.school}
                   selected={view.coaches}
@@ -335,16 +326,15 @@ export default function Recruit() {
                   }}
                 />
               )}
-
-              {view.kind === "compose" && !gmailConnected && !gmailLoading && (
-                <ConnectGmailPrompt />
-              )}
             </div>
           </main>
 
           {/* Right: Dashboard */}
           <div data-tour="dashboard" className="w-full lg:w-80 shrink-0 lg:h-full lg:overflow-y-auto">
             <RecruitDashboard rows={outreach} onChange={loadOutreach} />
+            <div className="px-4 pb-4">
+              <RepliesPanel />
+            </div>
           </div>
         </div>
       </div>

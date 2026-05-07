@@ -2,6 +2,7 @@ import { LayoutDashboard, BookOpen, Users, MessageSquare, TrendingUp, Settings, 
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUnreadReplies } from "@/hooks/useUnreadReplies";
 
 import {
   Sidebar,
@@ -27,6 +28,7 @@ export function AppSidebar() {
   const location = useLocation();
   const { signOut, profile } = useAuth();
   const role = profile?.role || "user";
+  const unreadReplies = useUnreadReplies();
 
   const initials = profile
     ? `${(profile.first_name || "")[0] || ""}${(profile.last_name || "")[0] || ""}`.toUpperCase()
@@ -54,22 +56,35 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      end={item.url === "/dashboard"}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors font-heading text-sm tracking-wider"
-                      activeClassName="bg-primary/10 text-primary border border-primary/20"
-                      {...(item.tourId ? { "data-tour": item.tourId } : {})}
-                    >
-                      <item.icon className="h-5 w-5 shrink-0" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {navItems.map((item) => {
+                const showBadge = item.url === "/recruit" && unreadReplies > 0;
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to={item.url}
+                        end={item.url === "/dashboard"}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors font-heading text-sm tracking-wider relative"
+                        activeClassName="bg-primary/10 text-primary border border-primary/20"
+                        {...(item.tourId ? { "data-tour": item.tourId } : {})}
+                      >
+                        <div className="relative shrink-0">
+                          <item.icon className="h-5 w-5" />
+                          {showBadge && collapsed && (
+                            <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-pif-red" />
+                          )}
+                        </div>
+                        {!collapsed && <span>{item.title}</span>}
+                        {showBadge && !collapsed && (
+                          <span className="ml-auto bg-pif-red text-white rounded-full text-xs font-medium px-2 py-0.5 min-w-[20px] text-center">
+                            {unreadReplies > 99 ? "99+" : unreadReplies}
+                          </span>
+                        )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

@@ -22,6 +22,8 @@ import "@/components/recruit/scoreboard/tokens.css";
 import { RecruitTopBar } from "@/components/recruit/scoreboard/RecruitTopBar";
 import { HeroMetrics } from "@/components/recruit/scoreboard/HeroMetrics";
 import { FindYourSchoolMap } from "@/components/recruit/scoreboard/FindYourSchoolMap";
+import { RecommendedSchools } from "@/components/recruit/RecommendedSchools";
+import { FreemiumPaywall } from "@/components/recruit/FreemiumPaywall";
 import { NextMoves, QuestItem } from "@/components/recruit/scoreboard/NextMoves";
 import { WeeklyGoalDark } from "@/components/recruit/scoreboard/WeeklyGoalDark";
 import { YourSchoolsCard } from "@/components/recruit/scoreboard/YourSchoolsCard";
@@ -57,9 +59,20 @@ function daysAgo(iso: string): number {
 }
 
 export default function Recruit() {
-  const { user, profile } = useAuth();
-  const { schools, loading, error } = useColleges();
+  const { user, profile, hasActiveSubscription, refreshProfile } = useAuth();
+  const { schools: rawSchools, loading, error } = useColleges();
   const p: any = profile ?? {};
+  const freeSendsUsed = (p.free_sends_used as number | undefined) ?? 0;
+
+  // Deduplicate schools by id (prevents duplicates like Alabama A&M appearing twice)
+  const schools = useMemo(() => {
+    const seen = new Set<string>();
+    return rawSchools.filter((s) => {
+      if (seen.has(s.id)) return false;
+      seen.add(s.id);
+      return true;
+    });
+  }, [rawSchools]);
 
   const [view, setView] = useState<View>({ kind: "map" });
   const [outreach, setOutreach] = useState<OutreachRow[]>([]);
@@ -67,6 +80,7 @@ export default function Recruit() {
   const [offersCount, setOffersCount] = useState(0);
   const [interestedSchools, setInterestedSchools] = useState<Set<string>>(new Set());
   const [showOfferDialog, setShowOfferDialog] = useState(false);
+  const [paywallVariant, setPaywallVariant] = useState<null | "post-send-3" | "upgrade">(null);
 
   const [filters, setFilters] = useState<MapFilters>({
     states: [],
@@ -208,8 +222,17 @@ export default function Recruit() {
     setView({ kind: "compose", school, coaches: [coach], initialDraft: buildFollowUpDraft(row) });
   };
 
+  // Intercept Message clicks: non-subscribed users with free sends used >= 3 see paywall
+  const guardMessage = (action: () => void) => {
+    if (!hasActiveSubscription && freeSendsUsed >= 3) {
+      setPaywallVariant("upgrade");
+      return;
+    }
+    action();
+  };
+
   const onMessageSchool = (s: MockSchool) => {
-    setView({ kind: "school", school: s });
+    guardMessage(() => setView({ kind: "school", school: s }));
   };
 
   const onToggleInterested = (s: MockSchool) => {
@@ -243,7 +266,7 @@ export default function Recruit() {
                     firstName={firstName}
                     weeklySent={weeklySent}
                     weeklyGoal={WEEKLY_GOAL}
-                    onMessageClick={() => setView({ kind: "compose-pick" })}
+                    onMessageClick={() => guardMessage(() => setView({ kind: "compose-pick" }))}
                   />
 
                   <HeroMetrics
@@ -253,6 +276,14 @@ export default function Recruit() {
                     weeklyGoal={WEEKLY_GOAL}
                     weeklySent={weeklySent}
                   />
+
+                  {!loading && !error && (
+                    <RecommendedSchools
+                      schools={schools}
+                      contactedNames={contactedNames}
+                      onMessage={(s) => guardMessage(() => setView({ kind: "school", school: s }))}
+                    />
+                  )}
 
                   {loading ? (
                     <div className="rs-card flex flex-col items-center justify-center py-16">
@@ -270,15 +301,19 @@ export default function Recruit() {
                       schools={filtered}
                       contactedNames={contactedNames}
                       interestedNames={allInterested}
-                      onSelectSchool={(s) => setView({ kind: "school", school: s })}
+                      onSelectSchool={(s) => guardMessage(() => setView({ kind: "school", school: s }))}
                       onMessageSchool={onMessageSchool}
                       onToggleInterested={onToggleInterested}
-                      onBrowseAll={() => setView({ kind: "compose-pick" })}
+                      onBrowseAll={() => guardMessage(() => setView({ kind: "compose-pick" }))}
                     />
                   )}
 
                   <div id="replies-panel" className="mb-5">
-                    <RepliesPanel onCountChange={setRepliesCount} />
+                    <RepliesPanel
+                      onCountChange={setRepliesCount}
+                      locked={!hasActiveSubscription}
+                      onLockedClick={() => setPaywallVariant("upgrade")}
+                    />
                   </div>
                 </>
               )}
@@ -327,10 +362,13 @@ export default function Recruit() {
                     onRemoveCoach={(email) =>
                       setView({ ...view, coaches: view.coaches.filter((c) => c.email !== email) })
                     }
-                    onSent={() => {
-                      loadOutreach();
+                    onSent={async (justHitFreeLimit) => {
+                      await loadOutreach();
+                      await refreshProfile();
                       setView({ kind: "map" });
+                      if (justHitFreeLimit) setPaywallVariant("post-send-3");
                     }}
+                    onUpgradeNeeded={() => setPaywallVariant("upgrade")}
                   />
                 </div>
               )}
@@ -353,6 +391,12 @@ export default function Recruit() {
           </div>
         </div>
       </div>
+
+      <FreemiumPaywall
+        open={paywallVariant !== null}
+        variant={paywallVariant ?? "upgrade"}
+        onClose={() => setPaywallVariant(null)}
+      />
 
       <AddOfferDialog open={showOfferDialog} onOpenChange={setShowOfferDialog} onSaved={loadOffers} />
     </AppLayout>

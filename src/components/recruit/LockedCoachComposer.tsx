@@ -122,7 +122,7 @@ export function LockedCoachComposer({ coach, locked, onBack, onSendIntercept }: 
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Message</label>
-              <Textarea value={body} onChange={(e) => setBody(e.target.value)} rows={16} className="mt-1 font-mono text-sm" />
+              <Textarea value={body} onChange={(e) => setBody(e.target.value)} rows={16} className="mt-1 text-sm" />
             </div>
           </div>
 

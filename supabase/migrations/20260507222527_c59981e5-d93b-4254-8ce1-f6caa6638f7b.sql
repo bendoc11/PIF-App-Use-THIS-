@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS free_sends_used integer NOT NULL DEFAULT 0;

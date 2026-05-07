@@ -815,6 +815,7 @@ export type Database = {
           email_alias: string | null
           first_name: string | null
           first_reply_celebrated_at: string | null
+          free_sends_used: number
           geo_preference: string | null
           gpa: number | null
           gpa_unweighted: number | null
@@ -884,6 +885,7 @@ export type Database = {
           email_alias?: string | null
           first_name?: string | null
           first_reply_celebrated_at?: string | null
+          free_sends_used?: number
           geo_preference?: string | null
           gpa?: number | null
           gpa_unweighted?: number | null
@@ -953,6 +955,7 @@ export type Database = {
           email_alias?: string | null
           first_name?: string | null
           first_reply_celebrated_at?: string | null
+          free_sends_used?: number
           geo_preference?: string | null
           gpa?: number | null
           gpa_unweighted?: number | null

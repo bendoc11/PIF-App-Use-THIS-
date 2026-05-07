@@ -18,6 +18,8 @@ interface Reply {
 
 interface Props {
   onCountChange?: (total: number) => void;
+  locked?: boolean;
+  onLockedClick?: () => void;
 }
 
 function initialsOf(name: string | null, email: string | null): string {
@@ -27,7 +29,7 @@ function initialsOf(name: string | null, email: string | null): string {
   return src.slice(0, 2).toUpperCase();
 }
 
-export function RepliesPanel({ onCountChange }: Props = {}) {
+export function RepliesPanel({ onCountChange, locked, onLockedClick }: Props = {}) {
   const { user } = useAuth();
   const [replies, setReplies] = useState<Reply[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -69,6 +71,10 @@ export function RepliesPanel({ onCountChange }: Props = {}) {
   }, [user?.id, onCountChange]);
 
   const handleClick = async (r: Reply) => {
+    if (locked) {
+      onLockedClick?.();
+      return;
+    }
     setExpanded(expanded === r.id ? null : r.id);
     if (!r.is_read) {
       await supabase.from("coach_replies").update({ is_read: true }).eq("id", r.id);
@@ -231,18 +237,46 @@ export function RepliesPanel({ onCountChange }: Props = {}) {
                         {r.school_name}
                       </div>
                     )}
-                    <div
-                      style={{
-                        fontSize: 12,
-                        color: "#86868B",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: isOpen ? "pre-wrap" : "nowrap",
-                        marginTop: 2,
-                      }}
-                    >
-                      {isOpen ? r.reply_body_text : preview}
-                    </div>
+                    {locked ? (
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                        <div
+                          style={{
+                            height: 10,
+                            width: 180,
+                            background: "#E8E8ED",
+                            borderRadius: 4,
+                            filter: "blur(4px)",
+                          }}
+                        />
+                        <span
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 600,
+                            color: "#0071E3",
+                            background: "#E8F1FD",
+                            border: "1px solid #C5DCFF",
+                            borderRadius: 980,
+                            padding: "4px 10px",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          Read reply — upgrade
+                        </span>
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: "#86868B",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: isOpen ? "pre-wrap" : "nowrap",
+                          marginTop: 2,
+                        }}
+                      >
+                        {isOpen ? r.reply_body_text : preview}
+                      </div>
+                    )}
                   </div>
                 </button>
                 {isOpen && r.coach_email && (

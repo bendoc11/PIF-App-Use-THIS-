@@ -84,6 +84,22 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
   // Split body around the film-link sentinel for inline link rendering
   const bodyParts = previewBody.split("[[FILM_LINK]]");
 
+  const savePendingEmail = () => {
+    if (!user) return;
+    try {
+      localStorage.setItem(
+        `pif_pending_email_${user.id}`,
+        JSON.stringify({
+          school: { name: school.name },
+          coaches: selected.map((c) => ({ name: c.name, email: c.email, title: c.title })),
+          subject,
+          body,
+          savedAt: Date.now(),
+        }),
+      );
+    } catch {}
+  };
+
   const send = async () => {
     if (!user || selected.length === 0) return;
     if (!fromAddress) {
@@ -94,6 +110,27 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
       });
       return;
     }
+
+    // Subscription gate — if not subscribed, save draft and show paywall.
+    const { data: sub } = await supabase
+      .from("subscriptions")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .limit(1)
+      .maybeSingle();
+
+    if (!sub) {
+      savePendingEmail();
+      setShowPaywall(true);
+      return;
+    }
+
+    await doSend();
+  };
+
+  const doSend = async () => {
+    if (!user) return;
     setSending(true);
 
     let success = 0;
@@ -149,6 +186,7 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
     }
 
     if (success > 0) {
+      try { localStorage.removeItem(`pif_pending_email_${user.id}`); } catch {}
       toast({
         title: `Sent ${success} email${success > 1 ? "s" : ""}`,
         description: failed > 0 ? `${failed} failed.` : "Saved to outreach history.",
@@ -400,7 +438,13 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
           </button>
         </div>
       </div>
-      <PaywallModal open={showPaywall} onClose={() => setShowPaywall(false)} />
+      <PaywallModal
+        open={showPaywall}
+        onSubscribed={() => {
+          setShowPaywall(false);
+          doSend();
+        }}
+      />
     </div>
   );
 }

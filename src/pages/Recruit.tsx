@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -72,6 +74,16 @@ export default function Recruit() {
     size: "All",
     gpa: "All",
   });
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    const welcome = searchParams.get("welcome");
+    if (welcome) {
+      toast.success(welcome, { duration: 8000 });
+      searchParams.delete("welcome");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const loadOutreach = async () => {
     if (!user) return;

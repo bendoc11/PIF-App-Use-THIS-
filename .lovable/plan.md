@@ -1,54 +1,123 @@
-# Recruiting Command Center Redesign
+# Get Recruited — Locker Room Redesign
 
-Transforms Get Recruited from a one-way outreach tool into a two-way communication hub now that SendGrid replies land in the app.
+Transform `/recruit` from CRM-feeling layout into a Nike Training Club × ESPN scoreboard recruiting command center for 15–18 year old athletes.
 
-## What changes (user-visible)
+## Scope
 
-1. **Live activity hero** at top of `/recruit`: 4 metric cards — Coaches Contacted, Replies Received, **Reply Rate %** (oversized, hero number), Schools In Pipeline. Numbers animate on change.
-2. **Replies-first layout**: Replies Panel moves above the coach database. Empty state copy: *"No replies yet — but coaches are reading. Keep going."* When unread > 0, a full-width red banner pins to the very top of the page: *"You have X new replies from college coaches. View them now."*
-3. **Status dots in Past Outreach** sidebar: grey (Sent) / blue (Opened — placeholder, off until open tracking exists) / green + "Replied" badge. Auto-flips to Replied when a row in `coach_replies` matches that coach email + athlete.
-4. **Pipeline board** below replies: 4 columns — Contacted, Replied, In Conversation, Official Interest. Tap a card to advance stage (drag-and-drop optional, tap-to-cycle ships first to avoid new deps). Auto-promotes Contacted → Replied on first reply from that school.
-5. **Reply notification email** redesign: subject *"A college coach just replied to you"*, exciting body, CTA button "Read Their Reply", footer with current contact/reply/rate stats.
-6. **In-app reply composer**: each reply card gets a "Reply" button → opens composer pre-filled with coach email + `Re:` subject, sends through existing `send-outreach-email` (alias from-address, quota counted).
-7. **Profile completion checklist**: adds *"Send your first outreach email"* (+10%) and *"Receive your first coach reply"* (+10%).
-8. **First-reply celebration**: one-time full-screen confetti + headline *"A college coach wants to talk to you."* + animated reply-rate. Triggered when `coach_replies` count goes 0 → 1; persisted via `profiles.first_reply_celebrated_at`.
+This is a **frontend-only visual + language redesign**. No DB changes, no edge function changes, no business logic changes. All existing data flows (SendGrid sending, replies, pipeline tracking) remain wired up exactly as they are — only the presentation changes.
 
-## Technical plan
+## Language Replacements (global on this page)
 
-### Database (one migration)
-- `outreach_history`: add `replied_at timestamptz`, `opened_at timestamptz`, `pipeline_stage text default 'contacted'` (values: contacted | replied | in_conversation | official_interest).
-- `profiles`: add `first_reply_celebrated_at timestamptz`.
-- Trigger on `coach_replies` insert → update matching `outreach_history` rows (same `athlete_id` + `coach_email`) set `replied_at = now()`, `status='replied'`, and bump `pipeline_stage` to `replied` if currently `contacted`. Also marks reply as the trigger for celebration check on client.
+| Old | New |
+|---|---|
+| Compose new outreach | Message a coach |
+| Past outreach / Outreach | Sent messages |
+| Reply rate | (removed from hero) |
+| Pipeline | Your schools |
+| In conversation | Interested |
+| Official interest | Offer received |
+| Recruiting level | Your level |
+| Coaches contacted | Coaches messaged |
+| Two-way command center | (deleted) |
 
-### Edge functions
-- `sendgrid-inbound`: keep insert, rely on new trigger for outreach update. Update notification email body to new copy + stats (query counts before send).
-- `send-outreach-email`: unchanged behavior; ensure new outreach rows seed `pipeline_stage='contacted'`.
+## Typography & Color
 
-### Frontend (`src/pages/Recruit.tsx` + new components)
-- `RecruitStatsHero.tsx` — 4 animated metric cards using existing `animated-number` util.
-- `UnreadRepliesBanner.tsx` — sticky red banner when unread count > 0.
-- `RepliesPanel.tsx` (existing) — add Reply button → opens new `ReplyComposer.tsx` (lightweight wrapper around existing send flow).
-- `PipelineBoard.tsx` — 4 columns, tap-to-advance stage, reads from `outreach_history` grouped by school + stage.
-- `OutreachSidebar.tsx` — render status dot from row.status / replied_at.
-- `FirstReplyCelebration.tsx` — full-screen overlay using pure CSS confetti keyframes (no new deps), shown once when celebration condition met, then writes `first_reply_celebrated_at`.
-- `ProfileCompletionCard.tsx` — extend checklist with two new items based on counts.
+- Add Barlow Condensed (800, 900) + DM Sans (400, 500, 600) to `index.html`
+- Add new tokens to `tailwind.config.ts` and `index.css` scoped to the recruit page (so the rest of the dark-themed app is untouched):
+  - `--brand-orange #E85C2C`, `--brand-orange-light #FFF0EB`
+  - `--brand-black #0D0D0D`, `--brand-cream #F5F2ED`
+  - `--brand-ink #1A1A1A`, `--brand-muted #9A9590`, `--brand-border #E8E4DE`
+  - Division badge palette (D1/D2/D3/JUCO/NAIA)
+- Headings/numbers: `font-['Barlow_Condensed']` weight 900, 48–64px scoreboard sizing
+- Body: `font-['DM_Sans']`
 
-### Layout order on `/recruit` main column
+The rest of the app keeps its existing dark theme — these new tokens only render via explicit class names on the recruit page.
+
+## Layout
+
+```text
+┌──────────┬───────────────────────────────────────┬──────────────┐
+│ Sidebar  │  Top bar (greeting · streak · CTA)    │              │
+│ (existing│                                       │ Right panel  │
+│  app     │  ┌─────────┬─────────┬─────────┐      │ - Next moves │
+│  sidebar │  │ SCHOOLS │ COACHES │ OFFERS  │      │ - Weekly goal│
+│  stays)  │  │ INTERST.│ MESSAGED│ RECEIVED│      │ - Your schl. │
+│          │  └─────────┴─────────┴─────────┘      │ - Got offer? │
+│          │  ┌─────────────────────────────┐      │              │
+│          │  │ FIND YOUR SCHOOL (USA map)  │      │              │
+│          │  │ filter pills, dots, list    │      │              │
+│          │  └─────────────────────────────┘      │              │
+│          │  Sent messages list (collapsible)     │              │
+└──────────┴───────────────────────────────────────┴──────────────┘
 ```
-[ Unread replies banner (conditional) ]
-[ Stats hero — 4 cards ]
-[ Replies panel ]
-[ Pipeline board ]
-[ Map + filters + school list (existing) ]
-```
 
-### Out of scope (intentionally)
-- True drag-and-drop (would add a dep) — tap-to-advance ships first.
-- Real email-open tracking (no SendGrid event webhook yet) — Opened state stays grey until that lands.
+The existing app `AppSidebar` (dark, navigation) stays — the spec's "PIF sidebar" is essentially what we already have. We do not replace global navigation.
 
-## Files touched/created
-- New: `RecruitStatsHero.tsx`, `UnreadRepliesBanner.tsx`, `PipelineBoard.tsx`, `ReplyComposer.tsx`, `FirstReplyCelebration.tsx`
-- Edited: `Recruit.tsx`, `RepliesPanel.tsx`, `OutreachSidebar.tsx`, `ProfileCompletionCard.tsx`, `sendgrid-inbound/index.ts`
-- Migration: outreach + profile columns + trigger
+## Components (new / refactored)
 
-Approve to proceed.
+All new components live under `src/components/recruit/scoreboard/`:
+
+1. **RecruitTopBar** — greeting with athlete first name in orange, weekly streak pill, "Message a coach" primary orange CTA with 4s pulse.
+2. **HeroMetrics** — 3-card row, staggered fade-up:
+   - Card 1 (orange): SCHOOLS INTERESTED — count of pipeline-flagged schools, decorative white circle
+   - Card 2 (white): COACHES MESSAGED — derived from outreach rows, "X more to hit weekly goal"
+   - Card 3 (white): OFFERS RECEIVED — count from `recruiting_offers`
+3. **FindYourSchoolMap** — white card containing:
+   - Header + division filter pills (D1/D2/D3/JUCO/NAIA toggle)
+   - Inline SVG USA map (240px tall, cream background) with dots from `mockSchools` colored by division; contacted = white ring; interested = orange + pulse ring
+   - Hover tooltip with school/division/coach count
+   - Recently viewed school list (3 rows): name, meta, division badge, "Mark interested", "Message →"
+   - Floating "Browse all schools →" button
+4. **RightRail** with 4 stacked cards:
+   - **NextMoves** — quest-style checklist driven by profile completeness, weekly count, GPA presence
+   - **WeeklyGoalDark** — dark card, 10 bar segments, animated fill
+   - **YourSchools** — 3 mini stats (Contacted/Interested/Offers) + 2-3 recent schools
+   - **GotOfferCTA** — warm tinted, opens existing `AddOfferDialog`
+5. **MessageModal** — wraps the existing `EmailComposer` flow but with the new visual chrome (cream fields, Barlow header, success state with checkmark + auto-close). We reuse the existing send pipeline; only the shell changes.
+
+## Files Touched
+
+**New:**
+- `src/components/recruit/scoreboard/RecruitTopBar.tsx`
+- `src/components/recruit/scoreboard/HeroMetrics.tsx`
+- `src/components/recruit/scoreboard/FindYourSchoolMap.tsx`
+- `src/components/recruit/scoreboard/UsaMapSvg.tsx` (inline simplified US outline path)
+- `src/components/recruit/scoreboard/RightRail.tsx`
+- `src/components/recruit/scoreboard/NextMoves.tsx`
+- `src/components/recruit/scoreboard/WeeklyGoalDark.tsx`
+- `src/components/recruit/scoreboard/YourSchoolsCard.tsx`
+- `src/components/recruit/scoreboard/GotOfferCTA.tsx`
+- `src/components/recruit/scoreboard/MessageModal.tsx`
+- `src/components/recruit/scoreboard/tokens.css` (scoped CSS variables + keyframes)
+
+**Edited:**
+- `src/pages/Recruit.tsx` — replace the current main column layout with the new scoreboard layout, keep all existing data hooks (outreach, replies, pipeline, celebration, banner) and route their data into the new components. Wrap the page in a `recruit-scoreboard` class so cream background + new tokens apply only here.
+- `index.html` — add Barlow Condensed + DM Sans Google Fonts links.
+- `tailwind.config.ts` — add `fontFamily.heading` (Barlow Condensed) and `fontFamily.sans-recruit` (DM Sans) plus the brand color tokens.
+
+**Untouched (preserved):**
+- All edge functions (`send-outreach-email`, `sendgrid-inbound`)
+- All DB tables / migrations
+- Global app theme, navigation, dashboard, drills, courses
+- `EmailComposer` send logic — only its visual wrapper changes via `MessageModal`
+
+## Animations
+
+Implemented via existing Tailwind animation utilities + a small keyframe set in `tokens.css`:
+
+- Hero stats: `fade-up` with `animation-delay` 0/80/160ms
+- Number pop on increment: `scale(1.2) → 1` 300ms with spring easing (key off React state diff)
+- Map dot hover: scale 1.6 + drop-shadow over 150ms
+- Mark interested: button orange flash, star fill, pill slide-in (4px → 0, opacity 0 → 1)
+- Weekly bars: left-to-right reveal, 50ms stagger
+- CTA pulse: 4s box-shadow keyframe loop
+- Filter toggle: dot opacity 0.2s
+- Modal: scale 0.95→1 + fade, 220ms `cubic-bezier(0.22,1,0.36,1)`
+
+## Verification
+
+- Confirm preview renders cream background, orange hero card, USA map with colored dots
+- Confirm "Message a coach" still sends via SendGrid (no change to `EmailComposer` send path)
+- Confirm replies, banner, and celebration still appear (we keep mounting `UnreadRepliesBanner` and `FirstReplyCelebration`)
+- Confirm `recruiting_offers` "Add" flow still works through `AddOfferDialog`
+- No build errors; existing dark app pages unaffected

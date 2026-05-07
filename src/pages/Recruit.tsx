@@ -222,8 +222,17 @@ export default function Recruit() {
     setView({ kind: "compose", school, coaches: [coach], initialDraft: buildFollowUpDraft(row) });
   };
 
+  // Intercept Message clicks: non-subscribed users with free sends used >= 3 see paywall
+  const guardMessage = (action: () => void) => {
+    if (!hasActiveSubscription && freeSendsUsed >= 3) {
+      setPaywallVariant("upgrade");
+      return;
+    }
+    action();
+  };
+
   const onMessageSchool = (s: MockSchool) => {
-    setView({ kind: "school", school: s });
+    guardMessage(() => setView({ kind: "school", school: s }));
   };
 
   const onToggleInterested = (s: MockSchool) => {

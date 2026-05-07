@@ -388,6 +388,12 @@ export default function Recruit() {
         </div>
       </div>
 
+      <FreemiumPaywall
+        open={paywallVariant !== null}
+        variant={paywallVariant ?? "upgrade"}
+        onClose={() => setPaywallVariant(null)}
+      />
+
       <AddOfferDialog open={showOfferDialog} onOpenChange={setShowOfferDialog} onSaved={loadOffers} />
     </AppLayout>
   );

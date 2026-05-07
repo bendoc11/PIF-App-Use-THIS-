@@ -6,33 +6,57 @@ interface Props {
 export function WeeklyGoalDark({ sent, goal }: Props) {
   const filled = Math.min(sent, goal);
   const remaining = Math.max(0, goal - sent);
+
   return (
-    <div className="rounded-[14px] p-4" style={{ background: "var(--brand-black)" }}>
-      <div className="rs-label" style={{ color: "rgba(255,255,255,0.35)" }}>
+    <div
+      style={{
+        background: "var(--bg-sidebar)",
+        borderRadius: 12,
+        padding: "16px 18px",
+      }}
+    >
+      <div
+        style={{
+          fontSize: 10,
+          fontWeight: 600,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          color: "var(--text-secondary)",
+        }}
+      >
         This Week
       </div>
       <div className="mt-2 flex items-baseline gap-1">
-        <span className="rs-display text-white leading-none" style={{ fontSize: "40px" }}>
+        <span
+          style={{
+            fontSize: 40,
+            fontWeight: 700,
+            letterSpacing: "-0.03em",
+            lineHeight: 1,
+            color: "#FFFFFF",
+          }}
+        >
           {sent}
         </span>
-        <span className="text-[13px]" style={{ color: "rgba(255,255,255,0.45)" }}>
+        <span style={{ fontSize: 14, color: "var(--text-secondary)" }}>
           /{goal} coaches
         </span>
       </div>
-      <div className="flex gap-1 mt-3">
+      <div className="flex gap-[3px] mt-3">
         {Array.from({ length: goal }).map((_, i) => (
           <div
             key={i}
-            className="rs-bar flex-1 h-2 rounded-sm"
+            className="flex-1"
             style={{
-              background: i < filled ? "var(--brand-orange)" : "#1E1E1E",
-              animationDelay: `${i * 50}ms`,
+              height: 3,
+              borderRadius: 2,
+              background: i < filled ? "var(--accent)" : "#3D3D3F",
             }}
           />
         ))}
       </div>
-      <p className="text-[11px] mt-3" style={{ color: "rgba(255,255,255,0.45)" }}>
-        {remaining > 0 ? `${remaining} more to hit your goal 🔥` : "Goal hit. Keep stacking 🔥"}
+      <p style={{ fontSize: 11, marginTop: 12, color: "var(--text-secondary)" }}>
+        {remaining > 0 ? `${remaining} more to hit your goal` : "Goal hit"}
       </p>
     </div>
   );

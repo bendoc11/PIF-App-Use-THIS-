@@ -75,6 +75,16 @@ export default function Recruit() {
     gpa: "All",
   });
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    const welcome = searchParams.get("welcome");
+    if (welcome) {
+      toast.success(welcome, { duration: 8000 });
+      searchParams.delete("welcome");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
   const loadOutreach = async () => {
     if (!user) return;
     const { data } = await supabase

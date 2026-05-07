@@ -1,9 +1,4 @@
 import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { ArrowLeft, Loader2, Send, X } from "lucide-react";
 import { MockCoach, MockSchool } from "@/data/mockSchools";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,6 +15,9 @@ interface Props {
   initialDraft?: { subject: string; body: string } | null;
 }
 
+const SF =
+  "-apple-system, 'SF Pro Text', BlinkMacSystemFont, sans-serif";
+
 function lastNameOf(full: string) {
   const parts = full.trim().split(/\s+/);
   return parts[parts.length - 1] ?? full;
@@ -32,7 +30,7 @@ My name is ${p.first_name ?? ""} ${p.last_name ?? ""} and I am a ${p.grad_year ?
 
 I believe ${school.name} would be an excellent fit for me both academically and athletically. I would love the opportunity to continue my education and basketball career at your program.
 
-Please find my recruiting profile and highlight film here: ${p.highlight_film_url ?? "[Highlight Film Link]"}
+Please find my recruiting profile and highlight film here: [Highlight Film Link]
 
 I would greatly appreciate the opportunity to speak with you about joining your program.
 
@@ -44,12 +42,28 @@ ${p.high_school_name ?? ""}
 ${p.phone ?? ""}`;
 }
 
+function resolveText(text: string, p: any, coachLastName: string, filmUrl: string) {
+  return text
+    .replace(/\[Coach Last Name\]/g, coachLastName)
+    .replace(/\[Highlight Film Link\]/g, filmUrl)
+    .replace(/\[Grad Year\]/g, p.grad_year ?? "")
+    .replace(/\[High School\]/g, p.high_school_name ?? "")
+    .replace(/\[City\]/g, p.city ?? "")
+    .replace(/\[State\]/g, p.state ?? "")
+    .replace(/\[Height\]/g, p.height ?? "")
+    .replace(/\[Position\]/g, p.position ?? "")
+    .replace(/\[GPA\]/g, p.gpa ?? "");
+}
+
 export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent, initialDraft }: Props) {
   const { profile, user } = useAuth();
   const [showPaywall, setShowPaywall] = useState(false);
   const p: any = profile ?? {};
   const alias = p.email_alias as string | undefined;
   const fromAddress = alias ? `${alias}@mail.playitforward.app` : null;
+  const filmUrl = p.highlight_film_url || "https://playitforward.app/profile";
+
+  const previewCoachLast = selected[0] ? lastNameOf(selected[0].name) : "Coach";
 
   const defaultSubject = useMemo(
     () => `${p.first_name ?? ""} ${p.last_name ?? ""} | ${p.height ?? ""} ${p.position ?? ""} - ${p.city ?? ""}`.trim(),
@@ -59,6 +73,13 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
   const [subject, setSubject] = useState(initialDraft?.subject ?? defaultSubject);
   const [body, setBody] = useState(initialDraft?.body ?? buildBody(p, school, "[Coach Last Name]"));
   const [sending, setSending] = useState(false);
+
+  // Resolved preview values
+  const previewSubject = resolveText(subject, p, previewCoachLast, filmUrl);
+  const previewBody = resolveText(body, p, previewCoachLast, "[[FILM_LINK]]");
+
+  // Split body around the film-link sentinel for inline link rendering
+  const bodyParts = previewBody.split("[[FILM_LINK]]");
 
   const send = async () => {
     if (!user || selected.length === 0) return;
@@ -78,13 +99,13 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
     let freeHit = false;
 
     for (const coach of selected) {
-      const personalizedBody = body.replace(/\[Coach Last Name\]/g, lastNameOf(coach.name));
+      const personalizedBody = resolveText(body, p, lastNameOf(coach.name), filmUrl);
+      const personalizedSubject = resolveText(subject, p, lastNameOf(coach.name), filmUrl);
       try {
         const { data, error } = await supabase.functions.invoke("send-outreach-email", {
-          body: { to: coach.email, subject, body: personalizedBody },
+          body: { to: coach.email, subject: personalizedSubject, body: personalizedBody },
         });
         const errCode = (data as any)?.error || (error as any)?.context?.error;
-        const errMsg = (data as any)?.message || (error as any)?.context?.message || "";
         if (error || (data as any)?.error) {
           failed++;
           if (errCode === "daily_limit_reached") { dailyHit = true; break; }
@@ -98,7 +119,7 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
           coach_title: coach.title,
           school_name: school.name,
           coach_email: coach.email,
-          subject,
+          subject: personalizedSubject,
           body: personalizedBody,
           status: "sent",
         });
@@ -114,7 +135,7 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
     if (dailyHit) {
       toast({
         title: "Daily limit reached",
-        description: "You have reached your daily outreach limit. This protects our sending reputation and ensures your emails continue to reach coaches. Your limit resets tomorrow.",
+        description: "You have reached your daily outreach limit. Your limit resets tomorrow.",
         variant: "destructive",
       });
       return;
@@ -135,66 +156,248 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
     }
   };
 
+  const [editingBody, setEditingBody] = useState(false);
+  const [editingSubject, setEditingSubject] = useState(false);
+
   return (
-    <Card className="p-6 bg-white border-gray-200">
-      <div className="flex items-center justify-between mb-4">
-        <Button variant="ghost" size="sm" onClick={onBack} className="text-gray-600">
-          <ArrowLeft className="h-4 w-4 mr-1" /> Back
-        </Button>
-        <span className="text-sm text-gray-500">{school.name}</span>
-      </div>
-
-      {fromAddress && (
-        <div className="mb-3 text-xs text-gray-500">
-          Sending from <span className="font-medium text-gray-800">{fromAddress}</span>
+    <div style={{ background: "#F5F5F7", fontFamily: SF }}>
+      <div
+        style={{
+          background: "#FFFFFF",
+          border: "1px solid #D2D2D7",
+          borderRadius: 16,
+          padding: "28px 32px",
+          fontFamily: SF,
+        }}
+      >
+        {/* Header */}
+        <div
+          className="flex items-center justify-between"
+          style={{ paddingBottom: 14, borderBottom: "1px solid #E8E8ED", marginBottom: 20 }}
+        >
+          <button
+            onClick={onBack}
+            className="inline-flex items-center gap-1"
+            style={{ fontSize: 14, fontWeight: 500, color: "#0071E3", fontFamily: SF }}
+          >
+            <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
+            Back
+          </button>
+          <span style={{ fontSize: 14, fontWeight: 500, color: "#6E6E73", fontFamily: SF }}>
+            {school.name}
+          </span>
         </div>
-      )}
 
-      <div className="flex flex-wrap gap-2 mb-4">
-        {selected.map((c) => (
-          <Badge key={c.email} variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 gap-1.5 pl-3 pr-2 py-1.5">
-            <span>{c.name}</span>
-            <button onClick={() => onRemoveCoach(c.email)} className="hover:bg-blue-100 rounded-full p-0.5">
-              <X className="h-3 w-3" />
-            </button>
-          </Badge>
-        ))}
-      </div>
+        {/* Sending from */}
+        {fromAddress && (
+          <div style={{ fontSize: 13, color: "#6E6E73", marginBottom: 16, fontFamily: SF }}>
+            Sending from{" "}
+            <span style={{ fontSize: 13, fontWeight: 600, color: "#1D1D1F" }}>{fromAddress}</span>
+          </div>
+        )}
 
-      <div className="space-y-3">
-        <div>
-          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Subject</label>
-          <Input
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            className="bg-white border-gray-300 text-gray-900 mt-1"
-          />
+        {/* To pills */}
+        <div className="flex flex-wrap gap-2" style={{ marginBottom: 20 }}>
+          {selected.map((c) => (
+            <span
+              key={c.email}
+              className="inline-flex items-center gap-1.5"
+              style={{
+                background: "#E8F1FD",
+                color: "#0071E3",
+                fontSize: 13,
+                fontWeight: 600,
+                borderRadius: 980,
+                padding: "5px 14px",
+                fontFamily: SF,
+              }}
+            >
+              <span>{c.name}</span>
+              <button
+                onClick={() => onRemoveCoach(c.email)}
+                style={{ color: "#0071E3", opacity: 0.6, display: "inline-flex" }}
+                aria-label="Remove"
+              >
+                <X className="h-3 w-3" strokeWidth={2} />
+              </button>
+            </span>
+          ))}
         </div>
+
+        {/* Subject */}
+        <div style={{ marginBottom: 16 }}>
+          <label
+            style={{
+              fontSize: 10,
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              color: "#86868B",
+              fontFamily: SF,
+              display: "block",
+              marginBottom: 6,
+            }}
+          >
+            Subject
+          </label>
+          {editingSubject ? (
+            <input
+              autoFocus
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              onBlur={() => setEditingSubject(false)}
+              style={{
+                width: "100%",
+                background: "#F5F5F7",
+                border: "1px solid #D2D2D7",
+                borderRadius: 10,
+                padding: "12px 16px",
+                fontSize: 14,
+                color: "#1D1D1F",
+                fontFamily: SF,
+                outline: "none",
+              }}
+            />
+          ) : (
+            <div
+              role="button"
+              onClick={() => setEditingSubject(true)}
+              style={{
+                width: "100%",
+                background: "#F5F5F7",
+                border: "1px solid #D2D2D7",
+                borderRadius: 10,
+                padding: "12px 16px",
+                fontSize: 14,
+                color: "#1D1D1F",
+                fontFamily: SF,
+                cursor: "text",
+                minHeight: 44,
+              }}
+            >
+              {previewSubject}
+            </div>
+          )}
+        </div>
+
+        {/* Message */}
         <div>
-          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Message</label>
-          <Textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            rows={16}
-            className="bg-white border-gray-300 text-gray-900 mt-1 font-mono text-sm"
-          />
-          <p className="text-xs text-gray-500 mt-1.5">
-            <span className="font-medium">[Coach Last Name]</span> is replaced per recipient.
+          <label
+            style={{
+              fontSize: 10,
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              color: "#86868B",
+              fontFamily: SF,
+              display: "block",
+              marginBottom: 6,
+            }}
+          >
+            Message
+          </label>
+          {editingBody ? (
+            <textarea
+              autoFocus
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              onBlur={() => setEditingBody(false)}
+              style={{
+                width: "100%",
+                background: "#F5F5F7",
+                border: "1px solid #D2D2D7",
+                borderRadius: 10,
+                padding: 16,
+                fontSize: 14,
+                color: "#1D1D1F",
+                lineHeight: 1.6,
+                fontFamily: SF,
+                minHeight: 280,
+                outline: "none",
+                resize: "vertical",
+              }}
+            />
+          ) : (
+            <div
+              role="button"
+              onClick={() => setEditingBody(true)}
+              style={{
+                width: "100%",
+                background: "#F5F5F7",
+                border: "1px solid #D2D2D7",
+                borderRadius: 10,
+                padding: 16,
+                fontSize: 14,
+                color: "#1D1D1F",
+                lineHeight: 1.6,
+                fontFamily: SF,
+                minHeight: 280,
+                whiteSpace: "pre-wrap",
+                cursor: "text",
+              }}
+            >
+              {bodyParts.map((part, i) => (
+                <span key={i}>
+                  {part}
+                  {i < bodyParts.length - 1 && (
+                    <a
+                      href={filmUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        color: "#0071E3",
+                        textDecoration: "underline",
+                      }}
+                    >
+                      View my recruiting profile.
+                    </a>
+                  )}
+                </span>
+              ))}
+            </div>
+          )}
+          <p
+            style={{
+              fontSize: 12,
+              color: "#86868B",
+              fontStyle: "italic",
+              marginTop: 8,
+              fontFamily: SF,
+            }}
+          >
+            Coach name and details are personalized for each recipient.
           </p>
         </div>
-      </div>
 
-      <div className="mt-5 flex justify-end">
-        <Button
-          onClick={send}
-          disabled={sending || selected.length === 0}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
-        >
-          {sending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
-          Send to {selected.length} coach{selected.length !== 1 ? "es" : ""}
-        </Button>
+        {/* Send */}
+        <div className="flex justify-end" style={{ marginTop: 24 }}>
+          <button
+            onClick={send}
+            disabled={sending || selected.length === 0}
+            className="inline-flex items-center gap-2"
+            style={{
+              background: "#0071E3",
+              color: "#FFFFFF",
+              borderRadius: 980,
+              padding: "12px 24px",
+              fontSize: 14,
+              fontWeight: 600,
+              fontFamily: SF,
+              opacity: sending || selected.length === 0 ? 0.6 : 1,
+              transition: "opacity 150ms",
+            }}
+          >
+            {sending ? (
+              <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
+            ) : (
+              <Send className="h-4 w-4" strokeWidth={2} />
+            )}
+            Send to {selected.length} coach{selected.length !== 1 ? "es" : ""}
+          </button>
+        </div>
       </div>
       <PaywallModal open={showPaywall} onClose={() => setShowPaywall(false)} />
-    </Card>
+    </div>
   );
 }

@@ -116,7 +116,7 @@ export function ReplyComposer({
               rows={12}
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              className="mt-1 font-mono text-sm"
+              className="mt-1 text-sm"
             />
           </div>
         </div>

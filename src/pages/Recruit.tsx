@@ -346,6 +346,9 @@ export default function Recruit() {
           {/* Right: Dashboard */}
           <div data-tour="dashboard" className="w-full lg:w-80 shrink-0 lg:h-full lg:overflow-y-auto">
             <RecruitDashboard rows={outreach} onChange={loadOutreach} />
+            <div className="px-4 pb-4">
+              <RepliesPanel />
+            </div>
           </div>
         </div>
       </div>

@@ -417,13 +417,6 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
           </button>
         </div>
       </div>
-      <PaywallModal
-        open={showPaywall}
-        onSubscribed={() => {
-          setShowPaywall(false);
-          doSend();
-        }}
-      />
     </div>
   );
 }

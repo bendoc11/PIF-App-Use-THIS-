@@ -55,10 +55,10 @@ function resolveText(text: string, p: any, coachLastName: string, filmUrl: strin
     .replace(/\[GPA\]/g, p.gpa ?? "");
 }
 
-export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent, initialDraft }: Props) {
-  const { profile, user } = useAuth();
-  const [showPaywall, setShowPaywall] = useState(false);
+export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent, onUpgradeNeeded, initialDraft }: Props) {
+  const { profile, user, hasActiveSubscription } = useAuth();
   const p: any = profile ?? {};
+  const freeSendsUsed = (p.free_sends_used as number | undefined) ?? 0;
   const alias = p.email_alias as string | undefined;
   const fromAddress = alias ? `${alias}@mail.playitforward.app` : null;
   const profileIdentifier = p.username || p.email_alias || user?.id;

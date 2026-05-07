@@ -85,8 +85,8 @@ export function FindYourSchoolMap({
     <div
       className="mb-5 overflow-hidden"
       style={{
-        background: "var(--bg-card)",
-        border: "1px solid var(--border)",
+        background: "#1D1D1F",
+        border: "1px solid transparent",
         borderRadius: 14,
       }}
     >
@@ -99,12 +99,12 @@ export function FindYourSchoolMap({
               fontWeight: 600,
               letterSpacing: "0.08em",
               textTransform: "uppercase",
-              color: "var(--text-tertiary)",
+              color: "#F5F5F7",
             }}
           >
             Find your school
           </div>
-          <p style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 4 }}>
+          <p style={{ fontSize: 13, color: "#6E6E73", marginTop: 4 }}>
             {validSchools.length.toLocaleString()} programs · tap any dot to explore
           </p>
         </div>
@@ -120,11 +120,11 @@ export function FindYourSchoolMap({
                   fontWeight: 600,
                   padding: "5px 12px",
                   borderRadius: 980,
-                  background: active ? "#FFFFFF" : "transparent",
+                  background: active ? "#FFFFFF" : "#2D2D2F",
                   border: active
                     ? `1.5px solid ${DIV_DOT[d]}`
-                    : "1px solid var(--border)",
-                  color: active ? DIV_TEXT[d] : "var(--text-tertiary)",
+                    : "1px solid #3D3D3F",
+                  color: active ? DIV_TEXT[d] : "#86868B",
                   transition: "all 150ms",
                 }}
               >
@@ -136,7 +136,7 @@ export function FindYourSchoolMap({
       </div>
 
       {/* Map */}
-      <div className="relative" style={{ background: "var(--bg-page)" }}>
+      <div className="relative" style={{ background: "#1D1D1F" }}>
         <div style={{ height: 280 }}>
           <ComposableMap
             projection="geoAlbersUsa"

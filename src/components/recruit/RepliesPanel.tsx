@@ -29,7 +29,7 @@ function initialsOf(name: string | null, email: string | null): string {
   return src.slice(0, 2).toUpperCase();
 }
 
-export function RepliesPanel({ onCountChange }: Props = {}) {
+export function RepliesPanel({ onCountChange, locked, onLockedClick }: Props = {}) {
   const { user } = useAuth();
   const [replies, setReplies] = useState<Reply[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);

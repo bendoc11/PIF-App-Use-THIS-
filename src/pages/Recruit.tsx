@@ -16,6 +16,10 @@ import { RecruitTour, TourStep } from "@/components/recruit/RecruitTour";
 import { ConnectGmailPrompt } from "@/components/recruit/ConnectGmailPrompt";
 import { useGmailConnection } from "@/hooks/useGmailConnection";
 import { RepliesPanel } from "@/components/recruit/RepliesPanel";
+import { RecruitStatsHero } from "@/components/recruit/RecruitStatsHero";
+import { UnreadRepliesBanner } from "@/components/recruit/UnreadRepliesBanner";
+import { PipelineBoard } from "@/components/recruit/PipelineBoard";
+import { FirstReplyCelebration } from "@/components/recruit/FirstReplyCelebration";
 import { Loader2, ArrowLeft, PenSquare } from "lucide-react";
 
 const TOUR_STEPS: TourStep[] = [
@@ -88,6 +92,7 @@ export default function Recruit() {
   const { connected: gmailConnected, loading: gmailLoading, refresh: refreshGmail } = useGmailConnection();
   const [view, setView] = useState<View>({ kind: "map" });
   const [outreach, setOutreach] = useState<OutreachRow[]>([]);
+  const [repliesCount, setRepliesCount] = useState(0);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [filters, setFilters] = useState<MapFilters>({
     states: [],
@@ -192,10 +197,16 @@ export default function Recruit() {
     setView(next);
   };
 
+  const scrollToReplies = () => {
+    document.getElementById("replies-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <AppLayout>
       {showOnboarding && <RecruitTour steps={TOUR_STEPS} onClose={finishTour} />}
+      <FirstReplyCelebration repliesCount={repliesCount} contactedCount={outreach.length} />
       <div className="bg-gray-50 min-h-[calc(100vh-3.5rem)]">
+        <UnreadRepliesBanner onView={scrollToReplies} />
         <div className="flex flex-col lg:flex-row h-[calc(100vh-3.5rem)]">
           {/* Left: Outreach */}
           <OutreachSidebar
@@ -211,15 +222,21 @@ export default function Recruit() {
             <div className="max-w-5xl mx-auto">
               <header className="mb-5">
                 <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">Get Recruited</h1>
-                <p className="text-gray-500 mt-1">Find programs, contact coaches, track your outreach.</p>
+                <p className="text-gray-500 mt-1">Your two-way recruiting command center.</p>
               </header>
-
-              {/* Profile completion card is shown only inside the email composer flow,
-                  where these fields are actually required. The Get Recruited browse
-                  experience must be usable immediately on first visit. */}
 
               {view.kind === "map" && (
                 <>
+                  <RecruitStatsHero rows={outreach} repliesCount={repliesCount} />
+
+                  <div className="mb-5">
+                    <RepliesPanel onCountChange={setRepliesCount} />
+                  </div>
+
+                  <div className="mb-5">
+                    <PipelineBoard rows={outreach} onChange={loadOutreach} />
+                  </div>
+
                   <div data-tour="filters">
                     <MapFiltersBar value={filters} onChange={setFilters} />
                   </div>
@@ -332,9 +349,6 @@ export default function Recruit() {
           {/* Right: Dashboard */}
           <div data-tour="dashboard" className="w-full lg:w-80 shrink-0 lg:h-full lg:overflow-y-auto">
             <RecruitDashboard rows={outreach} onChange={loadOutreach} />
-            <div className="px-4 pb-4">
-              <RepliesPanel />
-            </div>
           </div>
         </div>
       </div>

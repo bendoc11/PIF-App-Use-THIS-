@@ -71,10 +71,34 @@ Deno.serve(async (req) => {
     });
     if (insErr) console.error("[sendgrid-inbound] insert error", insErr);
 
-    // Notify athlete via email
+    // Notify athlete via email — celebratory tone
     if (SENDGRID && profile.email) {
       const coachLabel = fromAddr.name || fromAddr.email;
-      const notifBody = `Coach ${coachLabel} replied to your recruiting outreach.\n\nLog in to see their message: https://playitforward.app`;
+      const firstName = (profile as any).first_name || "there";
+
+      // Pull stats for footer
+      const { count: contactedCount } = await admin
+        .from("outreach_history")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", profile.id);
+      const { count: repliedCount } = await admin
+        .from("coach_replies")
+        .select("id", { count: "exact", head: true })
+        .eq("athlete_id", profile.id);
+      const contacted = contactedCount ?? 0;
+      const replied = repliedCount ?? 0;
+      const rate = contacted > 0 ? Math.round((replied / contacted) * 100) : 0;
+
+      const text = `Hey ${firstName} — ${coachLabel} just replied to your recruiting outreach.\n\nThis is exactly how it starts. Log in to read their message and keep the conversation going.\n\nRead their reply: https://playitforward.app/recruit\n\n— Your stats so far —\nYou have contacted ${contacted} coach${contacted === 1 ? "" : "es"}. ${replied} ${replied === 1 ? "has" : "have"} replied. Your reply rate is ${rate}%.\nKeep going.`;
+      const html = `<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#0F172A">
+        <p style="font-size:14px;color:#64748B;margin:0 0 8px;letter-spacing:.06em;text-transform:uppercase">Play it Forward</p>
+        <h1 style="font-size:26px;line-height:1.2;margin:0 0 16px">A college coach just replied to you.</h1>
+        <p style="font-size:16px;line-height:1.5;margin:0 0 16px">Hey ${firstName} — <strong>${coachLabel}</strong> just replied to your recruiting outreach. This is exactly how it starts. Log in to read their message and keep the conversation going.</p>
+        <p style="margin:24px 0"><a href="https://playitforward.app/recruit" style="background:#080D14;color:#fff;text-decoration:none;padding:14px 22px;border-radius:10px;font-weight:600;display:inline-block">Read Their Reply</a></p>
+        <hr style="border:0;border-top:1px solid #E2E8F0;margin:28px 0" />
+        <p style="font-size:13px;color:#475569;line-height:1.6;margin:0">You have contacted <strong>${contacted}</strong> coach${contacted === 1 ? "" : "es"}. <strong>${replied}</strong> ${replied === 1 ? "has" : "have"} replied. Your reply rate is <strong>${rate}%</strong>.<br/>Keep going.</p>
+      </div>`;
+
       try {
         await fetch("https://api.sendgrid.com/v3/mail/send", {
           method: "POST",
@@ -85,8 +109,11 @@ Deno.serve(async (req) => {
           body: JSON.stringify({
             personalizations: [{ to: [{ email: profile.email }] }],
             from: { email: NOTIFICATION_FROM, name: "Play it Forward" },
-            subject: `New reply from Coach ${coachLabel}`,
-            content: [{ type: "text/plain", value: notifBody }],
+            subject: "A college coach just replied to you",
+            content: [
+              { type: "text/plain", value: text },
+              { type: "text/html", value: html },
+            ],
           }),
         });
       } catch (e) {

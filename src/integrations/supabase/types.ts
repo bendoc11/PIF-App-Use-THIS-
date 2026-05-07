@@ -659,6 +659,9 @@ export type Database = {
           coach_name: string
           coach_title: string | null
           id: string
+          opened_at: string | null
+          pipeline_stage: string
+          replied_at: string | null
           school_name: string
           sent_at: string
           status: string
@@ -672,6 +675,9 @@ export type Database = {
           coach_name: string
           coach_title?: string | null
           id?: string
+          opened_at?: string | null
+          pipeline_stage?: string
+          replied_at?: string | null
           school_name: string
           sent_at?: string
           status?: string
@@ -685,6 +691,9 @@ export type Database = {
           coach_name?: string
           coach_title?: string | null
           id?: string
+          opened_at?: string | null
+          pipeline_stage?: string
+          replied_at?: string | null
           school_name?: string
           sent_at?: string
           status?: string
@@ -805,6 +814,7 @@ export type Database = {
           email: string | null
           email_alias: string | null
           first_name: string | null
+          first_reply_celebrated_at: string | null
           geo_preference: string | null
           gpa: number | null
           gpa_unweighted: number | null
@@ -873,6 +883,7 @@ export type Database = {
           email?: string | null
           email_alias?: string | null
           first_name?: string | null
+          first_reply_celebrated_at?: string | null
           geo_preference?: string | null
           gpa?: number | null
           gpa_unweighted?: number | null
@@ -941,6 +952,7 @@ export type Database = {
           email?: string | null
           email_alias?: string | null
           first_name?: string | null
+          first_reply_celebrated_at?: string | null
           geo_preference?: string | null
           gpa?: number | null
           gpa_unweighted?: number | null

@@ -16,6 +16,9 @@ export interface OutreachRow {
   body: string;
   sent_at: string;
   status: "sent" | "replied" | "offer";
+  replied_at?: string | null;
+  opened_at?: string | null;
+  pipeline_stage?: string | null;
 }
 
 interface Props {
@@ -27,17 +30,28 @@ interface Props {
   gmailConnected?: boolean;
 }
 
-const STATUS_DOT: Record<string, string> = {
+type DerivedStatus = "sent" | "opened" | "replied" | "offer";
+
+const STATUS_DOT: Record<DerivedStatus, string> = {
   sent: "bg-gray-300",
-  replied: "bg-blue-500",
-  offer: "bg-green-500",
+  opened: "bg-blue-400",
+  replied: "bg-emerald-500",
+  offer: "bg-amber-500",
 };
 
-const STATUS_LABEL: Record<string, string> = {
+const STATUS_LABEL: Record<DerivedStatus, string> = {
   sent: "Sent",
+  opened: "Opened",
   replied: "Replied",
   offer: "Offer",
 };
+
+function deriveStatus(r: OutreachRow): DerivedStatus {
+  if (r.status === "offer") return "offer";
+  if (r.status === "replied" || r.replied_at) return "replied";
+  if (r.opened_at) return "opened";
+  return "sent";
+}
 
 const NEXT_STATUS: Record<string, "sent" | "replied" | "offer"> = {
   sent: "replied",
@@ -127,7 +141,8 @@ export function OutreachSidebar({ rows, onChange, onCompose, onFollowUp, gmailCo
           <ul>
             {rows.map((r) => {
               const days = daysAgo(r.sent_at);
-              const showFollowUp = r.status === "sent" && days >= 14;
+              const derived = deriveStatus(r);
+              const showFollowUp = derived === "sent" && days >= 14;
               const isOpen = openId === r.id;
               return (
                 <li key={r.id} className="border-b border-gray-50 last:border-b-0">
@@ -137,8 +152,8 @@ export function OutreachSidebar({ rows, onChange, onCompose, onFollowUp, gmailCo
                   >
                     <div className="flex items-start gap-3">
                       <span
-                        className={`mt-1.5 h-1.5 w-1.5 rounded-full shrink-0 ${STATUS_DOT[r.status]}`}
-                        aria-label={STATUS_LABEL[r.status]}
+                        className={`mt-1.5 h-2 w-2 rounded-full shrink-0 ${STATUS_DOT[derived]}`}
+                        aria-label={STATUS_LABEL[derived]}
                       />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-baseline gap-2">
@@ -149,12 +164,18 @@ export function OutreachSidebar({ rows, onChange, onCompose, onFollowUp, gmailCo
                         </div>
                         <p className="text-xs text-gray-500 truncate mt-0.5">{r.school_name}</p>
                         <div className="flex items-center gap-1.5 mt-1.5">
-                          <button
-                            onClick={(e) => cycleStatus(e, r)}
-                            className="text-[11px] text-gray-500 hover:text-gray-900 px-1.5 py-0.5 rounded hover:bg-gray-100 capitalize transition-colors"
-                          >
-                            {STATUS_LABEL[r.status]}
-                          </button>
+                          {derived === "replied" ? (
+                            <span className="inline-flex items-center text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">
+                              Reply
+                            </span>
+                          ) : (
+                            <button
+                              onClick={(e) => cycleStatus(e, r)}
+                              className="text-[11px] text-gray-500 hover:text-gray-900 px-1.5 py-0.5 rounded hover:bg-gray-100 capitalize transition-colors"
+                            >
+                              {STATUS_LABEL[derived]}
+                            </button>
+                          )}
                           {showFollowUp && (
                             <button
                               onClick={(e) => {

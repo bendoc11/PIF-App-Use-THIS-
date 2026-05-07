@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Card } from "@/components/ui/card";
-import { MailOpen, Inbox, Reply as ReplyIcon } from "lucide-react";
+import { Reply as ReplyIcon } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ReplyComposer } from "./ReplyComposer";
 
@@ -19,6 +18,13 @@ interface Reply {
 
 interface Props {
   onCountChange?: (total: number) => void;
+}
+
+function initialsOf(name: string | null, email: string | null): string {
+  const src = (name || email || "?").trim();
+  const parts = src.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return src.slice(0, 2).toUpperCase();
 }
 
 export function RepliesPanel({ onCountChange }: Props = {}) {
@@ -72,66 +78,192 @@ export function RepliesPanel({ onCountChange }: Props = {}) {
   if (loading) return null;
 
   return (
-    <Card className="p-5 bg-white border-gray-200" id="replies-panel">
-      <div className="flex items-center gap-2 mb-3">
-        <Inbox className="h-4 w-4 text-gray-600" />
-        <h3 className="font-semibold text-gray-900">Coach replies</h3>
-        <span className="text-xs text-gray-400 ml-1">{replies.length}</span>
-        {replies.filter((r) => !r.is_read).length > 0 && (
-          <span className="ml-auto text-xs bg-pif-red text-white rounded-full px-2 py-0.5 font-medium">
-            {replies.filter((r) => !r.is_read).length} new
-          </span>
-        )}
+    <div
+      id="replies-panel"
+      style={{
+        background: "#FFFFFF",
+        border: "1px solid #D2D2D7",
+        borderRadius: 12,
+      }}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3">
+        <h3 style={{ fontSize: 13, fontWeight: 600, color: "#1D1D1F", margin: 0 }}>
+          Coach Replies
+        </h3>
+        <span
+          style={{
+            fontSize: 11,
+            background: "#F5F5F7",
+            border: "1px solid #D2D2D7",
+            color: "#6E6E73",
+            borderRadius: 980,
+            padding: "2px 8px",
+            lineHeight: 1.2,
+          }}
+        >
+          {replies.length}
+        </span>
       </div>
 
+      <div style={{ borderTop: "1px solid #E8E8ED" }} />
+
       {replies.length === 0 ? (
-        <div className="py-8 text-center">
-          <p className="text-base font-semibold text-gray-800">No replies yet — but coaches are reading.</p>
-          <p className="text-sm text-gray-500 mt-1">Keep going.</p>
-        </div>
-      ) : (
-        <ul className="divide-y divide-gray-100">
-          {replies.map((r) => {
-            const isOpen = expanded === r.id;
-            const preview = (r.reply_body_text ?? "").slice(0, 140);
-            return (
-              <li key={r.id}>
-                <div className="py-3 flex items-start gap-3">
-                  <button
-                    onClick={() => handleClick(r)}
-                    className="flex-1 text-left flex items-start gap-3 hover:bg-gray-50 px-2 -mx-2 rounded transition-colors"
-                  >
-                    <div className="mt-0.5 shrink-0">
-                      {!r.is_read ? (
-                        <span className="block h-2 w-2 rounded-full bg-pif-red" aria-label="unread" />
-                      ) : (
-                        <MailOpen className="h-4 w-4 text-gray-400" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline justify-between gap-2">
-                        <p className={`text-sm truncate ${r.is_read ? "text-gray-700" : "text-gray-900 font-semibold"}`}>
-                          {r.coach_name || r.coach_email || "Unknown coach"}
-                        </p>
-                        <span className="text-xs text-gray-400 shrink-0">
-                          {formatDistanceToNow(new Date(r.received_at), { addSuffix: true })}
-                        </span>
-                      </div>
-                      {r.school_name && <p className="text-xs text-gray-500 truncate">{r.school_name}</p>}
-                      {r.reply_subject && <p className="text-xs text-gray-600 truncate mt-0.5">{r.reply_subject}</p>}
-                      <p className="text-sm text-gray-600 mt-1 whitespace-pre-wrap">
-                        {isOpen ? r.reply_body_text : preview + (preview.length < (r.reply_body_text?.length ?? 0) ? "…" : "")}
-                      </p>
-                    </div>
-                  </button>
+        <>
+          <ul>
+            {[0, 1, 2].map((i) => (
+              <li
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: "12px 16px",
+                  borderBottom: i < 2 ? "1px solid #E8E8ED" : "none",
+                }}
+              >
+                <div
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: "50%",
+                    background: "#F5F5F7",
+                    flexShrink: 0,
+                  }}
+                />
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <div style={{ width: 120, height: 10, background: "#F5F5F7", borderRadius: 4 }} />
+                  <div style={{ width: 200, height: 8, background: "#F5F5F7", borderRadius: 4 }} />
                 </div>
+              </li>
+            ))}
+          </ul>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "14px 16px 18px",
+              fontSize: 12,
+              color: "#86868B",
+            }}
+          >
+            Waiting for replies — keep messaging coaches.
+          </div>
+        </>
+      ) : (
+        <ul>
+          {replies.map((r, idx) => {
+            const isOpen = expanded === r.id;
+            const preview = (r.reply_body_text ?? "").replace(/\s+/g, " ").trim();
+            return (
+              <li key={r.id} style={{ borderBottom: idx < replies.length - 1 ? "1px solid #E8E8ED" : "none" }}>
+                <button
+                  onClick={() => handleClick(r)}
+                  className="w-full text-left"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    padding: "12px 16px",
+                    background: "transparent",
+                    transition: "background 120ms",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "#F5F5F7")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                >
+                  <div style={{ width: 6, display: "flex", justifyContent: "center", flexShrink: 0 }}>
+                    {!r.is_read && (
+                      <span
+                        style={{
+                          width: 6,
+                          height: 6,
+                          borderRadius: "50%",
+                          background: "#0071E3",
+                          display: "block",
+                        }}
+                      />
+                    )}
+                  </div>
+                  <div
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      background: "#E8F1FD",
+                      color: "#0071E3",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {initialsOf(r.coach_name, r.coach_email)}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
+                      <span
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 600,
+                          color: "#1D1D1F",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {r.coach_name || r.coach_email || "Unknown coach"}
+                      </span>
+                      <span style={{ fontSize: 11, color: "#86868B", flexShrink: 0 }}>
+                        {formatDistanceToNow(new Date(r.received_at), { addSuffix: true })}
+                      </span>
+                    </div>
+                    {r.school_name && (
+                      <div
+                        style={{
+                          fontSize: 13,
+                          color: "#6E6E73",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {r.school_name}
+                      </div>
+                    )}
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: "#86868B",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: isOpen ? "pre-wrap" : "nowrap",
+                        marginTop: 2,
+                      }}
+                    >
+                      {isOpen ? r.reply_body_text : preview}
+                    </div>
+                  </div>
+                </button>
                 {isOpen && r.coach_email && (
-                  <div className="pl-9 pb-3">
+                  <div style={{ padding: "0 16px 12px 66px" }}>
                     <button
                       onClick={() => setReplyTo(r)}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-3 py-1.5"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        background: "#0071E3",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: 8,
+                        padding: "6px 12px",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
                     >
-                      <ReplyIcon className="h-3.5 w-3.5" /> Reply
+                      <ReplyIcon style={{ width: 14, height: 14 }} /> Reply
                     </button>
                   </div>
                 )}
@@ -152,6 +284,6 @@ export function RepliesPanel({ onCountChange }: Props = {}) {
           originalBody={replyTo.reply_body_text}
         />
       )}
-    </Card>
+    </div>
   );
 }

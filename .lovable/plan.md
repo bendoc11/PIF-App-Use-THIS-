@@ -1,96 +1,54 @@
-# SendGrid Email System — Implementation Plan
+# Recruiting Command Center Redesign
 
-## Prerequisites you must do (cannot be automated)
+Transforms Get Recruited from a one-way outreach tool into a two-way communication hub now that SendGrid replies land in the app.
 
-1. **Rotate the SendGrid API key** you pasted. Add the new one when I prompt via `add_secret` (`SENDGRID_API_KEY`).
-2. **DNS on `mail.playitforward.app`:**
-   - Sender Authentication (DKIM CNAMEs from SendGrid → Settings → Sender Authentication).
-   - MX record: `mail.playitforward.app` → `mx.sendgrid.net` (priority 10).
-3. **SendGrid Inbound Parse:** add hostname `mail.playitforward.app`, destination URL = the edge function URL I'll give you after deploy:
-   `https://feblgdfxkuegmjqsdycp.supabase.co/functions/v1/sendgrid-inbound`
-   Enable "POST the raw, full MIME message" OFF (default form-encoded is fine).
+## What changes (user-visible)
 
----
+1. **Live activity hero** at top of `/recruit`: 4 metric cards — Coaches Contacted, Replies Received, **Reply Rate %** (oversized, hero number), Schools In Pipeline. Numbers animate on change.
+2. **Replies-first layout**: Replies Panel moves above the coach database. Empty state copy: *"No replies yet — but coaches are reading. Keep going."* When unread > 0, a full-width red banner pins to the very top of the page: *"You have X new replies from college coaches. View them now."*
+3. **Status dots in Past Outreach** sidebar: grey (Sent) / blue (Opened — placeholder, off until open tracking exists) / green + "Replied" badge. Auto-flips to Replied when a row in `coach_replies` matches that coach email + athlete.
+4. **Pipeline board** below replies: 4 columns — Contacted, Replied, In Conversation, Official Interest. Tap a card to advance stage (drag-and-drop optional, tap-to-cycle ships first to avoid new deps). Auto-promotes Contacted → Replied on first reply from that school.
+5. **Reply notification email** redesign: subject *"A college coach just replied to you"*, exciting body, CTA button "Read Their Reply", footer with current contact/reply/rate stats.
+6. **In-app reply composer**: each reply card gets a "Reply" button → opens composer pre-filled with coach email + `Re:` subject, sends through existing `send-outreach-email` (alias from-address, quota counted).
+7. **Profile completion checklist**: adds *"Send your first outreach email"* (+10%) and *"Receive your first coach reply"* (+10%).
+8. **First-reply celebration**: one-time full-screen confetti + headline *"A college coach wants to talk to you."* + animated reply-rate. Triggered when `coach_replies` count goes 0 → 1; persisted via `profiles.first_reply_celebrated_at`.
 
-## Part 1 — Database (migration)
+## Technical plan
 
-- `profiles.email_alias` — text, unique, nullable.
-- New table `coach_replies`:
-  - `id uuid pk`, `athlete_id uuid` (indexed), `coach_email text`, `coach_name text`,
-    `school_name text`, `reply_subject text`, `reply_body_text text`,
-    `received_at timestamptz default now()`, `is_read boolean default false`.
-  - RLS: athlete can SELECT/UPDATE own rows; INSERT only via service role (edge fn).
-- New table `email_send_counters` (per-day quota, atomic):
-  - `user_id uuid`, `day date`, `count int`, PK `(user_id, day)`.
-  - RLS: user can SELECT own; INSERT/UPDATE only via service role.
-- Add table to realtime publication: `coach_replies`.
-- Backfill helper SQL function `generate_email_alias(first, last, grad_year)` that picks the next free alias (`zachervin2026`, `…b`, `…c`, …).
-- Trigger on `profiles` AFTER INSERT/UPDATE to auto-fill `email_alias` once `first_name`, `last_name`, and `grad_year` are all present and alias is null.
+### Database (one migration)
+- `outreach_history`: add `replied_at timestamptz`, `opened_at timestamptz`, `pipeline_stage text default 'contacted'` (values: contacted | replied | in_conversation | official_interest).
+- `profiles`: add `first_reply_celebrated_at timestamptz`.
+- Trigger on `coach_replies` insert → update matching `outreach_history` rows (same `athlete_id` + `coach_email`) set `replied_at = now()`, `status='replied'`, and bump `pipeline_stage` to `replied` if currently `contacted`. Also marks reply as the trigger for celebration check on client.
 
-## Part 2 — Edge Functions
+### Edge functions
+- `sendgrid-inbound`: keep insert, rely on new trigger for outreach update. Update notification email body to new copy + stats (query counts before send).
+- `send-outreach-email`: unchanged behavior; ensure new outreach rows seed `pipeline_stage='contacted'`.
 
-- `send-outreach-email` (replaces `send-gmail`):
-  - Auth required. Loads caller's profile (must have `email_alias`).
-  - Enforces quota: free (no active sub) → lifetime cap 20; paid → 50/day. Atomic upsert into `email_send_counters` and lifetime count from `outreach_history`.
-  - Sends via SendGrid v3 `/mail/send`:
-    - `from`: `{ email: "<alias>@mail.playitforward.app", name: "First Last" }`
-    - `reply_to`: same alias
-    - `subject`, `content[text/plain]`, `to`.
-  - On success, inserts into `outreach_history` (existing table).
-- `sendgrid-inbound` (public, `verify_jwt = false`):
-  - Accepts SendGrid Inbound Parse `multipart/form-data`.
-  - Parses `to`, `from`, `subject`, `text`, `envelope`.
-  - Extracts alias localpart from `to`; looks up `profiles.email_alias`.
-  - Inserts row in `coach_replies` (service role).
-  - Triggers `send-reply-notification` to email the athlete's signup email.
-- `send-reply-notification` (internal, callable from inbound fn):
-  - Sends transactional email via SendGrid from `notifications@mail.playitforward.app` with the "Coach X from Y replied…" body.
-- `backfill-aliases` (one-shot, admin-only): assigns aliases to existing profiles missing one.
+### Frontend (`src/pages/Recruit.tsx` + new components)
+- `RecruitStatsHero.tsx` — 4 animated metric cards using existing `animated-number` util.
+- `UnreadRepliesBanner.tsx` — sticky red banner when unread count > 0.
+- `RepliesPanel.tsx` (existing) — add Reply button → opens new `ReplyComposer.tsx` (lightweight wrapper around existing send flow).
+- `PipelineBoard.tsx` — 4 columns, tap-to-advance stage, reads from `outreach_history` grouped by school + stage.
+- `OutreachSidebar.tsx` — render status dot from row.status / replied_at.
+- `FirstReplyCelebration.tsx` — full-screen overlay using pure CSS confetti keyframes (no new deps), shown once when celebration condition met, then writes `first_reply_celebrated_at`.
+- `ProfileCompletionCard.tsx` — extend checklist with two new items based on counts.
 
-`supabase/config.toml` adds:
+### Layout order on `/recruit` main column
 ```
-[functions.sendgrid-inbound]
-verify_jwt = false
+[ Unread replies banner (conditional) ]
+[ Stats hero — 4 cards ]
+[ Replies panel ]
+[ Pipeline board ]
+[ Map + filters + school list (existing) ]
 ```
 
-## Part 3 — Frontend
+### Out of scope (intentionally)
+- True drag-and-drop (would add a dep) — tap-to-advance ships first.
+- Real email-open tracking (no SendGrid event webhook yet) — Opened state stays grey until that lands.
 
-- **Replace Gmail flow on `Recruit.tsx`:** remove `useGmailConnection` gating and the "Connect Gmail" view. Compose now always works for users with an `email_alias`.
-- **`EmailComposer.tsx`:** call `send-outreach-email` instead of `send-gmail`. Show alias as the "From" line. Surface 429 quota errors with the exact copy from the spec.
-- **New `RepliesPanel`** component on Recruit page:
-  - Lists `coach_replies` rows for the user, newest first.
-  - Each row: coach name/email, school, date, 100-char preview, red dot if `!is_read`.
-  - Click expands full text and marks read (`update is_read = true`).
-- **Realtime subscription** on `coach_replies` filtered by `athlete_id = auth.uid()` to update the list live.
-- **Unread badge** in `AppSidebar` nav item for "Get Recruited":
-  - Hook `useUnreadReplies` → counts `is_read = false`, subscribes via realtime.
-- **Onboarding:** keep existing flow; alias is auto-generated by the DB trigger once name + grad year are saved (no UI change needed). For users already past onboarding without alias, run `backfill-aliases` once.
+## Files touched/created
+- New: `RecruitStatsHero.tsx`, `UnreadRepliesBanner.tsx`, `PipelineBoard.tsx`, `ReplyComposer.tsx`, `FirstReplyCelebration.tsx`
+- Edited: `Recruit.tsx`, `RepliesPanel.tsx`, `OutreachSidebar.tsx`, `ProfileCompletionCard.tsx`, `sendgrid-inbound/index.ts`
+- Migration: outreach + profile columns + trigger
 
-## Part 4 — Quota copy
-
-- Daily 50 cap (paid):
-  > You have reached your daily outreach limit. This protects our sending reputation and ensures your emails continue to reach coaches. Your limit resets tomorrow.
-- Free 20-lifetime cap: existing paywall modal is shown (already implemented).
-
-## Part 5 — Cleanup / non-breaking
-
-- Keep `send-gmail` deployed but unused (in case anything else references it). Mark as deprecated in a comment.
-- Keep `gmail_tokens` table — no destructive changes.
-- `outreach_history` schema unchanged.
-
-## Test checklist after deploy
-
-1. New signup → finishes onboarding with grad_year → `email_alias` populated.
-2. Send email from Recruit → arrives at test inbox, From = alias, Reply-To = alias.
-3. Reply from inbox → SendGrid Inbound Parse hits `sendgrid-inbound` → row in `coach_replies`.
-4. Athlete dashboard: reply appears in real time, unread badge increments.
-5. Athlete signup email receives "Coach replied" notification.
-6. 51st send in a day blocked with the exact copy.
-
----
-
-## What I need from you to start
-
-- Confirm the plan, then add the **rotated** SendGrid API key as `SENDGRID_API_KEY` when prompted.
-- Confirm the system from-address for reply notifications: `notifications@mail.playitforward.app` OK?
-- Confirm DNS work above is in progress (I can build everything regardless; sending/receiving will only function once DNS is live).
+Approve to proceed.

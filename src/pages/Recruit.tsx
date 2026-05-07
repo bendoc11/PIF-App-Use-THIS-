@@ -201,7 +201,7 @@ export default function Recruit() {
           <OutreachSidebar
             rows={outreach}
             onChange={loadOutreach}
-            gmailConnected={gmailConnected}
+            gmailConnected={true}
             onCompose={() => requestCompose({ kind: "compose-pick" })}
             onFollowUp={handleFollowUp}
           />

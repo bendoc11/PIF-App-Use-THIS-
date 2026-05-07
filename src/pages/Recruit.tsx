@@ -16,6 +16,10 @@ import { RecruitTour, TourStep } from "@/components/recruit/RecruitTour";
 import { ConnectGmailPrompt } from "@/components/recruit/ConnectGmailPrompt";
 import { useGmailConnection } from "@/hooks/useGmailConnection";
 import { RepliesPanel } from "@/components/recruit/RepliesPanel";
+import { RecruitStatsHero } from "@/components/recruit/RecruitStatsHero";
+import { UnreadRepliesBanner } from "@/components/recruit/UnreadRepliesBanner";
+import { PipelineBoard } from "@/components/recruit/PipelineBoard";
+import { FirstReplyCelebration } from "@/components/recruit/FirstReplyCelebration";
 import { Loader2, ArrowLeft, PenSquare } from "lucide-react";
 
 const TOUR_STEPS: TourStep[] = [

@@ -157,11 +157,6 @@ export default function Recruit() {
   }, [profile]);
 
   const handleFollowUp = (row: OutreachRow) => {
-    if (!gmailConnected) {
-      setView({ kind: "connect-gmail" });
-      return;
-    }
-    // Find the school in our list, or build a minimal stub from the outreach row
     const school =
       schools.find((s) => s.name === row.school_name) ??
       ({

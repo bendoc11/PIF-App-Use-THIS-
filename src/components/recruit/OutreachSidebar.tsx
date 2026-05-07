@@ -16,6 +16,9 @@ export interface OutreachRow {
   body: string;
   sent_at: string;
   status: "sent" | "replied" | "offer";
+  replied_at?: string | null;
+  opened_at?: string | null;
+  pipeline_stage?: string | null;
 }
 
 interface Props {
@@ -27,17 +30,28 @@ interface Props {
   gmailConnected?: boolean;
 }
 
-const STATUS_DOT: Record<string, string> = {
+type DerivedStatus = "sent" | "opened" | "replied" | "offer";
+
+const STATUS_DOT: Record<DerivedStatus, string> = {
   sent: "bg-gray-300",
-  replied: "bg-blue-500",
-  offer: "bg-green-500",
+  opened: "bg-blue-400",
+  replied: "bg-emerald-500",
+  offer: "bg-amber-500",
 };
 
-const STATUS_LABEL: Record<string, string> = {
+const STATUS_LABEL: Record<DerivedStatus, string> = {
   sent: "Sent",
+  opened: "Opened",
   replied: "Replied",
   offer: "Offer",
 };
+
+function deriveStatus(r: OutreachRow): DerivedStatus {
+  if (r.status === "offer") return "offer";
+  if (r.status === "replied" || r.replied_at) return "replied";
+  if (r.opened_at) return "opened";
+  return "sent";
+}
 
 const NEXT_STATUS: Record<string, "sent" | "replied" | "offer"> = {
   sent: "replied",

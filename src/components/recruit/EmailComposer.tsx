@@ -84,22 +84,6 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
   // Split body around the film-link sentinel for inline link rendering
   const bodyParts = previewBody.split("[[FILM_LINK]]");
 
-  const savePendingEmail = () => {
-    if (!user) return;
-    try {
-      localStorage.setItem(
-        `pif_pending_email_${user.id}`,
-        JSON.stringify({
-          school: { name: school.name },
-          coaches: selected.map((c) => ({ name: c.name, email: c.email, title: c.title })),
-          subject,
-          body,
-          savedAt: Date.now(),
-        }),
-      );
-    } catch {}
-  };
-
   const send = async () => {
     if (!user || selected.length === 0) return;
     if (!fromAddress) {
@@ -111,18 +95,9 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
       return;
     }
 
-    // Subscription gate — if not subscribed, save draft and show paywall.
-    const { data: sub } = await supabase
-      .from("subscriptions")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("status", "active")
-      .limit(1)
-      .maybeSingle();
-
-    if (!sub) {
-      savePendingEmail();
-      setShowPaywall(true);
+    // Freemium gate: if not subscribed and already used 3 free sends, block.
+    if (!hasActiveSubscription && freeSendsUsed >= 3) {
+      onUpgradeNeeded?.();
       return;
     }
 
@@ -136,7 +111,6 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
     let success = 0;
     let failed = 0;
     let dailyHit = false;
-    let freeHit = false;
 
     for (const coach of selected) {
       const personalizedBody = resolveText(body, p, lastNameOf(coach.name), filmUrl);
@@ -149,7 +123,6 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
         if (error || (data as any)?.error) {
           failed++;
           if (errCode === "daily_limit_reached") { dailyHit = true; break; }
-          if (errCode === "free_limit_reached") { freeHit = true; break; }
           console.error("send failed", coach.email, error || data);
           continue;
         }
@@ -170,6 +143,17 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
       }
     }
 
+    // Increment free_sends_used for non-subscribed users (per successful send)
+    let justHitFreeLimit = false;
+    if (!hasActiveSubscription && success > 0) {
+      const newCount = Math.min(3, freeSendsUsed + success);
+      await supabase
+        .from("profiles")
+        .update({ free_sends_used: newCount })
+        .eq("id", user.id);
+      if (newCount >= 3 && freeSendsUsed < 3) justHitFreeLimit = true;
+    }
+
     setSending(false);
 
     if (dailyHit) {
@@ -180,18 +164,13 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
       });
       return;
     }
-    if (freeHit) {
-      setShowPaywall(true);
-      return;
-    }
 
     if (success > 0) {
-      try { localStorage.removeItem(`pif_pending_email_${user.id}`); } catch {}
       toast({
         title: `Sent ${success} email${success > 1 ? "s" : ""}`,
         description: failed > 0 ? `${failed} failed.` : "Saved to outreach history.",
       });
-      onSent();
+      onSent(justHitFreeLimit);
     } else {
       toast({ title: "Send failed", description: "Please try again.", variant: "destructive" });
     }

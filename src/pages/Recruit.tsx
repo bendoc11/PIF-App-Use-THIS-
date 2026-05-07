@@ -4,48 +4,28 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { MockCoach, MockSchool } from "@/data/mockSchools";
 import { useColleges } from "@/hooks/useColleges";
-import { UsMap } from "@/components/recruit/UsMap";
-import { MapFiltersBar, MapFilters } from "@/components/recruit/MapFiltersBar";
 import { SchoolDetail } from "@/components/recruit/SchoolDetail";
 import { EmailComposer } from "@/components/recruit/EmailComposer";
-import { OutreachSidebar, OutreachRow } from "@/components/recruit/OutreachSidebar";
-import { RecruitDashboard } from "@/components/recruit/RecruitDashboard";
-import { ProfileCompletionCard } from "@/components/recruit/ProfileCompletionCard";
+import { OutreachRow } from "@/components/recruit/OutreachSidebar";
 import { SchoolList } from "@/components/recruit/SchoolList";
-import { RecruitTour, TourStep } from "@/components/recruit/RecruitTour";
-import { ConnectGmailPrompt } from "@/components/recruit/ConnectGmailPrompt";
-import { useGmailConnection } from "@/hooks/useGmailConnection";
+import { MapFiltersBar, MapFilters } from "@/components/recruit/MapFiltersBar";
 import { RepliesPanel } from "@/components/recruit/RepliesPanel";
-import { RecruitStatsHero } from "@/components/recruit/RecruitStatsHero";
 import { UnreadRepliesBanner } from "@/components/recruit/UnreadRepliesBanner";
-import { PipelineBoard } from "@/components/recruit/PipelineBoard";
 import { FirstReplyCelebration } from "@/components/recruit/FirstReplyCelebration";
-import { Loader2, ArrowLeft, PenSquare } from "lucide-react";
-
-const TOUR_STEPS: TourStep[] = [
-  {
-    target: '[data-tour="filters"]',
-    title: "Step 1 of 4",
-    body: "Filter by state, division, and academics to find your perfect-fit schools.",
-  },
-  {
-    target: '[data-tour="school-list"]',
-    title: "Step 2 of 4",
-    body: "Browse 1,800+ programs. Click any school to see their coaching staff.",
-  },
-  {
-    target: '[data-tour="compose"]',
-    title: "Step 3 of 4",
-    body: "Send personalized emails directly from your Gmail — coaches see your real email address.",
-  },
-  {
-    target: '[data-tour="dashboard"]',
-    title: "Step 4 of 4",
-    body: "Track your schools contacted, replies, offers, and recruiting level here.",
-    placement: "left",
-  },
-];
+import { AddOfferDialog } from "@/components/recruit/AddOfferDialog";
+import { Loader2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+import "@/components/recruit/scoreboard/tokens.css";
+import { RecruitTopBar } from "@/components/recruit/scoreboard/RecruitTopBar";
+import { HeroMetrics } from "@/components/recruit/scoreboard/HeroMetrics";
+import { FindYourSchoolMap } from "@/components/recruit/scoreboard/FindYourSchoolMap";
+import { NextMoves, QuestItem } from "@/components/recruit/scoreboard/NextMoves";
+import { WeeklyGoalDark } from "@/components/recruit/scoreboard/WeeklyGoalDark";
+import { YourSchoolsCard } from "@/components/recruit/scoreboard/YourSchoolsCard";
+import { GotOfferCTA } from "@/components/recruit/scoreboard/GotOfferCTA";
+
+const WEEKLY_GOAL = 10;
 
 type View =
   | { kind: "map" }
@@ -56,15 +36,7 @@ type View =
       coaches: MockCoach[];
       initialDraft?: { subject: string; body: string } | null;
     }
-  // "Compose new outreach" entry — pick a school first
-  | { kind: "compose-pick" }
-  // Shown whenever the user tries to compose without a connected Gmail
-  | { kind: "connect-gmail" };
-
-const REQUIRED_FIELDS = [
-  "first_name", "last_name", "position", "height", "phone",
-  "grad_year", "gpa", "high_school_name", "city", "state", "highlight_film_url",
-];
+  | { kind: "compose-pick" };
 
 function lastNameOf(full: string) {
   const parts = full.trim().split(/\s+/);
@@ -73,58 +45,33 @@ function lastNameOf(full: string) {
 
 function buildFollowUpDraft(row: OutreachRow): { subject: string; body: string } {
   const last = lastNameOf(row.coach_name);
-  const subject = row.subject.toLowerCase().startsWith("re:")
-    ? row.subject
-    : `Re: ${row.subject}`;
-  const body = `Dear Coach ${last},
-
-I wanted to follow up on my previous email regarding my interest in ${row.school_name}. I remain very interested in your program and would love the opportunity to connect.
-
-Please let me know if there is any additional information I can provide. Thank you again for your time and consideration.
-
-Best regards,`;
+  const subject = row.subject.toLowerCase().startsWith("re:") ? row.subject : `Re: ${row.subject}`;
+  const body = `Dear Coach ${last},\n\nI wanted to follow up on my previous email regarding my interest in ${row.school_name}. I remain very interested in your program and would love the opportunity to connect.\n\nPlease let me know if there is any additional information I can provide. Thank you again for your time and consideration.\n\nBest regards,`;
   return { subject, body };
+}
+
+function daysAgo(iso: string): number {
+  return Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
 }
 
 export default function Recruit() {
   const { user, profile } = useAuth();
   const { schools, loading, error } = useColleges();
-  const { connected: gmailConnected, loading: gmailLoading, refresh: refreshGmail } = useGmailConnection();
+  const p: any = profile ?? {};
+
   const [view, setView] = useState<View>({ kind: "map" });
   const [outreach, setOutreach] = useState<OutreachRow[]>([]);
   const [repliesCount, setRepliesCount] = useState(0);
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [offersCount, setOffersCount] = useState(0);
+  const [interestedSchools, setInterestedSchools] = useState<Set<string>>(new Set());
+  const [showOfferDialog, setShowOfferDialog] = useState(false);
+
   const [filters, setFilters] = useState<MapFilters>({
     states: [],
     divisions: ["D1", "D2", "D3", "JUCO", "NAIA"],
     size: "All",
     gpa: "All",
   });
-
-  // Re-check Gmail connection when returning from OAuth
-  useEffect(() => {
-    const onFocus = () => refreshGmail();
-    window.addEventListener("focus", onFocus);
-    return () => window.removeEventListener("focus", onFocus);
-  }, [refreshGmail]);
-
-  // Show contextual tour once per user (driven by profile flag)
-  useEffect(() => {
-    const p: any = profile;
-    if (p && p.recruit_onboarding_completed === false) {
-      // Only run on the default map view so targets exist
-      setShowOnboarding(true);
-    }
-  }, [profile]);
-
-  const finishTour = async () => {
-    setShowOnboarding(false);
-    if (!user) return;
-    await supabase
-      .from("profiles")
-      .update({ recruit_onboarding_completed: true } as any)
-      .eq("id", user.id);
-  };
 
   const loadOutreach = async () => {
     if (!user) return;
@@ -136,8 +83,19 @@ export default function Recruit() {
     setOutreach((data as any) ?? []);
   };
 
+  const loadOffers = async () => {
+    if (!user) return;
+    const { count } = await supabase
+      .from("recruiting_offers")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id);
+    setOffersCount(count ?? 0);
+  };
+
   useEffect(() => {
-    loadOutreach(); /* eslint-disable-next-line */
+    loadOutreach();
+    loadOffers();
+    // eslint-disable-next-line
   }, [user?.id]);
 
   const filtered = useMemo(() => {
@@ -156,10 +114,62 @@ export default function Recruit() {
     });
   }, [filters, schools]);
 
-  const missingFields = useMemo(() => {
-    const p: any = profile ?? {};
-    return REQUIRED_FIELDS.filter((f) => !p[f] && p[f] !== 0);
-  }, [profile]);
+  const contactedNames = useMemo(() => new Set(outreach.map((r) => r.school_name)), [outreach]);
+
+  const weeklySent = useMemo(() => outreach.filter((r) => daysAgo(r.sent_at) < 7).length, [outreach]);
+
+  const repliedSchools = useMemo(
+    () =>
+      new Set(
+        outreach.filter((r) => r.status === "replied" || r.replied_at).map((r) => r.school_name),
+      ),
+    [outreach],
+  );
+
+  const offerSchoolNames = useMemo(
+    () => new Set(outreach.filter((r) => r.status === "offer").map((r) => r.school_name)),
+    [outreach],
+  );
+
+  // Schools-interested merges: replied + manually starred + offers
+  const allInterested = useMemo(() => {
+    const s = new Set<string>(interestedSchools);
+    repliedSchools.forEach((n) => s.add(n));
+    offerSchoolNames.forEach((n) => s.add(n));
+    return s;
+  }, [interestedSchools, repliedSchools, offerSchoolNames]);
+
+  const yourSchools = useMemo(() => {
+    const items: { name: string; status: "Contacted" | "Interested" | "Offer" }[] = [];
+    const seen = new Set<string>();
+    for (const r of outreach) {
+      if (seen.has(r.school_name)) continue;
+      seen.add(r.school_name);
+      let status: "Contacted" | "Interested" | "Offer" = "Contacted";
+      if (offerSchoolNames.has(r.school_name)) status = "Offer";
+      else if (allInterested.has(r.school_name)) status = "Interested";
+      items.push({ name: r.school_name, status });
+      if (items.length >= 5) break;
+    }
+    return items;
+  }, [outreach, offerSchoolNames, allInterested]);
+
+  const quests: QuestItem[] = useMemo(() => {
+    const profileDone = !!(p.first_name && p.last_name && p.position && p.height && p.grad_year && p.gpa && p.high_school_name);
+    return [
+      { id: "film", label: "Add your highlight film", done: !!p.highlight_film_url },
+      { id: "profile", label: "Complete your profile (height, GPA, position)", done: profileDone },
+      {
+        id: "weekly",
+        label:
+          weeklySent >= WEEKLY_GOAL
+            ? "Hit your weekly goal of 10 coaches"
+            : `Message ${WEEKLY_GOAL - weeklySent} more coaches this week`,
+        done: weeklySent >= WEEKLY_GOAL,
+      },
+      { id: "first", label: "Send your first message", done: outreach.length > 0 },
+    ];
+  }, [p, weeklySent, outreach.length]);
 
   const handleFollowUp = (row: OutreachRow) => {
     const school =
@@ -178,116 +188,106 @@ export default function Recruit() {
         avgGpa: null,
         coaches: [],
       } as MockSchool);
-
     const coach: MockCoach = {
       name: row.coach_name,
       title: row.coach_title || "Coach",
       email: row.coach_email,
     };
-
-    setView({
-      kind: "compose",
-      school,
-      coaches: [coach],
-      initialDraft: buildFollowUpDraft(row),
-    });
+    setView({ kind: "compose", school, coaches: [coach], initialDraft: buildFollowUpDraft(row) });
   };
 
-  const requestCompose = (next: View) => {
-    setView(next);
+  const onMessageSchool = (s: MockSchool) => {
+    setView({ kind: "school", school: s });
+  };
+
+  const onToggleInterested = (s: MockSchool) => {
+    setInterestedSchools((prev) => {
+      const next = new Set(prev);
+      if (next.has(s.name)) next.delete(s.name);
+      else next.add(s.name);
+      return next;
+    });
   };
 
   const scrollToReplies = () => {
     document.getElementById("replies-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const firstName = p.first_name || "";
+
   return (
     <AppLayout>
-      {showOnboarding && <RecruitTour steps={TOUR_STEPS} onClose={finishTour} />}
       <FirstReplyCelebration repliesCount={repliesCount} contactedCount={outreach.length} />
-      <div className="bg-gray-50 min-h-[calc(100vh-3.5rem)]">
+      <div className="recruit-scoreboard min-h-[calc(100vh-3.5rem)]">
         <UnreadRepliesBanner onView={scrollToReplies} />
-        <div className="flex flex-col lg:flex-row h-[calc(100vh-3.5rem)]">
-          {/* Left: Outreach */}
-          <OutreachSidebar
-            rows={outreach}
-            onChange={loadOutreach}
-            gmailConnected={true}
-            onCompose={() => requestCompose({ kind: "compose-pick" })}
-            onFollowUp={handleFollowUp}
-          />
 
-          {/* Center */}
-          <main className="flex-1 overflow-y-auto p-6">
-            <div className="max-w-5xl mx-auto">
-              <header className="mb-5">
-                <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">Get Recruited</h1>
-                <p className="text-gray-500 mt-1">Your two-way recruiting command center.</p>
-              </header>
-
+        <div className="max-w-7xl mx-auto px-4 lg:px-6 py-5">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-5">
+            {/* Main column */}
+            <div>
               {view.kind === "map" && (
                 <>
-                  <RecruitStatsHero rows={outreach} repliesCount={repliesCount} />
+                  <RecruitTopBar
+                    firstName={firstName}
+                    weeklySent={weeklySent}
+                    weeklyGoal={WEEKLY_GOAL}
+                    onMessageClick={() => setView({ kind: "compose-pick" })}
+                  />
 
-                  <div className="mb-5">
-                    <RepliesPanel onCountChange={setRepliesCount} />
-                  </div>
-
-                  <div className="mb-5">
-                    <PipelineBoard rows={outreach} onChange={loadOutreach} />
-                  </div>
-
-                  <div data-tour="filters">
-                    <MapFiltersBar value={filters} onChange={setFilters} />
-                  </div>
+                  <HeroMetrics
+                    schoolsInterested={allInterested.size}
+                    coachesMessaged={outreach.length}
+                    offersReceived={offersCount}
+                    weeklyGoal={WEEKLY_GOAL}
+                    weeklySent={weeklySent}
+                  />
 
                   {loading ? (
-                    <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-gray-200">
-                      <Loader2 className="h-6 w-6 text-gray-400 animate-spin" />
-                      <p className="text-sm text-gray-500 mt-3">Loading {schools.length || "thousands of"} schools…</p>
+                    <div className="rs-card flex flex-col items-center justify-center py-16">
+                      <Loader2 className="h-6 w-6 animate-spin" style={{ color: "var(--brand-muted)" }} />
+                      <p className="text-sm mt-3" style={{ color: "var(--brand-muted)" }}>
+                        Loading schools…
+                      </p>
                     </div>
                   ) : error ? (
-                    <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl p-6 text-sm">
+                    <div className="rs-card p-6 text-sm" style={{ color: "var(--brand-orange)" }}>
                       Failed to load schools: {error}
                     </div>
                   ) : (
-                    <>
-                      <UsMap schools={filtered} onSelect={(s) => setView({ kind: "school", school: s })} />
-                      <p className="text-xs text-gray-500 mt-3 text-center">
-                        Showing {filtered.length.toLocaleString()} of {schools.length.toLocaleString()} schools. Click any dot or row to view coaches.
-                      </p>
-                      <div data-tour="school-list">
-                        <SchoolList schools={filtered} onSelect={(s) => setView({ kind: "school", school: s })} />
-                      </div>
-                    </>
+                    <FindYourSchoolMap
+                      schools={filtered}
+                      contactedNames={contactedNames}
+                      interestedNames={allInterested}
+                      onSelectSchool={(s) => setView({ kind: "school", school: s })}
+                      onMessageSchool={onMessageSchool}
+                      onToggleInterested={onToggleInterested}
+                      onBrowseAll={() => setView({ kind: "compose-pick" })}
+                    />
                   )}
+
+                  <div id="replies-panel" className="mb-5">
+                    <RepliesPanel onCountChange={setRepliesCount} />
+                  </div>
                 </>
               )}
 
               {view.kind === "compose-pick" && (
-                <div>
+                <div className="rs-fade-up">
                   <div className="flex items-center justify-between mb-4">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setView({ kind: "map" })}
-                      className="text-gray-600 -ml-2"
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => setView({ kind: "map" })} className="-ml-2">
                       <ArrowLeft className="h-4 w-4 mr-1" /> Back
                     </Button>
-                    <div className="inline-flex items-center gap-1.5 text-sm text-gray-500">
-                      <PenSquare className="h-3.5 w-3.5" />
-                      Compose new outreach
-                    </div>
+                    <span className="rs-display text-[18px]">Pick a school to message</span>
                   </div>
-                  <div className="bg-white border border-gray-200 rounded-2xl p-5 mb-4">
-                    <h2 className="text-lg font-semibold text-gray-900">Pick a school</h2>
-                    <p className="text-sm text-gray-500 mt-0.5">Filter, then click a school to choose coaches and send.</p>
+                  <div className="rs-card p-5 mb-4">
+                    <p className="text-sm" style={{ color: "var(--brand-muted)" }}>
+                      Filter, then click a school to choose coaches and send.
+                    </p>
                   </div>
                   <MapFiltersBar value={filters} onChange={setFilters} />
                   {loading ? (
-                    <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-gray-200">
-                      <Loader2 className="h-6 w-6 text-gray-400 animate-spin" />
+                    <div className="rs-card flex flex-col items-center justify-center py-16">
+                      <Loader2 className="h-6 w-6 animate-spin" style={{ color: "var(--brand-muted)" }} />
                     </div>
                   ) : (
                     <SchoolList schools={filtered} onSelect={(s) => setView({ kind: "school", school: s })} />
@@ -296,62 +296,53 @@ export default function Recruit() {
               )}
 
               {view.kind === "school" && (
-                <SchoolDetail
-                  school={view.school}
-                  onBack={() => setView({ kind: "map" })}
-                  onCompose={(coaches) =>
-                    requestCompose({ kind: "compose", school: view.school, coaches })
-                  }
-                />
-              )}
-
-              {view.kind === "connect-gmail" && (
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setView({ kind: "map" })}
-                      className="text-gray-600 -ml-2"
-                    >
-                      <ArrowLeft className="h-4 w-4 mr-1" /> Back
-                    </Button>
-                    <div className="inline-flex items-center gap-1.5 text-sm text-gray-500">
-                      <PenSquare className="h-3.5 w-3.5" />
-                      Compose new outreach
-                    </div>
-                  </div>
-                  <ConnectGmailPrompt />
+                <div className="rs-fade-up">
+                  <SchoolDetail
+                    school={view.school}
+                    onBack={() => setView({ kind: "map" })}
+                    onCompose={(coaches) => setView({ kind: "compose", school: view.school, coaches })}
+                  />
                 </div>
               )}
 
               {view.kind === "compose" && (
-                <EmailComposer
-                  school={view.school}
-                  selected={view.coaches}
-                  initialDraft={view.initialDraft ?? null}
-                  onBack={() => setView({ kind: "school", school: view.school })}
-                  onRemoveCoach={(email) =>
-                    setView({
-                      ...view,
-                      coaches: view.coaches.filter((c) => c.email !== email),
-                    })
-                  }
-                  onSent={() => {
-                    loadOutreach();
-                    setView({ kind: "map" });
-                  }}
-                />
+                <div className="rs-fade-up">
+                  <EmailComposer
+                    school={view.school}
+                    selected={view.coaches}
+                    initialDraft={view.initialDraft ?? null}
+                    onBack={() => setView({ kind: "school", school: view.school })}
+                    onRemoveCoach={(email) =>
+                      setView({ ...view, coaches: view.coaches.filter((c) => c.email !== email) })
+                    }
+                    onSent={() => {
+                      loadOutreach();
+                      setView({ kind: "map" });
+                    }}
+                  />
+                </div>
               )}
             </div>
-          </main>
 
-          {/* Right: Dashboard */}
-          <div data-tour="dashboard" className="w-full lg:w-80 shrink-0 lg:h-full lg:overflow-y-auto">
-            <RecruitDashboard rows={outreach} onChange={loadOutreach} />
+            {/* Right rail */}
+            <aside className="space-y-4">
+              <NextMoves items={quests} />
+              <WeeklyGoalDark sent={weeklySent} goal={WEEKLY_GOAL} />
+              <YourSchoolsCard
+                stats={{
+                  contacted: contactedNames.size,
+                  interested: allInterested.size,
+                  offers: offersCount,
+                }}
+                schools={yourSchools}
+              />
+              <GotOfferCTA onLog={() => setShowOfferDialog(true)} />
+            </aside>
           </div>
         </div>
       </div>
+
+      <AddOfferDialog open={showOfferDialog} onOpenChange={setShowOfferDialog} onSaved={loadOffers} />
     </AppLayout>
   );
 }

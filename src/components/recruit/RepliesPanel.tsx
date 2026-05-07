@@ -18,6 +18,8 @@ interface Reply {
 
 interface Props {
   onCountChange?: (total: number) => void;
+  locked?: boolean;
+  onLockedClick?: () => void;
 }
 
 function initialsOf(name: string | null, email: string | null): string {

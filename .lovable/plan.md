@@ -1,47 +1,96 @@
+# SendGrid Email System — Implementation Plan
 
-# Play it Forward Basketball — Phase 1 Plan
+## Prerequisites you must do (cannot be automated)
 
-## 1. Design System & Layout Foundation
-- Set up custom color tokens (navy, red, blue) and fonts (Barlow Condensed, Barlow, Bebas Neue) in CSS variables and Tailwind config
-- Build the shared app layout: fixed 240px sidebar with nav links (Dashboard, Courses, Coaches, Community, My Progress, Upgrade, Sign Out) + 64px sticky topbar
-- Mobile responsive sidebar (hamburger menu / drawer)
+1. **Rotate the SendGrid API key** you pasted. Add the new one when I prompt via `add_secret` (`SENDGRID_API_KEY`).
+2. **DNS on `mail.playitforward.app`:**
+   - Sender Authentication (DKIM CNAMEs from SendGrid → Settings → Sender Authentication).
+   - MX record: `mail.playitforward.app` → `mx.sendgrid.net` (priority 10).
+3. **SendGrid Inbound Parse:** add hostname `mail.playitforward.app`, destination URL = the edge function URL I'll give you after deploy:
+   `https://feblgdfxkuegmjqsdycp.supabase.co/functions/v1/sendgrid-inbound`
+   Enable "POST the raw, full MIME message" OFF (default form-encoded is fine).
 
-## 2. Authentication — `/login`
-- Split-screen auth page: left brand panel with dark gradient, "PIF" watermark, coach avatars, stats strip; right panel with Sign In / Create Account tabs
-- Sign In: email + password fields, show/hide toggle, forgot password, Google sign-in button
-- Create Account: name fields, email, password with live strength meter, position dropdown
-- Connect to Supabase auth (signUp, signInWithPassword, signInWithOAuth for Google)
-- Email confirmation screen post-signup
-- Auth guard: redirect logged-in users to `/dashboard`, protect app routes
+---
 
-## 3. Supabase Database Setup
-- Create tables: `profiles`, `coaches`, `courses`, `drills`, `user_course_progress`, `user_drill_progress`, `saved_drills`
-- Enable RLS with appropriate policies (users read/write own data, coaches/drills public read)
-- Database trigger to auto-create profile on signup
-- Seed coaches data (Zac Ervin, Alex Wade, Torrence Watson, Hunter McIntosh, Julian Roper, Jay Blue)
-- Seed sample courses and drills with Vimeo IDs
+## Part 1 — Database (migration)
 
-## 4. Dashboard — `/dashboard`
-- Time-based greeting with user's first name
-- 4 animated stat cards (streak, drills done, hours trained, weekly rank)
-- "Continue Where You Left Off" card with course progress
-- Featured Drills grid (3 columns) with category-colored cards, coach info, lock overlay for pro drills
-- Desktop leaderboard sidebar with top 7 users + coach spotlight
+- `profiles.email_alias` — text, unique, nullable.
+- New table `coach_replies`:
+  - `id uuid pk`, `athlete_id uuid` (indexed), `coach_email text`, `coach_name text`,
+    `school_name text`, `reply_subject text`, `reply_body_text text`,
+    `received_at timestamptz default now()`, `is_read boolean default false`.
+  - RLS: athlete can SELECT/UPDATE own rows; INSERT only via service role (edge fn).
+- New table `email_send_counters` (per-day quota, atomic):
+  - `user_id uuid`, `day date`, `count int`, PK `(user_id, day)`.
+  - RLS: user can SELECT own; INSERT/UPDATE only via service role.
+- Add table to realtime publication: `coach_replies`.
+- Backfill helper SQL function `generate_email_alias(first, last, grad_year)` that picks the next free alias (`zachervin2026`, `…b`, `…c`, …).
+- Trigger on `profiles` AFTER INSERT/UPDATE to auto-fill `email_alias` once `first_name`, `last_name`, and `grad_year` are all present and alias is null.
 
-## 5. Courses Library — `/courses`
-- Course card grid with thumbnails, coach info, progress bars, drill count, level badges
-- Filter/search functionality
-- Category color coding (Ball Handling red, Shooting blue, Athletics green, IQ gold, Mental purple)
+## Part 2 — Edge Functions
 
-## 6. Course Player — `/courses/[id]/[drillIndex]`
-- Left panel: course progress rail (320px) with drill list showing completed ✅, current ▶, locked 🔒 states
-- Right panel: Vimeo video embed (16:9), drill info bar, three tabs (Overview, Coaching Tips, Discussion)
-- "Mark Complete & Continue →" interaction: loading → green success → auto-advance to next drill
-- Course completion modal with trophy animation on final drill
-- Mobile: left panel becomes bottom drawer
+- `send-outreach-email` (replaces `send-gmail`):
+  - Auth required. Loads caller's profile (must have `email_alias`).
+  - Enforces quota: free (no active sub) → lifetime cap 20; paid → 50/day. Atomic upsert into `email_send_counters` and lifetime count from `outreach_history`.
+  - Sends via SendGrid v3 `/mail/send`:
+    - `from`: `{ email: "<alias>@mail.playitforward.app", name: "First Last" }`
+    - `reply_to`: same alias
+    - `subject`, `content[text/plain]`, `to`.
+  - On success, inserts into `outreach_history` (existing table).
+- `sendgrid-inbound` (public, `verify_jwt = false`):
+  - Accepts SendGrid Inbound Parse `multipart/form-data`.
+  - Parses `to`, `from`, `subject`, `text`, `envelope`.
+  - Extracts alias localpart from `to`; looks up `profiles.email_alias`.
+  - Inserts row in `coach_replies` (service role).
+  - Triggers `send-reply-notification` to email the athlete's signup email.
+- `send-reply-notification` (internal, callable from inbound fn):
+  - Sends transactional email via SendGrid from `notifications@mail.playitforward.app` with the "Coach X from Y replied…" body.
+- `backfill-aliases` (one-shot, admin-only): assigns aliases to existing profiles missing one.
 
-## 7. Pricing Page — `/pricing`
-- Monthly/annual billing toggle
-- Free vs Pro plan comparison cards
-- Pro card with red border, "Most Popular" pill, trial pricing ($7 for 7 days → $27/mo)
-- Social proof strip with avatar stack
+`supabase/config.toml` adds:
+```
+[functions.sendgrid-inbound]
+verify_jwt = false
+```
+
+## Part 3 — Frontend
+
+- **Replace Gmail flow on `Recruit.tsx`:** remove `useGmailConnection` gating and the "Connect Gmail" view. Compose now always works for users with an `email_alias`.
+- **`EmailComposer.tsx`:** call `send-outreach-email` instead of `send-gmail`. Show alias as the "From" line. Surface 429 quota errors with the exact copy from the spec.
+- **New `RepliesPanel`** component on Recruit page:
+  - Lists `coach_replies` rows for the user, newest first.
+  - Each row: coach name/email, school, date, 100-char preview, red dot if `!is_read`.
+  - Click expands full text and marks read (`update is_read = true`).
+- **Realtime subscription** on `coach_replies` filtered by `athlete_id = auth.uid()` to update the list live.
+- **Unread badge** in `AppSidebar` nav item for "Get Recruited":
+  - Hook `useUnreadReplies` → counts `is_read = false`, subscribes via realtime.
+- **Onboarding:** keep existing flow; alias is auto-generated by the DB trigger once name + grad year are saved (no UI change needed). For users already past onboarding without alias, run `backfill-aliases` once.
+
+## Part 4 — Quota copy
+
+- Daily 50 cap (paid):
+  > You have reached your daily outreach limit. This protects our sending reputation and ensures your emails continue to reach coaches. Your limit resets tomorrow.
+- Free 20-lifetime cap: existing paywall modal is shown (already implemented).
+
+## Part 5 — Cleanup / non-breaking
+
+- Keep `send-gmail` deployed but unused (in case anything else references it). Mark as deprecated in a comment.
+- Keep `gmail_tokens` table — no destructive changes.
+- `outreach_history` schema unchanged.
+
+## Test checklist after deploy
+
+1. New signup → finishes onboarding with grad_year → `email_alias` populated.
+2. Send email from Recruit → arrives at test inbox, From = alias, Reply-To = alias.
+3. Reply from inbox → SendGrid Inbound Parse hits `sendgrid-inbound` → row in `coach_replies`.
+4. Athlete dashboard: reply appears in real time, unread badge increments.
+5. Athlete signup email receives "Coach replied" notification.
+6. 51st send in a day blocked with the exact copy.
+
+---
+
+## What I need from you to start
+
+- Confirm the plan, then add the **rotated** SendGrid API key as `SENDGRID_API_KEY` when prompted.
+- Confirm the system from-address for reply notifications: `notifications@mail.playitforward.app` OK?
+- Confirm DNS work above is in progress (I can build everything regardless; sending/receiving will only function once DNS is live).

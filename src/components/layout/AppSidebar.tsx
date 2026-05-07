@@ -28,6 +28,7 @@ export function AppSidebar() {
   const location = useLocation();
   const { signOut, profile } = useAuth();
   const role = profile?.role || "user";
+  const unreadReplies = useUnreadReplies();
 
   const initials = profile
     ? `${(profile.first_name || "")[0] || ""}${(profile.last_name || "")[0] || ""}`.toUpperCase()

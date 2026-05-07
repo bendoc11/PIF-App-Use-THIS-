@@ -308,7 +308,7 @@ export default function Recruit() {
                 </div>
               )}
 
-              {view.kind === "compose" && gmailConnected && (
+              {view.kind === "compose" && (
                 <EmailComposer
                   school={view.school}
                   selected={view.coaches}
@@ -325,10 +325,6 @@ export default function Recruit() {
                     setView({ kind: "map" });
                   }}
                 />
-              )}
-
-              {view.kind === "compose" && !gmailConnected && !gmailLoading && (
-                <ConnectGmailPrompt />
               )}
             </div>
           </main>

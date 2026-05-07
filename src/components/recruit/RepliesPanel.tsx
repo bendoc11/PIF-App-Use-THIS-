@@ -71,6 +71,10 @@ export function RepliesPanel({ onCountChange, locked, onLockedClick }: Props = {
   }, [user?.id, onCountChange]);
 
   const handleClick = async (r: Reply) => {
+    if (locked) {
+      onLockedClick?.();
+      return;
+    }
     setExpanded(expanded === r.id ? null : r.id);
     if (!r.is_read) {
       await supabase.from("coach_replies").update({ is_read: true }).eq("id", r.id);

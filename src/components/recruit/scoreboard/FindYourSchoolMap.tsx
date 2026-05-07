@@ -195,9 +195,12 @@ export function FindYourSchoolMap({
                     />
                   )}
                   <circle
-                    r={5}
+                    r={4}
                     fill={fill}
+                    stroke="#1D1D1F"
+                    strokeWidth={0.5}
                     fillOpacity={visible ? 1 : 0}
+                    shapeRendering="geometricPrecision"
                     style={{ transition: "fill-opacity 200ms" }}
                   >
                     <title>{`${s.name} (${s.division})`}</title>

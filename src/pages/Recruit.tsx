@@ -92,6 +92,7 @@ export default function Recruit() {
   const { connected: gmailConnected, loading: gmailLoading, refresh: refreshGmail } = useGmailConnection();
   const [view, setView] = useState<View>({ kind: "map" });
   const [outreach, setOutreach] = useState<OutreachRow[]>([]);
+  const [repliesCount, setRepliesCount] = useState(0);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [filters, setFilters] = useState<MapFilters>({
     states: [],

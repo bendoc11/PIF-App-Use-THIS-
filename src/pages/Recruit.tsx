@@ -266,7 +266,7 @@ export default function Recruit() {
                     firstName={firstName}
                     weeklySent={weeklySent}
                     weeklyGoal={WEEKLY_GOAL}
-                    onMessageClick={() => setView({ kind: "compose-pick" })}
+                    onMessageClick={() => guardMessage(() => setView({ kind: "compose-pick" }))}
                   />
 
                   <HeroMetrics
@@ -276,6 +276,14 @@ export default function Recruit() {
                     weeklyGoal={WEEKLY_GOAL}
                     weeklySent={weeklySent}
                   />
+
+                  {!loading && !error && (
+                    <RecommendedSchools
+                      schools={schools}
+                      contactedNames={contactedNames}
+                      onMessage={(s) => guardMessage(() => setView({ kind: "school", school: s }))}
+                    />
+                  )}
 
                   {loading ? (
                     <div className="rs-card flex flex-col items-center justify-center py-16">
@@ -293,10 +301,10 @@ export default function Recruit() {
                       schools={filtered}
                       contactedNames={contactedNames}
                       interestedNames={allInterested}
-                      onSelectSchool={(s) => setView({ kind: "school", school: s })}
+                      onSelectSchool={(s) => guardMessage(() => setView({ kind: "school", school: s }))}
                       onMessageSchool={onMessageSchool}
                       onToggleInterested={onToggleInterested}
-                      onBrowseAll={() => setView({ kind: "compose-pick" })}
+                      onBrowseAll={() => guardMessage(() => setView({ kind: "compose-pick" }))}
                     />
                   )}
 

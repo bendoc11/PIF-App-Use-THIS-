@@ -237,18 +237,46 @@ export function RepliesPanel({ onCountChange, locked, onLockedClick }: Props = {
                         {r.school_name}
                       </div>
                     )}
-                    <div
-                      style={{
-                        fontSize: 12,
-                        color: "#86868B",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: isOpen ? "pre-wrap" : "nowrap",
-                        marginTop: 2,
-                      }}
-                    >
-                      {isOpen ? r.reply_body_text : preview}
-                    </div>
+                    {locked ? (
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                        <div
+                          style={{
+                            height: 10,
+                            width: 180,
+                            background: "#E8E8ED",
+                            borderRadius: 4,
+                            filter: "blur(4px)",
+                          }}
+                        />
+                        <span
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 600,
+                            color: "#0071E3",
+                            background: "#E8F1FD",
+                            border: "1px solid #C5DCFF",
+                            borderRadius: 980,
+                            padding: "4px 10px",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          Read reply — upgrade
+                        </span>
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: "#86868B",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: isOpen ? "pre-wrap" : "nowrap",
+                          marginTop: 2,
+                        }}
+                      >
+                        {isOpen ? r.reply_body_text : preview}
+                      </div>
+                    )}
                   </div>
                 </button>
                 {isOpen && r.coach_email && (

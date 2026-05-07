@@ -2,21 +2,55 @@ interface Props {
   onLog: () => void;
 }
 
+function MedalIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M7 3 L9 9" />
+      <path d="M17 3 L15 9" />
+      <circle cx="12" cy="15" r="6" />
+      <path d="M12 12 v6" />
+    </svg>
+  );
+}
+
 export function GotOfferCTA({ onLog }: Props) {
   return (
     <div
-      className="rounded-[14px] p-4"
-      style={{ background: "#FFF8F5", border: "1.5px solid #FDDECE" }}
+      style={{
+        background: "var(--bg-page)",
+        border: "1px solid var(--border)",
+        borderRadius: 12,
+        padding: "16px 18px",
+      }}
     >
-      <div className="text-2xl mb-1">🏅</div>
-      <div className="rs-display text-[18px]" style={{ color: "var(--brand-orange)" }}>
+      <div style={{ color: "var(--accent)", marginBottom: 8 }}>
+        <MedalIcon />
+      </div>
+      <div
+        style={{
+          fontSize: 14,
+          fontWeight: 600,
+          color: "var(--text-primary)",
+          letterSpacing: "-0.01em",
+        }}
+      >
         Got an offer?
       </div>
-      <p className="text-[12px] mb-3" style={{ color: "var(--brand-muted)" }}>
+      <p style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2, marginBottom: 12 }}>
         Log it to move up your level
       </p>
-      <button onClick={onLog} className="rs-btn-primary w-full py-2 text-[13px]">
-        + Log an offer
+      <button onClick={onLog} className="rs-btn-primary w-full" style={{ padding: "8px 16px", fontSize: 13 }}>
+        Log an offer
       </button>
     </div>
   );

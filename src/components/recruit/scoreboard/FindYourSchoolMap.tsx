@@ -1,18 +1,26 @@
 import { useMemo, useState } from "react";
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
 import { MockSchool, Division } from "@/data/mockSchools";
-import { ArrowRight, Star } from "lucide-react";
+import { ChevronRight, Star } from "lucide-react";
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
 
 const DIVISIONS: Division[] = ["D1", "D2", "D3", "JUCO", "NAIA"];
 
 const DIV_DOT: Record<Division, string> = {
-  D1: "#2E6B10",
-  D2: "#1A5FA5",
-  D3: "#A85B00",
-  JUCO: "#4E3AB5",
-  NAIA: "#666666",
+  D1: "#2E8B57",
+  D2: "#0071E3",
+  D3: "#D4780A",
+  JUCO: "#6B50D6",
+  NAIA: "#86868B",
+};
+
+const DIV_TEXT: Record<Division, string> = {
+  D1: "#0051A8",
+  D2: "#1A6B2A",
+  D3: "#8A4B00",
+  JUCO: "#4B35B0",
+  NAIA: "#6E6E73",
 };
 
 interface Props {
@@ -74,14 +82,29 @@ export function FindYourSchoolMap({
   };
 
   return (
-    <div className="rs-card overflow-hidden mb-5 rs-fade-up" style={{ animationDelay: "240ms" }}>
+    <div
+      className="mb-5 overflow-hidden"
+      style={{
+        background: "var(--bg-card)",
+        border: "1px solid var(--border)",
+        borderRadius: 14,
+      }}
+    >
       {/* Header */}
-      <div className="px-5 pt-5 pb-3 flex items-start justify-between flex-wrap gap-3">
+      <div className="px-5 pt-5 pb-4 flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h3 className="rs-display text-[18px] tracking-wide" style={{ color: "var(--brand-ink)" }}>
-            FIND YOUR SCHOOL
-          </h3>
-          <p className="text-[12px] mt-0.5" style={{ color: "var(--brand-muted)" }}>
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "var(--text-tertiary)",
+            }}
+          >
+            Find your school
+          </div>
+          <p style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 4 }}>
             {validSchools.length.toLocaleString()} programs · tap any dot to explore
           </p>
         </div>
@@ -92,10 +115,18 @@ export function FindYourSchoolMap({
               <button
                 key={d}
                 onClick={() => toggleDivision(d)}
-                className={`rs-div-${d} text-[11px] font-semibold px-2.5 py-1 rounded-full transition-all ${
-                  active ? "ring-1 ring-current/30" : "opacity-40"
-                }`}
-                style={!active ? { background: "var(--brand-cream)", color: "var(--brand-muted)" } : undefined}
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  padding: "5px 12px",
+                  borderRadius: 980,
+                  background: active ? "#FFFFFF" : "transparent",
+                  border: active
+                    ? `1.5px solid ${DIV_DOT[d]}`
+                    : "1px solid var(--border)",
+                  color: active ? DIV_TEXT[d] : "var(--text-tertiary)",
+                  transition: "all 150ms",
+                }}
               >
                 {d}
               </button>
@@ -105,8 +136,8 @@ export function FindYourSchoolMap({
       </div>
 
       {/* Map */}
-      <div className="relative" style={{ background: "var(--brand-cream)" }}>
-        <div style={{ height: 240 }}>
+      <div className="relative" style={{ background: "var(--bg-page)" }}>
+        <div style={{ height: 280 }}>
           <ComposableMap
             projection="geoAlbersUsa"
             projectionConfig={{ scale: 900 }}
@@ -121,11 +152,11 @@ export function FindYourSchoolMap({
                     key={geo.rsmKey}
                     geography={geo}
                     fill="#FFFFFF"
-                    stroke="#E8E4DE"
-                    strokeWidth={0.75}
+                    stroke="#D2D2D7"
+                    strokeWidth={1}
                     style={{
                       default: { outline: "none" },
-                      hover: { outline: "none", fill: "#FFFAF4" },
+                      hover: { outline: "none", fill: "#FAFAFA" },
                       pressed: { outline: "none" },
                     }}
                   />
@@ -135,9 +166,8 @@ export function FindYourSchoolMap({
 
             {validSchools.map((s) => {
               const visible = activeDivisions.has(s.division);
-              const isContacted = contactedNames.has(s.name);
               const isInterested = interestedNames.has(s.name);
-              const fill = isInterested ? "#E85C2C" : DIV_DOT[s.division];
+              const fill = isInterested ? "#0071E3" : DIV_DOT[s.division];
               return (
                 <Marker
                   key={s.id}
@@ -156,15 +186,19 @@ export function FindYourSchoolMap({
                   }}
                 >
                   {isInterested && visible && (
-                    <circle r={9} fill={fill} fillOpacity={0.25} className="rs-dot-pulse" />
+                    <circle
+                      r={12}
+                      fill="none"
+                      stroke="#0071E3"
+                      strokeWidth={1.5}
+                      opacity={0.9}
+                    />
                   )}
                   <circle
                     r={5}
                     fill={fill}
-                    stroke={isContacted ? "#FFFFFF" : "#FFFFFF"}
-                    strokeWidth={isContacted ? 2 : 1}
-                    fillOpacity={visible ? 0.95 : 0}
-                    style={{ transition: "fill-opacity 200ms, r 150ms" }}
+                    fillOpacity={visible ? 1 : 0}
+                    style={{ transition: "fill-opacity 200ms" }}
                   >
                     <title>{`${s.name} (${s.division})`}</title>
                   </circle>
@@ -176,84 +210,128 @@ export function FindYourSchoolMap({
 
         {hover && (
           <div
-            className="pointer-events-none fixed z-50 px-2.5 py-1.5 rounded-md text-[11px] text-white shadow-lg"
+            className="pointer-events-none fixed z-50"
             style={{
               left: hover.x + 12,
               top: hover.y - 8,
-              background: "rgba(13,13,13,0.92)",
+              background: "#FFFFFF",
+              border: "1px solid var(--border)",
+              borderRadius: 10,
+              padding: "8px 12px",
+              boxShadow: "0 4px 16px rgba(0,0,0,0.10)",
             }}
           >
-            <div className="font-semibold">{hover.school.name}</div>
-            <div style={{ color: "rgba(255,255,255,0.7)" }}>
-              {hover.school.division} · {hover.school.coaches.length} coach
-              {hover.school.coaches.length !== 1 ? "es" : ""}
+            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
+              {hover.school.name}
+            </div>
+            <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 2 }}>
+              {hover.school.division} · {hover.school.city}, {hover.school.stateCode}
             </div>
           </div>
         )}
 
         <button
           onClick={onBrowseAll}
-          className="absolute right-4 bottom-4 rs-btn-primary inline-flex items-center gap-1.5 px-3.5 py-2 text-[12px] shadow-lg"
+          className="absolute right-4 bottom-4 rs-btn-primary inline-flex items-center gap-1"
+          style={{ padding: "7px 14px", fontSize: 13 }}
         >
-          Browse all schools <ArrowRight className="h-3.5 w-3.5" />
+          Browse all schools
+          <ChevronRight strokeWidth={1.5} className="h-4 w-4" />
         </button>
       </div>
 
       {/* Recently viewed */}
-      <div className="px-5 pt-3 pb-5">
-        <div className="rs-label pb-2 mb-2 border-t pt-3" style={{ borderColor: "var(--brand-border)" }}>
+      <div style={{ borderTop: "1px solid var(--border-light)" }}>
+        <div
+          style={{
+            fontSize: 10,
+            fontWeight: 600,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: "var(--text-tertiary)",
+            padding: "10px 20px",
+          }}
+        >
           Recently viewed
         </div>
-        <ul className="space-y-2">
+        <ul>
           {recent.map((s) => {
             const isInterested = interestedNames.has(s.name);
-            const isHighlighted = recentlyClicked?.id === s.id;
             return (
               <li
                 key={s.id}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors"
-                style={{ background: isHighlighted ? "#FFFAF8" : "transparent" }}
+                className="flex items-center gap-3"
+                style={{
+                  padding: "14px 20px",
+                  borderTop: "1px solid var(--border-light)",
+                }}
               >
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[13px] font-semibold truncate" style={{ color: "var(--brand-ink)" }}>
-                      {s.name}
-                    </span>
-                    {isInterested && (
-                      <span
-                        className="rs-pill-slide text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
-                        style={{ background: "var(--brand-orange-light)", color: "var(--brand-orange)" }}
-                      >
-                        ⭐ Interested
-                      </span>
-                    )}
+                  <div
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: "var(--text-primary)",
+                    }}
+                    className="truncate"
+                  >
+                    {s.name}
                   </div>
-                  <div className="text-[11px] truncate" style={{ color: "var(--brand-muted)" }}>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: "var(--text-secondary)",
+                      marginTop: 2,
+                    }}
+                    className="truncate"
+                  >
                     {s.city}, {s.stateCode}
                     {s.avgGpa ? ` · GPA ${s.avgGpa.toFixed(1)}` : ""} · {s.coaches.length} coach
                     {s.coaches.length !== 1 ? "es" : ""}
                   </div>
                 </div>
-                <span className={`rs-div-${s.division} text-[10px] font-semibold px-2 py-0.5 rounded-full`}>
+                <span
+                  className={`rs-div-${s.division}`}
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 600,
+                    padding: "3px 10px",
+                    borderRadius: 980,
+                  }}
+                >
                   {s.division}
                 </span>
                 <button
                   onClick={() => onToggleInterested(s)}
-                  className="text-[11px] font-medium inline-flex items-center gap-1 px-2 py-1 rounded-md border transition-all"
+                  className="inline-flex items-center gap-1.5"
                   style={{
-                    borderColor: isInterested ? "var(--brand-orange)" : "var(--brand-border)",
-                    color: isInterested ? "var(--brand-orange)" : "var(--brand-ink)",
-                    background: isInterested ? "var(--brand-orange-light)" : "transparent",
+                    fontSize: 12,
+                    fontWeight: 500,
+                    padding: "6px 14px",
+                    borderRadius: 980,
+                    border: `1px solid ${isInterested ? "var(--accent)" : "var(--border)"}`,
+                    color: isInterested ? "var(--accent)" : "var(--text-secondary)",
+                    background: "#FFFFFF",
+                    transition: "all 150ms",
                   }}
                 >
-                  <Star className={`h-3 w-3 ${isInterested ? "fill-current" : ""}`} />
+                  <Star
+                    strokeWidth={1.5}
+                    className="h-3.5 w-3.5"
+                    style={{
+                      fill: isInterested ? "var(--accent)" : "none",
+                      color: isInterested ? "var(--accent)" : "var(--text-secondary)",
+                    }}
+                  />
                   {isInterested ? "Interested" : "Mark interested"}
                 </button>
                 <button
                   onClick={() => onMessageSchool(s)}
-                  className="rs-btn-primary text-[11px] px-2.5 py-1.5 inline-flex items-center gap-1"
+                  className="rs-btn-primary inline-flex items-center gap-1"
+                  style={{ fontSize: 12, padding: "6px 16px" }}
                 >
-                  Message <ArrowRight className="h-3 w-3" />
+                  Message
+                  <ChevronRight strokeWidth={1.5} className="h-3.5 w-3.5" />
                 </button>
               </li>
             );

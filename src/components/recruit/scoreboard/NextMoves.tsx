@@ -12,26 +12,52 @@ interface Props {
 
 export function NextMoves({ items }: Props) {
   return (
-    <div className="rs-card p-4">
-      <div className="rs-label mb-3">Next Moves</div>
-      <ul className="space-y-2.5">
+    <div
+      style={{
+        background: "var(--bg-card)",
+        border: "1px solid var(--border)",
+        borderRadius: 12,
+        padding: "16px 18px",
+      }}
+    >
+      <div
+        style={{
+          fontSize: 10,
+          fontWeight: 600,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          color: "var(--text-tertiary)",
+          marginBottom: 12,
+        }}
+      >
+        Next Moves
+      </div>
+      <ul className="space-y-3">
         {items.map((q) => (
           <li key={q.id} className="flex items-start gap-2.5">
             <span
-              className="mt-0.5 h-4 w-4 rounded-full flex items-center justify-center shrink-0"
+              className="mt-0.5 shrink-0 flex items-center justify-center"
               style={{
-                background: q.done ? "#E8F5E2" : "var(--brand-orange-light)",
-                border: `1.5px solid ${q.done ? "#5BB239" : "var(--brand-orange)"}`,
+                width: 14,
+                height: 14,
+                borderRadius: "50%",
+                border: `1.5px solid ${q.done ? "var(--success)" : "var(--accent)"}`,
+                background: "transparent",
               }}
             >
-              {q.done && <Check className="h-2.5 w-2.5" style={{ color: "#2E6B10" }} strokeWidth={3} />}
+              {q.done && (
+                <Check
+                  style={{ width: 9, height: 9, color: "var(--success)" }}
+                  strokeWidth={2.5}
+                />
+              )}
             </span>
             <span
-              className="text-[12.5px] leading-snug"
               style={{
-                color: q.done ? "var(--brand-muted)" : "var(--brand-ink)",
+                fontSize: 13,
+                lineHeight: 1.5,
+                color: q.done ? "var(--text-tertiary)" : "var(--text-primary)",
                 textDecoration: q.done ? "line-through" : "none",
-                opacity: q.done ? 0.55 : 1,
               }}
             >
               {q.label}

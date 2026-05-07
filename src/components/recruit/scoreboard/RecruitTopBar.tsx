@@ -1,4 +1,4 @@
-import { Flame, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 
 interface Props {
   firstName: string;
@@ -16,28 +16,48 @@ function timeGreeting() {
 
 export function RecruitTopBar({ firstName, weeklySent, weeklyGoal, onMessageClick }: Props) {
   return (
-    <div className="rs-card flex items-center justify-between px-5 py-4 mb-5 rs-fade-up">
-      <div>
-        <h2 className="rs-display text-2xl leading-tight" style={{ color: "var(--brand-ink)" }}>
-          {timeGreeting()}, <span style={{ color: "var(--brand-orange)" }}>{firstName || "Champ"}</span> 🏀
-        </h2>
-        <p className="text-[13px]" style={{ color: "var(--brand-muted)" }}>
-          Let's get you recruited. Here's what's happening today.
-        </p>
+    <div
+      className="flex items-center justify-between mb-5"
+      style={{
+        background: "#FFFFFF",
+        borderBottom: "1px solid var(--border)",
+        height: 52,
+        padding: "0 16px",
+        borderRadius: 12,
+        border: "1px solid var(--border)",
+      }}
+    >
+      <div
+        style={{
+          fontSize: 16,
+          fontWeight: 600,
+          color: "var(--text-primary)",
+          letterSpacing: "-0.01em",
+        }}
+      >
+        {timeGreeting()}, {firstName || "there"}
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5">
         <div
-          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold"
-          style={{ background: "var(--brand-orange-light)", color: "var(--brand-orange)" }}
+          className="hidden sm:inline-flex items-center"
+          style={{
+            fontSize: 12,
+            fontWeight: 500,
+            color: "var(--text-secondary)",
+            background: "var(--bg-page)",
+            border: "1px solid var(--border)",
+            borderRadius: 20,
+            padding: "5px 12px",
+          }}
         >
-          <Flame className="h-3.5 w-3.5" />
-          {weeklySent}/{weeklyGoal} this week
+          {weeklySent} / {weeklyGoal} this week
         </div>
         <button
           onClick={onMessageClick}
-          className="rs-btn-primary rs-pulse inline-flex items-center gap-2 px-4 py-2.5 text-[13px]"
+          className="rs-btn-primary inline-flex items-center gap-1.5"
+          style={{ padding: "8px 18px" }}
         >
-          <Mail className="h-4 w-4" />
+          <Mail strokeWidth={1.5} className="h-4 w-4" />
           Message a coach
         </button>
       </div>

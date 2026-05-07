@@ -14,48 +14,98 @@ interface Props {
   schools: SchoolItem[];
 }
 
-const STATUS_STYLE: Record<SchoolItem["status"], { bg: string; color: string }> = {
-  Contacted: { bg: "#E3F0FC", color: "#1A5FA5" },
-  Interested: { bg: "#FFF0EB", color: "#E85C2C" },
-  Offer: { bg: "#E8F5E2", color: "#2E6B10" },
+const STATUS_STYLE: Record<SchoolItem["status"], { bg: string; color: string; border: string }> = {
+  Contacted: { bg: "#EAF2FF", color: "#0051A8", border: "#C5DCFF" },
+  Interested: { bg: "#E8F1FD", color: "#004FB3", border: "#C5DCFF" },
+  Offer: { bg: "#EDF7EE", color: "#1A6B2A", border: "#C0E4C5" },
 };
 
 export function YourSchoolsCard({ stats, schools }: Props) {
+  const Stat = ({ value, label, color }: { value: number; label: string; color: string }) => (
+    <div>
+      <div
+        style={{
+          fontSize: 24,
+          fontWeight: 700,
+          letterSpacing: "-0.02em",
+          lineHeight: 1,
+          color,
+        }}
+      >
+        {value}
+      </div>
+      <div
+        style={{
+          fontSize: 10,
+          fontWeight: 600,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          color: "var(--text-tertiary)",
+          marginTop: 4,
+        }}
+      >
+        {label}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="rs-card p-4">
-      <div className="rs-label mb-3">Your Schools</div>
-      <div className="grid grid-cols-3 gap-2 mb-3">
-        <div>
-          <div className="rs-display text-[26px] leading-none" style={{ color: "#1A5FA5" }}>
-            {stats.contacted}
-          </div>
-          <div className="text-[10px]" style={{ color: "var(--brand-muted)" }}>Contacted</div>
-        </div>
-        <div>
-          <div className="rs-display text-[26px] leading-none" style={{ color: "var(--brand-orange)" }}>
-            {stats.interested}
-          </div>
-          <div className="text-[10px]" style={{ color: "var(--brand-muted)" }}>Interested</div>
-        </div>
-        <div>
-          <div className="rs-display text-[26px] leading-none" style={{ color: "#2E6B10" }}>
-            {stats.offers}
-          </div>
-          <div className="text-[10px]" style={{ color: "var(--brand-muted)" }}>Offers</div>
-        </div>
+    <div
+      style={{
+        background: "var(--bg-card)",
+        border: "1px solid var(--border)",
+        borderRadius: 12,
+        padding: "16px 18px",
+      }}
+    >
+      <div
+        style={{
+          fontSize: 10,
+          fontWeight: 600,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          color: "var(--text-tertiary)",
+          marginBottom: 14,
+        }}
+      >
+        Your Schools
+      </div>
+      <div className="grid grid-cols-3 gap-3 mb-4">
+        <Stat value={stats.contacted} label="Contacted" color="var(--accent)" />
+        <Stat value={stats.interested} label="Interested" color="var(--accent)" />
+        <Stat value={stats.offers} label="Offers" color="var(--success)" />
       </div>
       {schools.length > 0 && (
-        <ul className="space-y-1.5 pt-2 border-t" style={{ borderColor: "var(--brand-border)" }}>
+        <ul
+          className="space-y-2 pt-3"
+          style={{ borderTop: "1px solid var(--border-light)" }}
+        >
           {schools.slice(0, 3).map((s, i) => {
             const st = STATUS_STYLE[s.status];
             return (
-              <li key={i} className="flex items-center justify-between text-[12px]">
-                <span className="truncate font-medium" style={{ color: "var(--brand-ink)" }}>
+              <li key={i} className="flex items-center justify-between">
+                <span
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                  }}
+                  className="truncate"
+                >
                   {s.name}
                 </span>
                 <span
-                  className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full ml-2 shrink-0"
-                  style={{ background: st.bg, color: st.color }}
+                  className="ml-2 shrink-0"
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 600,
+                    letterSpacing: "0.04em",
+                    padding: "2px 8px",
+                    borderRadius: 980,
+                    background: st.bg,
+                    color: st.color,
+                    border: `1px solid ${st.border}`,
+                  }}
                 >
                   {s.status}
                 </span>

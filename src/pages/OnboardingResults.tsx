@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import OnboardingBackground from "@/components/onboarding/OnboardingBackground";
 import { ensureMatchedCoaches, MatchedCoach } from "@/lib/coachMatching";
-import { PaywallModal } from "@/components/recruit/PaywallModal";
+import { FreemiumPaywall } from "@/components/recruit/FreemiumPaywall";
 import { LockedCoachComposer } from "@/components/recruit/LockedCoachComposer";
 
 export default function OnboardingResults() {

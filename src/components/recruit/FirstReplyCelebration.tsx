@@ -99,8 +99,8 @@ export function FirstReplyCelebration({ repliesCount, contactedCount }: Props) {
           This is exactly how recruiting starts.
         </p>
         <div className="mt-5 bg-blue-50 rounded-xl p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-blue-700">Your reply rate</p>
-          <p className="text-5xl font-extrabold text-blue-700 mt-1 leading-none">{rate}%</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-blue-700">From</p>
+          <p className="text-2xl font-extrabold text-blue-700 mt-1 leading-tight break-words">{schoolName || "A college program"}</p>
         </div>
         <button
           onClick={dismiss}

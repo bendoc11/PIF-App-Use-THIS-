@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import OnboardingBackground from "@/components/onboarding/OnboardingBackground";
 import { ensureMatchedCoaches, MatchedCoach } from "@/lib/coachMatching";
-import { PaywallModal } from "@/components/recruit/PaywallModal";
+import { FreemiumPaywall } from "@/components/recruit/FreemiumPaywall";
 import { LockedCoachComposer } from "@/components/recruit/LockedCoachComposer";
 
 export default function OnboardingResults() {
@@ -143,7 +143,7 @@ export default function OnboardingResults() {
         </motion.div>
       </div>
 
-      <PaywallModal open={showPaywall} onClose={() => setShowPaywall(false)} />
+      <FreemiumPaywall open={showPaywall} variant="upgrade" onClose={() => setShowPaywall(false)} />
     </div>
   );
 }

@@ -15,12 +15,23 @@ interface Props {
 export function FirstReplyCelebration({ repliesCount, contactedCount }: Props) {
   const { user, profile, refreshProfile } = useAuth();
   const [show, setShow] = useState(false);
+  const [schoolName, setSchoolName] = useState<string>("");
 
   useEffect(() => {
     const p: any = profile;
     if (!p || !user) return;
     if (repliesCount > 0 && !p.first_reply_celebrated_at) {
       setShow(true);
+      (async () => {
+        const { data } = await supabase
+          .from("outreach_history")
+          .select("school_name, replied_at, sent_at")
+          .eq("user_id", user.id)
+          .eq("status", "replied")
+          .order("replied_at", { ascending: false })
+          .limit(1);
+        if (data && data[0]?.school_name) setSchoolName(data[0].school_name as string);
+      })();
     }
   }, [profile, user, repliesCount]);
 

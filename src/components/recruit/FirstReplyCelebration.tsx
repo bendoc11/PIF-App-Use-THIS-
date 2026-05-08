@@ -15,12 +15,23 @@ interface Props {
 export function FirstReplyCelebration({ repliesCount, contactedCount }: Props) {
   const { user, profile, refreshProfile } = useAuth();
   const [show, setShow] = useState(false);
+  const [schoolName, setSchoolName] = useState<string>("");
 
   useEffect(() => {
     const p: any = profile;
     if (!p || !user) return;
     if (repliesCount > 0 && !p.first_reply_celebrated_at) {
       setShow(true);
+      (async () => {
+        const { data } = await supabase
+          .from("outreach_history")
+          .select("school_name, replied_at, sent_at")
+          .eq("user_id", user.id)
+          .eq("status", "replied")
+          .order("replied_at", { ascending: false })
+          .limit(1);
+        if (data && data[0]?.school_name) setSchoolName(data[0].school_name as string);
+      })();
     }
   }, [profile, user, repliesCount]);
 
@@ -35,7 +46,6 @@ export function FirstReplyCelebration({ repliesCount, contactedCount }: Props) {
   };
 
   if (!show) return null;
-  const rate = contactedCount > 0 ? Math.round((repliesCount / contactedCount) * 100) : 0;
 
   // generate confetti pieces
   const pieces = Array.from({ length: 60 });
@@ -89,8 +99,8 @@ export function FirstReplyCelebration({ repliesCount, contactedCount }: Props) {
           This is exactly how recruiting starts.
         </p>
         <div className="mt-5 bg-blue-50 rounded-xl p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-blue-700">Your reply rate</p>
-          <p className="text-5xl font-extrabold text-blue-700 mt-1 leading-none">{rate}%</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-blue-700">From</p>
+          <p className="text-2xl font-extrabold text-blue-700 mt-1 leading-tight break-words">{schoolName || "A college program"}</p>
         </div>
         <button
           onClick={dismiss}

@@ -1,0 +1,1 @@
+UPDATE public.profiles SET free_sends_used = 0 WHERE email IN ('Bend@gmail.com');

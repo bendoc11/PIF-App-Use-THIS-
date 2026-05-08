@@ -46,7 +46,6 @@ export function FirstReplyCelebration({ repliesCount, contactedCount }: Props) {
   };
 
   if (!show) return null;
-  const rate = contactedCount > 0 ? Math.round((repliesCount / contactedCount) * 100) : 0;
 
   // generate confetti pieces
   const pieces = Array.from({ length: 60 });

@@ -18,7 +18,7 @@ interface Profile {
   training_days_per_week: number | null;
   created_at: string;
   subscription_status: string | null;
-  sport: "mens_basketball" | "womens_basketball" | null;
+  sport: string | null;
 }
 
 interface AuthContextType {

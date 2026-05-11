@@ -11,6 +11,7 @@ import OnboardingBackground from "@/components/onboarding/OnboardingBackground";
 import OnboardingProgress from "@/components/onboarding/OnboardingProgress";
 
 import StepBasic, { BasicData } from "@/components/onboarding/recruit/StepBasic";
+import StepSport from "@/components/onboarding/recruit/StepSport";
 import StepAthletic, { AthleticData } from "@/components/onboarding/recruit/StepAthletic";
 import StepAcademic, { AcademicData } from "@/components/onboarding/recruit/StepAcademic";
 import StepStory from "@/components/onboarding/recruit/StepStory";
@@ -360,6 +361,23 @@ export default function Onboarding() {
     } catch {}
     navigate("/dashboard", { replace: true });
   };
+
+  // Sport gate: shown before the normal onboarding flow whenever the
+  // current profile has no sport set (i.e. new signups). Existing users
+  // were backfilled to mens_basketball so they skip straight through.
+  const needsSportSelection =
+    profileBelongsToUser && !(profile as any)?.sport;
+
+  const handleSport = async (sport: "mens_basketball" | "womens_basketball") => {
+    try {
+      await persist({ sport });
+      await refreshProfile();
+    } catch {}
+  };
+
+  if (needsSportSelection) {
+    return <StepSport onNext={handleSport} />;
+  }
 
   const slideVariants = {
     enter: (dir: number) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0 }),

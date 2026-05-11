@@ -18,6 +18,7 @@ interface Profile {
   training_days_per_week: number | null;
   created_at: string;
   subscription_status: string | null;
+  sport: string | null;
 }
 
 interface AuthContextType {

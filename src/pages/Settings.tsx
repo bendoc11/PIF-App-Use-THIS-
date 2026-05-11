@@ -108,6 +108,9 @@ export default function Settings() {
           </CardContent>
         </Card>
 
+        {/* Sport */}
+        <SportCard />
+
         {/* Gmail Connection — hidden for App Store review */}
         {/* <GmailConnectCard /> */}
 
@@ -151,5 +154,93 @@ export default function Settings() {
         </Card>
       </div>
     </AppLayout>
+  );
+}
+
+function SportCard() {
+  const { profile, user, refreshProfile } = useAuth();
+  const [changing, setChanging] = useState(false);
+  const [open, setOpen] = useState(false);
+  const sport = (profile as any)?.sport as string | null | undefined;
+  const label =
+    sport === "womens_basketball"
+      ? "Women's Basketball"
+      : sport === "mens_basketball"
+      ? "Men's Basketball"
+      : "—";
+
+  const change = async (next: "mens_basketball" | "womens_basketball") => {
+    if (!user || next === sport) {
+      setOpen(false);
+      return;
+    }
+    setChanging(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ sport: next })
+        .eq("id", user.id);
+      if (error) throw error;
+      await refreshProfile();
+      toast({ title: "Sport updated", description: "Your coach database has been updated. Sent message history is preserved." });
+      setOpen(false);
+    } catch (e: any) {
+      toast({ title: "Couldn't update sport", description: e.message, variant: "destructive" });
+    } finally {
+      setChanging(false);
+    }
+  };
+
+  return (
+    <Card className="bg-card border-border">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-lg font-heading">
+          Sport
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3 text-sm">
+        <div className="flex justify-between items-center">
+          <span className="text-muted-foreground">Current</span>
+          <div className="flex items-center gap-3">
+            <span className="text-foreground">{label}</span>
+            <AlertDialog open={open} onOpenChange={setOpen}>
+              <AlertDialogTrigger asChild>
+                <button className="text-primary text-xs font-heading tracking-wider hover:underline">
+                  CHANGE
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Change your sport?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Changing your sport will update your coach database. Your sent
+                    message history will be preserved.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <div className="flex flex-col gap-2 my-2">
+                  <Button
+                    variant={sport === "mens_basketball" ? "default" : "outline"}
+                    onClick={() => change("mens_basketball")}
+                    disabled={changing}
+                  >
+                    Men's Basketball
+                  </Button>
+                  <Button
+                    variant={sport === "womens_basketball" ? "default" : "outline"}
+                    onClick={() => change("womens_basketball")}
+                    disabled={changing}
+                  >
+                    Women's Basketball
+                  </Button>
+                </div>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={changing}>Cancel</AlertDialogCancel>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

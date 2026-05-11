@@ -40,14 +40,14 @@ interface CoachRow {
 
 const PAGE_SIZE = 1000;
 
-async function fetchAllCoaches(): Promise<CoachRow[]> {
+async function fetchAllCoaches(table: "college_coaches" | "coaches_womens_basketball"): Promise<CoachRow[]> {
   const all: CoachRow[] = [];
   let from = 0;
   // Loop until fewer than PAGE_SIZE rows returned
-  // Safety cap: 20 pages (20k rows) — current data ~7.8k
+  // Safety cap: 20 pages (20k rows)
   for (let i = 0; i < 20; i++) {
-    const { data, error } = await supabase
-      .from("college_coaches")
+    const { data, error } = await (supabase as any)
+      .from(table)
       .select(
         "school_name,city,state,conference,division,public_private,school_size,avg_gpa,acceptance_rate,yearly_cost,undergrad_enrollment,first_name,last_name,full_name,title,email,phone,gender,latitude,longitude,twitter_individual,instagram_individual,twitter_team,instagram_team"
       )
@@ -126,6 +126,9 @@ function groupRowsToSchools(rows: CoachRow[]): MockSchool[] {
 }
 
 export function useColleges() {
+  const { profile } = useAuth();
+  const sport = (profile as any)?.sport ?? "mens_basketball";
+  const table = getCoachTable(sport);
   const [schools, setSchools] = useState<MockSchool[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -136,7 +139,7 @@ export function useColleges() {
       setLoading(true);
       setError(null);
       try {
-        const rows = await fetchAllCoaches();
+        const rows = await fetchAllCoaches(table);
         if (cancelled) return;
         setSchools(groupRowsToSchools(rows));
       } catch (e: any) {
@@ -149,7 +152,7 @@ export function useColleges() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [table]);
 
   return { schools, loading, error };
 }

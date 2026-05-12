@@ -88,7 +88,7 @@ export default function PaywallOverlay() {
             Free <span className="text-2xl" style={{ color: "#A0ADB8" }}>for 7 days</span>
           </div>
           <p className="text-xs mt-2" style={{ color: "#A0ADB8" }}>
-            then $49.99 per month. Cancel anytime.
+            then $19.99 per month. Cancel anytime.
           </p>
         </div>
 

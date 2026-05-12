@@ -110,10 +110,10 @@ export function DailyLimitPaywall({
             className="font-display text-5xl tracking-tight"
             style={{ color: "#E8391D" }}
           >
-            $29<span className="text-2xl text-white">/month</span>
+            $19.99<span className="text-2xl text-white">/month</span>
           </div>
           <p className="text-xs mt-2" style={{ color: "#A0ADB8" }}>
-            7-day free trial. Then $29/month. Cancel anytime.
+            7-day free trial. Then $19.99/month. Cancel anytime.
           </p>
         </div>
 

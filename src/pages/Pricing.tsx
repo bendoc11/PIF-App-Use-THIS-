@@ -85,7 +85,7 @@ export default function Pricing() {
             <div className="text-center space-y-1">
               <p className="text-sm font-semibold uppercase tracking-wide text-primary">Pro</p>
               <div>
-                <span className="text-4xl font-bold text-foreground">$12.99</span>
+                <span className="text-4xl font-bold text-foreground">$19.99</span>
                 <span className="text-muted-foreground">/month</span>
               </div>
               <p className="text-sm text-primary font-medium">Free 7-day trial</p>

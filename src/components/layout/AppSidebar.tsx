@@ -1,8 +1,9 @@
-import { LayoutDashboard, BookOpen, Users, MessageSquare, TrendingUp, Settings, LogOut, Shield, Crosshair, UserCircle, Inbox } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, MessageSquare, TrendingUp, Settings, LogOut, Shield, Crosshair, UserCircle, Inbox, Lock } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUnreadReplies } from "@/hooks/useUnreadReplies";
+import { isPaidSubscriber } from "@/lib/subscription";
 
 import {
   Sidebar,
@@ -27,9 +28,10 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
-  const { signOut, profile } = useAuth();
+  const { signOut, profile, hasActiveSubscription } = useAuth();
   const role = profile?.role || "user";
   const unreadReplies = useUnreadReplies();
+  const isPaid = isPaidSubscriber(profile, hasActiveSubscription);
 
   const initials = profile
     ? `${(profile.first_name || "")[0] || ""}${(profile.last_name || "")[0] || ""}`.toUpperCase()
@@ -58,7 +60,11 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => {
-                const showBadge = item.badgeKey === "replies" && unreadReplies > 0;
+                const isRepliesItem = item.badgeKey === "replies";
+                const showLockedReplies = isRepliesItem && !isPaid;
+                const showUnreadDot = isRepliesItem && isPaid && unreadReplies > 0;
+                // Always show pulsing red dot on Replies for unsubscribed users
+                const showLockedPulse = showLockedReplies;
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
@@ -71,15 +77,23 @@ export function AppSidebar() {
                       >
                         <div className="relative shrink-0">
                           <item.icon className="h-5 w-5" />
-                          {showBadge && collapsed && (
-                            <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-pif-red" />
+                          {(showUnreadDot || showLockedPulse) && collapsed && (
+                            <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-pif-red animate-pulse" />
                           )}
                         </div>
-                        {!collapsed && <span>{item.title}</span>}
-                        {showBadge && !collapsed && (
+                        {!collapsed && (
+                          <span className="flex items-center gap-1.5">
+                            {item.title}
+                            {showLockedReplies && <Lock className="h-3.5 w-3.5 opacity-80" />}
+                          </span>
+                        )}
+                        {showUnreadDot && !collapsed && (
                           <span className="ml-auto bg-pif-red text-white rounded-full text-xs font-medium px-2 py-0.5 min-w-[20px] text-center">
                             {unreadReplies > 99 ? "99+" : unreadReplies}
                           </span>
+                        )}
+                        {showLockedPulse && !collapsed && (
+                          <span className="ml-auto h-2.5 w-2.5 rounded-full bg-pif-red animate-pulse" />
                         )}
                       </NavLink>
                     </SidebarMenuButton>

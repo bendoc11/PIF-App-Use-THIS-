@@ -24,6 +24,7 @@ import MyProfile from "./pages/MyProfile";
 import PublicAthleteProfile from "./pages/PublicAthleteProfile";
 
 import SignupSuccess from "./pages/SignupSuccess";
+import Replies from "./pages/Replies";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import OAuthCallback from "./pages/OAuthCallback";

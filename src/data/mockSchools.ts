@@ -108,9 +108,9 @@ export const STATE_CENTROIDS: Record<string, [number, number]> = {
 export function normalizeDivision(raw: string | null | undefined): Division | null {
   if (!raw) return null;
   const v = raw.trim().toUpperCase();
-  if (v === "NCAA D1" || v === "NCAA DI" || v === "D1") return "D1";
-  if (v === "NCAA DII" || v === "NCAA D2" || v === "D2") return "D2";
-  if (v === "NCAA DIII" || v === "NCAA D3" || v === "D3") return "D3";
+  if (v === "NCAA D1" || v === "NCAA DI" || v === "D1" || v === "DI") return "D1";
+  if (v === "NCAA DII" || v === "NCAA D2" || v === "D2" || v === "DII") return "D2";
+  if (v === "NCAA DIII" || v === "NCAA D3" || v === "D3" || v === "DIII") return "D3";
   if (v === "NAIA") return "NAIA";
   if (v.startsWith("JC") || v === "JUCO") return "JUCO";
   return null;

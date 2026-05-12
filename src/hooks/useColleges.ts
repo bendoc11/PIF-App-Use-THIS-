@@ -9,6 +9,8 @@ import {
   sizeFromEnrollment,
   academicFromGpa,
   stateToCode,
+  toStateName,
+  STATE_CENTROIDS,
 } from "@/data/mockSchools";
 
 interface CoachRow {

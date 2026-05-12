@@ -167,7 +167,13 @@ export default function Replies() {
   if (!paid) {
     return (
       <AppLayout>
-        <LockedRepliesView replies={lockedList} />
+        <div className="max-w-3xl mx-auto px-4 py-6">
+          <h1 className="font-display text-3xl text-foreground tracking-tight mb-1">Coach Replies</h1>
+          <p className="text-sm text-muted-foreground mb-5">
+            Coach replies are locked until you subscribe. Subscribe now to read every response the moment it arrives.
+          </p>
+          <RepliesPanel locked />
+        </div>
       </AppLayout>
     );
   }

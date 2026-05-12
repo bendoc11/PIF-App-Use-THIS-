@@ -309,8 +309,8 @@ export default function Recruit() {
                   <div id="replies-panel" className="mb-5">
                     <RepliesPanel
                       onCountChange={setRepliesCount}
-                      locked={!hasActiveSubscription}
-                      onLockedClick={() => setPaywallVariant("upgrade")}
+                      locked={!isPaid}
+                      onLockedClick={() => setShowDailyLimitPaywall(true)}
                     />
                   </div>
                 </>

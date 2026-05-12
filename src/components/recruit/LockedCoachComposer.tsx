@@ -134,7 +134,7 @@ export function LockedCoachComposer({ coach, locked, onBack, onSendIntercept }: 
               style={{ backgroundColor: "#E8391D" }}
             >
               {sending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : locked ? <Lock className="h-4 w-4 mr-2" /> : <Send className="h-4 w-4 mr-2" />}
-              {locked ? "SEND — UNLOCK FOR $29/MO" : "SEND EMAIL"}
+              {locked ? "SEND — UNLOCK FOR $19.99/MO" : "SEND EMAIL"}
             </Button>
           </div>
         </Card>

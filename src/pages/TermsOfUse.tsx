@@ -37,7 +37,7 @@ export default function TermsOfUse() {
           <section>
             <h2 className="text-lg font-heading text-foreground mb-3">5. Subscription & Payment</h2>
             <ul className="list-disc pl-5 space-y-2">
-              <li>The App offers a Pro subscription at $12.99/month, which includes a free 7-day trial for new subscribers.</li>
+              <li>The App offers a Pro subscription at $19.99/month, which includes a free 7-day trial for new subscribers.</li>
               <li>Payment is charged to your Apple ID account or payment method on file at confirmation of purchase.</li>
               <li>Subscriptions automatically renew unless auto-renew is turned off at least 24 hours before the end of the current billing period.</li>
               <li>Your account will be charged for renewal within 24 hours prior to the end of the current period at the same price.</li>
@@ -48,7 +48,7 @@ export default function TermsOfUse() {
 
           <section>
             <h2 className="text-lg font-heading text-foreground mb-3">6. Free Trial</h2>
-            <p>New users may be eligible for a 7-day free trial of the Pro subscription. If you do not cancel before the trial ends, your subscription will automatically convert to a paid monthly subscription at $12.99/month. You will only be eligible for one free trial per Apple ID or account.</p>
+            <p>New users may be eligible for a 7-day free trial of the Pro subscription. If you do not cancel before the trial ends, your subscription will automatically convert to a paid monthly subscription at $19.99/month. You will only be eligible for one free trial per Apple ID or account.</p>
           </section>
 
           <section>

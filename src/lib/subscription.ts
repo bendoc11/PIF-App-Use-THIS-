@@ -14,6 +14,6 @@ export function isPaidSubscriber(profile: any, hasActiveSubscriptionRow = false)
 }
 
 export const FREE_DAILY_SEND_LIMIT = 30;
-export const SUBSCRIPTION_PRICE_DISPLAY = "$29/month";
+export const SUBSCRIPTION_PRICE_DISPLAY = "$19.99/month";
 export const STRIPE_CHECKOUT_URL =
   "https://subscribe.playitforward.app/b/4gM00i4Wzc0g7w0buvcEw00";

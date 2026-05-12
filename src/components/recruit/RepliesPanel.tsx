@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Reply as ReplyIcon } from "lucide-react";
+import { Reply as ReplyIcon, Lock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ReplyComposer } from "./ReplyComposer";
+import { STRIPE_CHECKOUT_URL } from "@/lib/subscription";
 
 interface Reply {
   id: string;
@@ -19,6 +20,7 @@ interface Reply {
 interface Props {
   onCountChange?: (total: number) => void;
   locked?: boolean;
+  /** Optional override; defaults to opening the Stripe checkout link. */
   onLockedClick?: () => void;
 }
 
@@ -70,9 +72,14 @@ export function RepliesPanel({ onCountChange, locked, onLockedClick }: Props = {
     };
   }, [user?.id, onCountChange]);
 
+  const goToCheckout = () => {
+    if (onLockedClick) onLockedClick();
+    else window.location.href = STRIPE_CHECKOUT_URL;
+  };
+
   const handleClick = async (r: Reply) => {
     if (locked) {
-      onLockedClick?.();
+      goToCheckout();
       return;
     }
     setExpanded(expanded === r.id ? null : r.id);
@@ -83,6 +90,131 @@ export function RepliesPanel({ onCountChange, locked, onLockedClick }: Props = {
 
   if (loading) return null;
 
+  // ===== LOCKED (unsubscribed) variant =====
+  if (locked) {
+    return (
+      <div
+        id="replies-panel"
+        role="button"
+        tabIndex={0}
+        onClick={goToCheckout}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            goToCheckout();
+          }
+        }}
+        className="cursor-pointer"
+        style={{
+          background: "#FFFFFF",
+          border: "1px solid #D2D2D7",
+          borderRadius: 12,
+        }}
+      >
+        <div className="flex items-center justify-between px-4 py-3">
+          <h3 style={{ fontSize: 13, fontWeight: 600, color: "#1D1D1F", margin: 0 }}>
+            Coach Replies
+          </h3>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 24,
+              height: 24,
+              background: "#F5F5F7",
+              border: "1px solid #D2D2D7",
+              borderRadius: 980,
+            }}
+            aria-label="Locked"
+          >
+            <Lock style={{ width: 12, height: 12, color: "#6E6E73" }} />
+          </span>
+        </div>
+
+        <div style={{ borderTop: "1px solid #E8E8ED" }} />
+
+        <ul>
+          {[0, 1, 2].map((i) => (
+            <li
+              key={i}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: "12px 16px",
+                borderBottom: i < 2 ? "1px solid #E8E8ED" : "none",
+              }}
+            >
+              <div
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: "50%",
+                  background: "#F5F5F7",
+                  flexShrink: 0,
+                  filter: "blur(2px)",
+                }}
+              />
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
+                <div
+                  style={{
+                    width: 120,
+                    height: 10,
+                    background: "#F5F5F7",
+                    borderRadius: 4,
+                    filter: "blur(3px)",
+                  }}
+                />
+                <div
+                  style={{
+                    width: 200,
+                    height: 8,
+                    background: "#F5F5F7",
+                    borderRadius: 4,
+                    filter: "blur(3px)",
+                  }}
+                />
+              </div>
+              <Lock style={{ width: 14, height: 14, color: "#86868B", flexShrink: 0 }} />
+            </li>
+          ))}
+        </ul>
+
+        <div style={{ padding: "14px 16px 16px", textAlign: "center" }}>
+          <p style={{ fontSize: 12, color: "#86868B", margin: 0, marginBottom: 10 }}>
+            Subscribe to unlock replies the moment a coach responds.
+          </p>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              goToCheckout();
+            }}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+              minHeight: 48,
+              background: "#E8391D",
+              color: "#fff",
+              border: "none",
+              borderRadius: 8,
+              padding: "12px 16px",
+              fontSize: 14,
+              fontWeight: 700,
+              letterSpacing: 0.3,
+              cursor: "pointer",
+            }}
+          >
+            Unlock Replies — $19.99/month
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ===== SUBSCRIBED variant =====
   return (
     <div
       id="replies-panel"
@@ -237,46 +369,18 @@ export function RepliesPanel({ onCountChange, locked, onLockedClick }: Props = {
                         {r.school_name}
                       </div>
                     )}
-                    {locked ? (
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
-                        <div
-                          style={{
-                            height: 10,
-                            width: 180,
-                            background: "#E8E8ED",
-                            borderRadius: 4,
-                            filter: "blur(4px)",
-                          }}
-                        />
-                        <span
-                          style={{
-                            fontSize: 11,
-                            fontWeight: 600,
-                            color: "#0071E3",
-                            background: "#E8F1FD",
-                            border: "1px solid #C5DCFF",
-                            borderRadius: 980,
-                            padding: "4px 10px",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          Read reply — upgrade
-                        </span>
-                      </div>
-                    ) : (
-                      <div
-                        style={{
-                          fontSize: 12,
-                          color: "#86868B",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: isOpen ? "pre-wrap" : "nowrap",
-                          marginTop: 2,
-                        }}
-                      >
-                        {isOpen ? r.reply_body_text : preview}
-                      </div>
-                    )}
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: "#86868B",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: isOpen ? "pre-wrap" : "nowrap",
+                        marginTop: 2,
+                      }}
+                    >
+                      {isOpen ? r.reply_body_text : preview}
+                    </div>
                   </div>
                 </button>
                 {isOpen && r.coach_email && (

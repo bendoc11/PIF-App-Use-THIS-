@@ -10,8 +10,9 @@ interface Props {
   selected: MockCoach[];
   onBack: () => void;
   onRemoveCoach: (email: string) => void;
-  onSent: (justHitFreeLimit?: boolean) => void;
-  onUpgradeNeeded?: () => void;
+  onSent: () => void;
+  /** Called when the server returns 429 daily_limit_reached (free user). */
+  onDailyLimitReached?: () => void;
   initialDraft?: { subject: string; body: string } | null;
 }
 

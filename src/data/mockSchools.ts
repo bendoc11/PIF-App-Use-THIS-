@@ -65,8 +65,44 @@ const STATE_TO_CODE: Record<string, string> = {
 };
 
 export function stateToCode(name: string): string {
+  if (!name) return "";
+  // Already a 2-letter code
+  if (name.length === 2 && name === name.toUpperCase()) return name;
   return STATE_TO_CODE[name] ?? name.slice(0, 2).toUpperCase();
 }
+
+const CODE_TO_STATE: Record<string, string> = Object.fromEntries(
+  Object.entries(STATE_TO_CODE).map(([k, v]) => [v, k]),
+);
+
+/** Convert any input (full name or 2-letter code) to full state name. */
+export function toStateName(raw: string | null | undefined): string {
+  if (!raw) return "";
+  const v = raw.trim();
+  if (v.length === 2) return CODE_TO_STATE[v.toUpperCase()] ?? v;
+  return v;
+}
+
+/** Approximate [lon, lat] center for each US state — fallback when DB lacks coords. */
+export const STATE_CENTROIDS: Record<string, [number, number]> = {
+  AL: [-86.79, 32.81], AK: [-152.40, 61.38], AZ: [-111.66, 33.73],
+  AR: [-92.44, 34.97], CA: [-119.68, 36.12], CO: [-105.31, 39.06],
+  CT: [-72.76, 41.60], DE: [-75.51, 38.99], FL: [-81.69, 27.77],
+  GA: [-83.64, 33.04], HI: [-157.50, 21.09], ID: [-114.48, 44.24],
+  IL: [-88.99, 40.35], IN: [-86.26, 39.85], IA: [-93.21, 42.01],
+  KS: [-96.73, 38.53], KY: [-84.67, 37.67], LA: [-91.87, 31.17],
+  ME: [-69.38, 44.69], MD: [-76.80, 39.06], MA: [-71.53, 42.23],
+  MI: [-84.54, 43.33], MN: [-93.90, 45.69], MS: [-89.68, 32.74],
+  MO: [-92.29, 38.46], MT: [-110.45, 46.92], NE: [-98.27, 41.13],
+  NV: [-117.06, 38.31], NH: [-71.56, 43.45], NJ: [-74.52, 40.30],
+  NM: [-106.25, 34.84], NY: [-74.95, 42.17], NC: [-79.81, 35.63],
+  ND: [-99.78, 47.53], OH: [-82.76, 40.39], OK: [-96.93, 35.57],
+  OR: [-122.07, 44.57], PA: [-77.21, 40.59], RI: [-71.51, 41.68],
+  SC: [-80.95, 33.86], SD: [-99.44, 44.30], TN: [-86.69, 35.75],
+  TX: [-97.56, 31.05], UT: [-111.86, 40.15], VT: [-72.71, 44.04],
+  VA: [-78.17, 37.77], WA: [-121.49, 47.40], WV: [-80.95, 38.49],
+  WI: [-89.62, 44.27], WY: [-107.30, 42.75], DC: [-77.03, 38.90],
+};
 
 /** Normalize raw DB division strings to our 5 buckets. */
 export function normalizeDivision(raw: string | null | undefined): Division | null {

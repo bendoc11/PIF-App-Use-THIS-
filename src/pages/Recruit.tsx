@@ -360,13 +360,12 @@ export default function Recruit() {
                     onRemoveCoach={(email) =>
                       setView({ ...view, coaches: view.coaches.filter((c) => c.email !== email) })
                     }
-                    onSent={async (justHitFreeLimit) => {
+                    onSent={async () => {
                       await loadOutreach();
                       await refreshProfile();
                       setView({ kind: "map" });
-                      if (justHitFreeLimit) setPaywallVariant("post-send-3");
                     }}
-                    onUpgradeNeeded={() => setPaywallVariant("upgrade")}
+                    onDailyLimitReached={() => setShowDailyLimitPaywall(true)}
                   />
                 </div>
               )}
@@ -390,11 +389,7 @@ export default function Recruit() {
         </div>
       </div>
 
-      <FreemiumPaywall
-        open={paywallVariant !== null}
-        variant={paywallVariant ?? "upgrade"}
-        onClose={() => setPaywallVariant(null)}
-      />
+      {showDailyLimitPaywall && !isPaid && <DailyLimitPaywall />}
 
       <AddOfferDialog open={showOfferDialog} onOpenChange={setShowOfferDialog} onSaved={loadOffers} />
     </AppLayout>

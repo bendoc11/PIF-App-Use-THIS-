@@ -63,7 +63,7 @@ export default function Recruit() {
   const { user, profile, hasActiveSubscription, refreshProfile } = useAuth();
   const { schools: rawSchools, loading, error } = useColleges();
   const p: any = profile ?? {};
-  const freeSendsUsed = (p.free_sends_used as number | undefined) ?? 0;
+  const isPaid = isPaidSubscriber(profile, hasActiveSubscription);
 
   // Deduplicate schools by id (prevents duplicates like Alabama A&M appearing twice)
   const schools = useMemo(() => {
@@ -81,7 +81,7 @@ export default function Recruit() {
   const [offersCount, setOffersCount] = useState(0);
   const [interestedSchools, setInterestedSchools] = useState<Set<string>>(new Set());
   const [showOfferDialog, setShowOfferDialog] = useState(false);
-  const [paywallVariant, setPaywallVariant] = useState<null | "post-send-3" | "upgrade">(null);
+  const [showDailyLimitPaywall, setShowDailyLimitPaywall] = useState(false);
 
   const [filters, setFilters] = useState<MapFilters>({
     states: [],

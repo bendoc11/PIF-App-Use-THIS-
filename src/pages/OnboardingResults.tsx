@@ -6,8 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import OnboardingBackground from "@/components/onboarding/OnboardingBackground";
 import { ensureMatchedCoaches, MatchedCoach } from "@/lib/coachMatching";
-import { FreemiumPaywall } from "@/components/recruit/FreemiumPaywall";
 import { LockedCoachComposer } from "@/components/recruit/LockedCoachComposer";
+import { DailyLimitPaywall } from "@/components/paywall/DailyLimitPaywall";
 
 export default function OnboardingResults() {
   const navigate = useNavigate();

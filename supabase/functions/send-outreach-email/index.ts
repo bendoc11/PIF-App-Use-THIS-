@@ -1,4 +1,6 @@
 // Send outreach email via SendGrid using the athlete's personal alias.
+// Daily-limit model: free users may send up to FREE_DAILY_LIMIT per day; paid
+// subscribers have no limit.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
@@ -7,8 +9,7 @@ const corsHeaders = {
 };
 
 const ALIAS_DOMAIN = "mail.playitforward.app";
-const FREE_LIFETIME_LIMIT = 20;
-const PAID_DAILY_LIMIT = 50;
+const FREE_DAILY_LIMIT = 30;
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -49,17 +50,15 @@ Deno.serve(async (req) => {
 
     const admin = createClient(SUPABASE_URL, SERVICE);
 
-    // Load profile
     const { data: profile, error: pErr } = await admin
       .from("profiles")
-      .select("first_name, last_name, grad_year, email_alias, subscription_status")
+      .select("first_name, last_name, grad_year, email_alias, subscription_status, role, plan")
       .eq("id", userId)
       .maybeSingle();
     if (pErr || !profile) return json({ error: "Profile not found" }, 400);
 
     let alias = profile.email_alias as string | null;
     if (!alias) {
-      // Try to generate now
       if (profile.first_name && profile.last_name && profile.grad_year) {
         const { data: gen } = await admin.rpc("generate_email_alias", {
           _first: profile.first_name,
@@ -76,32 +75,41 @@ Deno.serve(async (req) => {
       return json({ error: "Your email alias is not set. Please complete your profile (name and graduation year)." }, 400);
     }
 
-    const isPaid = ["active", "trialing", "past_due"].includes(profile.subscription_status ?? "");
+    // Determine paid vs free.
+    const profileLooksPaid =
+      profile.role === "admin" ||
+      profile.role === "creator" ||
+      ["pro", "premium", "lifetime"].includes(profile.plan ?? "") ||
+      ["active", "trialing", "past_due"].includes(profile.subscription_status ?? "");
 
-    // Quota
+    let isPaid = profileLooksPaid;
     if (!isPaid) {
-      const { count } = await admin
-        .from("outreach_history")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", userId);
-      if ((count ?? 0) >= FREE_LIFETIME_LIMIT) {
-        return json({
-          error: "free_limit_reached",
-          message: "You've used your 20 free outreach emails. Upgrade to keep contacting coaches.",
-        }, 402);
-      }
-    } else {
-      const today = new Date().toISOString().slice(0, 10);
+      const { data: subRow } = await admin
+        .from("subscriptions")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("status", "active")
+        .limit(1)
+        .maybeSingle();
+      if (subRow) isPaid = true;
+    }
+
+    // Free users: enforce daily 30 cap.
+    const today = new Date().toISOString().slice(0, 10);
+    let currentCount = 0;
+    if (!isPaid) {
       const { data: counter } = await admin
         .from("email_send_counters")
         .select("count")
         .eq("user_id", userId)
         .eq("day", today)
         .maybeSingle();
-      if ((counter?.count ?? 0) >= PAID_DAILY_LIMIT) {
+      currentCount = counter?.count ?? 0;
+      if (currentCount >= FREE_DAILY_LIMIT) {
         return json({
           error: "daily_limit_reached",
-          message: "You have reached your daily outreach limit. This protects our sending reputation and ensures your emails continue to reach coaches. Your limit resets tomorrow.",
+          limit: FREE_DAILY_LIMIT,
+          message: `You've reached your daily limit of ${FREE_DAILY_LIMIT} coach contacts. Subscribe to unlock unlimited daily sends.`,
         }, 429);
       }
     }
@@ -130,9 +138,9 @@ Deno.serve(async (req) => {
       return json({ error: "Email provider error", details: txt }, 502);
     }
 
-    // Increment daily counter (paid only) — best-effort
-    if (isPaid) {
-      const today = new Date().toISOString().slice(0, 10);
+    // Increment daily counter for free users (best-effort).
+    if (!isPaid) {
+      const newCount = currentCount + 1;
       const { data: existing } = await admin
         .from("email_send_counters")
         .select("count")
@@ -146,9 +154,10 @@ Deno.serve(async (req) => {
       } else {
         await admin.from("email_send_counters").insert({ user_id: userId, day: today, count: 1 });
       }
+      return json({ success: true, from: fromEmail, daily_count: newCount, daily_limit: FREE_DAILY_LIMIT });
     }
 
-    return json({ success: true, from: fromEmail });
+    return json({ success: true, from: fromEmail, unlimited: true });
   } catch (e) {
     console.error("[send-outreach-email] unexpected", e);
     return json({ error: "Unexpected error" }, 500);

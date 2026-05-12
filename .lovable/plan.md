@@ -1,123 +1,87 @@
-# Get Recruited — Locker Room Redesign
+# Monetization Overhaul Plan
 
-Transform `/recruit` from CRM-feeling layout into a Nike Training Club × ESPN scoreboard recruiting command center for 15–18 year old athletes.
+## What changes
 
-## Scope
+Replace the current paywall system (lifetime free-send cap, FreemiumPaywall, Paywall route, post-onboarding paywall) with a daily-limit + locked-replies model.
 
-This is a **frontend-only visual + language redesign**. No DB changes, no edge function changes, no business logic changes. All existing data flows (SendGrid sending, replies, pipeline tracking) remain wired up exactly as they are — only the presentation changes.
+## 1. Cleanup (remove old system)
 
-## Language Replacements (global on this page)
+- Delete `src/components/recruit/FreemiumPaywall.tsx` and all references in `Recruit.tsx` / `EmailComposer.tsx`.
+- Remove `free_sends_used` lifetime gating in `send-outreach-email` (keep the function shape — only swap the limit logic).
+- Strip paywall checks from `Pricing.tsx`, `OnboardingResults.tsx`, `SignupSuccess.tsx`, `AuthGuard.tsx` (already permissive — just confirm).
+- Keep `Paywall.tsx` route reachable but route post-onboarding straight to dashboard.
 
-| Old | New |
-|---|---|
-| Compose new outreach | Message a coach |
-| Past outreach / Outreach | Sent messages |
-| Reply rate | (removed from hero) |
-| Pipeline | Your schools |
-| In conversation | Interested |
-| Official interest | Offer received |
-| Recruiting level | Your level |
-| Coaches contacted | Coaches messaged |
-| Two-way command center | (deleted) |
+## 2. Daily send limit (30/day for free users)
 
-## Typography & Color
+- Reuse existing `email_send_counters(user_id, day, count)` table.
+- Update `send-outreach-email` edge function:
+  - Look up active subscription (profiles.subscription_status in active/trialing OR plan in pro/premium/lifetime OR role admin/creator) → unlimited.
+  - Otherwise: increment today's counter; if `>30` return `{ error: 'daily_limit_reached', limit: 30 }` with 429.
+- Frontend `EmailComposer` catches that error and opens the new `DailyLimitPaywall` modal (non-dismissable; only Subscribe / Restore).
 
-- Add Barlow Condensed (800, 900) + DM Sans (400, 500, 600) to `index.html`
-- Add new tokens to `tailwind.config.ts` and `index.css` scoped to the recruit page (so the rest of the dark-themed app is untouched):
-  - `--brand-orange #E85C2C`, `--brand-orange-light #FFF0EB`
-  - `--brand-black #0D0D0D`, `--brand-cream #F5F2ED`
-  - `--brand-ink #1A1A1A`, `--brand-muted #9A9590`, `--brand-border #E8E4DE`
-  - Division badge palette (D1/D2/D3/JUCO/NAIA)
-- Headings/numbers: `font-['Barlow_Condensed']` weight 900, 48–64px scoreboard sizing
-- Body: `font-['DM_Sans']`
+## 3. Replies tab (new)
 
-The rest of the app keeps its existing dark theme — these new tokens only render via explicit class names on the recruit page.
+- Add route `/replies` and a `<Replies />` page.
+- Sidebar order: Get Recruited → **Replies** → My Profile → My Progress.
+- Tab shows red badge with unread reply count (reuse `useUnreadReplies`, realtime already wired).
+- For paid users: full reply list + reply composer (reuse `RepliesPanel`/`ReplyComposer`).
+- For free users: locked screen — large red lock icon, list of locked cards (coach name + school + title visible, body blurred), CTA to subscribe.
 
-## Layout
+## 4. Subscription helper
 
-```text
-┌──────────┬───────────────────────────────────────┬──────────────┐
-│ Sidebar  │  Top bar (greeting · streak · CTA)    │              │
-│ (existing│                                       │ Right panel  │
-│  app     │  ┌─────────┬─────────┬─────────┐      │ - Next moves │
-│  sidebar │  │ SCHOOLS │ COACHES │ OFFERS  │      │ - Weekly goal│
-│  stays)  │  │ INTERST.│ MESSAGED│ RECEIVED│      │ - Your schl. │
-│          │  └─────────┴─────────┴─────────┘      │ - Got offer? │
-│          │  ┌─────────────────────────────┐      │              │
-│          │  │ FIND YOUR SCHOOL (USA map)  │      │              │
-│          │  │ filter pills, dots, list    │      │              │
-│          │  └─────────────────────────────┘      │              │
-│          │  Sent messages list (collapsible)     │              │
-└──────────┴───────────────────────────────────────┴──────────────┘
-```
+- New `src/lib/subscription.ts` exporting `isPaidSubscriber(profile)` (admin/creator/active sub).
+- Replace `hasActiveSubscription` usages where needed.
 
-The existing app `AppSidebar` (dark, navigation) stays — the spec's "PIF sidebar" is essentially what we already have. We do not replace global navigation.
+## 5. Stripe success flow
 
-## Components (new / refactored)
+- Stripe success URL → `/signup-success?verified=true`.
+- `SignupSuccess` page calls `check-subscription`, shows brief celebration, then redirects to `/replies`.
+- Insert into `subscriptions` table on success.
 
-All new components live under `src/components/recruit/scoreboard/`:
+## 6. Reply notification email (free users)
 
-1. **RecruitTopBar** — greeting with athlete first name in orange, weekly streak pill, "Message a coach" primary orange CTA with 4s pulse.
-2. **HeroMetrics** — 3-card row, staggered fade-up:
-   - Card 1 (orange): SCHOOLS INTERESTED — count of pipeline-flagged schools, decorative white circle
-   - Card 2 (white): COACHES MESSAGED — derived from outreach rows, "X more to hit weekly goal"
-   - Card 3 (white): OFFERS RECEIVED — count from `recruiting_offers`
-3. **FindYourSchoolMap** — white card containing:
-   - Header + division filter pills (D1/D2/D3/JUCO/NAIA toggle)
-   - Inline SVG USA map (240px tall, cream background) with dots from `mockSchools` colored by division; contacted = white ring; interested = orange + pulse ring
-   - Hover tooltip with school/division/coach count
-   - Recently viewed school list (3 rows): name, meta, division badge, "Mark interested", "Message →"
-   - Floating "Browse all schools →" button
-4. **RightRail** with 4 stacked cards:
-   - **NextMoves** — quest-style checklist driven by profile completeness, weekly count, GPA presence
-   - **WeeklyGoalDark** — dark card, 10 bar segments, animated fill
-   - **YourSchools** — 3 mini stats (Contacted/Interested/Offers) + 2-3 recent schools
-   - **GotOfferCTA** — warm tinted, opens existing `AddOfferDialog`
-5. **MessageModal** — wraps the existing `EmailComposer` flow but with the new visual chrome (cream fields, Barlow header, success state with checkmark + auto-close). We reuse the existing send pipeline; only the shell changes.
+- New edge function `notify-reply-received`:
+  - Triggered from `sendgrid-inbound` (DO NOT modify that function — instead, add a Postgres trigger on `coach_replies` insert that calls this via pg_net, OR call it from sendgrid-inbound).
+  - **Constraint says don't modify sendgrid-inbound** → use a database trigger on `coach_replies` insert that uses `pg_net.http_post` to invoke the function.
+  - Function checks if recipient is free (not paid sub). If free, sends branded email via SendGrid: "A college coach replied to your recruiting outreach" with body "Hey {first_name} — {coach_name} from {school} just responded…".
 
-## Files Touched
+## 7. Onboarding copy
 
-**New:**
-- `src/components/recruit/scoreboard/RecruitTopBar.tsx`
-- `src/components/recruit/scoreboard/HeroMetrics.tsx`
-- `src/components/recruit/scoreboard/FindYourSchoolMap.tsx`
-- `src/components/recruit/scoreboard/UsaMapSvg.tsx` (inline simplified US outline path)
-- `src/components/recruit/scoreboard/RightRail.tsx`
-- `src/components/recruit/scoreboard/NextMoves.tsx`
-- `src/components/recruit/scoreboard/WeeklyGoalDark.tsx`
-- `src/components/recruit/scoreboard/YourSchoolsCard.tsx`
-- `src/components/recruit/scoreboard/GotOfferCTA.tsx`
-- `src/components/recruit/scoreboard/MessageModal.tsx`
-- `src/components/recruit/scoreboard/tokens.css` (scoped CSS variables + keyframes)
+- Update `OnboardingResults.tsx` to: "Your profile is live. Start reaching out to coaches — completely free. When coaches reply you'll be notified instantly. Subscribe to read their replies and keep the conversation going." Remove all paywall mentions.
 
-**Edited:**
-- `src/pages/Recruit.tsx` — replace the current main column layout with the new scoreboard layout, keep all existing data hooks (outreach, replies, pipeline, celebration, banner) and route their data into the new components. Wrap the page in a `recruit-scoreboard` class so cream background + new tokens apply only here.
-- `index.html` — add Barlow Condensed + DM Sans Google Fonts links.
-- `tailwind.config.ts` — add `fontFamily.heading` (Barlow Condensed) and `fontFamily.sans-recruit` (DM Sans) plus the brand color tokens.
+## 8. New paywall modal component
 
-**Untouched (preserved):**
-- All edge functions (`send-outreach-email`, `sendgrid-inbound`)
-- All DB tables / migrations
-- Global app theme, navigation, dashboard, drills, courses
-- `EmailComposer` send logic — only its visual wrapper changes via `MessageModal`
+- `src/components/paywall/DailyLimitPaywall.tsx` — full-screen, non-dismissable, used when daily 30 cap is hit.
+- Contains the exact copy from spec, $29/month red text, Stripe link, restore button.
 
-## Animations
+## Stripe link
 
-Implemented via existing Tailwind animation utilities + a small keyframe set in `tokens.css`:
+The user said `[PASTE YOUR STRIPE LINK]` — I'll reuse the existing checkout URL from `Paywall.tsx` (`https://subscribe.playitforward.app/b/4gM00i4Wzc0g7w0buvcEw00`). Confirm or provide a different link before launch.
 
-- Hero stats: `fade-up` with `animation-delay` 0/80/160ms
-- Number pop on increment: `scale(1.2) → 1` 300ms with spring easing (key off React state diff)
-- Map dot hover: scale 1.6 + drop-shadow over 150ms
-- Mark interested: button orange flash, star fill, pill slide-in (4px → 0, opacity 0 → 1)
-- Weekly bars: left-to-right reveal, 50ms stagger
-- CTA pulse: 4s box-shadow keyframe loop
-- Filter toggle: dot opacity 0.2s
-- Modal: scale 0.95→1 + fade, 220ms `cubic-bezier(0.22,1,0.36,1)`
+## Files touched
 
-## Verification
+Created:
+- `src/pages/Replies.tsx`
+- `src/components/paywall/DailyLimitPaywall.tsx`
+- `src/components/replies/LockedRepliesView.tsx`
+- `src/lib/subscription.ts`
+- `supabase/functions/notify-reply-received/index.ts`
+- migration: trigger on `coach_replies` insert + drop unused `free_sends_used` references
 
-- Confirm preview renders cream background, orange hero card, USA map with colored dots
-- Confirm "Message a coach" still sends via SendGrid (no change to `EmailComposer` send path)
-- Confirm replies, banner, and celebration still appear (we keep mounting `UnreadRepliesBanner` and `FirstReplyCelebration`)
-- Confirm `recruiting_offers` "Add" flow still works through `AddOfferDialog`
-- No build errors; existing dark app pages unaffected
+Edited:
+- `supabase/functions/send-outreach-email/index.ts` (daily 30 cap)
+- `src/components/recruit/EmailComposer.tsx` (handle 429 → modal)
+- `src/components/layout/AppSidebar.tsx` (new tab + badge)
+- `src/App.tsx` (route)
+- `src/pages/SignupSuccess.tsx` (celebrate → /replies)
+- `src/pages/OnboardingResults.tsx` (copy + redirect target)
+- `src/pages/Recruit.tsx` (remove FreemiumPaywall)
+
+Deleted:
+- `src/components/recruit/FreemiumPaywall.tsx`
+
+## Open questions before I build
+
+1. **Confirm the Stripe payment link** — reuse `https://subscribe.playitforward.app/b/4gM00i4Wzc0g7w0buvcEw00`, or paste a new one? (Spec literally said `[PASTE YOUR STRIPE LINK]`.)
+2. The existing checkout price is $49.99 — your new spec says **$29/month**. The Stripe link controls actual price; I'll only update display copy. Confirm the link points to a $29 price.
+3. The "test in Chrome incognito" step — I can't drive a real browser session through Stripe, sign up, send 30 emails, etc. I'll do code-level verification + smoke test the UI states. OK?

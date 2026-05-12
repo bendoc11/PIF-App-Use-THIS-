@@ -23,7 +23,8 @@ import { RecruitTopBar } from "@/components/recruit/scoreboard/RecruitTopBar";
 import { HeroMetrics } from "@/components/recruit/scoreboard/HeroMetrics";
 import { FindYourSchoolMap } from "@/components/recruit/scoreboard/FindYourSchoolMap";
 import { RecommendedSchools } from "@/components/recruit/RecommendedSchools";
-import { FreemiumPaywall } from "@/components/recruit/FreemiumPaywall";
+import { DailyLimitPaywall } from "@/components/paywall/DailyLimitPaywall";
+import { isPaidSubscriber } from "@/lib/subscription";
 import { NextMoves, QuestItem } from "@/components/recruit/scoreboard/NextMoves";
 import { WeeklyGoalDark } from "@/components/recruit/scoreboard/WeeklyGoalDark";
 import { YourSchoolsCard } from "@/components/recruit/scoreboard/YourSchoolsCard";
@@ -62,7 +63,7 @@ export default function Recruit() {
   const { user, profile, hasActiveSubscription, refreshProfile } = useAuth();
   const { schools: rawSchools, loading, error } = useColleges();
   const p: any = profile ?? {};
-  const freeSendsUsed = (p.free_sends_used as number | undefined) ?? 0;
+  const isPaid = isPaidSubscriber(profile, hasActiveSubscription);
 
   // Deduplicate schools by id (prevents duplicates like Alabama A&M appearing twice)
   const schools = useMemo(() => {
@@ -80,7 +81,7 @@ export default function Recruit() {
   const [offersCount, setOffersCount] = useState(0);
   const [interestedSchools, setInterestedSchools] = useState<Set<string>>(new Set());
   const [showOfferDialog, setShowOfferDialog] = useState(false);
-  const [paywallVariant, setPaywallVariant] = useState<null | "post-send-3" | "upgrade">(null);
+  const [showDailyLimitPaywall, setShowDailyLimitPaywall] = useState(false);
 
   const [filters, setFilters] = useState<MapFilters>({
     states: [],
@@ -222,12 +223,9 @@ export default function Recruit() {
     setView({ kind: "compose", school, coaches: [coach], initialDraft: buildFollowUpDraft(row) });
   };
 
-  // Intercept Message clicks: non-subscribed users with free sends used >= 3 see paywall
+  // Free users can browse and click freely; the paywall only appears when the
+  // server returns a 429 daily_limit_reached during an actual send.
   const guardMessage = (action: () => void) => {
-    if (!hasActiveSubscription && freeSendsUsed >= 3) {
-      setPaywallVariant("upgrade");
-      return;
-    }
     action();
   };
 
@@ -311,8 +309,8 @@ export default function Recruit() {
                   <div id="replies-panel" className="mb-5">
                     <RepliesPanel
                       onCountChange={setRepliesCount}
-                      locked={!hasActiveSubscription}
-                      onLockedClick={() => setPaywallVariant("upgrade")}
+                      locked={!isPaid}
+                      onLockedClick={() => setShowDailyLimitPaywall(true)}
                     />
                   </div>
                 </>
@@ -362,13 +360,12 @@ export default function Recruit() {
                     onRemoveCoach={(email) =>
                       setView({ ...view, coaches: view.coaches.filter((c) => c.email !== email) })
                     }
-                    onSent={async (justHitFreeLimit) => {
+                    onSent={async () => {
                       await loadOutreach();
                       await refreshProfile();
                       setView({ kind: "map" });
-                      if (justHitFreeLimit) setPaywallVariant("post-send-3");
                     }}
-                    onUpgradeNeeded={() => setPaywallVariant("upgrade")}
+                    onDailyLimitReached={() => setShowDailyLimitPaywall(true)}
                   />
                 </div>
               )}
@@ -392,11 +389,7 @@ export default function Recruit() {
         </div>
       </div>
 
-      <FreemiumPaywall
-        open={paywallVariant !== null}
-        variant={paywallVariant ?? "upgrade"}
-        onClose={() => setPaywallVariant(null)}
-      />
+      {showDailyLimitPaywall && !isPaid && <DailyLimitPaywall />}
 
       <AddOfferDialog open={showOfferDialog} onOpenChange={setShowOfferDialog} onSaved={loadOffers} />
     </AppLayout>

@@ -10,8 +10,9 @@ interface Props {
   selected: MockCoach[];
   onBack: () => void;
   onRemoveCoach: (email: string) => void;
-  onSent: (justHitFreeLimit?: boolean) => void;
-  onUpgradeNeeded?: () => void;
+  onSent: () => void;
+  /** Called when the server returns 429 daily_limit_reached (free user). */
+  onDailyLimitReached?: () => void;
   initialDraft?: { subject: string; body: string } | null;
 }
 
@@ -55,10 +56,9 @@ function resolveText(text: string, p: any, coachLastName: string, filmUrl: strin
     .replace(/\[GPA\]/g, p.gpa ?? "");
 }
 
-export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent, onUpgradeNeeded, initialDraft }: Props) {
-  const { profile, user, hasActiveSubscription } = useAuth();
+export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent, onDailyLimitReached, initialDraft }: Props) {
+  const { profile, user } = useAuth();
   const p: any = profile ?? {};
-  const freeSendsUsed = (p.free_sends_used as number | undefined) ?? 0;
   const alias = p.email_alias as string | undefined;
   const fromAddress = alias ? `${alias}@mail.playitforward.app` : null;
   const profileIdentifier = p.username || p.email_alias || user?.id;
@@ -77,11 +77,8 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
   const [body, setBody] = useState(initialDraft?.body ?? buildBody(p, school, "[Coach Last Name]"));
   const [sending, setSending] = useState(false);
 
-  // Resolved preview values
   const previewSubject = resolveText(subject, p, previewCoachLast, filmUrl);
   const previewBody = resolveText(body, p, previewCoachLast, "[[FILM_LINK]]");
-
-  // Split body around the film-link sentinel for inline link rendering
   const bodyParts = previewBody.split("[[FILM_LINK]]");
 
   const send = async () => {
@@ -94,13 +91,6 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
       });
       return;
     }
-
-    // Freemium gate: if not subscribed and already used 3 free sends, block.
-    if (!hasActiveSubscription && freeSendsUsed >= 3) {
-      onUpgradeNeeded?.();
-      return;
-    }
-
     await doSend();
   };
 
@@ -143,25 +133,17 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
       }
     }
 
-    // Increment free_sends_used for non-subscribed users (per successful send)
-    let justHitFreeLimit = false;
-    if (!hasActiveSubscription && success > 0) {
-      const newCount = Math.min(3, freeSendsUsed + success);
-      await supabase
-        .from("profiles")
-        .update({ free_sends_used: newCount })
-        .eq("id", user.id);
-      if (newCount >= 3 && freeSendsUsed < 3) justHitFreeLimit = true;
-    }
-
     setSending(false);
 
     if (dailyHit) {
-      toast({
-        title: "Daily limit reached",
-        description: "You have reached your daily outreach limit. Your limit resets tomorrow.",
-        variant: "destructive",
-      });
+      onDailyLimitReached?.();
+      if (success > 0) {
+        toast({
+          title: `Sent ${success} email${success > 1 ? "s" : ""}`,
+          description: "Saved to outreach history.",
+        });
+        onSent();
+      }
       return;
     }
 
@@ -170,7 +152,7 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
         title: `Sent ${success} email${success > 1 ? "s" : ""}`,
         description: failed > 0 ? `${failed} failed.` : "Saved to outreach history.",
       });
-      onSent(justHitFreeLimit);
+      onSent();
     } else {
       toast({ title: "Send failed", description: "Please try again.", variant: "destructive" });
     }

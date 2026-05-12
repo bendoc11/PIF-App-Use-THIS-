@@ -134,7 +134,7 @@ export function RecruitingSection() {
 
         {/* CTA */}
         <div className="text-center">
-          <Link to="/login">
+          <Link to="/login?mode=signup">
             <Button className="btn-cta bg-transparent hover:bg-secondary/10 text-secondary border-2 border-secondary rounded-lg px-10 py-7 text-base min-h-[56px]">
               SEE EVERY COACH IN YOUR STATE →
             </Button>

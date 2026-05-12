@@ -182,8 +182,8 @@ export function RepliesPanel({ onCountChange, locked, onLockedClick }: Props = {
         </ul>
 
         <div style={{ padding: "14px 16px 16px", textAlign: "center" }}>
-          <p style={{ fontSize: 12, color: "#86868B", margin: 0, marginBottom: 10 }}>
-            Subscribe to unlock replies the moment a coach responds.
+          <p style={{ fontSize: 13, color: "#1D1D1F", fontWeight: 600, margin: 0, marginBottom: 12 }}>
+            Your replies inbox is locked.
           </p>
           <button
             onClick={(e) => {
@@ -203,11 +203,11 @@ export function RepliesPanel({ onCountChange, locked, onLockedClick }: Props = {
               padding: "12px 16px",
               fontSize: 14,
               fontWeight: 700,
-              letterSpacing: 0.3,
+              letterSpacing: 0.5,
               cursor: "pointer",
             }}
           >
-            Unlock Replies — $19.99/month
+            SEE WHO RESPONDED — $19.99/MONTH
           </button>
         </div>
       </div>

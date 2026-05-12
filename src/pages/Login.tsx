@@ -14,7 +14,7 @@ export default function Login() {
   const { user, loading, profile } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const initialTab: "signin" | "signup" = searchParams.get("mode") === "signin" ? "signin" : "signup";
+  const initialTab: "signin" | "signup" = searchParams.get("mode") === "signup" ? "signup" : "signin";
   const [tab, setTab] = useState<"signin" | "signup">(initialTab);
 
   // Keep tab in sync if user navigates between /login and /login?mode=signin

@@ -138,7 +138,7 @@ export function HeroSection() {
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                  <Link to="/login" className="w-full sm:w-auto">
+                  <Link to="/login?mode=signup" className="w-full sm:w-auto">
                     <Button
                       className="bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base font-semibold min-h-[52px] glow-red glow-red-hover"
                     >

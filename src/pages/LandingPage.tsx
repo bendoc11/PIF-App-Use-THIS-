@@ -44,7 +44,7 @@ function Navbar() {
           ))}
         </div>
         <div className="hidden md:flex items-center gap-4">
-          <Link to="/login">
+          <Link to="/login?mode=signup">
             <Button className="bg-primary hover:bg-primary/90 text-foreground rounded-lg px-5 py-2.5 text-sm font-semibold glow-red">
               Build My Free Profile
             </Button>
@@ -64,7 +64,7 @@ function Navbar() {
                 <a key={l.label} href={l.href} onClick={() => setMobileOpen(false)} className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors">{l.label}</a>
               )
             ))}
-            <Link to="/login" onClick={() => setMobileOpen(false)}>
+            <Link to="/login?mode=signup" onClick={() => setMobileOpen(false)}>
               <Button className="bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full py-3 text-sm font-semibold glow-red">Build My Free Profile</Button>
             </Link>
           </div>
@@ -236,7 +236,7 @@ function PricingCTA() {
         <p className="text-muted-foreground text-lg max-w-xl mx-auto mb-6 leading-relaxed">
           Build your free profile, find your schools, and start contacting coaches in the next 10 minutes.
         </p>
-        <Link to="/login">
+        <Link to="/login?mode=signup">
           <Button className="bg-primary hover:bg-primary/90 text-foreground rounded-lg px-10 py-7 text-base font-semibold min-h-[56px] glow-red glow-red-hover">
             Build My Free Profile <ArrowRight className="h-4 w-4 ml-2" />
           </Button>

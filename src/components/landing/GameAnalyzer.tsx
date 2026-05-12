@@ -341,7 +341,7 @@ export function GameAnalyzerSection() {
           animate={inView ? { opacity: 1 } : {}}
           transition={{ delay: 0.7 }}
         >
-          <Link to="/login">
+          <Link to="/login?mode=signup">
             <Button
               className="font-heading tracking-wider text-white rounded-lg px-8 py-6 text-base"
               style={{ background: "hsl(5 78% 55%)", boxShadow: "0 0 20px hsl(5 78% 55% / 0.4)" }}

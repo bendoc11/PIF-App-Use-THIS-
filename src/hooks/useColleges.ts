@@ -130,7 +130,7 @@ function groupRowsToSchools(rows: CoachRow[]): MockSchool[] {
 }
 
 export function useColleges() {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const sport = (profile as any)?.sport ?? "mens_basketball";
   const table = getCoachTable(sport);
   const [schools, setSchools] = useState<MockSchool[]>([]);
@@ -138,6 +138,9 @@ export function useColleges() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Wait until auth is ready — RLS requires an authenticated session,
+    // otherwise we'd silently get 0 rows on first login.
+    if (!user) return;
     let cancelled = false;
     (async () => {
       setLoading(true);
@@ -156,7 +159,7 @@ export function useColleges() {
     return () => {
       cancelled = true;
     };
-  }, [table]);
+  }, [table, user?.id]);
 
   return { schools, loading, error };
 }

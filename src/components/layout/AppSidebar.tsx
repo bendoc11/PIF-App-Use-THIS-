@@ -58,7 +58,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => {
-                const showBadge = item.url === "/recruit" && unreadReplies > 0;
+                const showBadge = item.badgeKey === "replies" && unreadReplies > 0;
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>

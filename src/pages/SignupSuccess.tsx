@@ -96,14 +96,10 @@ export default function SignupSuccess() {
         }
 
         if (cancelled) return;
-        const banner =
-          bannerCoach && bannerSchool
-            ? `Your trial has started and your email to ${bannerCoach} at ${bannerSchool} has been sent. Welcome to Play it Forward.`
-            : "Your trial has started. Welcome to Play it Forward.";
-        navigate(`/dashboard?welcome=${encodeURIComponent(banner)}`, { replace: true });
+        navigate(`/replies?celebrate=1`, { replace: true });
       } catch (e) {
         console.error(e);
-        navigate("/dashboard", { replace: true });
+        navigate("/replies?celebrate=1", { replace: true });
       }
     })();
 

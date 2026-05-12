@@ -1,4 +1,4 @@
-import { LayoutDashboard, BookOpen, Users, MessageSquare, TrendingUp, Settings, LogOut, Shield, Crosshair, UserCircle } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, MessageSquare, TrendingUp, Settings, LogOut, Shield, Crosshair, UserCircle, Inbox } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,8 +16,9 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const navItems: { title: string; url: string; icon: any; tourId?: string }[] = [
+const navItems: { title: string; url: string; icon: any; tourId?: string; badgeKey?: "replies" }[] = [
   { title: "Get Recruited", url: "/recruit", icon: Crosshair },
+  { title: "Replies", url: "/replies", icon: Inbox, badgeKey: "replies" },
   { title: "My Profile", url: "/profile", icon: UserCircle },
   { title: "My Progress", url: "/progress", icon: TrendingUp, tourId: "nav-progress" },
 ];
@@ -57,7 +58,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => {
-                const showBadge = item.url === "/recruit" && unreadReplies > 0;
+                const showBadge = item.badgeKey === "replies" && unreadReplies > 0;
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>

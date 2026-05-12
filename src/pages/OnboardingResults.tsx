@@ -143,7 +143,7 @@ export default function OnboardingResults() {
         </motion.div>
       </div>
 
-      <FreemiumPaywall open={showPaywall} variant="upgrade" onClose={() => setShowPaywall(false)} />
+      {showPaywall && <DailyLimitPaywall />}
     </div>
   );
 }

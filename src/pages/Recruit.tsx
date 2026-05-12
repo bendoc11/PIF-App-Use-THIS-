@@ -223,12 +223,9 @@ export default function Recruit() {
     setView({ kind: "compose", school, coaches: [coach], initialDraft: buildFollowUpDraft(row) });
   };
 
-  // Intercept Message clicks: non-subscribed users with free sends used >= 3 see paywall
+  // Free users can browse and click freely; the paywall only appears when the
+  // server returns a 429 daily_limit_reached during an actual send.
   const guardMessage = (action: () => void) => {
-    if (!hasActiveSubscription && freeSendsUsed >= 3) {
-      setPaywallVariant("upgrade");
-      return;
-    }
     action();
   };
 

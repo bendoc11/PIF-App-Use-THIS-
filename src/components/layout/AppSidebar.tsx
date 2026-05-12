@@ -28,9 +28,10 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
-  const { signOut, profile } = useAuth();
+  const { signOut, profile, hasActiveSubscription } = useAuth();
   const role = profile?.role || "user";
   const unreadReplies = useUnreadReplies();
+  const isPaid = isPaidSubscriber(profile, hasActiveSubscription);
 
   const initials = profile
     ? `${(profile.first_name || "")[0] || ""}${(profile.last_name || "")[0] || ""}`.toUpperCase()

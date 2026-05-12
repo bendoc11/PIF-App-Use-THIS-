@@ -15,6 +15,20 @@ interface LockedReply {
 }
 
 function LockedRepliesView({ replies }: { replies: LockedReply[] }) {
+  const hasReplies = replies.length > 0;
+  const headline = !hasReplies
+    ? "YOUR OUTREACH IS IN FRONT OF COLLEGE COACHES."
+    : replies.length === 1
+      ? "A COACH HAS RESPONDED TO YOUR OUTREACH."
+      : "COACHES HAVE RESPONDED TO YOUR OUTREACH.";
+  const subtext = !hasReplies
+    ? "The moment a coach writes back, their reply lands here. Subscribe so you never miss it."
+    : "Subscribe to read and respond before they move on.";
+
+  // Always show 3 blurred ghost cards. If we have real replies, surface coach/school
+  // on the first N cards so the user sees real proof — but message bodies stay blurred.
+  const cards = Array.from({ length: Math.max(3, replies.length) }).map((_, i) => replies[i] ?? null);
+
   return (
     <div className="min-h-screen px-4 py-10" style={{ backgroundColor: "#080D14" }}>
       <div className="max-w-2xl mx-auto text-center">
@@ -28,83 +42,61 @@ function LockedRepliesView({ replies }: { replies: LockedReply[] }) {
         </div>
 
         <h1 className="font-display text-3xl sm:text-4xl text-white tracking-tight leading-tight mb-3">
-          Coaches have responded to your outreach.
+          {headline}
         </h1>
         <p className="text-base mb-8" style={{ color: "#A0ADB8" }}>
-          {replies.length === 0
-            ? "Your replies will appear here the moment a coach writes back."
-            : `You have ${replies.length} coach ${replies.length === 1 ? "reply" : "replies"} waiting.`}
+          {subtext}
         </p>
 
         <div className="space-y-3 mb-10 text-left">
-          {replies.length === 0
-            ? Array.from({ length: 3 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="rounded-xl border p-4"
-                  style={{
-                    background: "rgba(255,255,255,0.04)",
-                    borderColor: "rgba(255,255,255,0.08)",
-                  }}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="h-4 w-32 rounded" style={{ background: "rgba(255,255,255,0.08)" }} />
-                    <Lock className="w-4 h-4" style={{ color: "#A0ADB8" }} />
-                  </div>
-                  <div className="h-3 w-48 rounded mb-3" style={{ background: "rgba(255,255,255,0.06)" }} />
-                  <div
-                    className="h-12 rounded"
-                    style={{ background: "rgba(255,255,255,0.04)", filter: "blur(6px)" }}
-                  />
-                </div>
-              ))
-            : replies.map((r) => (
-                <div
-                  key={r.id}
-                  className="rounded-xl border p-4"
-                  style={{
-                    background: "rgba(255,255,255,0.04)",
-                    borderColor: "rgba(255,255,255,0.08)",
-                  }}
-                >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <p className="text-white font-semibold text-base leading-tight">
-                      {r.coach_name || "College coach"}
-                    </p>
-                    <Lock className="w-4 h-4 shrink-0" style={{ color: "#E8391D" }} />
-                  </div>
-                  <p className="text-sm mb-3" style={{ color: "#A0ADB8" }}>
-                    {r.school_name || "—"}
+          {cards.map((r, i) => (
+            <div
+              key={r?.id ?? i}
+              className="rounded-xl border p-4"
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                borderColor: "rgba(255,255,255,0.08)",
+              }}
+            >
+              <div className="flex items-center justify-between mb-1.5">
+                {r ? (
+                  <p className="text-white font-semibold text-base leading-tight">
+                    {r.coach_name || "College coach"}
                   </p>
-                  <div
-                    className="h-14 rounded"
-                    style={{
-                      background: "rgba(255,255,255,0.06)",
-                      filter: "blur(6px)",
-                    }}
-                    aria-hidden
-                  >
-                    <p className="text-sm text-white/40 px-3 py-2">
-                      Hi, thanks for reaching out — I really appreciate you sharing your film and stats…
-                    </p>
-                  </div>
-                </div>
-              ))}
+                ) : (
+                  <div className="h-4 w-32 rounded" style={{ background: "rgba(255,255,255,0.08)" }} />
+                )}
+                <Lock className="w-4 h-4 shrink-0" style={{ color: "#E8391D" }} />
+              </div>
+              {r ? (
+                <p className="text-sm mb-3" style={{ color: "#A0ADB8" }}>
+                  {r.school_name || "—"}
+                </p>
+              ) : (
+                <div className="h-3 w-48 rounded mb-3" style={{ background: "rgba(255,255,255,0.06)" }} />
+              )}
+              <div
+                className="h-14 rounded"
+                style={{ background: "rgba(255,255,255,0.06)", filter: "blur(6px)" }}
+                aria-hidden
+              >
+                <p className="text-sm text-white/40 px-3 py-2">
+                  Hi, thanks for reaching out — I really appreciate you sharing your film and stats…
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
-
-        <p className="text-base mb-6" style={{ color: "#A0ADB8" }}>
-          Subscribe to Play it Forward to read every coach reply and keep the conversation going.
-        </p>
 
         <a
           href={STRIPE_CHECKOUT_URL}
           className="block w-full max-w-sm mx-auto h-14 rounded-md flex items-center justify-center text-base font-heading tracking-wider text-white"
           style={{ backgroundColor: "#E8391D" }}
         >
-          Read My Replies — Start Free Trial — $29/month
+          UNLOCK MY REPLIES — $19.99/MONTH
         </a>
         <p className="text-xs mt-3" style={{ color: "#A0ADB8" }}>
-          7-day free trial. Then $29/month. Cancel anytime.
+          7-day free trial. Then $19.99/month. Cancel anytime.
         </p>
       </div>
     </div>

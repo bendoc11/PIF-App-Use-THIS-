@@ -9,6 +9,8 @@ import {
   sizeFromEnrollment,
   academicFromGpa,
   stateToCode,
+  toStateName,
+  STATE_CENTROIDS,
 } from "@/data/mockSchools";
 
 interface CoachRow {
@@ -76,20 +78,22 @@ function groupRowsToSchools(rows: CoachRow[]): MockSchool[] {
       const enrollment = r.undergrad_enrollment ? parseInt(r.undergrad_enrollment.replace(/[^0-9]/g, ""), 10) : NaN;
       const enrollmentNum = isNaN(enrollment) ? 0 : enrollment;
       const gpaNum = r.avg_gpa ? parseFloat(r.avg_gpa) : NaN;
-      const stateName = r.state ?? "";
+      const stateName = toStateName(r.state);
+      const stateCode = stateToCode(r.state ?? "");
       const lon = r.longitude == null ? NaN : Number(r.longitude);
       const lat = r.latitude == null ? NaN : Number(r.latitude);
-      const coords: [number, number] = [
-        Number.isFinite(lon) ? lon : 0,
-        Number.isFinite(lat) ? lat : 0,
-      ];
+      const fallback = STATE_CENTROIDS[stateCode];
+      const coords: [number, number] =
+        Number.isFinite(lon) && Number.isFinite(lat) && (lon !== 0 || lat !== 0)
+          ? [lon, lat]
+          : fallback ?? [0, 0];
 
       school = {
         id: key.replace(/\s+/g, "-").toLowerCase(),
         name: r.school_name,
         city: r.city ?? "",
         state: stateName,
-        stateCode: stateToCode(stateName),
+        stateCode,
         coordinates: coords,
         division,
         academicLevel: academicFromGpa(isNaN(gpaNum) ? null : gpaNum),

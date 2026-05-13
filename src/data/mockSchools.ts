@@ -84,8 +84,10 @@ const CODE_TO_STATE: Record<string, string> = Object.fromEntries(
 export function toStateName(raw: string | null | undefined): string {
   if (!raw) return "";
   const v = raw.trim();
-  if (v.length === 2) return CODE_TO_STATE[v.toUpperCase()] ?? v;
-  return v;
+  if (v.length === 2) return CODE_TO_STATE[v.toUpperCase()] ?? v.toUpperCase();
+  return v
+    .toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 /** Approximate [lon, lat] center for each US state — fallback when DB lacks coords. */

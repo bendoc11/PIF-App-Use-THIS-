@@ -42,6 +42,31 @@ interface CoachRow {
 
 const PAGE_SIZE = 1000;
 
+function parseDbNumber(value: string | null): number | null {
+  if (!value) return null;
+  const normalized = value.replace(/,/g, "").trim();
+  const match = normalized.match(/\d+(?:\.\d+)?/);
+  if (!match) return null;
+  const parsed = Number(match[0]);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function hashString(value: string): number {
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i++) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function spreadAroundState([lon, lat]: [number, number], seed: string): [number, number] {
+  const hash = hashString(seed);
+  const x = ((hash & 0xffff) / 0xffff - 0.5) * 4.8;
+  const y = (((hash >>> 16) & 0xffff) / 0xffff - 0.5) * 2.8;
+  return [Number((lon + x).toFixed(4)), Number((lat + y).toFixed(4))];
+}
+
 async function fetchAllCoaches(table: "college_coaches" | "coaches_womens_basketball"): Promise<CoachRow[]> {
   const all: CoachRow[] = [];
   let from = 0;
@@ -53,6 +78,9 @@ async function fetchAllCoaches(table: "college_coaches" | "coaches_womens_basket
       .select(
         "school_name,city,state,conference,division,public_private,school_size,avg_gpa,acceptance_rate,yearly_cost,undergrad_enrollment,first_name,last_name,full_name,title,email,phone,gender,latitude,longitude,twitter_individual,instagram_individual,twitter_team,instagram_team"
       )
+      .order("school_name", { ascending: true })
+      .order("state", { ascending: true })
+      .order("full_name", { ascending: true })
       .range(from, from + PAGE_SIZE - 1);
     if (error) throw error;
     if (!data || data.length === 0) break;
@@ -75,9 +103,8 @@ function groupRowsToSchools(rows: CoachRow[]): MockSchool[] {
     let school = map.get(key);
 
     if (!school) {
-      const enrollment = r.undergrad_enrollment ? parseInt(r.undergrad_enrollment.replace(/[^0-9]/g, ""), 10) : NaN;
-      const enrollmentNum = isNaN(enrollment) ? 0 : enrollment;
-      const gpaNum = r.avg_gpa ? parseFloat(r.avg_gpa) : NaN;
+      const enrollmentNum = parseDbNumber(r.undergrad_enrollment) ?? 0;
+      const gpaNum = parseDbNumber(r.avg_gpa);
       const stateName = toStateName(r.state);
       const stateCode = stateToCode(r.state ?? "");
       const lon = r.longitude == null ? NaN : Number(r.longitude);
@@ -86,7 +113,9 @@ function groupRowsToSchools(rows: CoachRow[]): MockSchool[] {
       const coords: [number, number] =
         Number.isFinite(lon) && Number.isFinite(lat) && (lon !== 0 || lat !== 0)
           ? [lon, lat]
-          : fallback ?? [0, 0];
+          : fallback
+            ? spreadAroundState(fallback, key)
+            : [0, 0];
 
       school = {
         id: key.replace(/\s+/g, "-").toLowerCase(),
@@ -96,10 +125,10 @@ function groupRowsToSchools(rows: CoachRow[]): MockSchool[] {
         stateCode,
         coordinates: coords,
         division,
-        academicLevel: academicFromGpa(isNaN(gpaNum) ? null : gpaNum),
+        academicLevel: academicFromGpa(gpaNum),
         enrollment: enrollmentNum,
         size: sizeFromEnrollment(enrollmentNum) ?? "Medium",
-        avgGpa: isNaN(gpaNum) ? null : gpaNum,
+        avgGpa: gpaNum,
         coaches: [],
         teamTwitter: r.twitter_team || undefined,
         teamInstagram: r.instagram_team || undefined,

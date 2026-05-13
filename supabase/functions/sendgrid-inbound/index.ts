@@ -79,28 +79,47 @@ Deno.serve(async (req) => {
     }
     console.log(`[sendgrid-inbound:${reqId}] alias`, { alias });
 
-    const { data: profile } = await admin
+    const { data: profile, error: profileErr } = await admin
       .from("profiles")
       .select("id, email, first_name, last_name")
       .eq("email_alias", alias)
       .maybeSingle();
 
+    if (profileErr) {
+      console.error(`[sendgrid-inbound:${reqId}] profile lookup error`, profileErr);
+    }
+
+    console.log(`[sendgrid-inbound:${reqId}] athlete lookup`, {
+      alias,
+      athleteFound: !!profile,
+      athleteId: profile?.id ?? null,
+      athleteEmail: profile?.email ?? null,
+    });
+
     if (!profile) {
-      console.warn("[sendgrid-inbound] no profile for alias", alias);
+      console.warn(`[sendgrid-inbound:${reqId}] no profile for alias`, { alias, to, from });
       return new Response("ok", { status: 200 });
     }
 
     const fromAddr = parseAddress(from);
 
-    const { error: insErr } = await admin.from("coach_replies").insert({
-      athlete_id: profile.id,
-      coach_email: fromAddr.email,
-      coach_name: fromAddr.name || null,
-      school_name: null,
-      reply_subject: subject || null,
-      reply_body_text: text || null,
-    });
-    if (insErr) console.error("[sendgrid-inbound] insert error", insErr);
+    const { data: inserted, error: insErr } = await admin
+      .from("coach_replies")
+      .insert({
+        athlete_id: profile.id,
+        coach_email: fromAddr.email,
+        coach_name: fromAddr.name || null,
+        school_name: null,
+        reply_subject: subject || null,
+        reply_body_text: text || null,
+      })
+      .select("id")
+      .single();
+    if (insErr) {
+      console.error(`[sendgrid-inbound:${reqId}] insert error`, insErr);
+    } else {
+      console.log(`[sendgrid-inbound:${reqId}] reply stored`, { reply_id: inserted?.id });
+    }
 
     // Notify athlete via email — celebratory tone
     if (SENDGRID && profile.email) {

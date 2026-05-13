@@ -65,10 +65,15 @@ const STATE_TO_CODE: Record<string, string> = {
 };
 
 export function stateToCode(name: string): string {
-  if (!name) return "";
-  // Already a 2-letter code
-  if (name.length === 2 && name === name.toUpperCase()) return name;
-  return STATE_TO_CODE[name] ?? name.slice(0, 2).toUpperCase();
+  const v = (name || "").trim();
+  if (!v) return "";
+  const upper = v.toUpperCase();
+  // Already a 2-letter code, regardless of source casing/spacing.
+  if (/^[A-Z]{2}$/.test(upper)) return upper;
+  const normalizedName = v
+    .toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+  return STATE_TO_CODE[v] ?? STATE_TO_CODE[normalizedName] ?? upper.slice(0, 2);
 }
 
 const CODE_TO_STATE: Record<string, string> = Object.fromEntries(
@@ -107,12 +112,12 @@ export const STATE_CENTROIDS: Record<string, [number, number]> = {
 /** Normalize raw DB division strings to our 5 buckets. */
 export function normalizeDivision(raw: string | null | undefined): Division | null {
   if (!raw) return null;
-  const v = raw.trim().toUpperCase();
-  if (v === "NCAA D1" || v === "NCAA DI" || v === "D1" || v === "DI") return "D1";
-  if (v === "NCAA DII" || v === "NCAA D2" || v === "D2" || v === "DII") return "D2";
-  if (v === "NCAA DIII" || v === "NCAA D3" || v === "D3" || v === "DIII") return "D3";
-  if (v === "NAIA") return "NAIA";
-  if (v.startsWith("JC") || v === "JUCO") return "JUCO";
+  const v = raw.trim().toUpperCase().replace(/[\s-]+/g, " ");
+  if (["NCAA D1", "NCAA DI", "NCAA DIVISION I", "DIVISION I", "D1", "DI"].includes(v)) return "D1";
+  if (["NCAA DII", "NCAA D2", "NCAA DIVISION II", "DIVISION II", "D2", "DII"].includes(v)) return "D2";
+  if (["NCAA DIII", "NCAA D3", "NCAA DIVISION III", "DIVISION III", "D3", "DIII"].includes(v)) return "D3";
+  if (v.includes("NAIA")) return "NAIA";
+  if (v.startsWith("JC") || v.includes("JUCO") || v.includes("JUNIOR COLLEGE")) return "JUCO";
   return null;
 }
 

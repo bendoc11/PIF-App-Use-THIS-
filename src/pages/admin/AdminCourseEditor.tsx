@@ -543,7 +543,7 @@ export default function AdminCourseEditor() {
             <div className="flex items-start gap-4">
               {thumbnailUrl && (
                 <div className="w-32 h-20 rounded-lg overflow-hidden border border-border bg-muted shrink-0">
-                  <img src={thumbnailUrl} alt="Thumbnail" className="w-full h-full object-cover" />
+                  <img src={thumbnailUrl} alt="Course card thumbnail" className="w-full h-full object-cover" />
                 </div>
               )}
               <div className="flex-1">

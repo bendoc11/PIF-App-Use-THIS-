@@ -79,7 +79,7 @@ export default function StepPhoto({
       >
         {url ? (
           <>
-            <img src={url} alt="Profile" className="absolute inset-0 w-full h-full object-cover" />
+            <img src={url} alt="Athlete profile picture" className="absolute inset-0 w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
               <span className="text-xs text-white/90 font-medium">Tap to replace</span>

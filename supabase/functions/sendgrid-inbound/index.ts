@@ -27,7 +27,22 @@ function extractAlias(toRaw: string | null): string | null {
 }
 
 Deno.serve(async (req) => {
+  const reqId = crypto.randomUUID().slice(0, 8);
+  console.log(`[sendgrid-inbound:${reqId}] incoming`, {
+    method: req.method,
+    url: req.url,
+    contentType: req.headers.get("content-type"),
+    contentLength: req.headers.get("content-length"),
+  });
+
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (req.method === "GET") {
+    // Health check so SendGrid's "Test" button + manual curl confirm reachability.
+    return new Response(JSON.stringify({ ok: true, function: "sendgrid-inbound" }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
+    });
+  }
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
 
   try {
@@ -36,40 +51,75 @@ Deno.serve(async (req) => {
     const SENDGRID = Deno.env.get("SENDGRID_API_KEY");
     const admin = createClient(SUPABASE_URL, SERVICE);
 
-    const form = await req.formData();
+    let form: FormData;
+    try {
+      form = await req.formData();
+    } catch (e) {
+      console.error(`[sendgrid-inbound:${reqId}] formData parse error`, e);
+      return new Response("ok", { status: 200 });
+    }
     const to = form.get("to")?.toString() ?? "";
     const from = form.get("from")?.toString() ?? "";
     const subject = form.get("subject")?.toString() ?? "";
     const text = form.get("text")?.toString() ?? "";
+    const envelope = form.get("envelope")?.toString() ?? "";
+
+    console.log(`[sendgrid-inbound:${reqId}] payload`, {
+      to,
+      from,
+      subject,
+      envelope,
+      textLen: text.length,
+    });
 
     const alias = extractAlias(to);
     if (!alias) {
-      console.warn("[sendgrid-inbound] no alias parsed", { to });
+      console.warn(`[sendgrid-inbound:${reqId}] no alias parsed from "to"`, { to, envelope });
       return new Response("ok", { status: 200 });
     }
+    console.log(`[sendgrid-inbound:${reqId}] alias`, { alias });
 
-    const { data: profile } = await admin
+    const { data: profile, error: profileErr } = await admin
       .from("profiles")
       .select("id, email, first_name, last_name")
       .eq("email_alias", alias)
       .maybeSingle();
 
+    if (profileErr) {
+      console.error(`[sendgrid-inbound:${reqId}] profile lookup error`, profileErr);
+    }
+
+    console.log(`[sendgrid-inbound:${reqId}] athlete lookup`, {
+      alias,
+      athleteFound: !!profile,
+      athleteId: profile?.id ?? null,
+      athleteEmail: profile?.email ?? null,
+    });
+
     if (!profile) {
-      console.warn("[sendgrid-inbound] no profile for alias", alias);
+      console.warn(`[sendgrid-inbound:${reqId}] no profile for alias`, { alias, to, from });
       return new Response("ok", { status: 200 });
     }
 
     const fromAddr = parseAddress(from);
 
-    const { error: insErr } = await admin.from("coach_replies").insert({
-      athlete_id: profile.id,
-      coach_email: fromAddr.email,
-      coach_name: fromAddr.name || null,
-      school_name: null,
-      reply_subject: subject || null,
-      reply_body_text: text || null,
-    });
-    if (insErr) console.error("[sendgrid-inbound] insert error", insErr);
+    const { data: inserted, error: insErr } = await admin
+      .from("coach_replies")
+      .insert({
+        athlete_id: profile.id,
+        coach_email: fromAddr.email,
+        coach_name: fromAddr.name || null,
+        school_name: null,
+        reply_subject: subject || null,
+        reply_body_text: text || null,
+      })
+      .select("id")
+      .single();
+    if (insErr) {
+      console.error(`[sendgrid-inbound:${reqId}] insert error`, insErr);
+    } else {
+      console.log(`[sendgrid-inbound:${reqId}] reply stored`, { reply_id: inserted?.id });
+    }
 
     // Notify athlete via email — celebratory tone
     if (SENDGRID && profile.email) {

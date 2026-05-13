@@ -1,0 +1,12 @@
+# Play it Forward Basketball
+
+> Basketball recruiting and training platform that helps high school athletes reach college coaches directly and improve their game with elite drills.
+
+Play it Forward Basketball gives families a real, affordable path to college basketball. Athletes get every college coach's direct email, personalized outreach tools, a public recruiting profile to share with coaches, and a full library of training drills and workouts from former elite players.
+
+## Pages
+
+- [Home](/): Overview of the recruiting and training platform.
+- [Sign in / Sign up](/login): Create an account or log in.
+- [Privacy Policy](/privacy): How we handle your data.
+- [Terms of Use](/terms): Subscription terms and acceptable use.

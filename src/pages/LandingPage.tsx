@@ -306,12 +306,14 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground scroll-smooth">
       <Navbar />
-      <HeroSection />
-      <ValueProps />
-      <RecruitingOverview />
-      <HowItWorks />
-      <TestimonialSection />
-      <PricingCTA />
+      <main>
+        <HeroSection />
+        <ValueProps />
+        <RecruitingOverview />
+        <HowItWorks />
+        <TestimonialSection />
+        <PricingCTA />
+      </main>
       <Footer />
     </div>
   );

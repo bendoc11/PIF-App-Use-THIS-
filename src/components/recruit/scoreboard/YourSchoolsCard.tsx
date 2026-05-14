@@ -36,12 +36,12 @@ export function YourSchoolsCard({ stats, schools }: Props) {
       </div>
       <div
         style={{
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: 600,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
+          letterSpacing: "0.05em",
           color: "var(--text-tertiary)",
           marginTop: 4,
+          opacity: 0.8,
         }}
       >
         {label}

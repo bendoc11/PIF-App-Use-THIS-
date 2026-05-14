@@ -261,18 +261,20 @@ export function RecommendedSchools({
           <button
             onClick={next}
             disabled={queue.length <= 1}
+            className="rs-next-school-btn"
             style={{
-              background: "rgba(255,255,255,0.05)",
-              color: "#FFFFFF",
-              border: "1px solid rgba(255,255,255,0.20)",
+              background: "transparent",
+              color: "rgba(255,255,255,0.70)",
+              border: "none",
               borderRadius: 12,
               fontSize: 13,
               fontWeight: 600,
               padding: "12px 14px",
               cursor: queue.length <= 1 ? "default" : "pointer",
-              opacity: queue.length <= 1 ? 0.5 : 1,
+              opacity: queue.length <= 1 ? 0.4 : 1,
               fontFamily: SF,
               whiteSpace: "nowrap",
+              transition: "color 150ms",
             }}
           >
             Next school →

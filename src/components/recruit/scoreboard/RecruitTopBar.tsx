@@ -5,17 +5,20 @@ interface Props {
   weeklySent: number;
   weeklyGoal: number;
   sendStreak?: number;
+  coachesMessaged?: number;
   onMessageClick: () => void;
 }
 
-function timeGreeting() {
-  const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 18) return "Good afternoon";
-  return "Good evening";
+function recruitingGreeting(name: string, count: number) {
+  const n = name || "there";
+  if (count === 0) return `Your recruiting journey starts today, ${n}.`;
+  if (count < 10) return `You're just getting started, ${n}. Keep pushing.`;
+  if (count < 20) return `You're getting noticed, ${n}. Don't stop now.`;
+  if (count < 50) return `You're building real momentum, ${n}.`;
+  return `You're putting in the work, ${n}. This is how it happens.`;
 }
 
-export function RecruitTopBar({ firstName, weeklySent, weeklyGoal, sendStreak = 0, onMessageClick }: Props) {
+export function RecruitTopBar({ firstName, weeklySent, weeklyGoal, sendStreak = 0, coachesMessaged = 0, onMessageClick }: Props) {
   return (
     <div
       className="flex items-center justify-between mb-5"
@@ -27,13 +30,16 @@ export function RecruitTopBar({ firstName, weeklySent, weeklyGoal, sendStreak = 
     >
       <div
         style={{
-          fontSize: 18,
-          fontWeight: 600,
+          fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+          fontSize: 28,
+          fontWeight: 700,
           color: "var(--text-primary)",
-          letterSpacing: "-0.01em",
+          letterSpacing: "-0.02em",
+          lineHeight: 1.15,
+          maxWidth: "70%",
         }}
       >
-        {timeGreeting()}, {firstName || "there"}
+        {recruitingGreeting(firstName, coachesMessaged)}
       </div>
       <div className="flex items-center gap-2.5">
         {sendStreak >= 2 && (

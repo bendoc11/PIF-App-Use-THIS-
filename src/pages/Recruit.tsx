@@ -370,7 +370,7 @@ export default function Recruit() {
         <UnreadRepliesBanner onView={scrollToReplies} />
 
         {view.kind === "map" && (
-          <div className="max-w-7xl mx-auto pt-4" style={{ marginLeft: 16, marginRight: 16 }}>
+          <div className="max-w-7xl mx-auto px-4 lg:px-6 pt-4">
             <RecruitProgressBar total={outreach.length} />
           </div>
         )}
@@ -392,6 +392,7 @@ export default function Recruit() {
                     weeklySent={weeklySent}
                     weeklyGoal={WEEKLY_GOAL}
                     sendStreak={sendStreak}
+                    coachesMessaged={outreach.length}
                     onMessageClick={() => guardMessage(() => setView({ kind: "compose-pick" }))}
                   />
 

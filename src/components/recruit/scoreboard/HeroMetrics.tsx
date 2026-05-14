@@ -81,13 +81,13 @@ export function HeroMetrics({
           Coach Interest
         </div>
 
-        <div style={{ marginTop: 14, position: "relative" }}>
+        <div style={{ marginTop: 10, position: "relative" }}>
           <div
             style={{
               fontSize: 72,
               fontWeight: 700,
               letterSpacing: "-0.04em",
-              lineHeight: 0.95,
+              lineHeight: 0.9,
               fontFamily: STAT,
               fontFeatureSettings: '"tnum" 1',
               color: "hsl(var(--pif-red))",
@@ -100,7 +100,7 @@ export function HeroMetrics({
               fontSize: 18,
               fontWeight: 600,
               color: "rgba(255,255,255,0.85)",
-              marginTop: 3,
+              marginTop: 0,
             }}
           >
             {schoolsInterestedInMe === 1 ? "School" : "Schools"} replied

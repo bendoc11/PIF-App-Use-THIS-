@@ -232,8 +232,40 @@ export default function Recruit() {
     action();
   };
 
+  const openQuickSend = (s: MockSchool) => {
+    if (!s.coaches || s.coaches.length === 0) {
+      // No coach data — fall back to school detail
+      setView({ kind: "school", school: s });
+      return;
+    }
+    if (contactedNames.has(s.name)) return;
+    setQuickSend(s);
+  };
+
   const onMessageSchool = (s: MockSchool) => {
-    guardMessage(() => setView({ kind: "school", school: s }));
+    guardMessage(() => openQuickSend(s));
+  };
+
+  const advanceToNext = (current: MockSchool): MockSchool | null => {
+    // Recommended ordering: D3 first (matches RecommendedSchools logic loosely),
+    // skip contacted + current school, prefer schools with coach data.
+    const skip = new Set(contactedNames);
+    skip.add(current.name);
+    const candidates = schools.filter(
+      (s) => !skip.has(s.name) && s.coaches && s.coaches.length > 0,
+    );
+    // Prefer same division, then any
+    const sameDiv = candidates.find((s) => s.division === current.division);
+    return sameDiv ?? candidates[0] ?? null;
+  };
+
+  const onEditFirst = (
+    s: MockSchool,
+    coach: MockCoach,
+    draft: { subject: string; body: string },
+  ) => {
+    setQuickSend(null);
+    setView({ kind: "compose", school: s, coaches: [coach], initialDraft: draft });
   };
 
   const onToggleInterested = (s: MockSchool) => {

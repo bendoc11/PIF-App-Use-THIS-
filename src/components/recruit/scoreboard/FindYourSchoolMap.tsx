@@ -357,8 +357,16 @@ export function FindYourSchoolMap({
                 ) : (
                   <button
                     onClick={() => onMessageSchool(s)}
-                    className="rs-btn-primary inline-flex items-center gap-1"
-                    style={{ fontSize: 12, padding: "6px 16px" }}
+                    className="inline-flex items-center gap-1"
+                    style={{
+                      fontSize: 12,
+                      padding: "6px 16px",
+                      fontWeight: 600,
+                      borderRadius: 980,
+                      background: "hsl(var(--pif-red))",
+                      color: "#FFFFFF",
+                      border: "none",
+                    }}
                   >
                     Message
                     <ChevronRight strokeWidth={1.5} className="h-3.5 w-3.5" />

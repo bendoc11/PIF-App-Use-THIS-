@@ -67,7 +67,7 @@ export default function Replies() {
       <div className="max-w-3xl mx-auto px-4 py-6">
         <h1 className="font-display text-3xl text-foreground tracking-tight mb-1">Coach Replies</h1>
         <p className="text-sm text-muted-foreground mb-5">
-          Every reply lands here in real time. Click any reply to read and respond.
+          Your recruiting inbox. Every coach response in one place.
         </p>
         <RepliesPanel />
       </div>

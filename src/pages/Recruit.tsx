@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import "@/components/recruit/scoreboard/tokens.css";
 import { RecruitTopBar } from "@/components/recruit/scoreboard/RecruitTopBar";
 import { HeroMetrics } from "@/components/recruit/scoreboard/HeroMetrics";
+import { RecruitProgressBar } from "@/components/recruit/scoreboard/RecruitProgressBar";
 import { FindYourSchoolMap } from "@/components/recruit/scoreboard/FindYourSchoolMap";
 import { RecommendedSchools } from "@/components/recruit/RecommendedSchools";
 import { DailyLimitPaywall } from "@/components/paywall/DailyLimitPaywall";

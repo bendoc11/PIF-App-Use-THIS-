@@ -97,7 +97,7 @@ export function RecommendedSchools({ schools, contactedNames, repliedNames, onMe
 
       {recommended.map((s) => {
         const messaged = contactedNames.has(s.name);
-        return (
+        const hasReply = repliedNames?.has(s.name) ?? false;
           <div
             key={s.id}
             style={{

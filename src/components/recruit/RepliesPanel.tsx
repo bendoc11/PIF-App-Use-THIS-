@@ -6,6 +6,7 @@ import { Lock, Inbox, ArrowRight } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ConversationThread } from "./ConversationThread";
 import { STRIPE_CHECKOUT_URL } from "@/lib/subscription";
+import { resolveCoachDisplayName, initialsFromCoach } from "@/lib/coachIdentity";
 
 interface Reply {
   id: string;

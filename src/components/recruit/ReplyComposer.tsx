@@ -38,15 +38,9 @@ export function ReplyComposer({
       ? originalSubject
       : `Re: ${originalSubject}`
     : "Re: Recruiting";
-  const quoted = originalBody
-    ? `\n\n---\nOn an earlier message, ${coachName || coachEmail} wrote:\n${originalBody
-        .split("\n")
-        .map((l) => "> " + l)
-        .join("\n")}`
-    : "";
   const [subject, setSubject] = useState(initialSubject);
   const [body, setBody] = useState(
-    `Hi Coach,\n\nThank you for getting back to me. ${quoted}`,
+    `Hi Coach,\n\nThank you for getting back to me.`,
   );
   const [sending, setSending] = useState(false);
 

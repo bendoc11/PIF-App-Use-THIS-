@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUnreadReplies } from "@/hooks/useUnreadReplies";
 import { isPaidSubscriber } from "@/lib/subscription";
+import { useOutreachGating, getLockedBannerCopy } from "@/hooks/useOutreachGating";
 
 import {
   Sidebar,
@@ -32,6 +33,8 @@ export function AppSidebar() {
   const role = profile?.role || "user";
   const unreadReplies = useUnreadReplies();
   const isPaid = isPaidSubscriber(profile, hasActiveSubscription);
+  const gating = useOutreachGating();
+  const lockedBannerCopy = getLockedBannerCopy(gating);
 
   const initials = profile
     ? `${(profile.first_name || "")[0] || ""}${(profile.last_name || "")[0] || ""}`.toUpperCase()
@@ -61,10 +64,11 @@ export function AppSidebar() {
             <SidebarMenu>
               {navItems.map((item) => {
                 const isRepliesItem = item.badgeKey === "replies";
-                const showLockedReplies = isRepliesItem && !isPaid;
+                // For unpaid users: show lock icon as soon as they've sent any messages.
+                const showLockedReplies = isRepliesItem && !isPaid && gating.sentCount >= 1;
                 const showUnreadDot = isRepliesItem && isPaid && unreadReplies > 0;
-                // Always show pulsing red dot on Replies for unsubscribed users
-                const showLockedPulse = showLockedReplies;
+                // Pulsing red badge only when the locked banner is also showing (3+ sends or real reply).
+                const showLockedPulse = isRepliesItem && !isPaid && !!lockedBannerCopy;
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>

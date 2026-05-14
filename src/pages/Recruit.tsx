@@ -357,6 +357,7 @@ export default function Recruit() {
                     <RepliesPanel
                       onCountChange={setRepliesCount}
                       locked={!isPaid}
+                      athleteName={`${p.first_name ?? ""} ${p.last_name ?? ""}`.trim() || null}
                     />
                   </div>
                 </>

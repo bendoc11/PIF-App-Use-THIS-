@@ -207,7 +207,7 @@ function SecondaryStat({
       style={{
         background: "var(--bg-card)",
         border: "1px solid var(--border)",
-        borderRadius: 12,
+        borderRadius: 8,
         padding: "12px 14px",
         textAlign: "left",
         width: "100%",

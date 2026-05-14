@@ -22,15 +22,15 @@ export function NextMoves({ items }: Props) {
     >
       <div
         style={{
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: 600,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
+          letterSpacing: "0.05em",
           color: "var(--text-tertiary)",
           marginBottom: 12,
+          opacity: 0.8,
         }}
       >
-        Next Moves
+        Next moves
       </div>
       <ul className="space-y-3">
         {items.map((q) => (

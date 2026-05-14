@@ -15,9 +15,9 @@ interface Props {
 }
 
 const STATUS_STYLE: Record<SchoolItem["status"], { bg: string; color: string; border: string }> = {
-  Contacted: { bg: "rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.70)", border: "rgba(255,255,255,0.12)" },
-  Interested: { bg: "hsl(var(--pif-red) / 0.15)", color: "hsl(var(--pif-red))", border: "hsl(var(--pif-red) / 0.25)" },
-  Offer: { bg: "rgba(52,199,89,0.15)", color: "#34C759", border: "rgba(52,199,89,0.25)" },
+  Contacted: { bg: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.60)", border: "transparent" },
+  Interested: { bg: "#0d2e1a", color: "#4ade80", border: "transparent" },
+  Offer: { bg: "rgba(74,222,128,0.18)", color: "#4ade80", border: "transparent" },
 };
 
 export function YourSchoolsCard({ stats, schools }: Props) {

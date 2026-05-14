@@ -41,7 +41,7 @@ export function NextMoves({ items }: Props) {
                 width: 14,
                 height: 14,
                 borderRadius: "50%",
-                border: `1.5px solid ${q.done ? "var(--success)" : "var(--accent)"}`,
+                border: `1.5px solid ${q.done ? "var(--success)" : "hsl(var(--pif-red))"}`,
                 background: "transparent",
               }}
             >
@@ -56,7 +56,7 @@ export function NextMoves({ items }: Props) {
               style={{
                 fontSize: 13,
                 lineHeight: 1.5,
-                color: q.done ? "var(--text-tertiary)" : "var(--text-primary)",
+                color: q.done ? "rgba(255,255,255,0.45)" : "#FFFFFF",
                 textDecoration: q.done ? "line-through" : "none",
               }}
             >

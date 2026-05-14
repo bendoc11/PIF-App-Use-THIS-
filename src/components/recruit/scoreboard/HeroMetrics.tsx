@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { Star, Flame, Trophy, Mail } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface Props {
   schoolsBookmarked: number;        // athlete's own list

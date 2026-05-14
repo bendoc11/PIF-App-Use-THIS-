@@ -253,7 +253,7 @@ export function RecommendedSchools({
                 boxShadow: "0 6px 16px -8px rgba(0,113,227,0.6)",
               }}
             >
-              Send Message →
+              I would play here →
             </button>
           )}
           <button

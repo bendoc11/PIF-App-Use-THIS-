@@ -119,15 +119,14 @@ export function FindYourSchoolMap({
                 key={d}
                 onClick={() => toggleDivision(d)}
                 style={{
+                  fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
                   fontSize: 11,
                   fontWeight: 600,
                   padding: "5px 12px",
-                  borderRadius: 980,
-                  background: active ? "#FFFFFF" : "#2D2D2F",
-                  border: active
-                    ? `1.5px solid ${DIV_DOT[d]}`
-                    : "1px solid #3D3D3F",
-                  color: active ? DIV_TEXT[d] : "#86868B",
+                  borderRadius: 6,
+                  background: active ? "#FFFFFF" : "transparent",
+                  border: active ? "1px solid transparent" : "1px solid rgba(255,255,255,0.20)",
+                  color: active ? "#0F1620" : "rgba(255,255,255,0.60)",
                   transition: "all 150ms",
                 }}
               >
@@ -154,12 +153,12 @@ export function FindYourSchoolMap({
                   <Geography
                     key={geo.rsmKey}
                     geography={geo}
-                    fill="#FFFFFF"
-                    stroke="#D2D2D7"
+                    fill="#1e2535"
+                    stroke="rgba(255,255,255,0.15)"
                     strokeWidth={1}
                     style={{
                       default: { outline: "none" },
-                      hover: { outline: "none", fill: "#F5F5F7" },
+                      hover: { outline: "none", fill: "#262e42" },
                       pressed: { outline: "none" },
                     }}
                   />
@@ -250,11 +249,12 @@ export function FindYourSchoolMap({
       <div style={{ borderTop: "1px solid rgba(255,255,255,0.10)", background: "#0F1620" }}>
         <div
           style={{
+            fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
             fontSize: 11,
             fontWeight: 600,
-            letterSpacing: "0.05em",
-            color: "var(--text-tertiary)",
-            opacity: 0.8,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: "hsl(var(--pif-red))",
             padding: "10px 20px",
           }}
         >
@@ -357,8 +357,16 @@ export function FindYourSchoolMap({
                 ) : (
                   <button
                     onClick={() => onMessageSchool(s)}
-                    className="rs-btn-primary inline-flex items-center gap-1"
-                    style={{ fontSize: 12, padding: "6px 16px" }}
+                    className="inline-flex items-center gap-1"
+                    style={{
+                      fontSize: 12,
+                      padding: "6px 16px",
+                      fontWeight: 600,
+                      borderRadius: 980,
+                      background: "hsl(var(--pif-red))",
+                      color: "#FFFFFF",
+                      border: "none",
+                    }}
                   >
                     Message
                     <ChevronRight strokeWidth={1.5} className="h-3.5 w-3.5" />

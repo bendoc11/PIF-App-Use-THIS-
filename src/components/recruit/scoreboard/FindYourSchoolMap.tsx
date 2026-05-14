@@ -99,10 +99,9 @@ export function FindYourSchoolMap({
         <div>
           <div
             style={{
-              fontSize: 11,
+              fontSize: 14,
               fontWeight: 600,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
+              letterSpacing: "-0.01em",
               color: "#F5F5F7",
             }}
           >

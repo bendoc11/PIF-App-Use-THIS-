@@ -43,7 +43,7 @@ export function HeroMetrics({
           background: "var(--bg-card)",
           border: "1px solid rgba(255,255,255,0.08)",
           borderRadius: 12,
-          padding: "26px 26px",
+          padding: "24px 26px",
           marginBottom: 12,
           position: "relative",
           overflow: "hidden",
@@ -100,21 +100,22 @@ export function HeroMetrics({
               fontSize: 18,
               fontWeight: 600,
               color: "rgba(255,255,255,0.85)",
-              marginTop: 6,
+              marginTop: 3,
             }}
           >
-            {schoolsInterestedInMe === 1 ? "school" : "schools"} replied
+            {schoolsInterestedInMe === 1 ? "School" : "Schools"} replied
           </div>
         </div>
 
         <p
           style={{
-            fontSize: 13,
+            fontSize: 14,
             marginTop: 12,
-            color: "rgba(255,255,255,0.60)",
+            color: "rgba(255,255,255,0.65)",
             fontWeight: 400,
             maxWidth: 460,
             position: "relative",
+            lineHeight: 1.5,
           }}
         >
           {schoolsInterestedInMe > 0

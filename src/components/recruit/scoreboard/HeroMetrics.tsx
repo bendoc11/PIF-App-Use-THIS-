@@ -95,9 +95,11 @@ export function HeroMetrics({
           <div
             style={{
               fontSize: 88,
-              fontWeight: 800,
+              fontWeight: 700,
               letterSpacing: "-0.04em",
               lineHeight: 0.95,
+              fontFamily: STAT,
+              fontFeatureSettings: '"tnum" 1',
             }}
           >
             {schoolsInterestedInMe}

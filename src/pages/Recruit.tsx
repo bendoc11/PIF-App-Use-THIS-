@@ -86,6 +86,7 @@ export default function Recruit() {
   const [repliesCount, setRepliesCount] = useState(0);
   const [offersCount, setOffersCount] = useState(0);
   const [interestedSchools, setInterestedSchools] = useState<Set<string>>(new Set());
+  const [bookmarkedSchools, setBookmarkedSchools] = useState<{ id: string; school_name: string; division: string | null; state: string | null; status: string }[]>([]);
   const [showOfferDialog, setShowOfferDialog] = useState(false);
   const [showDailyLimitPaywall, setShowDailyLimitPaywall] = useState(false);
   const [quickSend, setQuickSend] = useState<MockSchool | null>(null);

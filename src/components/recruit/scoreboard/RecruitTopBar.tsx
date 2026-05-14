@@ -60,20 +60,33 @@ export function RecruitTopBar({ firstName, weeklySent, weeklyGoal, sendStreak = 
             fontSize: 12,
             fontWeight: 500,
             color: "var(--text-secondary)",
-            background: "var(--bg-page)",
-            border: "1px solid var(--border)",
+            background: "hsla(0, 0%, 100%, 0.08)",
+            border: "none",
             borderRadius: 20,
-            padding: "5px 12px",
+            padding: "6px 12px",
           }}
         >
           {weeklySent} / {weeklyGoal} this week
         </div>
         <button
           onClick={onMessageClick}
-          className="rs-btn-primary inline-flex items-center gap-1.5"
-          style={{ padding: "8px 18px" }}
+          className="inline-flex items-center text-white"
+          style={{
+            padding: "9px 18px",
+            gap: 8,
+            fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+            fontWeight: 600,
+            fontSize: 14,
+            letterSpacing: "-0.01em",
+            borderRadius: 10,
+            background: "linear-gradient(180deg, #FF3D2E 0%, #C8261A 100%)",
+            boxShadow:
+              "inset 0 1px 0 hsla(0, 0%, 100%, 0.20), 0 1px 2px hsla(0, 0%, 0%, 0.15)",
+            border: "none",
+            cursor: "pointer",
+          }}
         >
-          <Mail strokeWidth={1.5} className="h-4 w-4" />
+          <Mail strokeWidth={1.75} className="h-4 w-4" />
           Message a coach
         </button>
       </div>

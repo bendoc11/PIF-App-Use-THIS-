@@ -61,10 +61,11 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
   const p: any = profile ?? {};
   const alias = p.email_alias as string | undefined;
   const fromAddress = alias ? `${alias}@mail.playitforward.app` : null;
-  const profileIdentifier = p.username || p.email_alias || user?.id;
-  const filmUrl = profileIdentifier
-    ? `${window.location.origin}/p/${profileIdentifier}`
-    : p.highlight_film_url || "https://playitforward.app";
+  const storedFilm = (p.highlight_film_url ?? "").toString().trim();
+  const filmUrl =
+    storedFilm && !/lovable\.(app|dev)|lovableproject\.com/i.test(storedFilm)
+      ? storedFilm
+      : "[Add your highlight film in My Profile]";
 
   const previewCoachLast = selected[0] ? lastNameOf(selected[0].name) : "Coach";
 

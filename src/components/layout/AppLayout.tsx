@@ -6,9 +6,9 @@ import { Bell } from "lucide-react";
 export function AppLayout({ children }: { children: ReactNode }) {
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-screen flex w-full" style={{ backgroundColor: "#080D14" }}>
         <AppSidebar />
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col min-w-0" style={{ backgroundColor: "#080D14" }}>
           {/* Topbar */}
           <header
             className="flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30"

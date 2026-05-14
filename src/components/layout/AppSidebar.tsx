@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUnreadReplies } from "@/hooks/useUnreadReplies";
 import { isPaidSubscriber } from "@/lib/subscription";
+import { useOutreachGating, getLockedBannerCopy } from "@/hooks/useOutreachGating";
 
 import {
   Sidebar,

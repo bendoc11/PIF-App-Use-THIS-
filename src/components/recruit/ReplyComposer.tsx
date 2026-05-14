@@ -96,21 +96,46 @@ export function ReplyComposer({
           </button>
         </div>
         <div className="p-5 space-y-3 overflow-y-auto">
+          {originalBody && (
+            <div>
+              <label className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
+                Coach's message
+              </label>
+              <div className="mt-1 rounded-md border border-gray-200 bg-gray-50 p-3 max-h-48 overflow-y-auto">
+                {originalSubject && (
+                  <div className="text-xs font-semibold text-gray-700 mb-1">
+                    {originalSubject}
+                  </div>
+                )}
+                <div className="text-sm text-gray-800 whitespace-pre-wrap">
+                  {originalBody}
+                </div>
+              </div>
+            </div>
+          )}
           <div>
             <label className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">To</label>
-            <Input value={coachEmail} disabled className="mt-1 bg-gray-50 text-gray-700" />
+            <Input
+              value={coachEmail}
+              disabled
+              className="mt-1 bg-gray-50 text-gray-700 border-gray-200"
+            />
           </div>
           <div>
             <label className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">Subject</label>
-            <Input value={subject} onChange={(e) => setSubject(e.target.value)} className="mt-1" />
+            <Input
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              className="mt-1 bg-white text-gray-900 border-gray-300 placeholder:text-gray-400"
+            />
           </div>
           <div>
             <label className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">Message</label>
             <Textarea
-              rows={12}
+              rows={10}
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              className="mt-1 text-sm"
+              className="mt-1 text-sm bg-white text-gray-900 border-gray-300 placeholder:text-gray-400"
             />
           </div>
         </div>

@@ -17,14 +17,14 @@ export function WeeklyGoalDark({ sent, goal }: Props) {
     >
       <div
         style={{
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: 600,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
+          letterSpacing: "0.05em",
           color: "var(--text-secondary)",
+          opacity: 0.8,
         }}
       >
-        This Week
+        This week
       </div>
       <div className="mt-2 flex items-baseline gap-1">
         <span
@@ -34,6 +34,8 @@ export function WeeklyGoalDark({ sent, goal }: Props) {
             letterSpacing: "-0.03em",
             lineHeight: 1,
             color: "#FFFFFF",
+            fontFamily: "'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif",
+            fontFeatureSettings: '"tnum" 1',
           }}
         >
           {sent}

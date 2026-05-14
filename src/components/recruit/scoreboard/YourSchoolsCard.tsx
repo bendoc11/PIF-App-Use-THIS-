@@ -73,9 +73,9 @@ export function YourSchoolsCard({ stats, schools }: Props) {
         Your schools
       </div>
       <div className="grid grid-cols-3 gap-3 mb-4">
-        <Stat value={stats.contacted} label="Contacted" color="var(--accent)" />
-        <Stat value={stats.interested} label="Interested" color="var(--accent)" />
-        <Stat value={stats.offers} label="Offers" color="var(--success)" />
+        <Stat value={stats.contacted} label="Contacted" color="#FFFFFF" />
+        <Stat value={stats.interested} label="Interested" color="#FFFFFF" />
+        <Stat value={stats.offers} label="Offers" color="#4ade80" />
       </div>
       {schools.length > 0 && (
         <ul

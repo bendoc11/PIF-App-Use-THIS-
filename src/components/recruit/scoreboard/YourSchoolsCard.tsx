@@ -60,15 +60,15 @@ export function YourSchoolsCard({ stats, schools }: Props) {
     >
       <div
         style={{
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: 600,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
+          letterSpacing: "0.05em",
           color: "var(--text-tertiary)",
           marginBottom: 14,
+          opacity: 0.8,
         }}
       >
-        Your Schools
+        Your schools
       </div>
       <div className="grid grid-cols-3 gap-3 mb-4">
         <Stat value={stats.contacted} label="Contacted" color="var(--accent)" />

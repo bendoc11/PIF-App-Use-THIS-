@@ -362,7 +362,9 @@ export default function Recruit() {
                     <RecommendedSchools
                       schools={schools}
                       contactedNames={contactedNames}
+                      repliedNames={repliedSchools}
                       onMessage={(s) => guardMessage(() => openQuickSend(s))}
+                      onReadReply={() => scrollToReplies()}
                     />
                   )}
 

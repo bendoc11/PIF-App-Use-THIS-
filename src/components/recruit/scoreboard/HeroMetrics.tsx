@@ -37,17 +37,17 @@ export function HeroMetrics({
 
   return (
     <div className="mb-5">
-      {/* HERO — Coach Interest. Larger, gold gradient, eye-catching. */}
+      {/* HERO — Coach Interest. Premium indigo gradient. */}
       <div
         style={{
           background:
-            "linear-gradient(135deg, #FFE9A3 0%, #F5C545 55%, #D69912 100%)",
-          border: "1px solid #C99413",
+            "linear-gradient(135deg, #2d1b69 0%, #1a0f3d 100%)",
+          border: "1px solid rgba(255,255,255,0.12)",
           borderRadius: 16,
           padding: "26px 26px",
           marginBottom: 12,
           boxShadow:
-            "0 1px 0 rgba(255,255,255,0.5) inset, 0 10px 24px -12px rgba(201, 148, 19, 0.55)",
+            "0 1px 0 rgba(255,255,255,0.08) inset, 0 10px 24px -12px rgba(20, 10, 50, 0.7)",
           position: "relative",
           overflow: "hidden",
           fontFamily: SF,
@@ -63,7 +63,7 @@ export function HeroMetrics({
             width: 220,
             height: 220,
             background:
-              "radial-gradient(circle, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 70%)",
+              "radial-gradient(circle, rgba(139,92,246,0.25) 0%, rgba(139,92,246,0) 70%)",
             pointerEvents: "none",
           }}
         />
@@ -75,7 +75,7 @@ export function HeroMetrics({
             fontSize: 11,
             fontWeight: 600,
             letterSpacing: "0.05em",
-            color: "#5A3F03",
+            color: "#FFFFFF",
             opacity: 0.85,
           }}
         >
@@ -89,7 +89,7 @@ export function HeroMetrics({
             alignItems: "baseline",
             gap: 14,
             marginTop: 10,
-            color: "#3F2C00",
+            color: "#FFFFFF",
           }}
         >
           <div
@@ -104,7 +104,7 @@ export function HeroMetrics({
           >
             {schoolsInterestedInMe}
           </div>
-          <div style={{ fontSize: 14, fontWeight: 600, opacity: 0.85 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>
             {schoolsInterestedInMe === 1 ? "school" : "schools"} replied
           </div>
         </div>
@@ -113,7 +113,7 @@ export function HeroMetrics({
           style={{
             fontSize: 13,
             marginTop: 10,
-            color: "#5A3F03",
+            color: "rgba(255,255,255,0.80)",
             fontWeight: 500,
             maxWidth: 460,
             position: "relative",
@@ -207,7 +207,7 @@ function SecondaryStat({
       style={{
         background: "var(--bg-card)",
         border: "1px solid var(--border)",
-        borderRadius: 12,
+        borderRadius: 8,
         padding: "12px 14px",
         textAlign: "left",
         width: "100%",

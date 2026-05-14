@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const CHECKOUT_URL =
-  "https://subscribe.playitforward.app/b/4gM00i4Wzc0g7w0buvcEw00";
+  "https://subscribe.playitforward.app/b/dRmfZgdt55BSg2wgOPcEw06";
 
 /**
  * Full-screen, non-dismissable subscription overlay.

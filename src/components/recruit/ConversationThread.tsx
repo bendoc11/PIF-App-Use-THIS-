@@ -217,6 +217,13 @@ export function ConversationThread({
           className="px-3 py-3"
           style={{ borderTop: "1px solid #1E2733", background: "#0B1018" }}
         >
+          <div
+            className="flex items-center gap-2 px-2 pb-2 text-[11px]"
+            style={{ color: "#A0ADB8" }}
+          >
+            <span style={{ color: "#6B7785" }}>To:</span>
+            <span style={{ color: "#E6EAF0", fontWeight: 500 }}>{coachEmail}</span>
+          </div>
           <div className="flex items-end gap-2">
             <textarea
               value={draft}

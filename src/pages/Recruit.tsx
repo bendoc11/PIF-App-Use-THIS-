@@ -29,8 +29,10 @@ import { NextMoves, QuestItem } from "@/components/recruit/scoreboard/NextMoves"
 import { WeeklyGoalDark } from "@/components/recruit/scoreboard/WeeklyGoalDark";
 import { YourSchoolsCard } from "@/components/recruit/scoreboard/YourSchoolsCard";
 import { GotOfferCTA } from "@/components/recruit/scoreboard/GotOfferCTA";
+import { QuickSendSheet } from "@/components/recruit/QuickSendSheet";
 
 const WEEKLY_GOAL = 10;
+const REPLY_TARGET = 20;
 
 type View =
   | { kind: "map" }

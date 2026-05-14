@@ -98,6 +98,7 @@ export function RecommendedSchools({ schools, contactedNames, repliedNames, onMe
       {recommended.map((s) => {
         const messaged = contactedNames.has(s.name);
         const hasReply = repliedNames?.has(s.name) ?? false;
+        return (
           <div
             key={s.id}
             style={{
@@ -141,7 +142,24 @@ export function RecommendedSchools({ schools, contactedNames, repliedNames, onMe
               >
                 D3
               </span>
-              {messaged ? (
+              {hasReply ? (
+                <button
+                  onClick={() => onReadReply?.(s)}
+                  style={{
+                    background: "#0071E3",
+                    color: "#FFFFFF",
+                    border: "none",
+                    borderRadius: 980,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    padding: "6px 16px",
+                    cursor: "pointer",
+                    fontFamily: SF,
+                  }}
+                >
+                  Read Reply →
+                </button>
+              ) : messaged ? (
                 <span
                   style={{
                     background: "#E8F8EE",

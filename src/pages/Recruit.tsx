@@ -31,6 +31,9 @@ import { WeeklyGoalDark } from "@/components/recruit/scoreboard/WeeklyGoalDark";
 import { YourSchoolsCard } from "@/components/recruit/scoreboard/YourSchoolsCard";
 import { GotOfferCTA } from "@/components/recruit/scoreboard/GotOfferCTA";
 import { QuickSendSheet } from "@/components/recruit/QuickSendSheet";
+import { SocialProofTicker } from "@/components/recruit/SocialProofTicker";
+import { MilestoneCelebration } from "@/components/recruit/MilestoneCelebration";
+import { useMilestones, currentWeekKey } from "@/hooks/useMilestones";
 
 const WEEKLY_GOAL = 10;
 const REPLY_TARGET = 20;

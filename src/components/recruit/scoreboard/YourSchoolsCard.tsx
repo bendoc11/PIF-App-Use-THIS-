@@ -30,6 +30,8 @@ export function YourSchoolsCard({ stats, schools }: Props) {
           letterSpacing: "-0.02em",
           lineHeight: 1,
           color,
+          fontFamily: "'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif",
+          fontFeatureSettings: '"tnum" 1',
         }}
       >
         {value}

@@ -132,11 +132,11 @@ export function RecommendedSchools({
     <div style={{ marginBottom: 20, fontFamily: SF }}>
       <div
         style={{
-          background: "#FFFFFF",
-          border: "1px solid #D2D2D7",
+          background: "#0F1620",
+          border: "1px solid rgba(255,255,255,0.15)",
           borderRadius: 16,
           padding: "20px 22px 18px",
-          boxShadow: "0 1px 0 rgba(0,0,0,0.02), 0 8px 24px -16px rgba(0,0,0,0.12)",
+          boxShadow: "0 1px 0 rgba(255,255,255,0.04) inset, 0 8px 24px -16px rgba(0,0,0,0.5)",
         }}
       >
         <div
@@ -144,9 +144,8 @@ export function RecommendedSchools({
             fontSize: 11,
             fontWeight: 600,
             letterSpacing: "0.05em",
-            color: "#86868B",
+            color: "rgba(255,255,255,0.60)",
             marginBottom: 10,
-            opacity: 0.8,
           }}
         >
           {userState ? "Recruiting in your region" : "Recommended for you"}

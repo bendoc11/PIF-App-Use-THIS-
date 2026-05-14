@@ -37,33 +37,30 @@ export function HeroMetrics({
 
   return (
     <div className="mb-5">
-      {/* HERO — Coach Interest. Premium indigo gradient. */}
+      {/* HERO — Coach Interest. Dark card, red typographic hero. */}
       <div
         style={{
-          background:
-            "linear-gradient(135deg, #2d1b69 0%, #1a0f3d 100%)",
-          border: "1px solid rgba(255,255,255,0.12)",
-          borderRadius: 16,
+          background: "var(--bg-card)",
+          border: "1px solid rgba(255,255,255,0.15)",
+          borderRadius: 12,
           padding: "26px 26px",
           marginBottom: 12,
-          boxShadow:
-            "0 1px 0 rgba(255,255,255,0.08) inset, 0 10px 24px -12px rgba(20, 10, 50, 0.7)",
           position: "relative",
           overflow: "hidden",
           fontFamily: SF,
         }}
       >
-        {/* decorative glow */}
+        {/* subtle red glow behind hero number */}
         <div
           aria-hidden
           style={{
             position: "absolute",
-            top: -60,
-            right: -40,
-            width: 220,
-            height: 220,
+            top: 40,
+            left: 10,
+            width: 240,
+            height: 240,
             background:
-              "radial-gradient(circle, rgba(139,92,246,0.25) 0%, rgba(139,92,246,0) 70%)",
+              "radial-gradient(circle, hsl(var(--pif-red) / 0.15) 0%, hsl(var(--pif-red) / 0) 70%)",
             pointerEvents: "none",
           }}
         />
@@ -74,9 +71,10 @@ export function HeroMetrics({
             gap: 6,
             fontSize: 11,
             fontWeight: 600,
-            letterSpacing: "0.05em",
-            color: "#FFFFFF",
-            opacity: 0.85,
+            letterSpacing: "0.1em",
+            color: "hsl(var(--pif-red))",
+            textTransform: "uppercase",
+            position: "relative",
           }}
         >
           <Flame className="h-3.5 w-3.5" />
@@ -89,22 +87,23 @@ export function HeroMetrics({
             alignItems: "baseline",
             gap: 14,
             marginTop: 10,
-            color: "#FFFFFF",
+            position: "relative",
           }}
         >
           <div
             style={{
-              fontSize: 88,
+              fontSize: 72,
               fontWeight: 700,
               letterSpacing: "-0.04em",
               lineHeight: 0.95,
               fontFamily: STAT,
               fontFeatureSettings: '"tnum" 1',
+              color: "hsl(var(--pif-red))",
             }}
           >
             {schoolsInterestedInMe}
           </div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.80)" }}>
             {schoolsInterestedInMe === 1 ? "school" : "schools"} replied
           </div>
         </div>
@@ -113,8 +112,8 @@ export function HeroMetrics({
           style={{
             fontSize: 13,
             marginTop: 10,
-            color: "rgba(255,255,255,0.80)",
-            fontWeight: 500,
+            color: "rgba(255,255,255,0.60)",
+            fontWeight: 400,
             maxWidth: 460,
             position: "relative",
           }}

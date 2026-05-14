@@ -247,7 +247,7 @@ export function FindYourSchoolMap({
       </div>
 
       {/* Recently viewed */}
-      <div style={{ borderTop: "1px solid #2D2D2F", background: "#FFFFFF" }}>
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.10)", background: "#0F1620" }}>
         <div
           style={{
             fontSize: 11,

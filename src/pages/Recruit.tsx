@@ -152,6 +152,64 @@ export default function Recruit() {
 
   const weeklySent = useMemo(() => outreach.filter((r) => daysAgo(r.sent_at) < 7).length, [outreach]);
 
+  // Send streak: consecutive local-calendar days ending today (or yesterday) with at least one send.
+  const sendStreak = useMemo(() => {
+    if (outreach.length === 0) return 0;
+    const dayKeys = new Set(
+      outreach.map((r) => {
+        const d = new Date(r.sent_at);
+        return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      }),
+    );
+    const keyOf = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    let cursor = new Date();
+    if (!dayKeys.has(keyOf(cursor))) {
+      cursor.setDate(cursor.getDate() - 1);
+      if (!dayKeys.has(keyOf(cursor))) return 0;
+    }
+    let count = 0;
+    while (dayKeys.has(keyOf(cursor))) {
+      count += 1;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    return count;
+  }, [outreach]);
+
+  // Milestone celebrations (one-time per user, persisted in user_milestones).
+  const { loaded: milestonesLoaded, claim } = useMilestones();
+  const [celebration, setCelebration] = useState<{ title: string; message: string } | null>(null);
+
+  useEffect(() => {
+    if (!milestonesLoaded) return;
+    (async () => {
+      // Lifetime send milestones
+      const tiers = [
+        { n: 10, key: "sends_10", title: "10 coaches contacted!", message: "You're officially on the radar. Coaches notice consistency — keep going." },
+        { n: 20, key: "sends_20", title: "20 coaches — top tier!", message: "Athletes who reach 20+ programs are 4× more likely to hear back. You're there." },
+        { n: 50, key: "sends_50", title: "50 messages sent. Elite.", message: "You're in the top 5% of active recruits on the platform. Stay relentless." },
+      ];
+      for (const t of tiers) {
+        if (outreach.length >= t.n) {
+          const fired = await claim(t.key);
+          if (fired) {
+            setCelebration({ title: t.title, message: t.message });
+            return;
+          }
+        }
+      }
+      // Weekly goal celebration
+      if (weeklySent >= WEEKLY_GOAL) {
+        const fired = await claim(`weekly_${currentWeekKey()}`);
+        if (fired) {
+          setCelebration({
+            title: "Weekly goal hit!",
+            message: `${WEEKLY_GOAL} coaches messaged this week. That's the kind of consistency that gets results.`,
+          });
+        }
+      }
+    })();
+  }, [milestonesLoaded, outreach.length, weeklySent, claim]);
+
   const repliedSchools = useMemo(
     () =>
       new Set(

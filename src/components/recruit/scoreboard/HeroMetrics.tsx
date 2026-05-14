@@ -104,7 +104,7 @@ export function HeroMetrics({
           >
             {schoolsInterestedInMe}
           </div>
-          <div style={{ fontSize: 14, fontWeight: 600, opacity: 0.85 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>
             {schoolsInterestedInMe === 1 ? "school" : "schools"} replied
           </div>
         </div>
@@ -113,7 +113,7 @@ export function HeroMetrics({
           style={{
             fontSize: 13,
             marginTop: 10,
-            color: "#5A3F03",
+            color: "rgba(255,255,255,0.80)",
             fontWeight: 500,
             maxWidth: 460,
             position: "relative",

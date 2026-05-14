@@ -15,7 +15,7 @@ function timeGreeting() {
   return "Good evening";
 }
 
-export function RecruitTopBar({ firstName, weeklySent, weeklyGoal, onMessageClick }: Props) {
+export function RecruitTopBar({ firstName, weeklySent, weeklyGoal, sendStreak = 0, onMessageClick }: Props) {
   return (
     <div
       className="flex items-center justify-between mb-5"

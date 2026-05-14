@@ -204,12 +204,15 @@ function SecondaryStat({
       type={onClick ? "button" : undefined}
       style={{
         background: "var(--bg-card)",
-        border: "1px solid var(--border)",
+        border: "1px solid rgba(255,255,255,0.08)",
         borderRadius: 8,
-        padding: "12px 14px",
+        padding: "20px 14px",
         textAlign: "left",
         width: "100%",
         cursor: onClick ? "pointer" : "default",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
       }}
     >
       <div
@@ -225,7 +228,7 @@ function SecondaryStat({
           fontWeight: 700,
           letterSpacing: "-0.02em",
           lineHeight: 1,
-          marginTop: 6,
+          marginTop: 8,
           color: "var(--text-primary)",
           fontFamily: "'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif",
           fontFeatureSettings: '"tnum" 1',
@@ -233,7 +236,7 @@ function SecondaryStat({
       >
         {value}
       </div>
-      <p style={{ fontSize: 11, marginTop: 4, color: "var(--text-secondary)" }}>{sub}</p>
+      <p style={{ fontSize: 12, fontWeight: 400, marginTop: 6, color: "rgba(255,255,255,0.50)" }}>{sub}</p>
     </Comp>
   );
 }

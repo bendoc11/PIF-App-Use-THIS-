@@ -203,6 +203,7 @@ function SecondaryStat({
     <Comp
       onClick={onClick}
       type={onClick ? "button" : undefined}
+      className="rs-stat-card"
       style={{
         background: "var(--bg-card)",
         border: "1px solid rgba(255,255,255,0.08)",
@@ -214,6 +215,7 @@ function SecondaryStat({
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
+        transition: "background-color 150ms, border-color 150ms",
       }}
     >
       <div

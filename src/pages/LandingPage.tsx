@@ -291,16 +291,9 @@ function Footer() {
 /* ━━━ MAIN ━━━ */
 export default function LandingPage() {
   useEffect(() => {
-    const SCRIPT_ID = "leadconnector-chat-widget";
-    if (document.getElementById(SCRIPT_ID)) return;
-    const script = document.createElement("script");
-    script.id = SCRIPT_ID;
-    script.src = "https://widgets.leadconnectorhq.com/loader.js";
-    script.setAttribute("data-resources-url", "https://widgets.leadconnectorhq.com/chat-widget/loader.js");
-    script.setAttribute("data-widget-id", "69f3c0314a590d0f250c37ea");
-    script.setAttribute("data-source", "WEB_USER");
-    script.async = true;
-    document.body.appendChild(script);
+    // Chat widget removed — strip any previously injected instance
+    document.getElementById("leadconnector-chat-widget")?.remove();
+    document.querySelectorAll("chat-widget").forEach((el) => el.remove());
   }, []);
 
   return (

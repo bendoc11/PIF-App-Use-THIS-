@@ -1,4 +1,4 @@
-import { LayoutDashboard, BookOpen, Users, MessageSquare, TrendingUp, Settings, LogOut, Shield, Crosshair, UserCircle, Inbox, Lock } from "lucide-react";
+import { LogOut, Shield, Crosshair, UserCircle, TrendingUp, Inbox, Lock } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -40,47 +40,88 @@ export function AppSidebar() {
     ? `${(profile.first_name || "")[0] || ""}${(profile.last_name || "")[0] || ""}`.toUpperCase()
     : "?";
 
+  const isActiveRoute = (url: string) =>
+    url === "/dashboard" ? location.pathname === url : location.pathname.startsWith(url);
+
+  // Premium item base styles. Active state: left red indicator bar + 10% red tint.
+  const itemBase =
+    "group relative flex items-center gap-3.5 pl-4 pr-3 py-3 rounded-lg font-heading text-sm tracking-wider transition-colors";
+  const itemIdle = "text-muted-foreground hover:bg-muted/50 hover:text-foreground";
+  const itemActive = "text-pif-red bg-pif-red/10";
+
+  // Slightly darker than main content for depth + subtle right border at ~15% white.
+  const sidebarBgStyle = { backgroundColor: "hsl(218 39% 5%)" };
+  const sidebarBorderStyle = { borderRight: "1px solid hsla(0, 0%, 100%, 0.15)" };
+
+  const renderActiveBar = (active: boolean) =>
+    active && !collapsed ? (
+      <span
+        aria-hidden
+        className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r-full bg-pif-red"
+      />
+    ) : null;
+
   return (
-    <Sidebar collapsible="icon" className="border-r border-border bg-card">
-      <SidebarContent className="pt-4">
-        {/* Logo */}
-        <div className="px-4 pb-6 pt-2">
+    <Sidebar collapsible="icon" className="border-0" style={{ ...sidebarBgStyle, ...sidebarBorderStyle }}>
+      <SidebarContent className="pt-2" style={sidebarBgStyle}>
+        {/* Logo — more breathing room */}
+        <div className="px-4 pt-6 pb-8">
           {!collapsed ? (
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="font-heading text-sm text-primary-foreground">PIF</span>
+            <div className="flex items-center gap-3">
+              <div
+                className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shrink-0"
+                style={{
+                  boxShadow:
+                    "0 0 0 1px hsla(0, 0%, 100%, 0.06), 0 0 18px hsl(var(--pif-red) / 0.45), 0 4px 14px hsl(var(--pif-red) / 0.25)",
+                }}
+              >
+                <span className="font-heading text-base text-primary-foreground">PF</span>
               </div>
-              <span className="font-heading text-lg tracking-wider text-foreground">Play it Forward</span>
+              <span
+                className="font-heading text-[13px] text-foreground uppercase"
+                style={{ letterSpacing: "0.15em" }}
+              >
+                Play it Forward
+              </span>
             </div>
           ) : (
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center mx-auto">
-              <span className="font-heading text-sm text-primary-foreground">P</span>
+            <div
+              className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center mx-auto"
+              style={{
+                boxShadow:
+                  "0 0 0 1px hsla(0, 0%, 100%, 0.06), 0 0 18px hsl(var(--pif-red) / 0.45), 0 4px 14px hsl(var(--pif-red) / 0.25)",
+              }}
+            >
+              <span className="font-heading text-base text-primary-foreground">PF</span>
             </div>
           )}
         </div>
 
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-1">
               {navItems.map((item) => {
                 const isRepliesItem = item.badgeKey === "replies";
-                // For unpaid users: show lock icon as soon as they've sent any messages.
                 const showLockedReplies = isRepliesItem && !isPaid && gating.sentCount >= 1;
                 const showUnreadDot = isRepliesItem && isPaid && unreadReplies > 0;
-                // Pulsing red badge only when the locked banner is also showing (3+ sends or real reply).
                 const showLockedPulse = isRepliesItem && !isPaid && !!lockedBannerCopy;
+                const active = isActiveRoute(item.url);
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
                       <NavLink
                         to={item.url}
                         end={item.url === "/dashboard"}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors font-heading text-sm tracking-wider relative"
-                        activeClassName="bg-primary/10 text-primary border border-primary/20"
+                        className={`${itemBase} ${active ? itemActive : itemIdle}`}
+                        activeClassName=""
                         {...(item.tourId ? { "data-tour": item.tourId } : {})}
                       >
+                        {renderActiveBar(active)}
                         <div className="relative shrink-0">
-                          <item.icon className="h-5 w-5" />
+                          <item.icon
+                            style={{ width: 18, height: 18 }}
+                            strokeWidth={active ? 2.25 : 2}
+                          />
                           {(showUnreadDot || showLockedPulse) && collapsed && (
                             <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-pif-red animate-pulse" />
                           )}
@@ -115,32 +156,40 @@ export function AppSidebar() {
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <NavLink
-                      to="/admin/courses"
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors font-heading text-sm tracking-wider"
-                      activeClassName="bg-primary/10 text-primary border border-primary/20"
-                    >
-                      <Shield className="h-5 w-5 shrink-0" />
-                      {!collapsed && <span>Admin</span>}
-                    </NavLink>
+                    {(() => {
+                      const active = location.pathname.startsWith("/admin");
+                      return (
+                        <NavLink
+                          to="/admin/courses"
+                          className={`${itemBase} ${active ? itemActive : itemIdle}`}
+                          activeClassName=""
+                        >
+                          {renderActiveBar(active)}
+                          <Shield style={{ width: 18, height: 18 }} strokeWidth={active ? 2.25 : 2} className="shrink-0" />
+                          {!collapsed && <span>Admin</span>}
+                        </NavLink>
+                      );
+                    })()}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         )}
-
       </SidebarContent>
 
-      <SidebarFooter className="p-3">
+      <SidebarFooter className="p-3" style={sidebarBgStyle}>
         {/* User profile */}
         {!collapsed && (
           <NavLink
             to="/settings"
-            className="flex items-center gap-3 px-3 py-2 mb-2 rounded-lg hover:bg-muted transition-colors cursor-pointer"
+            className="flex items-center gap-3 px-3 py-2.5 mb-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
             activeClassName=""
           >
-            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-heading text-primary overflow-hidden shrink-0">
+            <div
+              className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-xs font-heading text-primary overflow-hidden shrink-0"
+              style={{ boxShadow: "0 0 0 2px hsl(var(--pif-red) / 0.55)" }}
+            >
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
               ) : (
@@ -148,18 +197,29 @@ export function AppSidebar() {
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">
+              <p className="text-sm font-semibold text-white truncate leading-tight">
                 {profile?.first_name} {profile?.last_name}
               </p>
-              <p className="text-xs text-muted-foreground capitalize">{(profile?.role === "admin" || profile?.role === "creator") ? "Admin" : "Member"}</p>
+              <p
+                className="text-[11px] capitalize leading-tight mt-0.5"
+                style={{ color: "hsla(0, 0%, 100%, 0.6)" }}
+              >
+                {(profile?.role === "admin" || profile?.role === "creator") ? "Admin" : "Member"}
+              </p>
             </div>
           </NavLink>
         )}
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={signOut} className="text-muted-foreground hover:text-foreground">
-              <LogOut className="h-5 w-5" />
-              {!collapsed && <span className="font-heading text-sm tracking-wider">Sign Out</span>}
+            <SidebarMenuButton
+              onClick={signOut}
+              className="hover:bg-transparent hover:text-foreground"
+              style={{ color: "hsla(0, 0%, 100%, 0.45)" }}
+            >
+              <LogOut style={{ width: 14, height: 14 }} strokeWidth={1.5} />
+              {!collapsed && (
+                <span className="font-heading text-[11px] tracking-wider">Sign Out</span>
+              )}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

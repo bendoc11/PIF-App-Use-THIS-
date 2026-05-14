@@ -41,6 +41,7 @@ interface Props {
   onCountChange?: (total: number) => void;
   locked?: boolean;
   onLockedClick?: () => void;
+  athleteName?: string | null;
 }
 
 const SCHOOL_PALETTE = [

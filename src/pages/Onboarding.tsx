@@ -442,6 +442,19 @@ export default function Onboarding() {
               <StepFilm initial={film} onNext={handleFilm} onSkip={advance} />
             )}
             {step === 8 && (
+              <StepTerms
+                onAgree={async () => {
+                  try {
+                    await persist({
+                      terms_accepted_at: new Date().toISOString(),
+                      terms_version: TERMS_VERSION,
+                    });
+                    advance();
+                  } catch {}
+                }}
+              />
+            )}
+            {step === 9 && (
               <StepPreview
                 data={{
                   firstName: basic.firstName,

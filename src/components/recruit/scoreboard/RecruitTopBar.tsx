@@ -1,9 +1,10 @@
-import { Mail } from "lucide-react";
+import { Mail, Flame } from "lucide-react";
 
 interface Props {
   firstName: string;
   weeklySent: number;
   weeklyGoal: number;
+  sendStreak?: number;
   onMessageClick: () => void;
 }
 

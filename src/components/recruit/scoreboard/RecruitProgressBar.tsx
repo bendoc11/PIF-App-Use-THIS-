@@ -74,9 +74,10 @@ export function RecruitProgressBar({ total, milestones = DEFAULT_MILESTONES }: P
             whiteSpace: "nowrap",
             letterSpacing: "0.01em",
             fontVariantNumeric: "tabular-nums",
+            fontFamily: "'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif",
           }}
         >
-          <span style={{ color: "#FFFFFF", fontWeight: 800, fontSize: 15 }}>{total}</span>
+          <span style={{ color: "#FFFFFF", fontWeight: 700, fontSize: 16 }}>{total}</span>
           <span style={{ margin: "0 2px" }}> / </span>
           <span style={{ fontWeight: 500 }}>{max}</span>
         </div>

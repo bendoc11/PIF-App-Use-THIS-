@@ -23,10 +23,12 @@ function neighborStates(state: string): string[] {
 interface Props {
   schools: MockSchool[];
   contactedNames: Set<string>;
+  repliedNames?: Set<string>;
   onMessage: (school: MockSchool) => void;
+  onReadReply?: (school: MockSchool) => void;
 }
 
-export function RecommendedSchools({ schools, contactedNames, onMessage }: Props) {
+export function RecommendedSchools({ schools, contactedNames, repliedNames, onMessage, onReadReply }: Props) {
   const { profile } = useAuth();
   const userState = ((profile as any)?.state as string | undefined) ?? "";
 
@@ -95,6 +97,7 @@ export function RecommendedSchools({ schools, contactedNames, onMessage }: Props
 
       {recommended.map((s) => {
         const messaged = contactedNames.has(s.name);
+        const hasReply = repliedNames?.has(s.name) ?? false;
         return (
           <div
             key={s.id}
@@ -139,7 +142,24 @@ export function RecommendedSchools({ schools, contactedNames, onMessage }: Props
               >
                 D3
               </span>
-              {messaged ? (
+              {hasReply ? (
+                <button
+                  onClick={() => onReadReply?.(s)}
+                  style={{
+                    background: "#0071E3",
+                    color: "#FFFFFF",
+                    border: "none",
+                    borderRadius: 980,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    padding: "6px 16px",
+                    cursor: "pointer",
+                    fontFamily: SF,
+                  }}
+                >
+                  Read Reply →
+                </button>
+              ) : messaged ? (
                 <span
                   style={{
                     background: "#E8F8EE",

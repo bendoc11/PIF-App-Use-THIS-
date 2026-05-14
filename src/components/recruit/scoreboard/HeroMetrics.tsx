@@ -2,6 +2,14 @@ import { useState } from "react";
 import { Star, Flame, Trophy, Mail } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
+interface BookmarkedSchool {
+  id: string;
+  school_name: string;
+  division: string | null;
+  state: string | null;
+  status: string;
+}
+
 interface Props {
   schoolsBookmarked: number;        // athlete's own list
   schoolsInterestedInMe: number;    // distinct schools that replied
@@ -9,6 +17,7 @@ interface Props {
   offersReceived: number;
   weeklyGoal: number;
   weeklySent: number;
+  bookmarkedSchools?: BookmarkedSchool[];
 }
 
 export function HeroMetrics({
@@ -18,7 +27,9 @@ export function HeroMetrics({
   offersReceived,
   weeklyGoal,
   weeklySent,
+  bookmarkedSchools = [],
 }: Props) {
+  const [showList, setShowList] = useState(false);
   const remaining = Math.max(0, weeklyGoal - weeklySent);
 
   const SF = '-apple-system, "SF Pro Display", BlinkMacSystemFont, sans-serif';

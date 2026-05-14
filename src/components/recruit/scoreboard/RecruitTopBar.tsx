@@ -1,9 +1,10 @@
-import { Mail } from "lucide-react";
+import { Mail, Flame } from "lucide-react";
 
 interface Props {
   firstName: string;
   weeklySent: number;
   weeklyGoal: number;
+  sendStreak?: number;
   onMessageClick: () => void;
 }
 
@@ -14,7 +15,7 @@ function timeGreeting() {
   return "Good evening";
 }
 
-export function RecruitTopBar({ firstName, weeklySent, weeklyGoal, onMessageClick }: Props) {
+export function RecruitTopBar({ firstName, weeklySent, weeklyGoal, sendStreak = 0, onMessageClick }: Props) {
   return (
     <div
       className="flex items-center justify-between mb-5"
@@ -38,6 +39,24 @@ export function RecruitTopBar({ firstName, weeklySent, weeklyGoal, onMessageClic
         {timeGreeting()}, {firstName || "there"}
       </div>
       <div className="flex items-center gap-2.5">
+        {sendStreak >= 2 && (
+          <div
+            className="hidden sm:inline-flex items-center gap-1"
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#B14513",
+              background: "#FFF1E6",
+              border: "1px solid #FFD3B0",
+              borderRadius: 20,
+              padding: "5px 10px",
+            }}
+            title={`${sendStreak}-day send streak`}
+          >
+            <Flame className="h-3 w-3" />
+            {sendStreak}-day streak
+          </div>
+        )}
         <div
           className="hidden sm:inline-flex items-center"
           style={{

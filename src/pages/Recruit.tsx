@@ -348,6 +348,12 @@ export default function Recruit() {
   return (
     <AppLayout>
       <FirstReplyCelebration repliesCount={repliesCount} contactedCount={outreach.length} />
+      <MilestoneCelebration
+        open={!!celebration}
+        title={celebration?.title ?? ""}
+        message={celebration?.message ?? ""}
+        onClose={() => setCelebration(null)}
+      />
       <div className="recruit-scoreboard min-h-[calc(100vh-3.5rem)]">
         <UnreadRepliesBanner onView={scrollToReplies} />
 
@@ -367,6 +373,7 @@ export default function Recruit() {
                     firstName={firstName}
                     weeklySent={weeklySent}
                     weeklyGoal={WEEKLY_GOAL}
+                    sendStreak={sendStreak}
                     onMessageClick={() => guardMessage(() => setView({ kind: "compose-pick" }))}
                   />
 

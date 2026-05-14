@@ -142,16 +142,16 @@ export function RecommendedSchools({ schools, contactedNames, onMessage }: Props
               {messaged ? (
                 <span
                   style={{
-                    background: "#F5F5F7",
-                    color: "#86868B",
-                    border: "1px solid #D2D2D7",
+                    background: "#E8F8EE",
+                    color: "#0E7A3B",
+                    border: "1px solid #B6E5C5",
                     borderRadius: 980,
                     fontSize: 12,
-                    fontWeight: 500,
+                    fontWeight: 600,
                     padding: "6px 14px",
                   }}
                 >
-                  Sent
+                  ✓ Messaged
                 </span>
               ) : (
                 <button

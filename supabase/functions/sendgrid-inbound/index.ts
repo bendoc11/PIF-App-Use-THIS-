@@ -61,8 +61,27 @@ Deno.serve(async (req) => {
     const to = form.get("to")?.toString() ?? "";
     const from = form.get("from")?.toString() ?? "";
     const subject = form.get("subject")?.toString() ?? "";
-    const text = form.get("text")?.toString() ?? "";
+    let text = form.get("text")?.toString() ?? "";
+    const html = form.get("html")?.toString() ?? "";
     const envelope = form.get("envelope")?.toString() ?? "";
+
+    // Fallback: derive plain text from HTML when SendGrid only delivered html part
+    if (!text.trim() && html.trim()) {
+      text = html
+        .replace(/<style[\s\S]*?<\/style>/gi, "")
+        .replace(/<script[\s\S]*?<\/script>/gi, "")
+        .replace(/<br\s*\/?>/gi, "\n")
+        .replace(/<\/p>/gi, "\n\n")
+        .replace(/<[^>]+>/g, "")
+        .replace(/&nbsp;/g, " ")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+    }
 
     console.log(`[sendgrid-inbound:${reqId}] payload`, {
       to,

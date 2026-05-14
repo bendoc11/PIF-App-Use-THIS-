@@ -45,7 +45,7 @@ export function AppSidebar() {
 
   // Premium item base styles. Active state: left red indicator bar + 10% red tint.
   const itemBase =
-    "group relative flex items-center gap-3.5 pl-4 pr-3 py-3 rounded-lg font-heading text-sm tracking-wider transition-colors";
+    "group relative flex items-center gap-3.5 pl-4 pr-3 py-2.5 rounded-lg font-heading text-sm tracking-wider transition-colors";
   const itemIdle = "text-muted-foreground hover:bg-muted/50 hover:text-foreground";
   const itemActive = "text-pif-red bg-pif-red/10";
 

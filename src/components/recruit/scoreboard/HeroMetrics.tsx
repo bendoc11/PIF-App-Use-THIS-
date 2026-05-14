@@ -32,7 +32,8 @@ export function HeroMetrics({
   const [showList, setShowList] = useState(false);
   const remaining = Math.max(0, weeklyGoal - weeklySent);
 
-  const SF = '-apple-system, "SF Pro Display", BlinkMacSystemFont, sans-serif';
+  const SF = "'Plus Jakarta Sans', system-ui, sans-serif";
+  const STAT = "'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif";
 
   return (
     <div className="mb-5">

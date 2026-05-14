@@ -45,7 +45,7 @@ export function AppSidebar() {
 
   // Premium item base styles. Active state: left red indicator bar + 10% red tint.
   const itemBase =
-    "group relative flex items-center gap-3.5 pl-4 pr-3 py-3 rounded-lg font-heading text-sm tracking-wider transition-colors";
+    "group relative flex items-center gap-3.5 pl-4 pr-3 py-2.5 rounded-lg font-heading text-sm tracking-wider transition-colors";
   const itemIdle = "text-muted-foreground hover:bg-muted/50 hover:text-foreground";
   const itemActive = "text-pif-red bg-pif-red/10";
 
@@ -75,11 +75,11 @@ export function AppSidebar() {
                     "0 0 0 1px hsla(0, 0%, 100%, 0.06), 0 0 18px hsl(var(--pif-red) / 0.45), 0 4px 14px hsl(var(--pif-red) / 0.25)",
                 }}
               >
-                <span className="font-heading text-base text-primary-foreground">PF</span>
+                <span className="font-heading text-base text-primary-foreground">PIF</span>
               </div>
               <span
                 className="font-heading text-[13px] text-foreground uppercase"
-                style={{ letterSpacing: "0.15em" }}
+                style={{ letterSpacing: "0.09em" }}
               >
                 Play it Forward
               </span>
@@ -92,7 +92,7 @@ export function AppSidebar() {
                   "0 0 0 1px hsla(0, 0%, 100%, 0.06), 0 0 18px hsl(var(--pif-red) / 0.45), 0 4px 14px hsl(var(--pif-red) / 0.25)",
               }}
             >
-              <span className="font-heading text-base text-primary-foreground">PF</span>
+              <span className="font-heading text-base text-primary-foreground">PIF</span>
             </div>
           )}
         </div>
@@ -151,7 +151,17 @@ export function AppSidebar() {
 
         {/* Admin Link */}
         {(role === "admin" || role === "creator") && (
-          <SidebarGroup>
+          <SidebarGroup className="mt-0 py-0">
+            <div
+              aria-hidden
+              className="mx-3"
+              style={{
+                height: 1,
+                backgroundColor: "hsla(0, 0%, 100%, 0.15)",
+                marginTop: 16,
+                marginBottom: 16,
+              }}
+            />
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>

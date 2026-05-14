@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.get_platform_activity_stats() FROM PUBLIC, anon;

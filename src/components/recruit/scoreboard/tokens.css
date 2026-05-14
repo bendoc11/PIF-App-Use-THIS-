@@ -120,3 +120,8 @@
 .rs-dot-D3   { fill: #D4780A; }
 .rs-dot-JUCO { fill: #6B50D6; }
 .rs-dot-NAIA { fill: #86868B; }
+
+.recruit-scoreboard .rs-stat-card:hover {
+  background: rgba(255,255,255,0.03) !important;
+  border-color: rgba(255,255,255,0.20) !important;
+}

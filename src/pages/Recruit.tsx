@@ -370,12 +370,18 @@ export default function Recruit() {
         <UnreadRepliesBanner onView={scrollToReplies} />
 
         {view.kind === "map" && (
-          <div className="max-w-7xl mx-auto px-4 lg:px-6 pt-4">
+          <div className="max-w-7xl mx-auto pt-4" style={{ paddingLeft: 16, paddingRight: 16 }}>
             <RecruitProgressBar total={outreach.length} />
           </div>
         )}
 
         <div className="max-w-7xl mx-auto px-4 lg:px-6 py-5">
+          {view.kind === "map" && (
+            <div
+              aria-hidden
+              style={{ height: 1, background: "hsla(0, 0%, 0%, 0.08)", marginBottom: 20 }}
+            />
+          )}
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-5">
             {/* Main column */}
             <div>

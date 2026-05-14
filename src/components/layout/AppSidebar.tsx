@@ -92,7 +92,7 @@ export function AppSidebar() {
                   "0 0 0 1px hsla(0, 0%, 100%, 0.06), 0 0 18px hsl(var(--pif-red) / 0.45), 0 4px 14px hsl(var(--pif-red) / 0.25)",
               }}
             >
-              <span className="font-heading text-base text-primary-foreground">PF</span>
+              <span className="font-heading text-base text-primary-foreground">PIF</span>
             </div>
           )}
         </div>

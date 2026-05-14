@@ -474,6 +474,22 @@ export default function Recruit() {
       {showDailyLimitPaywall && !isPaid && <DailyLimitPaywall />}
 
       <AddOfferDialog open={showOfferDialog} onOpenChange={setShowOfferDialog} onSaved={loadOffers} />
+
+      <QuickSendSheet
+        open={!!quickSend}
+        school={quickSend}
+        onClose={() => setQuickSend(null)}
+        onSent={async () => {
+          await loadOutreach();
+          await refreshProfile();
+        }}
+        onAdvance={advanceToNext}
+        onEditFirst={onEditFirst}
+        onDailyLimitReached={() => {
+          setQuickSend(null);
+          setShowDailyLimitPaywall(true);
+        }}
+      />
     </AppLayout>
   );
 }

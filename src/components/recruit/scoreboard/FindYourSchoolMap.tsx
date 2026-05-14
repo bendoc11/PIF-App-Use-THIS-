@@ -249,11 +249,12 @@ export function FindYourSchoolMap({
       <div style={{ borderTop: "1px solid rgba(255,255,255,0.10)", background: "#0F1620" }}>
         <div
           style={{
+            fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
             fontSize: 11,
             fontWeight: 600,
-            letterSpacing: "0.05em",
-            color: "var(--text-tertiary)",
-            opacity: 0.8,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: "hsl(var(--pif-red))",
             padding: "10px 20px",
           }}
         >

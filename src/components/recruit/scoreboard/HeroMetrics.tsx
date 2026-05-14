@@ -229,7 +229,8 @@ function SecondaryStat({
           lineHeight: 1,
           marginTop: 6,
           color: "var(--text-primary)",
-          fontFamily: '-apple-system, "SF Pro Display", BlinkMacSystemFont, sans-serif',
+          fontFamily: "'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif",
+          fontFeatureSettings: '"tnum" 1',
         }}
       >
         {value}

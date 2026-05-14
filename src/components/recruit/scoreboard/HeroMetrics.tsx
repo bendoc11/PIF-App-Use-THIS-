@@ -73,10 +73,10 @@ export function HeroMetrics({
             alignItems: "center",
             gap: 6,
             fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
+            fontWeight: 600,
+            letterSpacing: "0.05em",
             color: "#5A3F03",
+            opacity: 0.85,
           }}
         >
           <Flame className="h-3.5 w-3.5" />

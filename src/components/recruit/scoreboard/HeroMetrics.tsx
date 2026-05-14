@@ -128,7 +128,8 @@ export function HeroMetrics({
           icon={<Star className="h-3 w-3" />}
           label="My List"
           value={schoolsBookmarked}
-          sub="Bookmarked"
+          sub={schoolsBookmarked > 0 ? "Tap to view" : "Bookmarked"}
+          onClick={() => setShowList(true)}
         />
         <SecondaryStat
           icon={<Mail className="h-3 w-3" />}

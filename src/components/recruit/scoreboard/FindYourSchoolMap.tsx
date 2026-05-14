@@ -317,7 +317,7 @@ export function FindYourSchoolMap({
                     borderRadius: 980,
                     border: `1px solid ${isInterested ? "var(--accent)" : "var(--border)"}`,
                     color: isInterested ? "var(--accent)" : "var(--text-secondary)",
-                    background: "#FFFFFF",
+                    background: "rgba(255,255,255,0.05)",
                     transition: "all 150ms",
                   }}
                 >

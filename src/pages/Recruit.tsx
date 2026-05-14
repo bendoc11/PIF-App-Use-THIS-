@@ -370,7 +370,7 @@ export default function Recruit() {
         <UnreadRepliesBanner onView={scrollToReplies} />
 
         {view.kind === "map" && (
-          <div className="max-w-7xl mx-auto pt-4" style={{ paddingLeft: 16, paddingRight: 16 }}>
+          <div className="max-w-7xl mx-auto px-4 lg:px-6 pt-4">
             <RecruitProgressBar total={outreach.length} />
           </div>
         )}

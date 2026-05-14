@@ -41,7 +41,7 @@ export function HeroMetrics({
       <div
         style={{
           background: "var(--bg-card)",
-          border: "1px solid rgba(255,255,255,0.15)",
+          border: "1px solid rgba(255,255,255,0.08)",
           borderRadius: 12,
           padding: "26px 26px",
           marginBottom: 12,
@@ -81,15 +81,7 @@ export function HeroMetrics({
           Coach Interest
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            alignItems: "baseline",
-            gap: 14,
-            marginTop: 10,
-            position: "relative",
-          }}
-        >
+        <div style={{ marginTop: 14, position: "relative" }}>
           <div
             style={{
               fontSize: 72,
@@ -103,7 +95,14 @@ export function HeroMetrics({
           >
             {schoolsInterestedInMe}
           </div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.80)" }}>
+          <div
+            style={{
+              fontSize: 18,
+              fontWeight: 600,
+              color: "rgba(255,255,255,0.85)",
+              marginTop: 6,
+            }}
+          >
             {schoolsInterestedInMe === 1 ? "school" : "schools"} replied
           </div>
         </div>
@@ -111,7 +110,7 @@ export function HeroMetrics({
         <p
           style={{
             fontSize: 13,
-            marginTop: 10,
+            marginTop: 12,
             color: "rgba(255,255,255,0.60)",
             fontWeight: 400,
             maxWidth: 460,
@@ -205,12 +204,15 @@ function SecondaryStat({
       type={onClick ? "button" : undefined}
       style={{
         background: "var(--bg-card)",
-        border: "1px solid var(--border)",
+        border: "1px solid rgba(255,255,255,0.08)",
         borderRadius: 8,
-        padding: "12px 14px",
+        padding: "20px 14px",
         textAlign: "left",
         width: "100%",
         cursor: onClick ? "pointer" : "default",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
       }}
     >
       <div
@@ -226,7 +228,7 @@ function SecondaryStat({
           fontWeight: 700,
           letterSpacing: "-0.02em",
           lineHeight: 1,
-          marginTop: 6,
+          marginTop: 8,
           color: "var(--text-primary)",
           fontFamily: "'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif",
           fontFeatureSettings: '"tnum" 1',
@@ -234,7 +236,7 @@ function SecondaryStat({
       >
         {value}
       </div>
-      <p style={{ fontSize: 11, marginTop: 4, color: "var(--text-secondary)" }}>{sub}</p>
+      <p style={{ fontSize: 12, fontWeight: 400, marginTop: 6, color: "rgba(255,255,255,0.50)" }}>{sub}</p>
     </Comp>
   );
 }

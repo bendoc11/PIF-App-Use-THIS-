@@ -44,8 +44,8 @@ export function RecruitProgressBar({ total, milestones = DEFAULT_MILESTONES }: P
       style={{
         background: NAVY,
         border: "1px solid hsla(0, 0%, 100%, 0.08)",
-        borderRadius: 14,
-        padding: "16px 18px 18px",
+        borderRadius: 12,
+        padding: "20px 22px 26px",
         fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
       }}
     >
@@ -68,22 +68,38 @@ export function RecruitProgressBar({ total, milestones = DEFAULT_MILESTONES }: P
         </div>
         <div
           style={{
-            fontSize: 13,
-            color: "hsla(0, 0%, 100%, 0.45)",
             flexShrink: 0,
             whiteSpace: "nowrap",
-            letterSpacing: "0.01em",
             fontVariantNumeric: "tabular-nums",
-            fontFamily: "'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif",
+            paddingRight: 4,
           }}
         >
-          <span style={{ color: "#FFFFFF", fontWeight: 700, fontSize: 16 }}>{total}</span>
-          <span style={{ margin: "0 2px" }}> / </span>
-          <span style={{ fontWeight: 500 }}>{max}</span>
+          <span
+            style={{
+              color: "#FFFFFF",
+              fontWeight: 700,
+              fontSize: 18,
+              fontFamily: "'Space Grotesk', system-ui, sans-serif",
+              letterSpacing: "-0.01em",
+            }}
+          >
+            {total}
+          </span>
+          <span
+            style={{
+              color: "hsla(0, 0%, 100%, 0.4)",
+              fontWeight: 400,
+              fontSize: 14,
+              fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+              marginLeft: 2,
+            }}
+          >
+            /{max}
+          </span>
         </div>
       </div>
 
-      <div style={{ position: "relative", paddingTop: 4, paddingBottom: 22 }}>
+      <div style={{ position: "relative", paddingTop: 4, paddingBottom: 38 }}>
         {/* Track */}
         <div
           style={{
@@ -136,26 +152,55 @@ export function RecruitProgressBar({ total, milestones = DEFAULT_MILESTONES }: P
             );
           })}
         </div>
-        {/* Labels under markers */}
+        {/* Two-line labels under markers */}
         {milestones.map((m) => {
           const left = (m.value / max) * 100;
           const passed = total >= m.value;
+          // Edge alignment: first/last labels align to their edges to avoid clipping
+          const isFirst = left < 15;
+          const isLast = left > 85;
+          const transform = isFirst
+            ? "translateX(0)"
+            : isLast
+              ? "translateX(-100%)"
+              : "translateX(-50%)";
+          const textAlign = isFirst ? "left" : isLast ? "right" : "center";
           return (
             <div
               key={`l-${m.value}`}
               style={{
                 position: "absolute",
                 left: `${left}%`,
-                top: 24,
-                transform: "translateX(-50%)",
-                fontSize: 10,
-                fontWeight: 600,
-                color: passed ? "#FFFFFF" : "hsla(0, 0%, 100%, 0.5)",
+                top: 22,
+                transform,
+                textAlign: textAlign as any,
                 whiteSpace: "nowrap",
-                letterSpacing: "0.02em",
               }}
             >
-              {m.value} · {m.label}
+              <div
+                style={{
+                  fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                  fontWeight: 600,
+                  fontSize: 12,
+                  color: passed ? "#FFFFFF" : "hsla(0, 0%, 100%, 0.7)",
+                  lineHeight: 1.1,
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                {m.value}
+              </div>
+              <div
+                style={{
+                  fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+                  fontWeight: 400,
+                  fontSize: 10,
+                  color: "hsla(0, 0%, 100%, 0.5)",
+                  marginTop: 2,
+                  letterSpacing: "0.01em",
+                }}
+              >
+                {m.label}
+              </div>
             </div>
           );
         })}

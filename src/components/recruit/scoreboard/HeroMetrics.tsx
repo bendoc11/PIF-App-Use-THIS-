@@ -91,6 +91,7 @@ export function HeroMetrics({
               fontFamily: STAT,
               fontFeatureSettings: '"tnum" 1',
               color: "hsl(var(--pif-red))",
+              marginBottom: 4,
             }}
           >
             {schoolsInterestedInMe}

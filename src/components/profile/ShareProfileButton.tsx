@@ -22,7 +22,10 @@ export function ShareProfileButton({ identifier, className, size = "default" }: 
       });
       return;
     }
-    const url = `${window.location.origin}/p/${identifier}`;
+    const origin = window.location.hostname.includes("lovable")
+      ? "https://playitforward.app"
+      : window.location.origin;
+    const url = `${origin}/p/${identifier}`;
 
     // Try native share first on mobile, then clipboard
     try {

@@ -8,21 +8,21 @@
   --accent-light: #E8F1FD;
   --accent-text: #004FB3;
 
-  /* Surfaces */
-  --bg-page: #F5F5F7;
-  --bg-card: #FFFFFF;
-  --bg-sidebar: #1D1D1F;
-  --bg-sidebar-alt: #2D2D2F;
+  /* Surfaces — dark navy to match profile page */
+  --bg-page: #080D14;
+  --bg-card: #0F1620;
+  --bg-sidebar: #0F1620;
+  --bg-sidebar-alt: #141C28;
 
-  /* Text */
-  --text-primary: #1D1D1F;
-  --text-secondary: #6E6E73;
-  --text-tertiary: #86868B;
-  --text-white: #F5F5F7;
+  /* Text — white on dark */
+  --text-primary: #FFFFFF;
+  --text-secondary: rgba(255,255,255,0.60);
+  --text-tertiary: rgba(255,255,255,0.60);
+  --text-white: #FFFFFF;
 
-  /* Borders */
-  --border: #D2D2D7;
-  --border-light: #E8E8ED;
+  /* Borders — subtle on dark */
+  --border: rgba(255,255,255,0.15);
+  --border-light: rgba(255,255,255,0.10);
 
   /* Status colors */
   --success: #34C759;
@@ -89,11 +89,11 @@
   transition: background 150ms, border-color 150ms;
 }
 .recruit-scoreboard .rs-btn-ghost:hover {
-  background: var(--bg-page);
+  background: rgba(255,255,255,0.05);
 }
 
 .recruit-scoreboard .rs-input {
-  background: var(--bg-page);
+  background: rgba(255,255,255,0.05);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 10px 14px;

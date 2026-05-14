@@ -6,11 +6,39 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
-const SF = "-apple-system, 'SF Pro Text', BlinkMacSystemFont, sans-serif";
+const SF = "'Plus Jakarta Sans', -apple-system, system-ui, sans-serif";
 
 function lastNameOf(full: string) {
   const parts = (full || "").trim().split(/\s+/);
   return parts[parts.length - 1] ?? full;
+}
+
+/** Compact coach title like "Head Coach", "Asst. Coach", "Recruiting Coord." */
+function shortTitle(title: string): string {
+  const t = (title || "").toLowerCase();
+  if (t.includes("head")) return "Head Coach";
+  if (t.includes("recruit")) return "Recruiting Coord.";
+  if (t.includes("assistant") || t.includes("asst")) return "Asst. Coach";
+  if (t.includes("associate")) return "Assoc. Coach";
+  if (t.includes("director")) return "Director";
+  return title || "Coach";
+}
+
+/** Pick the head coach if present, otherwise first coach. */
+function defaultCoach(coaches: MockCoach[]): MockCoach | null {
+  if (!coaches?.length) return null;
+  const head = coaches.find((c) => (c.title || "").toLowerCase().includes("head"));
+  return head ?? coaches[0];
+}
+
+/** Resolve the athlete's outbound highlight film link.
+ *  Never returns a lovable preview/app URL. */
+function resolveFilmLink(p: any): string {
+  const stored = (p?.highlight_film_url ?? "").toString().trim();
+  if (stored && !/lovable\.(app|dev)|lovableproject\.com/i.test(stored)) {
+    return stored;
+  }
+  return "[Add your highlight film in My Profile]";
 }
 
 export function buildQuickSubject(p: any): string {
@@ -20,7 +48,12 @@ export function buildQuickSubject(p: any): string {
   return `quick film — ${name}, ${grad} ${pos}`.toLowerCase().trim();
 }
 
-export function buildQuickBody(p: any, school: MockSchool, coachLastName: string, filmUrl: string): string {
+export function buildQuickBody(
+  p: any,
+  school: MockSchool,
+  coachLastName: string,
+  filmUrl: string,
+): string {
   const fullName = `${p.first_name ?? ""} ${p.last_name ?? ""}`.trim();
   const grad = p.grad_year ?? "";
   const pos = p.position ?? "";
@@ -61,19 +94,23 @@ export function QuickSendSheet({
   const [school, setSchool] = useState<MockSchool | null>(initialSchool);
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [selectedEmail, setSelectedEmail] = useState<string | null>(null);
 
   useEffect(() => {
     setSchool(initialSchool);
     setSuccess(false);
     setSending(false);
+    const def = defaultCoach(initialSchool?.coaches ?? []);
+    setSelectedEmail(def?.email ?? null);
   }, [initialSchool, open]);
 
-  const coach: MockCoach | null = useMemo(() => school?.coaches?.[0] ?? null, [school]);
+  const coaches = useMemo(() => school?.coaches ?? [], [school]);
+  const coach: MockCoach | null = useMemo(() => {
+    if (!coaches.length) return null;
+    return coaches.find((c) => c.email === selectedEmail) ?? defaultCoach(coaches);
+  }, [coaches, selectedEmail]);
 
-  const profileIdentifier = p.username || p.email_alias || user?.id;
-  const filmUrl = profileIdentifier
-    ? `${window.location.origin}/p/${profileIdentifier}`
-    : (p.highlight_film_url || "https://playitforward.app");
+  const filmUrl = useMemo(() => resolveFilmLink(p), [p]);
 
   const subject = useMemo(() => buildQuickSubject(p), [p]);
   const body = useMemo(
@@ -123,11 +160,12 @@ export function QuickSendSheet({
       setSending(false);
       setSuccess(true);
       await onSent();
-      // Brief success animation, then advance to next school
       setTimeout(() => {
         const next = onAdvance(school);
         if (next) {
           setSchool(next);
+          const def = defaultCoach(next.coaches);
+          setSelectedEmail(def?.email ?? null);
           setSuccess(false);
         } else {
           onClose();
@@ -143,18 +181,46 @@ export function QuickSendSheet({
   if (!school || !coach) return null;
 
   const divColor = DIVISION_COLORS[school.division];
+  const showSelector = coaches.length > 1;
 
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent className="max-h-[92vh]" style={{ fontFamily: SF }}>
+      <DrawerContent
+        className="max-h-[92vh]"
+        style={{ fontFamily: SF, background: "#0F1620", border: "1px solid rgba(255,255,255,0.08)" }}
+      >
         <div className="px-5 pb-5 pt-2 overflow-y-auto">
           {/* Header */}
-          <div className="flex items-start justify-between gap-3 mb-4">
+          <div
+            className="flex items-start justify-between gap-3"
+            style={{
+              paddingBottom: 14,
+              marginBottom: 14,
+              borderBottom: "1px solid rgba(255,255,255,0.10)",
+            }}
+          >
             <div className="min-w-0 flex-1">
-              <div style={{ fontSize: 17, fontWeight: 700, color: "#1D1D1F" }} className="truncate">
+              <div
+                style={{
+                  fontFamily: SF,
+                  fontSize: 17,
+                  fontWeight: 600,
+                  color: "#FFFFFF",
+                }}
+                className="truncate"
+              >
                 {coach.name}
               </div>
-              <div style={{ fontSize: 13, color: "#6E6E73", marginTop: 2 }} className="truncate">
+              <div
+                style={{
+                  fontFamily: SF,
+                  fontSize: 13,
+                  fontWeight: 400,
+                  color: "rgba(255,255,255,0.65)",
+                  marginTop: 2,
+                }}
+                className="truncate"
+              >
                 {school.name}
               </div>
             </div>
@@ -173,20 +239,71 @@ export function QuickSendSheet({
             </span>
           </div>
 
+          {/* Coach selector */}
+          {showSelector && (
+            <div
+              className="flex gap-2 overflow-x-auto"
+              style={{
+                marginBottom: 14,
+                paddingBottom: 4,
+                scrollbarWidth: "none",
+              }}
+            >
+              {coaches.map((c) => {
+                const selected = c.email === coach.email;
+                return (
+                  <button
+                    key={c.email}
+                    onClick={() => setSelectedEmail(c.email)}
+                    disabled={sending || success}
+                    style={{
+                      flexShrink: 0,
+                      background: selected ? "#FFFFFF" : "rgba(255,255,255,0.04)",
+                      color: selected ? "#0F1620" : "#FFFFFF",
+                      border: selected
+                        ? "1px solid #FFFFFF"
+                        : "1px solid rgba(255,255,255,0.20)",
+                      borderRadius: 999,
+                      padding: "8px 14px",
+                      fontFamily: SF,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      whiteSpace: "nowrap",
+                      cursor: "pointer",
+                      transition: "background 150ms, color 150ms, border 150ms",
+                    }}
+                  >
+                    {c.name.split(/\s+/).slice(-1)[0]} · {shortTitle(c.title)}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           {/* Subject */}
           <div
             style={{
-              background: "#F5F5F7",
-              border: "1px solid #E8E8ED",
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.08)",
               borderRadius: 10,
               padding: "10px 14px",
               fontSize: 13,
-              color: "#1D1D1F",
+              color: "rgba(255,255,255,0.92)",
               marginBottom: 10,
               wordBreak: "break-word",
+              fontFamily: SF,
             }}
           >
-            <div style={{ fontSize: 10, fontWeight: 600, color: "#86868B", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>
+            <div
+              style={{
+                fontSize: 10,
+                fontWeight: 600,
+                color: "rgba(255,255,255,0.50)",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                marginBottom: 4,
+              }}
+            >
               Subject
             </div>
             {subject}
@@ -195,17 +312,18 @@ export function QuickSendSheet({
           {/* Body */}
           <div
             style={{
-              background: "#FFFFFF",
-              border: "1px solid #E8E8ED",
+              background: "rgba(255,255,255,0.02)",
+              border: "1px solid rgba(255,255,255,0.08)",
               borderRadius: 10,
               padding: 14,
               fontSize: 14,
-              color: "#1D1D1F",
+              color: "rgba(255,255,255,0.92)",
               lineHeight: 1.55,
               whiteSpace: "pre-wrap",
               maxHeight: 320,
               overflowY: "auto",
               marginBottom: 16,
+              fontFamily: SF,
             }}
           >
             {body}
@@ -217,9 +335,9 @@ export function QuickSendSheet({
               onClick={() => onEditFirst(school, coach, { subject, body })}
               disabled={sending || success}
               style={{
-                background: "#FFFFFF",
-                border: "1px solid #D2D2D7",
-                color: "#1D1D1F",
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.20)",
+                color: "#FFFFFF",
                 borderRadius: 980,
                 padding: "14px 18px",
                 fontSize: 15,
@@ -237,13 +355,13 @@ export function QuickSendSheet({
               onClick={handleSend}
               disabled={sending || success}
               style={{
-                background: success ? "#22C55E" : "#0071E3",
+                background: success ? "#22C55E" : "hsl(var(--pif-red))",
                 color: "#FFFFFF",
                 border: "none",
                 borderRadius: 980,
                 padding: "14px 18px",
                 fontSize: 15,
-                fontWeight: 600,
+                fontWeight: 700,
                 fontFamily: SF,
                 opacity: sending && !success ? 0.7 : 1,
                 minHeight: 48,

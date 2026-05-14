@@ -69,7 +69,7 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
   const previewCoachLast = selected[0] ? lastNameOf(selected[0].name) : "Coach";
 
   const defaultSubject = useMemo(
-    () => `${p.first_name ?? ""} ${p.last_name ?? ""} | ${p.height ?? ""} ${p.position ?? ""} - ${p.city ?? ""}`.trim(),
+    () => `quick film — ${p.first_name ?? ""} ${p.last_name ?? ""}, ${p.grad_year ?? ""} ${p.position ?? ""}`.toLowerCase().trim(),
     [p],
   );
 

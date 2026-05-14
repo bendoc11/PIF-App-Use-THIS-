@@ -62,12 +62,12 @@ Deno.serve(async (req) => {
     const from = form.get("from")?.toString() ?? "";
     const subject = form.get("subject")?.toString() ?? "";
     let text = form.get("text")?.toString() ?? "";
-    const html = form.get("html")?.toString() ?? "";
+    let html = form.get("html")?.toString() ?? "";
     const envelope = form.get("envelope")?.toString() ?? "";
+    const rawEmail = form.get("email")?.toString() ?? "";
 
-    // Fallback: derive plain text from HTML when SendGrid only delivered html part
-    if (!text.trim() && html.trim()) {
-      text = html
+    function htmlToText(h: string): string {
+      return h
         .replace(/<style[\s\S]*?<\/style>/gi, "")
         .replace(/<script[\s\S]*?<\/script>/gi, "")
         .replace(/<br\s*\/?>/gi, "\n")
@@ -83,12 +83,83 @@ Deno.serve(async (req) => {
         .trim();
     }
 
+    function decodeQuotedPrintable(s: string): string {
+      return s
+        .replace(/=\r?\n/g, "")
+        .replace(/=([0-9A-Fa-f]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));
+    }
+
+    function decodeBase64(s: string): string {
+      try {
+        const cleaned = s.replace(/\s+/g, "");
+        const bytes = Uint8Array.from(atob(cleaned), (c) => c.charCodeAt(0));
+        return new TextDecoder("utf-8").decode(bytes);
+      } catch {
+        return s;
+      }
+    }
+
+    // Parse raw MIME — extract the first text/plain (or text/html) part
+    function parseRawMime(raw: string): { text: string; html: string } {
+      let outText = "";
+      let outHtml = "";
+      const boundaryMatch = raw.match(/boundary="?([^"\r\n;]+)"?/i);
+      const parts: string[] = boundaryMatch
+        ? raw.split(new RegExp(`--${boundaryMatch[1].replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:--)?`))
+        : [raw];
+      for (const part of parts) {
+        const idx = part.search(/\r?\n\r?\n/);
+        if (idx < 0) continue;
+        const headers = part.slice(0, idx).toLowerCase();
+        let body = part.slice(idx).replace(/^\r?\n\r?\n/, "");
+        const isText = /content-type:\s*text\/plain/i.test(headers);
+        const isHtml = /content-type:\s*text\/html/i.test(headers);
+        if (!isText && !isHtml) continue;
+        if (/content-transfer-encoding:\s*quoted-printable/i.test(headers)) {
+          body = decodeQuotedPrintable(body);
+        } else if (/content-transfer-encoding:\s*base64/i.test(headers)) {
+          body = decodeBase64(body);
+        }
+        body = body.trim();
+        if (isText && !outText) outText = body;
+        if (isHtml && !outHtml) outHtml = body;
+      }
+      return { text: outText, html: outHtml };
+    }
+
+    // Fallback 1: derive plain text from HTML when SendGrid only delivered html part
+    if (!text.trim() && html.trim()) {
+      text = htmlToText(html);
+    }
+
+    // Fallback 2: parse raw MIME if both text and html are empty (SendGrid "Raw" mode)
+    if (!text.trim() && !html.trim() && rawEmail.trim()) {
+      const parsed = parseRawMime(rawEmail);
+      if (parsed.text) text = parsed.text;
+      else if (parsed.html) {
+        html = parsed.html;
+        text = htmlToText(parsed.html);
+      }
+    }
+
+    // Strip quoted reply history (lines after "On ... wrote:" or starting with "> ")
+    if (text) {
+      const cutMatch = text.match(/\n\s*On .{0,200}wrote:\s*\n/);
+      if (cutMatch && cutMatch.index !== undefined) {
+        text = text.slice(0, cutMatch.index).trim();
+      }
+      // Drop trailing quoted block of "> " lines
+      text = text.replace(/(?:^>.*\n?)+$/gm, "").trim();
+    }
+
     console.log(`[sendgrid-inbound:${reqId}] payload`, {
       to,
       from,
       subject,
       envelope,
       textLen: text.length,
+      htmlLen: html.length,
+      rawLen: rawEmail.length,
     });
 
     const alias = extractAlias(to);

@@ -44,7 +44,7 @@ export function LockedCoachComposer({ coach, locked, onBack, onSendIntercept }: 
   const schoolName = coach.school_name ?? "";
 
   const defaultSubject = useMemo(
-    () => `${p.first_name ?? ""} ${p.last_name ?? ""} | ${p.height ?? ""} ${p.position ?? ""} - ${p.city ?? ""}`.trim(),
+    () => `quick film — ${p.first_name ?? ""} ${p.last_name ?? ""}, ${p.grad_year ?? ""} ${p.position ?? ""}`.toLowerCase().trim(),
     [p],
   );
   const [subject, setSubject] = useState(defaultSubject);

@@ -88,10 +88,12 @@ export function RecommendedSchools({ schools, contactedNames, repliedNames, onMe
             color: "#86868B",
           }}
         >
-          Recommended For You
+          {userState ? "Recruiting in your region" : "Recommended for you"}
         </div>
         <div style={{ fontSize: 13, color: "#6E6E73", marginTop: 4 }}>
-          Based on your profile — D3 programs actively recruiting your position.
+          {userState
+            ? `D3 programs in ${userState} and nearby states actively recruiting your position.`
+            : "Based on your profile — D3 programs actively recruiting your position."}
         </div>
       </div>
 

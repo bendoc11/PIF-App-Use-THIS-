@@ -27,8 +27,10 @@ interface Props {
   schools: MockSchool[];
   contactedNames: Set<string>;
   interestedNames: Set<string>;
+  repliedNames?: Set<string>;
   onSelectSchool: (school: MockSchool) => void;
   onMessageSchool: (school: MockSchool) => void;
+  onReadReply?: (school: MockSchool) => void;
   onToggleInterested: (school: MockSchool) => void;
   onBrowseAll: () => void;
 }
@@ -37,8 +39,10 @@ export function FindYourSchoolMap({
   schools,
   contactedNames,
   interestedNames,
+  repliedNames,
   onSelectSchool,
   onMessageSchool,
+  onReadReply,
   onToggleInterested,
   onBrowseAll,
 }: Props) {
@@ -328,14 +332,39 @@ export function FindYourSchoolMap({
                   />
                   {isInterested ? "Interested" : "Mark interested"}
                 </button>
-                <button
-                  onClick={() => onMessageSchool(s)}
-                  className="rs-btn-primary inline-flex items-center gap-1"
-                  style={{ fontSize: 12, padding: "6px 16px" }}
-                >
-                  Message
-                  <ChevronRight strokeWidth={1.5} className="h-3.5 w-3.5" />
-                </button>
+                {repliedNames?.has(s.name) ? (
+                  <button
+                    onClick={() => onReadReply?.(s)}
+                    className="rs-btn-primary inline-flex items-center gap-1"
+                    style={{ fontSize: 12, padding: "6px 16px", fontWeight: 700 }}
+                  >
+                    Read Reply
+                    <ChevronRight strokeWidth={1.5} className="h-3.5 w-3.5" />
+                  </button>
+                ) : contactedNames.has(s.name) ? (
+                  <span
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      padding: "6px 14px",
+                      borderRadius: 980,
+                      background: "#E8F8EE",
+                      color: "#0E7A3B",
+                      border: "1px solid #B6E5C5",
+                    }}
+                  >
+                    ✓ Messaged
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => onMessageSchool(s)}
+                    className="rs-btn-primary inline-flex items-center gap-1"
+                    style={{ fontSize: 12, padding: "6px 16px" }}
+                  >
+                    Message
+                    <ChevronRight strokeWidth={1.5} className="h-3.5 w-3.5" />
+                  </button>
+                )}
               </li>
             );
           })}

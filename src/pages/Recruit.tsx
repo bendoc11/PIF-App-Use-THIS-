@@ -384,8 +384,10 @@ export default function Recruit() {
                       schools={filtered}
                       contactedNames={contactedNames}
                       interestedNames={allInterested}
+                      repliedNames={repliedSchools}
                       onSelectSchool={(s) => guardMessage(() => openQuickSend(s))}
                       onMessageSchool={onMessageSchool}
+                      onReadReply={() => scrollToReplies()}
                       onToggleInterested={onToggleInterested}
                       onBrowseAll={() => guardMessage(() => setView({ kind: "compose-pick" }))}
                     />

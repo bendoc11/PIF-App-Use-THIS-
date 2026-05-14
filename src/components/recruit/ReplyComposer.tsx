@@ -96,23 +96,27 @@ export function ReplyComposer({
           </button>
         </div>
         <div className="p-5 space-y-3 overflow-y-auto">
-          {originalBody && (
-            <div>
-              <label className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
-                Coach's message
-              </label>
-              <div className="mt-1 rounded-md border border-gray-200 bg-gray-50 p-3 max-h-48 overflow-y-auto">
-                {originalSubject && (
-                  <div className="text-xs font-semibold text-gray-700 mb-1">
-                    {originalSubject}
-                  </div>
-                )}
+          <div>
+            <label className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
+              Coach's message
+            </label>
+            <div className="mt-1 rounded-md border border-gray-200 bg-gray-50 p-3 max-h-48 overflow-y-auto">
+              {originalSubject && (
+                <div className="text-xs font-semibold text-gray-700 mb-1">
+                  {originalSubject}
+                </div>
+              )}
+              {originalBody ? (
                 <div className="text-sm text-gray-800 whitespace-pre-wrap">
                   {originalBody}
                 </div>
-              </div>
+              ) : (
+                <div className="text-sm italic text-gray-500">
+                  The coach's message body wasn't captured. Reply below to keep the conversation going.
+                </div>
+              )}
             </div>
-          )}
+          </div>
           <div>
             <label className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">To</label>
             <Input

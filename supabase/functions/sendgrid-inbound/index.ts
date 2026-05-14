@@ -158,6 +158,8 @@ Deno.serve(async (req) => {
       subject,
       envelope,
       textLen: text.length,
+      htmlLen: html.length,
+      rawLen: rawEmail.length,
     });
 
     const alias = extractAlias(to);

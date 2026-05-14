@@ -165,7 +165,7 @@ export function RecommendedSchools({
                 fontSize: 26,
                 fontWeight: 700,
                 letterSpacing: "-0.02em",
-                color: "#1D1D1F",
+                color: "#FFFFFF",
                 lineHeight: 1.15,
               }}
             >
@@ -193,14 +193,14 @@ export function RecommendedSchools({
               >
                 {featured.division}
               </span>
-              <span style={{ fontSize: 13, color: "#6E6E73" }}>
+              <span style={{ fontSize: 13, color: "rgba(255,255,255,0.60)" }}>
                 {[featured.city, featured.state].filter(Boolean).join(", ")}
               </span>
             </div>
             <p
               style={{
                 fontSize: 14,
-                color: "#3A3A3F",
+                color: "rgba(255,255,255,0.80)",
                 marginTop: 10,
                 lineHeight: 1.45,
               }}

@@ -20,17 +20,14 @@ export function RecruitTopBar({ firstName, weeklySent, weeklyGoal, sendStreak = 
     <div
       className="flex items-center justify-between mb-5"
       style={{
-        background: "#FFFFFF",
-        borderBottom: "1px solid var(--border)",
+        background: "transparent",
         height: 52,
-        padding: "0 16px",
-        borderRadius: 12,
-        border: "1px solid var(--border)",
+        padding: "0 4px",
       }}
     >
       <div
         style={{
-          fontSize: 16,
+          fontSize: 18,
           fontWeight: 600,
           color: "var(--text-primary)",
           letterSpacing: "-0.01em",

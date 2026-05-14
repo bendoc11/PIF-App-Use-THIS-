@@ -382,7 +382,7 @@ export default function Recruit() {
                       schools={filtered}
                       contactedNames={contactedNames}
                       interestedNames={allInterested}
-                      onSelectSchool={(s) => guardMessage(() => setView({ kind: "school", school: s }))}
+                      onSelectSchool={(s) => guardMessage(() => openQuickSend(s))}
                       onMessageSchool={onMessageSchool}
                       onToggleInterested={onToggleInterested}
                       onBrowseAll={() => guardMessage(() => setView({ kind: "compose-pick" }))}

@@ -1340,6 +1340,24 @@ export type Database = {
           },
         ]
       }
+      user_milestones: {
+        Row: {
+          achieved_at: string
+          milestone_key: string
+          user_id: string
+        }
+        Insert: {
+          achieved_at?: string
+          milestone_key: string
+          user_id: string
+        }
+        Update: {
+          achieved_at?: string
+          milestone_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       weekly_schedule_templates: {
         Row: {
           created_at: string
@@ -1420,6 +1438,13 @@ export type Database = {
         Returns: {
           connected_at: string
           email: string
+        }[]
+      }
+      get_platform_activity_stats: {
+        Args: never
+        Returns: {
+          athletes_replied_this_week: number
+          messages_this_week: number
         }[]
       }
       get_public_athlete_profile: {

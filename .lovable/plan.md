@@ -1,87 +1,137 @@
-# Monetization Overhaul Plan
+# Recruiting Engagement Upgrade — 8-Part Plan
 
-## What changes
+Goal: convert the recruiting flow from a functional inbox into a habit-forming product with clear momentum, celebration moments, and trustworthy recommendations.
 
-Replace the current paywall system (lifetime free-send cap, FreemiumPaywall, Paywall route, post-onboarding paywall) with a daily-limit + locked-replies model.
+---
 
-## 1. Cleanup (remove old system)
+## 1. Reply sender name (quick fix, do first)
 
-- Delete `src/components/recruit/FreemiumPaywall.tsx` and all references in `Recruit.tsx` / `EmailComposer.tsx`.
-- Remove `free_sends_used` lifetime gating in `send-outreach-email` (keep the function shape — only swap the limit logic).
-- Strip paywall checks from `Pricing.tsx`, `OnboardingResults.tsx`, `SignupSuccess.tsx`, `AuthGuard.tsx` (already permissive — just confirm).
-- Keep `Paywall.tsx` route reachable but route post-onboarding straight to dashboard.
+The inbound parser is storing the From-header display name, which in test mode happens to be the athlete's own name. Fix the **display logic** so reply rows + thread headers always show the *coach* identity:
 
-## 2. Daily send limit (30/day for free users)
+- Lookup precedence: `outreach_history.coach_name` (matched by `coach_email`) → parsed coach name from `reply_subject` → email local-part → "Coach".
+- If `coach_title` exists and contains a last name, render `Coach {LastName}`.
+- Never fall back to the athlete's own profile name.
 
-- Reuse existing `email_send_counters(user_id, day, count)` table.
-- Update `send-outreach-email` edge function:
-  - Look up active subscription (profiles.subscription_status in active/trialing OR plan in pro/premium/lifetime OR role admin/creator) → unlimited.
-  - Otherwise: increment today's counter; if `>30` return `{ error: 'daily_limit_reached', limit: 30 }` with 429.
-- Frontend `EmailComposer` catches that error and opens the new `DailyLimitPaywall` modal (non-dismissable; only Subscribe / Restore).
+Files: `RepliesPanel.tsx`, `ConversationThread.tsx`.
 
-## 3. Replies tab (new)
+---
 
-- Add route `/replies` and a `<Replies />` page.
-- Sidebar order: Get Recruited → **Replies** → My Profile → My Progress.
-- Tab shows red badge with unread reply count (reuse `useUnreadReplies`, realtime already wired).
-- For paid users: full reply list + reply composer (reuse `RepliesPanel`/`ReplyComposer`).
-- For free users: locked screen — large red lock icon, list of locked cards (coach name + school + title visible, body blurred), CTA to subscribe.
+## 2. Prominent progress bar with milestones
 
-## 4. Subscription helper
+Replace the thin line on `/recruit` with a real progress bar component.
 
-- New `src/lib/subscription.ts` exporting `isPaidSubscriber(profile)` (admin/creator/active sub).
-- Replace `hasActiveSubscription` usages where needed.
+- Track: total `outreach_history` rows for the user.
+- Markers at 10 / 20 / 50 with labels: *Getting noticed*, *Building momentum*, *Maximizing chances*.
+- Filled segments use PIF red gradient; passed milestones get a checkmark.
+- Crossing a milestone fires the celebration in §3 (once-per-milestone).
 
-## 5. Stripe success flow
+New component: `RecruitProgressBar.tsx`. Replaces the current top progress strip.
 
-- Stripe success URL → `/signup-success?verified=true`.
-- `SignupSuccess` page calls `check-subscription`, shows brief celebration, then redirects to `/replies`.
-- Insert into `subscriptions` table on success.
+---
 
-## 6. Reply notification email (free users)
+## 3. Milestone + weekly-goal celebrations (one-time per milestone)
 
-- New edge function `notify-reply-received`:
-  - Triggered from `sendgrid-inbound` (DO NOT modify that function — instead, add a Postgres trigger on `coach_replies` insert that calls this via pg_net, OR call it from sendgrid-inbound).
-  - **Constraint says don't modify sendgrid-inbound** → use a database trigger on `coach_replies` insert that uses `pg_net.http_post` to invoke the function.
-  - Function checks if recipient is free (not paid sub). If free, sends branded email via SendGrid: "A college coach replied to your recruiting outreach" with body "Hey {first_name} — {coach_name} from {school} just responded…".
+Add a lightweight celebration overlay (confetti via pure CSS keyframes — no new deps) that triggers on:
 
-## 7. Onboarding copy
+- Crossing 10, 20, 50 lifetime sends.
+- Hitting weekly goal of 10 sends (resets Mondays, local time).
+- Each fires only once per user per milestone.
 
-- Update `OnboardingResults.tsx` to: "Your profile is live. Start reaching out to coaches — completely free. When coaches reply you'll be notified instantly. Subscribe to read their replies and keep the conversation going." Remove all paywall mentions.
+Persist completion state in a new table `user_milestones`:
 
-## 8. New paywall modal component
+```text
+user_id uuid
+milestone_key text    -- 'sends_10' | 'sends_20' | 'sends_50' | 'weekly_2026_W20'
+achieved_at timestamptz
+PK (user_id, milestone_key)
+```
 
-- `src/components/paywall/DailyLimitPaywall.tsx` — full-screen, non-dismissable, used when daily 30 cap is hit.
-- Contains the exact copy from spec, $29/month red text, Stripe link, restore button.
+Client checks unseen milestones on mount + after each successful send and inserts the row when the celebration is shown.
 
-## Stripe link
+Component: `MilestoneCelebration.tsx`.
 
-The user said `[PASTE YOUR STRIPE LINK]` — I'll reuse the existing checkout URL from `Paywall.tsx` (`https://subscribe.playitforward.app/b/4gM00i4Wzc0g7w0buvcEw00`). Confirm or provide a different link before launch.
+---
 
-## Files touched
+## 4. First-reply celebration
 
-Created:
-- `src/pages/Replies.tsx`
-- `src/components/paywall/DailyLimitPaywall.tsx`
-- `src/components/replies/LockedRepliesView.tsx`
-- `src/lib/subscription.ts`
-- `supabase/functions/notify-reply-received/index.ts`
-- migration: trigger on `coach_replies` insert + drop unused `free_sends_used` references
+Before opening the first ever reply (subscribed users only), show a full-screen moment:
 
-Edited:
-- `supabase/functions/send-outreach-email/index.ts` (daily 30 cap)
-- `src/components/recruit/EmailComposer.tsx` (handle 429 → modal)
-- `src/components/layout/AppSidebar.tsx` (new tab + badge)
-- `src/App.tsx` (route)
-- `src/pages/SignupSuccess.tsx` (celebrate → /replies)
-- `src/pages/OnboardingResults.tsx` (copy + redirect target)
-- `src/pages/Recruit.tsx` (remove FreemiumPaywall)
+- Large school initials in school color.
+- Headline: *A coach responded to your outreach!*
+- Subline: *Your recruiting process just got real.*
+- Button: *Read their message.*
 
-Deleted:
-- `src/components/recruit/FreemiumPaywall.tsx`
+Uses existing `profiles.first_reply_celebrated_at` column — already present, set on dismiss. Component: `FirstReplyCelebration.tsx` (file already exists — wire it in).
 
-## Open questions before I build
+---
 
-1. **Confirm the Stripe payment link** — reuse `https://subscribe.playitforward.app/b/4gM00i4Wzc0g7w0buvcEw00`, or paste a new one? (Spec literally said `[PASTE YOUR STRIPE LINK]`.)
-2. The existing checkout price is $49.99 — your new spec says **$29/month**. The Stripe link controls actual price; I'll only update display copy. Confirm the link points to a $29 price.
-3. The "test in Chrome incognito" step — I can't drive a real browser session through Stripe, sign up, send 30 emails, etc. I'll do code-level verification + smoke test the UI states. OK?
+## 5. Separate "Schools I'm Interested In" vs "Schools Interested In Me"
+
+Today both states collapse into one count. Split them:
+
+- **Schools I'm Interested In** — count of `target_schools` rows (athlete bookmarks). Star icon, neutral color.
+- **Schools Interested In Me** — distinct schools with at least one `coach_replies` row. Flame icon, gold (#F5B82E).
+
+Update both the right sidebar card (`YourSchoolsCard.tsx`) and any dashboard stat tiles to render two stacked rows instead of one number.
+
+---
+
+## 6. Send streak
+
+Daily consecutive-send streak shown next to the user name in `RecruitTopBar` and inside the weekly widget.
+
+- Compute on the client from `outreach_history.sent_at` grouped by local calendar date (same approach as existing training streak).
+- Small flame icon + number; muted when 0.
+- Push-notification copy is documented for later — Capacitor push is out of scope for this task.
+
+---
+
+## 7. Recommended schools relevance
+
+Today recommendations are not regional. Update `RecommendedSchools.tsx` to:
+
+1. Filter `college_coaches` by `profiles.target_division` if set.
+2. Sort by region match against `profiles.state` (Mid-Atlantic, Northeast, South, Midwest, West buckets).
+3. Section label: *Recruiting in your region*.
+4. Fall back to nationwide only if fewer than 6 regional matches exist.
+
+Region map lives in a new `src/lib/regions.ts`.
+
+---
+
+## 8. Social proof ticker
+
+Subtle rotating line below the map:
+
+- Pulls anonymized aggregates from Supabase: total messages sent platform-wide this week, count of athletes who got at least one reply this week.
+- Rotates every 5s between 2–3 lines.
+- If counts are low, falls back to plausible templated lines marked clearly (no fake exact numbers).
+
+Aggregate query exposed via SQL function `get_platform_activity_stats()` returning `messages_this_week`, `athletes_replied_this_week`. SECURITY DEFINER, callable by authenticated.
+
+---
+
+## Database changes (one migration)
+
+- New table `user_milestones` + RLS (user can read/insert own).
+- New SQL function `get_platform_activity_stats()`.
+
+No changes to existing tables.
+
+---
+
+## Sequencing
+
+1. Migration (table + function).
+2. Bug-fix #1 (reply sender name) — fastest visible win.
+3. #5 (split school states) + #7 (regional recs) — trust fixes.
+4. #2 progress bar + #3 milestone celebrations + #6 streak — momentum loop.
+5. #4 first-reply celebration + #8 social proof ticker — polish.
+
+## What's explicitly out of scope
+
+- Real push notifications for streak risk (Capacitor wiring is its own task).
+- Backfilling historical milestones into `user_milestones` — current users won't see celebrations for milestones they already passed.
+- New analytics events / Mixpanel.
+
+Confirm and I'll start with the migration.

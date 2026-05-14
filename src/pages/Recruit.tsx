@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import "@/components/recruit/scoreboard/tokens.css";
 import { RecruitTopBar } from "@/components/recruit/scoreboard/RecruitTopBar";
 import { HeroMetrics } from "@/components/recruit/scoreboard/HeroMetrics";
+import { RecruitProgressBar } from "@/components/recruit/scoreboard/RecruitProgressBar";
 import { FindYourSchoolMap } from "@/components/recruit/scoreboard/FindYourSchoolMap";
 import { RecommendedSchools } from "@/components/recruit/RecommendedSchools";
 import { DailyLimitPaywall } from "@/components/paywall/DailyLimitPaywall";
@@ -289,51 +290,9 @@ export default function Recruit() {
       <div className="recruit-scoreboard min-h-[calc(100vh-3.5rem)]">
         <UnreadRepliesBanner onView={scrollToReplies} />
 
-        {/* Outreach progress banner — shown until user hits 20 sends */}
-        {view.kind === "map" && outreach.length < REPLY_TARGET && (
-          <div
-            className="max-w-7xl mx-auto px-4 lg:px-6 pt-4"
-            style={{ fontFamily: "-apple-system, 'SF Pro Text', sans-serif" }}
-          >
-            <div
-              style={{
-                background: "#FFFFFF",
-                border: "1px solid #D2D2D7",
-                borderRadius: 12,
-                padding: "12px 16px",
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-              }}
-            >
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: "#1D1D1F" }}>
-                  {outreach.length} coach{outreach.length === 1 ? "" : "es"} contacted
-                </div>
-                <div style={{ fontSize: 12, color: "#6E6E73", marginTop: 2 }}>
-                  Athletes who contact 20+ are 4x more likely to hear back.
-                </div>
-              </div>
-              <div
-                style={{
-                  width: 90,
-                  height: 6,
-                  background: "#E8E8ED",
-                  borderRadius: 980,
-                  overflow: "hidden",
-                  flexShrink: 0,
-                }}
-              >
-                <div
-                  style={{
-                    width: `${Math.min(100, (outreach.length / REPLY_TARGET) * 100)}%`,
-                    height: "100%",
-                    background: "#0071E3",
-                    transition: "width 400ms ease-out",
-                  }}
-                />
-              </div>
-            </div>
+        {view.kind === "map" && (
+          <div className="max-w-7xl mx-auto px-4 lg:px-6 pt-4">
+            <RecruitProgressBar total={outreach.length} />
           </div>
         )}
 
@@ -351,7 +310,8 @@ export default function Recruit() {
                   />
 
                   <HeroMetrics
-                    schoolsInterested={allInterested.size}
+                    schoolsBookmarked={interestedSchools.size}
+                    schoolsInterestedInMe={repliedSchools.size}
                     coachesMessaged={outreach.length}
                     offersReceived={offersCount}
                     weeklyGoal={WEEKLY_GOAL}
@@ -397,6 +357,7 @@ export default function Recruit() {
                     <RepliesPanel
                       onCountChange={setRepliesCount}
                       locked={!isPaid}
+                      athleteName={`${p.first_name ?? ""} ${p.last_name ?? ""}`.trim() || null}
                     />
                   </div>
                 </>

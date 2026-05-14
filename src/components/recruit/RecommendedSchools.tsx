@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MockSchool } from "@/data/mockSchools";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -23,7 +23,6 @@ function regionLabel(state: string): string {
   if (!state) return "your area";
   const group = REGION_GROUPS.find((g) => g.includes(state));
   if (!group) return state;
-  // simple human label
   if (group.includes("Maine")) return "the Northeast";
   if (group.includes("Virginia")) return "the Mid-Atlantic";
   if (group.includes("Florida")) return "the Southeast";
@@ -42,13 +41,15 @@ interface Props {
   onReadReply?: (school: MockSchool) => void;
 }
 
-const DIVISION_STYLE: Record<string, { bg: string; fg: string; border: string }> = {
-  D1: { bg: "#E6F0FF", fg: "#1D4ED8", border: "#B6CCFF" },
-  D2: { bg: "#E6F7EE", fg: "#15803D", border: "#B6E5C5" },
-  D3: { bg: "#F0EDFF", fg: "#4B35B0", border: "#C8BEFF" },
-  JUCO: { bg: "#F4E8FF", fg: "#6B21A8", border: "#DCC4F2" },
-  NAIA: { bg: "#F1F1F4", fg: "#374151", border: "#D7D7DD" },
+const DIVISION_STYLE: Record<string, { bg: string; fg: string }> = {
+  D1: { bg: "rgba(255,255,255,0.10)", fg: "rgba(255,255,255,0.80)" },
+  D2: { bg: "#0d2e1a", fg: "#4ade80" },
+  D3: { bg: "rgba(255,255,255,0.08)", fg: "rgba(255,255,255,0.60)" },
+  JUCO: { bg: "#1a1040", fg: "#a78bfa" },
+  NAIA: { bg: "#1a1a2e", fg: "#818cf8" },
 };
+
+type Phase = "idle" | "exit-left" | "exit-right" | "enter";
 
 export function RecommendedSchools({
   schools,
@@ -61,6 +62,7 @@ export function RecommendedSchools({
   const userState = ((profile as any)?.state as string | undefined) ?? "";
   const userPosition = ((profile as any)?.position as string | undefined) ?? "";
   const targetDivision = ((profile as any)?.target_division as string | undefined) ?? "";
+  const gradYear = ((profile as any)?.grad_year as number | undefined) ?? null;
 
   const ordered = useMemo(() => {
     const seen = new Set<string>();
@@ -98,15 +100,16 @@ export function RecommendedSchools({
     return out;
   }, [schools, userState, targetDivision]);
 
-  // Skip schools the athlete has already messaged
   const queue = useMemo(
     () => ordered.filter((s) => !contactedNames.has(s.name)),
     [ordered, contactedNames],
   );
 
   const [index, setIndex] = useState(0);
+  const [phase, setPhase] = useState<Phase>("idle");
+  const [overlay, setOverlay] = useState<string | null>(null);
+  const animatingRef = useRef(false);
 
-  // If queue shrinks below current index (e.g. school became contacted), reset.
   useEffect(() => {
     if (index >= queue.length) setIndex(0);
   }, [queue.length, index]);
@@ -121,46 +124,96 @@ export function RecommendedSchools({
   const ds = DIVISION_STYLE[featured.division] ?? DIVISION_STYLE.D3;
 
   const positionLabel = userPosition ? userPosition.toLowerCase() : "your position";
-  const region = regionLabel(featured.state || userState);
+  const locality = featured.conference || regionLabel(featured.state || userState);
+  const classBit = gradYear ? ` — ${gradYear} class` : "";
   const contextLine = hasReply
     ? `${featured.name} replied to your last message. Open the thread to continue.`
-    : `Actively recruiting ${positionLabel} in ${region}.`;
+    : `Actively recruiting ${positionLabel}s in ${locality}${classBit}.`;
 
-  const next = () => setIndex((i) => (i + 1) % queue.length);
+  const coachCount = featured.coaches?.length ?? 0;
+
+  const advance = () => setIndex((i) => (i + 1) % queue.length);
+
+  const trigger = (
+    direction: "left" | "right",
+    tint: string,
+    action: () => void,
+  ) => {
+    if (animatingRef.current) return;
+    animatingRef.current = true;
+    setOverlay(tint);
+    setPhase(direction === "left" ? "exit-left" : "exit-right");
+    window.setTimeout(() => setOverlay(null), 150);
+    window.setTimeout(() => {
+      action();
+      // snap card off-screen right (no transition), then animate to idle
+      setPhase("enter");
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setPhase("idle");
+          animatingRef.current = false;
+        });
+      });
+    }, 250);
+  };
+
+  const handlePlayHere = () => {
+    trigger("left", "rgba(74,222,128,0.20)", () => {
+      onMessage(featured);
+      advance();
+    });
+  };
+  const handleNext = () => {
+    if (queue.length <= 1) return;
+    trigger("right", "rgba(255,255,255,0.10)", advance);
+  };
+
+  let transform = "translateX(0)";
+  if (phase === "exit-left") transform = "translateX(-110%)";
+  else if (phase === "exit-right") transform = "translateX(110%)";
+  else if (phase === "enter") transform = "translateX(110%)";
+
+  const transition = phase === "enter" ? "none" : "transform 250ms ease-out";
 
   return (
     <div style={{ marginBottom: 20, fontFamily: SF }}>
       <div
         style={{
-          background: "#0F1620",
-          border: "1px solid rgba(255,255,255,0.15)",
+          position: "relative",
+          overflow: "hidden",
           borderRadius: 16,
-          padding: "20px 22px 18px",
-          boxShadow: "0 1px 0 rgba(255,255,255,0.04) inset, 0 8px 24px -16px rgba(0,0,0,0.5)",
         }}
       >
         <div
           style={{
-            fontFamily: SF,
-            fontSize: 11,
-            fontWeight: 600,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            color: "hsl(var(--pif-red))",
-            marginBottom: 10,
-          }}
-        >
-          {userState ? "Recruiting in your region" : "Recommended for you"}
-        </div>
-
-        <div
-          style={{
+            background: "#0F1620",
+            border: "1px solid rgba(255,255,255,0.15)",
+            borderRadius: 16,
+            padding: "20px 22px 18px",
+            boxShadow:
+              "0 1px 0 rgba(255,255,255,0.04) inset, 0 8px 24px -16px rgba(0,0,0,0.5)",
+            minHeight: 260,
             display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-            gap: 14,
+            flexDirection: "column",
+            transform,
+            transition,
+            willChange: "transform",
           }}
         >
+          <div
+            style={{
+              fontFamily: SF,
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "hsl(var(--pif-red))",
+              marginBottom: 10,
+            }}
+          >
+            {userState ? "Recruiting in your region" : "Recommended for you"}
+          </div>
+
           <div style={{ minWidth: 0, flex: 1 }}>
             <div
               style={{
@@ -186,11 +239,12 @@ export function RecommendedSchools({
                 style={{
                   background: ds.bg,
                   color: ds.fg,
-                  border: `1px solid ${ds.border}`,
+                  fontFamily: SF,
                   fontSize: 11,
-                  fontWeight: 700,
+                  fontWeight: 600,
                   borderRadius: 6,
-                  padding: "3px 8px",
+                  padding: "4px 8px",
+                  lineHeight: 1,
                 }}
               >
                 {featured.division}
@@ -199,6 +253,31 @@ export function RecommendedSchools({
                 {[featured.city, featured.state].filter(Boolean).join(", ")}
               </span>
             </div>
+
+            {(featured.conference || coachCount > 0) && (
+              <div
+                style={{
+                  marginTop: 8,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  flexWrap: "wrap",
+                  fontFamily: SF,
+                  fontSize: 11,
+                  fontWeight: 400,
+                  color: "rgba(255,255,255,0.50)",
+                }}
+              >
+                {featured.conference && <span>{featured.conference}</span>}
+                {featured.conference && coachCount > 0 && <span>·</span>}
+                {coachCount > 0 && (
+                  <span>
+                    {coachCount} coach{coachCount === 1 ? "" : "es"}
+                  </span>
+                )}
+              </div>
+            )}
+
             <p
               style={{
                 fontSize: 14,
@@ -210,76 +289,89 @@ export function RecommendedSchools({
               {contextLine}
             </p>
           </div>
-        </div>
 
-        <div
-          style={{
-            marginTop: 18,
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-          }}
-        >
-          {hasReply ? (
-            <button
-              onClick={() => onReadReply?.(featured)}
-              style={{
-                flex: 1,
-                background: "#0071E3",
-                color: "#FFFFFF",
-                border: "none",
-                borderRadius: 12,
-                fontSize: 15,
-                fontWeight: 700,
-                padding: "13px 18px",
-                cursor: "pointer",
-                fontFamily: SF,
-              }}
-            >
-              Read Reply →
-            </button>
-          ) : (
-            <button
-              onClick={() => onMessage(featured)}
-              style={{
-                flex: 1,
-                background: "#0071E3",
-                color: "#FFFFFF",
-                border: "none",
-                borderRadius: 12,
-                fontSize: 15,
-                fontWeight: 700,
-                padding: "13px 18px",
-                cursor: "pointer",
-                fontFamily: SF,
-                boxShadow: "0 6px 16px -8px rgba(0,113,227,0.6)",
-              }}
-            >
-              I would play here →
-            </button>
-          )}
-          <button
-            onClick={next}
-            disabled={queue.length <= 1}
-            className="rs-next-school-btn"
+          <div
             style={{
-              background: "transparent",
-              color: "rgba(255,255,255,0.70)",
-              border: "none",
-              borderRadius: 12,
-              fontSize: 13,
-              fontWeight: 600,
-              padding: "12px 14px",
-              cursor: queue.length <= 1 ? "default" : "pointer",
-              opacity: queue.length <= 1 ? 0.4 : 1,
-              fontFamily: SF,
-              whiteSpace: "nowrap",
-              transition: "color 150ms",
+              marginTop: 18,
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
             }}
           >
-            Next school →
-          </button>
+            {hasReply ? (
+              <button
+                onClick={() => onReadReply?.(featured)}
+                style={{
+                  flex: 1,
+                  background: "hsl(var(--pif-red))",
+                  color: "#FFFFFF",
+                  border: "none",
+                  borderRadius: 12,
+                  fontSize: 15,
+                  fontWeight: 700,
+                  padding: "13px 18px",
+                  cursor: "pointer",
+                  fontFamily: SF,
+                }}
+              >
+                Read Reply →
+              </button>
+            ) : (
+              <button
+                onClick={handlePlayHere}
+                style={{
+                  flex: 1,
+                  background: "hsl(var(--pif-red))",
+                  color: "#FFFFFF",
+                  border: "none",
+                  borderRadius: 12,
+                  fontSize: 15,
+                  fontWeight: 700,
+                  padding: "13px 18px",
+                  cursor: "pointer",
+                  fontFamily: SF,
+                  boxShadow: "0 6px 16px -8px hsl(var(--pif-red) / 0.6)",
+                }}
+              >
+                I would play here →
+              </button>
+            )}
+            <button
+              onClick={handleNext}
+              disabled={queue.length <= 1}
+              className="rs-next-school-btn"
+              style={{
+                background: "transparent",
+                color: "rgba(255,255,255,0.70)",
+                border: "none",
+                borderRadius: 12,
+                fontSize: 13,
+                fontWeight: 600,
+                padding: "12px 14px",
+                cursor: queue.length <= 1 ? "default" : "pointer",
+                opacity: queue.length <= 1 ? 0.4 : 1,
+                fontFamily: SF,
+                whiteSpace: "nowrap",
+                transition: "color 150ms",
+              }}
+            >
+              Next school →
+            </button>
+          </div>
         </div>
+
+        {overlay && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: overlay,
+              borderRadius: 16,
+              pointerEvents: "none",
+              transition: "opacity 150ms ease-out",
+            }}
+          />
+        )}
       </div>
 
       <div
@@ -291,7 +383,7 @@ export function RecommendedSchools({
           fontFamily: SF,
         }}
       >
-        {remaining} more program{remaining === 1 ? "" : "s"} match your profile
+        ↑ {remaining} more program{remaining === 1 ? "" : "s"} match your profile
       </div>
     </div>
   );

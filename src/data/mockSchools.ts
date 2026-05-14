@@ -27,6 +27,7 @@ export interface MockSchool {
   enrollment: number;
   size: SchoolSize;
   avgGpa: number | null;
+  conference?: string | null;
   coaches: MockCoach[];
   teamTwitter?: string;
   teamInstagram?: string;

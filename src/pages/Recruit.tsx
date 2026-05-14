@@ -417,7 +417,7 @@ export default function Recruit() {
                       <Loader2 className="h-6 w-6 animate-spin" style={{ color: "var(--brand-muted)" }} />
                     </div>
                   ) : (
-                    <SchoolList schools={filtered} onSelect={(s) => setView({ kind: "school", school: s })} />
+                    <SchoolList schools={filtered} onSelect={(s) => openQuickSend(s)} />
                   )}
                 </div>
               )}

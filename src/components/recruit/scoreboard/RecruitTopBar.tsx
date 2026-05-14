@@ -30,13 +30,16 @@ export function RecruitTopBar({ firstName, weeklySent, weeklyGoal, sendStreak = 
     >
       <div
         style={{
-          fontSize: 18,
-          fontWeight: 600,
+          fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+          fontSize: 28,
+          fontWeight: 700,
           color: "var(--text-primary)",
-          letterSpacing: "-0.01em",
+          letterSpacing: "-0.02em",
+          lineHeight: 1.15,
+          maxWidth: "70%",
         }}
       >
-        {timeGreeting()}, {firstName || "there"}
+        {recruitingGreeting(firstName, coachesMessaged)}
       </div>
       <div className="flex items-center gap-2.5">
         {sendStreak >= 2 && (

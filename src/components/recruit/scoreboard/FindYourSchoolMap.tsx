@@ -250,11 +250,11 @@ export function FindYourSchoolMap({
       <div style={{ borderTop: "1px solid #2D2D2F", background: "#FFFFFF" }}>
         <div
           style={{
-            fontSize: 10,
+            fontSize: 11,
             fontWeight: 600,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
+            letterSpacing: "0.05em",
             color: "var(--text-tertiary)",
+            opacity: 0.8,
             padding: "10px 20px",
           }}
         >

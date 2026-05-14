@@ -131,6 +131,7 @@ export function RecommendedSchools({
     : `Actively recruiting ${positionLabel}s in ${locality}${classBit}.`;
 
   const coachCount = featured.coaches?.length ?? 0;
+  const noStaff = coachCount === 0;
 
   const advance = () => setIndex((i) => (i + 1) % queue.length);
 
@@ -286,7 +287,7 @@ export function RecommendedSchools({
                 lineHeight: 1.45,
               }}
             >
-              {contextLine}
+              {noStaff ? "Coaching staff pending update." : contextLine}
             </p>
           </div>
 
@@ -319,21 +320,22 @@ export function RecommendedSchools({
             ) : (
               <button
                 onClick={handlePlayHere}
+                disabled={noStaff}
                 style={{
                   flex: 1,
-                  background: "hsl(var(--pif-red))",
-                  color: "#FFFFFF",
+                  background: noStaff ? "rgba(255,255,255,0.06)" : "hsl(var(--pif-red))",
+                  color: noStaff ? "rgba(255,255,255,0.40)" : "#FFFFFF",
                   border: "none",
                   borderRadius: 12,
                   fontSize: 15,
                   fontWeight: 700,
                   padding: "13px 18px",
-                  cursor: "pointer",
+                  cursor: noStaff ? "not-allowed" : "pointer",
                   fontFamily: SF,
-                  boxShadow: "0 6px 16px -8px hsl(var(--pif-red) / 0.6)",
+                  boxShadow: noStaff ? "none" : "0 6px 16px -8px hsl(var(--pif-red) / 0.6)",
                 }}
               >
-                I would play here →
+                {noStaff ? "Staff unavailable" : "I would play here →"}
               </button>
             )}
             <button

@@ -137,10 +137,16 @@ function groupRowsToSchools(rows: CoachRow[]): MockSchool[] {
       map.set(key, school);
     }
 
-    const name =
+    const rawName =
       r.full_name ||
       [r.first_name, r.last_name].filter(Boolean).join(" ") ||
-      "Unknown";
+      "";
+    const name = rawName.trim();
+    // Data quality: skip vacant/removed/placeholder coach records
+    if (!name) continue;
+    const lower = name.toLowerCase();
+    const INVALID_TOKENS = ["removed", "deleted", "tbd", "vacant", "unknown", "n/a", "tba"];
+    if (INVALID_TOKENS.some((t) => lower.includes(t))) continue;
     const email = r.email || `${name.toLowerCase().replace(/\s+/g, ".")}@${(r.school_name || "school").toLowerCase().replace(/[^a-z]/g, "")}.edu`;
 
     const coach: MockCoach = {

@@ -14,10 +14,11 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['"Inter"', 'system-ui', 'sans-serif'],
-        display: ['"Bebas Neue"', 'sans-serif'],
-        heading: ['"Barlow Condensed"', 'sans-serif'],
-        body: ['"Barlow"', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        display: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        heading: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        body: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        stat: ['"Space Grotesk"', '"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",

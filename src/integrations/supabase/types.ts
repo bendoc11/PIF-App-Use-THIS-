@@ -943,6 +943,8 @@ export type Database = {
           subscription_checked_at: string | null
           subscription_status: string | null
           target_division: string | null
+          terms_accepted_at: string | null
+          terms_version: string | null
           total_drills_completed: number
           training_days_per_week: number | null
           training_hours_per_session: string | null
@@ -1014,6 +1016,8 @@ export type Database = {
           subscription_checked_at?: string | null
           subscription_status?: string | null
           target_division?: string | null
+          terms_accepted_at?: string | null
+          terms_version?: string | null
           total_drills_completed?: number
           training_days_per_week?: number | null
           training_hours_per_session?: string | null
@@ -1085,6 +1089,8 @@ export type Database = {
           subscription_checked_at?: string | null
           subscription_status?: string | null
           target_division?: string | null
+          terms_accepted_at?: string | null
+          terms_version?: string | null
           total_drills_completed?: number
           training_days_per_week?: number | null
           training_hours_per_session?: string | null

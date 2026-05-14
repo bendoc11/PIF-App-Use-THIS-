@@ -143,10 +143,10 @@ export function RecommendedSchools({
           style={{
             fontSize: 11,
             fontWeight: 600,
-            textTransform: "uppercase",
-            letterSpacing: "0.08em",
+            letterSpacing: "0.05em",
             color: "#86868B",
             marginBottom: 10,
+            opacity: 0.8,
           }}
         >
           {userState ? "Recruiting in your region" : "Recommended for you"}

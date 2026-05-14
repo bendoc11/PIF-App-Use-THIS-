@@ -66,14 +66,28 @@ export function SocialProofTicker() {
         background: "var(--bg-card, #fff)",
         border: "1px solid var(--border, #D2D2D7)",
         borderRadius: 10,
-        fontSize: 12.5,
-        color: "var(--text-secondary, #6E6E73)",
+        fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+        fontSize: 13,
+        fontWeight: 500,
+        color: "rgba(255,255,255,0.80)",
         marginBottom: 16,
         minHeight: 40,
       }}
       aria-live="polite"
     >
-      <TrendingUp className="h-3.5 w-3.5 shrink-0" style={{ color: "#0E7A3B" }} />
+      <span
+        aria-hidden
+        style={{
+          width: 6,
+          height: 6,
+          borderRadius: 999,
+          background: "#4ade80",
+          flexShrink: 0,
+          animation: "rs-live-pulse 2s ease-in-out infinite",
+          boxShadow: "0 0 0 0 rgba(74,222,128,0.6)",
+        }}
+      />
+      <style>{`@keyframes rs-live-pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.7; } }`}</style>
       <span key={current} className="animate-fade-in" style={{ lineHeight: 1.4 }}>
         {current}
       </span>

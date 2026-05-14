@@ -260,9 +260,9 @@ export function RecommendedSchools({
             onClick={next}
             disabled={queue.length <= 1}
             style={{
-              background: "#F5F5F7",
-              color: "#1D1D1F",
-              border: "1px solid #D2D2D7",
+              background: "rgba(255,255,255,0.05)",
+              color: "#FFFFFF",
+              border: "1px solid rgba(255,255,255,0.20)",
               borderRadius: 12,
               fontSize: 13,
               fontWeight: 600,

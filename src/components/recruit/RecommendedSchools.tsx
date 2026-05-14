@@ -281,7 +281,7 @@ export function RecommendedSchools({
       <div
         style={{
           fontSize: 12,
-          color: "#86868B",
+          color: "rgba(255,255,255,0.50)",
           marginTop: 8,
           textAlign: "center",
           fontFamily: SF,

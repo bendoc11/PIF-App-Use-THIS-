@@ -151,7 +151,17 @@ export function AppSidebar() {
 
         {/* Admin Link */}
         {(role === "admin" || role === "creator") && (
-          <SidebarGroup>
+          <SidebarGroup className="mt-0 py-0">
+            <div
+              aria-hidden
+              className="mx-3"
+              style={{
+                height: 1,
+                backgroundColor: "hsla(0, 0%, 100%, 0.15)",
+                marginTop: 16,
+                marginBottom: 16,
+              }}
+            />
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>

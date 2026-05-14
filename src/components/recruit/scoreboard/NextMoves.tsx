@@ -18,21 +18,21 @@ export function NextMoves({ items }: Props) {
         border: "1px solid var(--border)",
         borderRadius: 12,
         padding: "16px 18px",
+        fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
       }}
     >
       <div
         style={{
-          fontSize: 11,
+          fontSize: 13,
           fontWeight: 600,
-          letterSpacing: "0.05em",
-          color: "var(--text-tertiary)",
-          marginBottom: 12,
-          opacity: 0.8,
+          letterSpacing: "0.02em",
+          color: "#FFFFFF",
+          marginBottom: 14,
         }}
       >
         Next moves
       </div>
-      <ul className="space-y-3">
+      <ul style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         {items.map((q) => (
           <li key={q.id} className="flex items-start gap-2.5">
             <span
@@ -57,6 +57,7 @@ export function NextMoves({ items }: Props) {
                 fontSize: 13,
                 lineHeight: 1.5,
                 color: q.done ? "rgba(255,255,255,0.45)" : "#FFFFFF",
+                fontWeight: q.done ? 400 : 600,
                 textDecoration: q.done ? "line-through" : "none",
               }}
             >

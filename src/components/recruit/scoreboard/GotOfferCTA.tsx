@@ -29,11 +29,12 @@ export function GotOfferCTA({ onLog }: Props) {
       style={{
         background: "var(--bg-page)",
         border: "1px solid var(--border)",
+        borderLeft: "3px solid #4ade80",
         borderRadius: 12,
         padding: "16px 18px",
       }}
     >
-      <div style={{ color: "var(--accent)", marginBottom: 8 }}>
+      <div style={{ color: "#4ade80", marginBottom: 8 }}>
         <MedalIcon />
       </div>
       <div
@@ -49,7 +50,21 @@ export function GotOfferCTA({ onLog }: Props) {
       <p style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2, marginBottom: 12 }}>
         Log it to move up your level
       </p>
-      <button onClick={onLog} className="rs-btn-primary w-full" style={{ padding: "8px 16px", fontSize: 13 }}>
+      <button
+        onClick={onLog}
+        className="w-full"
+        style={{
+          padding: "8px 16px",
+          fontSize: 13,
+          fontWeight: 600,
+          fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+          background: "#0d2e1a",
+          color: "#4ade80",
+          border: "1px solid rgba(74,222,128,0.25)",
+          borderRadius: 8,
+          cursor: "pointer",
+        }}
+      >
         Log an offer
       </button>
     </div>

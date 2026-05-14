@@ -77,7 +77,7 @@ const TEXT_SECONDARY = "#A0ADB8";
 const TEXT_TERTIARY = "#6B7785";
 const ACCENT = "#E8391D";
 
-export function RepliesPanel({ onCountChange, locked, onLockedClick }: Props = {}) {
+export function RepliesPanel({ onCountChange, locked, onLockedClick, athleteName }: Props = {}) {
   const { user } = useAuth();
   const [replies, setReplies] = useState<Reply[]>([]);
   const [outreach, setOutreach] = useState<OutreachLite[]>([]);

@@ -226,22 +226,7 @@ export function EmailComposer({ school, selected, onBack, onRemoveCoach, onSent,
           ))}
         </div>
 
-        {/* Tip */}
-        <div
-          style={{
-            background: "#FFF8E1",
-            border: "1px solid #F5E1A4",
-            borderRadius: 10,
-            padding: "10px 14px",
-            marginBottom: 16,
-            fontSize: 13,
-            color: "#5C4A12",
-            lineHeight: 1.5,
-            fontFamily: SF,
-          }}
-        >
-          <strong style={{ fontWeight: 600 }}>Tip:</strong> Coaches can spot a copy-paste from a mile away. Take a minute to research each program and personalize your message — mention a recent game, the coach's style, or why their school fits you. Individualized emails get far more replies.
-        </div>
+        {/* Tip removed */}
 
         {/* Subject */}
         <div style={{ marginBottom: 16 }}>

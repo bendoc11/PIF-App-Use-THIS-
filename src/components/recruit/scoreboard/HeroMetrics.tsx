@@ -1,4 +1,14 @@
+import { useState } from "react";
 import { Star, Flame, Trophy, Mail } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+interface BookmarkedSchool {
+  id: string;
+  school_name: string;
+  division: string | null;
+  state: string | null;
+  status: string;
+}
 
 interface Props {
   schoolsBookmarked: number;        // athlete's own list
@@ -7,6 +17,7 @@ interface Props {
   offersReceived: number;
   weeklyGoal: number;
   weeklySent: number;
+  bookmarkedSchools?: BookmarkedSchool[];
 }
 
 export function HeroMetrics({
@@ -16,7 +27,9 @@ export function HeroMetrics({
   offersReceived,
   weeklyGoal,
   weeklySent,
+  bookmarkedSchools = [],
 }: Props) {
+  const [showList, setShowList] = useState(false);
   const remaining = Math.max(0, weeklyGoal - weeklySent);
 
   const SF = '-apple-system, "SF Pro Display", BlinkMacSystemFont, sans-serif';
@@ -115,7 +128,8 @@ export function HeroMetrics({
           icon={<Star className="h-3 w-3" />}
           label="My List"
           value={schoolsBookmarked}
-          sub="Bookmarked"
+          sub={schoolsBookmarked > 0 ? "Tap to view" : "Bookmarked"}
+          onClick={() => setShowList(true)}
         />
         <SecondaryStat
           icon={<Mail className="h-3 w-3" />}
@@ -130,6 +144,41 @@ export function HeroMetrics({
           sub={offersReceived > 0 ? "Real momentum" : "None yet"}
         />
       </div>
+
+      <Dialog open={showList} onOpenChange={setShowList}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Star className="h-4 w-4" />
+              My List ({bookmarkedSchools.length})
+            </DialogTitle>
+          </DialogHeader>
+          {bookmarkedSchools.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-6 text-center">
+              You haven't bookmarked any schools yet. Add schools from the map or your search results to build your list.
+            </p>
+          ) : (
+            <div className="max-h-[60vh] overflow-y-auto space-y-2 mt-2">
+              {bookmarkedSchools.map((s) => (
+                <div
+                  key={s.id}
+                  className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg border border-border bg-muted/30"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground truncate">{s.school_name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {[s.division, s.state].filter(Boolean).join(" · ") || "—"}
+                    </p>
+                  </div>
+                  <span className="text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full bg-primary/10 text-primary shrink-0">
+                    {s.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -139,19 +188,27 @@ function SecondaryStat({
   label,
   value,
   sub,
+  onClick,
 }: {
   icon: React.ReactNode;
   label: string;
   value: number;
   sub: string;
+  onClick?: () => void;
 }) {
+  const Comp: any = onClick ? "button" : "div";
   return (
-    <div
+    <Comp
+      onClick={onClick}
+      type={onClick ? "button" : undefined}
       style={{
         background: "var(--bg-card)",
         border: "1px solid var(--border)",
         borderRadius: 12,
         padding: "12px 14px",
+        textAlign: "left",
+        width: "100%",
+        cursor: onClick ? "pointer" : "default",
       }}
     >
       <div
@@ -175,6 +232,6 @@ function SecondaryStat({
         {value}
       </div>
       <p style={{ fontSize: 11, marginTop: 4, color: "var(--text-secondary)" }}>{sub}</p>
-    </div>
+    </Comp>
   );
 }

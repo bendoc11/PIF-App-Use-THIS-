@@ -86,6 +86,7 @@ export default function Recruit() {
   const [repliesCount, setRepliesCount] = useState(0);
   const [offersCount, setOffersCount] = useState(0);
   const [interestedSchools, setInterestedSchools] = useState<Set<string>>(new Set());
+  const [bookmarkedSchools, setBookmarkedSchools] = useState<{ id: string; school_name: string; division: string | null; state: string | null; status: string }[]>([]);
   const [showOfferDialog, setShowOfferDialog] = useState(false);
   const [showDailyLimitPaywall, setShowDailyLimitPaywall] = useState(false);
   const [quickSend, setQuickSend] = useState<MockSchool | null>(null);
@@ -126,9 +127,20 @@ export default function Recruit() {
     setOffersCount(count ?? 0);
   };
 
+  const loadBookmarked = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("target_schools")
+      .select("id, school_name, division, state, status")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+    setBookmarkedSchools((data as any) ?? []);
+  };
+
   useEffect(() => {
     loadOutreach();
     loadOffers();
+    loadBookmarked();
     // eslint-disable-next-line
   }, [user?.id]);
 
@@ -378,12 +390,13 @@ export default function Recruit() {
                   />
 
                   <HeroMetrics
-                    schoolsBookmarked={interestedSchools.size}
+                    schoolsBookmarked={bookmarkedSchools.length}
                     schoolsInterestedInMe={repliedSchools.size}
                     coachesMessaged={outreach.length}
                     offersReceived={offersCount}
                     weeklyGoal={WEEKLY_GOAL}
                     weeklySent={weeklySent}
+                    bookmarkedSchools={bookmarkedSchools}
                   />
 
                   {!loading && !error && (

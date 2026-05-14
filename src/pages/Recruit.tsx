@@ -84,6 +84,7 @@ export default function Recruit() {
   const [interestedSchools, setInterestedSchools] = useState<Set<string>>(new Set());
   const [showOfferDialog, setShowOfferDialog] = useState(false);
   const [showDailyLimitPaywall, setShowDailyLimitPaywall] = useState(false);
+  const [quickSend, setQuickSend] = useState<MockSchool | null>(null);
 
   const [filters, setFilters] = useState<MapFilters>({
     states: [],

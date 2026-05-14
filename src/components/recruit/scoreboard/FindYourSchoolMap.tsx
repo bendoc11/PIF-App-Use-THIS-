@@ -247,7 +247,7 @@ export function FindYourSchoolMap({
       </div>
 
       {/* Recently viewed */}
-      <div style={{ borderTop: "1px solid #2D2D2F", background: "#FFFFFF" }}>
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.10)", background: "#0F1620" }}>
         <div
           style={{
             fontSize: 11,
@@ -317,7 +317,7 @@ export function FindYourSchoolMap({
                     borderRadius: 980,
                     border: `1px solid ${isInterested ? "var(--accent)" : "var(--border)"}`,
                     color: isInterested ? "var(--accent)" : "var(--text-secondary)",
-                    background: "#FFFFFF",
+                    background: "rgba(255,255,255,0.05)",
                     transition: "all 150ms",
                   }}
                 >

@@ -390,12 +390,13 @@ export default function Recruit() {
                   />
 
                   <HeroMetrics
-                    schoolsBookmarked={interestedSchools.size}
+                    schoolsBookmarked={bookmarkedSchools.length}
                     schoolsInterestedInMe={repliedSchools.size}
                     coachesMessaged={outreach.length}
                     offersReceived={offersCount}
                     weeklyGoal={WEEKLY_GOAL}
                     weeklySent={weeklySent}
+                    bookmarkedSchools={bookmarkedSchools}
                   />
 
                   {!loading && !error && (

@@ -382,7 +382,7 @@ export default function Recruit() {
                       schools={filtered}
                       contactedNames={contactedNames}
                       interestedNames={allInterested}
-                      onSelectSchool={(s) => guardMessage(() => setView({ kind: "school", school: s }))}
+                      onSelectSchool={(s) => guardMessage(() => openQuickSend(s))}
                       onMessageSchool={onMessageSchool}
                       onToggleInterested={onToggleInterested}
                       onBrowseAll={() => guardMessage(() => setView({ kind: "compose-pick" }))}
@@ -417,7 +417,7 @@ export default function Recruit() {
                       <Loader2 className="h-6 w-6 animate-spin" style={{ color: "var(--brand-muted)" }} />
                     </div>
                   ) : (
-                    <SchoolList schools={filtered} onSelect={(s) => setView({ kind: "school", school: s })} />
+                    <SchoolList schools={filtered} onSelect={(s) => openQuickSend(s)} />
                   )}
                 </div>
               )}

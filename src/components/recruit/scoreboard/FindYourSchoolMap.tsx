@@ -119,15 +119,14 @@ export function FindYourSchoolMap({
                 key={d}
                 onClick={() => toggleDivision(d)}
                 style={{
+                  fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
                   fontSize: 11,
                   fontWeight: 600,
                   padding: "5px 12px",
-                  borderRadius: 980,
-                  background: active ? "#FFFFFF" : "#2D2D2F",
-                  border: active
-                    ? `1.5px solid ${DIV_DOT[d]}`
-                    : "1px solid #3D3D3F",
-                  color: active ? DIV_TEXT[d] : "#86868B",
+                  borderRadius: 6,
+                  background: active ? "#FFFFFF" : "transparent",
+                  border: active ? "1px solid transparent" : "1px solid rgba(255,255,255,0.20)",
+                  color: active ? "#0F1620" : "rgba(255,255,255,0.60)",
                   transition: "all 150ms",
                 }}
               >

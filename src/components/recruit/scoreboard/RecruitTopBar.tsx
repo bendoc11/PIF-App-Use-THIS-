@@ -36,7 +36,8 @@ export function RecruitTopBar({ firstName, weeklySent, weeklyGoal, sendStreak = 
           color: "var(--text-primary)",
           letterSpacing: "-0.02em",
           lineHeight: 1.15,
-          maxWidth: "70%",
+          maxWidth: 600,
+          paddingRight: 16,
         }}
       >
         {recruitingGreeting(firstName, coachesMessaged)}

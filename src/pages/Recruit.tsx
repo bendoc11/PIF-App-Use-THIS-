@@ -289,6 +289,54 @@ export default function Recruit() {
       <div className="recruit-scoreboard min-h-[calc(100vh-3.5rem)]">
         <UnreadRepliesBanner onView={scrollToReplies} />
 
+        {/* Outreach progress banner — shown until user hits 20 sends */}
+        {view.kind === "map" && outreach.length < REPLY_TARGET && (
+          <div
+            className="max-w-7xl mx-auto px-4 lg:px-6 pt-4"
+            style={{ fontFamily: "-apple-system, 'SF Pro Text', sans-serif" }}
+          >
+            <div
+              style={{
+                background: "#FFFFFF",
+                border: "1px solid #D2D2D7",
+                borderRadius: 12,
+                padding: "12px 16px",
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+              }}
+            >
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "#1D1D1F" }}>
+                  {outreach.length} coach{outreach.length === 1 ? "" : "es"} contacted
+                </div>
+                <div style={{ fontSize: 12, color: "#6E6E73", marginTop: 2 }}>
+                  Athletes who contact 20+ are 4x more likely to hear back.
+                </div>
+              </div>
+              <div
+                style={{
+                  width: 90,
+                  height: 6,
+                  background: "#E8E8ED",
+                  borderRadius: 980,
+                  overflow: "hidden",
+                  flexShrink: 0,
+                }}
+              >
+                <div
+                  style={{
+                    width: `${Math.min(100, (outreach.length / REPLY_TARGET) * 100)}%`,
+                    height: "100%",
+                    background: "#0071E3",
+                    transition: "width 400ms ease-out",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="max-w-7xl mx-auto px-4 lg:px-6 py-5">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-5">
             {/* Main column */}
@@ -314,7 +362,7 @@ export default function Recruit() {
                     <RecommendedSchools
                       schools={schools}
                       contactedNames={contactedNames}
-                      onMessage={(s) => guardMessage(() => setView({ kind: "school", school: s }))}
+                      onMessage={(s) => guardMessage(() => openQuickSend(s))}
                     />
                   )}
 

@@ -141,10 +141,12 @@ export function RecommendedSchools({
       >
         <div
           style={{
+            fontFamily: SF,
             fontSize: 11,
             fontWeight: 600,
-            letterSpacing: "0.05em",
-            color: "rgba(255,255,255,0.60)",
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: "hsl(var(--pif-red))",
             marginBottom: 10,
           }}
         >

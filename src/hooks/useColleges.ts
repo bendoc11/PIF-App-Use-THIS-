@@ -129,6 +129,7 @@ function groupRowsToSchools(rows: CoachRow[]): MockSchool[] {
         enrollment: enrollmentNum,
         size: sizeFromEnrollment(enrollmentNum) ?? "Medium",
         avgGpa: gpaNum,
+        conference: r.conference || null,
         coaches: [],
         teamTwitter: r.twitter_team || undefined,
         teamInstagram: r.instagram_team || undefined,

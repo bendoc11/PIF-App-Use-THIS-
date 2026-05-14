@@ -144,7 +144,13 @@ export function RepliesPanel({ onCountChange, locked, onLockedClick, athleteName
     for (const r of replies) {
       const email = (r.coach_email || "").toLowerCase().trim();
       const o = email ? outreachByEmail.get(email) : undefined;
-      const coachName = o?.coach_name || r.coach_name || r.coach_email || "Coach";
+      const coachName = resolveCoachDisplayName({
+        athleteName: athleteName ?? null,
+        outreachCoachName: o?.coach_name ?? null,
+        outreachCoachTitle: o?.coach_title ?? null,
+        replyCoachName: r.coach_name,
+        coachEmail: r.coach_email,
+      });
       const schoolName = o?.school_name || r.school_name || null;
       const key = `${email}|${(schoolName || "").toLowerCase()}`;
       const existing = map.get(key);

@@ -69,37 +69,40 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Barlow', sans-serif;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
   }
 }
 
 @layer utilities {
   .font-display {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-weight: 700;
   }
 
   .font-heading {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900;
-    text-transform: uppercase;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-weight: 700;
   }
 
   .font-body {
-    font-family: 'Barlow', sans-serif;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+
+  .font-stat {
+    font-family: 'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-feature-settings: "tnum" 1;
   }
 
   .btn-cta {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.04em;
   }
 
   .glow-red {

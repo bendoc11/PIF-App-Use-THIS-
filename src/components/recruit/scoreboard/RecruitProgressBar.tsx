@@ -46,7 +46,7 @@ export function RecruitProgressBar({ total, milestones = DEFAULT_MILESTONES }: P
         border: "1px solid hsla(0, 0%, 100%, 0.08)",
         borderRadius: 14,
         padding: "16px 18px 18px",
-        fontFamily: "-apple-system, 'SF Pro Text', sans-serif",
+        fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
       }}
     >
       <div className="flex items-baseline justify-between gap-3 mb-3">
@@ -74,9 +74,10 @@ export function RecruitProgressBar({ total, milestones = DEFAULT_MILESTONES }: P
             whiteSpace: "nowrap",
             letterSpacing: "0.01em",
             fontVariantNumeric: "tabular-nums",
+            fontFamily: "'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif",
           }}
         >
-          <span style={{ color: "#FFFFFF", fontWeight: 800, fontSize: 15 }}>{total}</span>
+          <span style={{ color: "#FFFFFF", fontWeight: 700, fontSize: 16 }}>{total}</span>
           <span style={{ margin: "0 2px" }}> / </span>
           <span style={{ fontWeight: 500 }}>{max}</span>
         </div>

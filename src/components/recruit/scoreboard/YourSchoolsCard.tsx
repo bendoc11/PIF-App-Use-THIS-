@@ -30,18 +30,20 @@ export function YourSchoolsCard({ stats, schools }: Props) {
           letterSpacing: "-0.02em",
           lineHeight: 1,
           color,
+          fontFamily: "'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif",
+          fontFeatureSettings: '"tnum" 1',
         }}
       >
         {value}
       </div>
       <div
         style={{
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: 600,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
+          letterSpacing: "0.05em",
           color: "var(--text-tertiary)",
           marginTop: 4,
+          opacity: 0.8,
         }}
       >
         {label}
@@ -60,15 +62,15 @@ export function YourSchoolsCard({ stats, schools }: Props) {
     >
       <div
         style={{
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: 600,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
+          letterSpacing: "0.05em",
           color: "var(--text-tertiary)",
           marginBottom: 14,
+          opacity: 0.8,
         }}
       >
-        Your Schools
+        Your schools
       </div>
       <div className="grid grid-cols-3 gap-3 mb-4">
         <Stat value={stats.contacted} label="Contacted" color="var(--accent)" />

@@ -29,7 +29,7 @@
 
   background: var(--bg-page);
   color: var(--text-primary);
-  font-family: -apple-system, "SF Pro Display", "SF Pro Text", BlinkMacSystemFont, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -39,7 +39,7 @@
 .recruit-scoreboard h3,
 .recruit-scoreboard h4,
 .recruit-scoreboard .rs-display {
-  font-family: -apple-system, "SF Pro Display", BlinkMacSystemFont, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-weight: 700;
   letter-spacing: -0.02em;
   text-transform: none;
@@ -47,12 +47,13 @@
 }
 
 .recruit-scoreboard .rs-label {
-  font-family: -apple-system, "SF Pro Text", BlinkMacSystemFont, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-transform: none;
   font-size: 11px;
   color: var(--text-tertiary);
+  opacity: 0.8;
 }
 
 .recruit-scoreboard .rs-card {

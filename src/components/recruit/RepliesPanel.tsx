@@ -210,7 +210,7 @@ export function RepliesPanel({ onCountChange, locked, onLockedClick, athleteName
       >
         <div className="flex items-center justify-between px-4 py-3.5">
           <h3 style={{ fontSize: 13, fontWeight: 600, color: TEXT_PRIMARY, letterSpacing: "0.04em" }}>
-            COACH REPLIES
+            Coach Replies
           </h3>
           <span
             style={{
@@ -286,7 +286,7 @@ export function RepliesPanel({ onCountChange, locked, onLockedClick, athleteName
       >
         <div className="flex items-center justify-between px-4 py-3.5">
           <h3 style={{ fontSize: 13, fontWeight: 600, color: TEXT_PRIMARY, letterSpacing: "0.04em" }}>
-            COACH REPLIES
+            Coach Replies
           </h3>
           {threads.length > 0 && (
             <span

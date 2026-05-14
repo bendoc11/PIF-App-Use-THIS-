@@ -421,6 +421,8 @@ export default function Recruit() {
                     />
                   )}
 
+                  <SocialProofTicker />
+
                   <div id="replies-panel" className="mb-5">
                     <RepliesPanel
                       onCountChange={setRepliesCount}

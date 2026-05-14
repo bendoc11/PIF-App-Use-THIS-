@@ -39,6 +39,24 @@ export function RecruitTopBar({ firstName, weeklySent, weeklyGoal, sendStreak = 
         {timeGreeting()}, {firstName || "there"}
       </div>
       <div className="flex items-center gap-2.5">
+        {sendStreak >= 2 && (
+          <div
+            className="hidden sm:inline-flex items-center gap-1"
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#B14513",
+              background: "#FFF1E6",
+              border: "1px solid #FFD3B0",
+              borderRadius: 20,
+              padding: "5px 10px",
+            }}
+            title={`${sendStreak}-day send streak`}
+          >
+            <Flame className="h-3 w-3" />
+            {sendStreak}-day streak
+          </div>
+        )}
         <div
           className="hidden sm:inline-flex items-center"
           style={{

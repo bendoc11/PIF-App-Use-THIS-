@@ -177,7 +177,6 @@ export default function Login() {
             {[
               '1,852 college programs in our database',
               '7,819 coach emails, all divisions',
-              '500+ drills from D1 and NBA coaches',
             ].map((line, i) => (
               <div key={i} className="flex items-center gap-3">
                 <span className="font-bold" style={{ color: '#3B82F6' }}>—</span>

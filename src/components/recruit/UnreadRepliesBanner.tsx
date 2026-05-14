@@ -2,6 +2,7 @@ import { Inbox, Lock, ArrowRight } from "lucide-react";
 import { useUnreadReplies } from "@/hooks/useUnreadReplies";
 import { useAuth } from "@/contexts/AuthContext";
 import { isPaidSubscriber, STRIPE_CHECKOUT_URL } from "@/lib/subscription";
+import { useOutreachGating, getLockedBannerCopy } from "@/hooks/useOutreachGating";
 
 interface Props {
   onView: () => void;
@@ -11,8 +12,11 @@ export function UnreadRepliesBanner({ onView }: Props) {
   const count = useUnreadReplies();
   const { profile, hasActiveSubscription } = useAuth();
   const isPaid = isPaidSubscriber(profile, hasActiveSubscription);
+  const gating = useOutreachGating();
 
   if (!isPaid) {
+    const copy = getLockedBannerCopy(gating);
+    if (!copy) return null;
     return (
       <a
         href={STRIPE_CHECKOUT_URL}
@@ -21,7 +25,7 @@ export function UnreadRepliesBanner({ onView }: Props) {
         className="w-full bg-pif-red hover:bg-pif-red/90 text-white px-4 py-3 flex items-center gap-3 text-sm font-semibold shadow-sm animate-fade-in"
       >
         <Lock className="h-5 w-5 shrink-0" />
-        <span className="flex-1 text-left">Unlock replies from college coaches</span>
+        <span className="flex-1 text-left">{copy}</span>
         <ArrowRight className="h-4 w-4 shrink-0" />
       </a>
     );

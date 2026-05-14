@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { MockSchool } from "@/data/mockSchools";
 import { useAuth } from "@/contexts/AuthContext";
 
-const SF = "-apple-system, 'SF Pro Text', BlinkMacSystemFont, sans-serif";
+const SF = "'Plus Jakarta Sans', system-ui, sans-serif";
 
 const REGION_GROUPS: string[][] = [
   ["Maine","New Hampshire","Vermont","Massachusetts","Rhode Island","Connecticut","New York","New Jersey","Pennsylvania"],

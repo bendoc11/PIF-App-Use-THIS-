@@ -46,7 +46,7 @@ export function RecruitProgressBar({ total, milestones = DEFAULT_MILESTONES }: P
         border: "1px solid hsla(0, 0%, 100%, 0.08)",
         borderRadius: 14,
         padding: "16px 18px 18px",
-        fontFamily: "-apple-system, 'SF Pro Text', sans-serif",
+        fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
       }}
     >
       <div className="flex items-baseline justify-between gap-3 mb-3">

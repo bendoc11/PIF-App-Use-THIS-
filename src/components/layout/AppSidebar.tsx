@@ -33,6 +33,8 @@ export function AppSidebar() {
   const role = profile?.role || "user";
   const unreadReplies = useUnreadReplies();
   const isPaid = isPaidSubscriber(profile, hasActiveSubscription);
+  const gating = useOutreachGating();
+  const lockedBannerCopy = getLockedBannerCopy(gating);
 
   const initials = profile
     ? `${(profile.first_name || "")[0] || ""}${(profile.last_name || "")[0] || ""}`.toUpperCase()

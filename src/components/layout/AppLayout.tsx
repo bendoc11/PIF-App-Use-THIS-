@@ -11,19 +11,22 @@ export function AppLayout({ children }: { children: ReactNode }) {
         <div className="flex-1 flex flex-col min-w-0">
           {/* Topbar */}
           <header
-            className="h-16 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30"
+            className="flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30"
             style={{
+              height: 44,
               backgroundColor: "hsl(218 39% 5%)",
-              borderBottom: "1px solid hsla(0, 0%, 100%, 0.08)",
+              borderBottom: "1px solid hsla(0, 0%, 100%, 0.10)",
             }}
           >
-            <div className="flex items-center gap-3">
-              <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
+            <div className="flex items-center">
+              <SidebarTrigger
+                className="text-white/60 hover:text-white [&_svg]:!w-[18px] [&_svg]:!h-[18px]"
+              />
             </div>
-            <div className="flex items-center gap-3">
-              <button className="relative p-2 rounded-lg hover:bg-white/5 transition-colors">
-                <Bell className="h-5 w-5 text-pif-red" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-pif-red rounded-full animate-pulse" />
+            <div className="flex items-center">
+              <button className="relative p-1.5 rounded-lg hover:bg-white/5 transition-colors">
+                <Bell style={{ width: 18, height: 18 }} className="text-pif-red" strokeWidth={2} />
+                <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-pif-red rounded-full animate-pulse" />
               </button>
             </div>
           </header>

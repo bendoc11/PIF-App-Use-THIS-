@@ -23,10 +23,12 @@ function neighborStates(state: string): string[] {
 interface Props {
   schools: MockSchool[];
   contactedNames: Set<string>;
+  repliedNames?: Set<string>;
   onMessage: (school: MockSchool) => void;
+  onReadReply?: (school: MockSchool) => void;
 }
 
-export function RecommendedSchools({ schools, contactedNames, onMessage }: Props) {
+export function RecommendedSchools({ schools, contactedNames, repliedNames, onMessage, onReadReply }: Props) {
   const { profile } = useAuth();
   const userState = ((profile as any)?.state as string | undefined) ?? "";
 

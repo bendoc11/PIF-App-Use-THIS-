@@ -17,12 +17,34 @@ Deno.serve(async (req) => {
     if (!FIRECRAWL_API_KEY) throw new Error('FIRECRAWL_API_KEY is not configured');
     if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY is not configured');
 
-    const { school_name, url } = await req.json();
-    if (!school_name || !url) {
-      return new Response(JSON.stringify({ success: false, error: 'school_name and url required' }), {
+    const body = await req.json();
+    const school_name: string | undefined = body?.school_name;
+    let url: string | undefined = body?.url;
+    if (!school_name) {
+      return new Response(JSON.stringify({ success: false, error: 'school_name required' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+    }
+
+    // If no URL provided, look it up from college_coaches.roster_url
+    const supabaseLookup = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    if (!url) {
+      const { data: lookup } = await supabaseLookup
+        .from('college_coaches')
+        .select('roster_url')
+        .eq('school_name', school_name)
+        .eq('roster_url_status', 'confirmed')
+        .not('roster_url', 'is', null)
+        .limit(1)
+        .maybeSingle();
+      url = (lookup as any)?.roster_url;
+      if (!url) {
+        return new Response(JSON.stringify({ success: false, error: `No confirmed roster_url for ${school_name}` }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
     }
 
     // 1) Firecrawl scrape

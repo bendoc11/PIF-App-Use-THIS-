@@ -230,7 +230,32 @@ export default function AdminUrlDiscovery() {
     }
   };
 
-  const saveManual = async (school: string, url: string) => {
+  const handleRetryFailed = async () => {
+    setRetryingFailed(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("discover-roster-urls", {
+        body: { action: "retry-failed" },
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Failed to start retry");
+      toast({
+        title: "Retry started",
+        description: `${data.reset_count ?? 0} failed schools reset to pending. Processing in background.`,
+      });
+      await Promise.all([fetchStats(), fetchFailed()]);
+      const interval = setInterval(async () => {
+        await fetchStats();
+        await fetchFailed();
+      }, 10000);
+      setTimeout(() => clearInterval(interval), 10 * 60 * 1000);
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setRetryingFailed(false);
+    }
+  };
+
+
     if (!url.trim()) return;
     setSavingSchools((prev) => new Set(prev).add(school));
     try {

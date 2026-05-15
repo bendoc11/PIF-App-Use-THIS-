@@ -131,13 +131,77 @@ function SkeletonCard() {
   );
 }
 
-function LogoBlock({ url, name }: { url: string | null; name: string }) {
-  const [failed, setFailed] = useState(false);
-  if (!url || failed) {
+// Best-effort guess of a university's primary .edu domain from its name.
+// Used as a fallback when the athletics-domain Clearbit logo is missing.
+function guessEduDomain(name: string): string | null {
+  if (!name) return null;
+  const overrides: Record<string, string> = {
+    "abilene christian university": "acu.edu",
+    "alabama a&m university": "aamu.edu",
+    "alabama state university": "alasu.edu",
+    "duke": "duke.edu",
+    "duke university": "duke.edu",
+  };
+  const key = name.toLowerCase().trim();
+  if (overrides[key]) return overrides[key];
+  const stop = new Set([
+    "the","of","at","and","university","college","institute","state",
+    "a&m","am","tech","technical","community","junior","city",
+  ]);
+  const tokens = key
+    .replace(/[^a-z0-9& ]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+  const meaningful = tokens.filter((t) => !stop.has(t));
+  const slug = (meaningful.length ? meaningful : tokens).join("");
+  if (!slug) return null;
+  return `${slug}.edu`;
+}
+
+function domainFromUrl(url: string | null): string | null {
+  if (!url) return null;
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    const m = url.replace(/^https?:\/\//, "").split("/")[0];
+    return m || null;
+  }
+}
+
+function LogoBlock({
+  url,
+  name,
+  rosterUrl,
+}: {
+  url: string | null;
+  name: string;
+  rosterUrl?: string | null;
+}) {
+  const candidates = useMemo(() => {
+    const list: string[] = [];
+    if (url) list.push(url);
+    const edu = guessEduDomain(name);
+    if (edu) list.push(`https://logo.clearbit.com/${edu}`);
+    const athDomain = domainFromUrl(rosterUrl || null);
+    if (athDomain) {
+      list.push(`https://www.google.com/s2/favicons?domain=${athDomain}&sz=128`);
+    } else if (edu) {
+      list.push(`https://www.google.com/s2/favicons?domain=${edu}&sz=128`);
+    }
+    // De-dupe while preserving order
+    return Array.from(new Set(list));
+  }, [url, name, rosterUrl]);
+
+  const [idx, setIdx] = useState(0);
+  // Reset when candidates change (different card)
+  useEffect(() => setIdx(0), [candidates.join("|")]);
+
+  const src = candidates[idx];
+  if (!src) {
     return (
       <div
-        className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center text-white font-semibold shrink-0"
-        style={{ fontFamily: SF }}
+        className="w-12 h-12 rounded-lg flex items-center justify-center text-white font-semibold shrink-0"
+        style={{ fontFamily: SF, background: "#0F1A2E" }}
       >
         {(name || "?").charAt(0).toUpperCase()}
       </div>
@@ -146,11 +210,11 @@ function LogoBlock({ url, name }: { url: string | null; name: string }) {
   return (
     <div className="w-12 h-12 rounded-lg bg-white/5 overflow-hidden shrink-0 flex items-center justify-center">
       <img
-        src={url}
+        src={src}
         alt={`${name} logo`}
         className="w-full h-full object-contain"
         loading="lazy"
-        onError={() => setFailed(true)}
+        onError={() => setIdx((i) => i + 1)}
       />
     </div>
   );

@@ -255,7 +255,7 @@ export default function AdminUrlDiscovery() {
     }
   };
 
-
+  const saveManual = async (school: string, url: string) => {
     if (!url.trim()) return;
     setSavingSchools((prev) => new Set(prev).add(school));
     try {

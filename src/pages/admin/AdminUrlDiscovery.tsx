@@ -32,6 +32,7 @@ export default function AdminUrlDiscovery() {
   const [runningAll, setRunningAll] = useState(false);
   const [log, setLog] = useState<LogEntry[]>([]);
   const [failedRows, setFailedRows] = useState<FailedRow[]>([]);
+  const [savingSchools, setSavingSchools] = useState<Set<string>>(new Set());
 
   const fetchStats = async () => {
     // Fetch all (school_name, status) and compute DISTINCT counts client-side.
@@ -134,17 +135,26 @@ export default function AdminUrlDiscovery() {
 
   const saveManual = async (school: string, url: string) => {
     if (!url.trim()) return;
-    const { error } = await supabase
-      .from("college_coaches")
-      .update({ roster_url: url.trim(), roster_url_status: "confirmed" })
-      .eq("school_name", school);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-      return;
+    setSavingSchools((prev) => new Set(prev).add(school));
+    try {
+      const { data, error } = await supabase.functions.invoke("discover-roster-urls", {
+        body: { action: "manual-save", school, url: url.trim() },
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Manual save failed");
+      console.log("Manual roster URL save affected rows:", data.affected_rows, { school, url: url.trim() });
+      toast({ title: `Saved URL for ${school}` });
+      setFailedRows((prev) => prev.filter((r) => r.school_name !== school));
+      await Promise.all([fetchStats(), fetchFailed()]);
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setSavingSchools((prev) => {
+        const next = new Set(prev);
+        next.delete(school);
+        return next;
+      });
     }
-    toast({ title: `Saved URL for ${school}` });
-    setFailedRows((prev) => prev.filter((r) => r.school_name !== school));
-    await fetchStats();
   };
 
   return (
@@ -220,8 +230,8 @@ export default function AdminUrlDiscovery() {
                     }}
                     className="flex-1"
                   />
-                  <Button size="sm" onClick={() => saveManual(row.school_name, row.manualUrl)} className="bg-green-600 hover:bg-green-700 text-white">
-                    Save
+                  <Button size="sm" onClick={() => saveManual(row.school_name, row.manualUrl)} disabled={savingSchools.has(row.school_name)} className="bg-green-600 hover:bg-green-700 text-white">
+                    {savingSchools.has(row.school_name) ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
                   </Button>
                 </div>
               ))}

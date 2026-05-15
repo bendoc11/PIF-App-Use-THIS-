@@ -80,7 +80,7 @@ async function checkUrl(url: string): Promise<boolean> {
 
 async function aiGuessUrl(schoolName: string): Promise<string | null> {
   if (!LOVABLE_API_KEY) return null;
-  const prompt = `What is the official men's basketball roster page URL for ${schoolName}? Return only the complete URL starting with https://, nothing else. If you are not certain, return null.`;
+  const prompt = `What is the official men's basketball roster page URL for ${schoolName}? This may be a small D2, D3, NAIA, or JUCO program. Check these common patterns: [school nickname]sports.com, [school abbreviation]athletics.com, go[school nickname].com. The page should end in /sports/mens-basketball/roster or /sports/mbkb/roster or similar. Return only the complete URL starting with https://, nothing else. If completely uncertain return null.`;
   const res = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
     headers: {

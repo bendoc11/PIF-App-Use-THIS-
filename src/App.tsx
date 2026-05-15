@@ -43,6 +43,7 @@ import AdminDrills from "./pages/admin/AdminDrills";
 import AdminBulkUpload from "./pages/admin/AdminBulkUpload";
 import AdminRosterScraper from "./pages/admin/AdminRosterScraper";
 import AdminUrlDiscovery from "./pages/admin/AdminUrlDiscovery";
+import OpenSpots from "./pages/OpenSpots";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
 
@@ -84,6 +85,7 @@ const App = () => (
             <Route path="/progress" element={<AuthGuard><SubscriptionGuard><Progress /></SubscriptionGuard></AuthGuard>} />
             <Route path="/recruit" element={<AuthGuard><SubscriptionGuard><Recruit /></SubscriptionGuard></AuthGuard>} />
             <Route path="/replies" element={<AuthGuard><Replies /></AuthGuard>} />
+            <Route path="/open-spots" element={<AuthGuard><OpenSpots /></AuthGuard>} />
             <Route path="/profile" element={<AuthGuard><SubscriptionGuard><MyProfile /></SubscriptionGuard></AuthGuard>} />
             <Route path="/profile/edit" element={<AuthGuard><SubscriptionGuard><RecruitProfile /></SubscriptionGuard></AuthGuard>} />
             <Route path="/profile/:username" element={<RecruitProfile />} />

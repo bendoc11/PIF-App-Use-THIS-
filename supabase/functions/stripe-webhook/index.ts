@@ -91,19 +91,19 @@ serve(async (req) => {
   try {
     switch (event.type) {
       case "customer.subscription.created":
-        await handleSubscriptionCreated(supabase, event.data.object as any);
+        await handleSubscriptionCreated(supabase, stripe, event.data.object as any);
         break;
       case "customer.subscription.updated":
-        await handleSubscriptionUpdated(supabase, event.data.object as any);
+        await handleSubscriptionUpdated(supabase, stripe, event.data.object as any);
         break;
       case "customer.subscription.deleted":
-        await handleSubscriptionDeleted(supabase, event.data.object as any);
+        await handleSubscriptionDeleted(supabase, stripe, event.data.object as any);
         break;
       case "invoice.payment_succeeded":
         await handlePaymentSucceeded(supabase, stripe, event.data.object as any);
         break;
       case "invoice.payment_failed":
-        await handlePaymentFailed(supabase, event.data.object as any);
+        await handlePaymentFailed(supabase, stripe, event.data.object as any);
         break;
       case "customer.subscription.trial_will_end":
         logStep("trial_will_end received", { subscriptionId: (event.data.object as any).id });
@@ -195,62 +195,123 @@ serve(async (req) => {
   });
 });
 
-// Helper: find profile by stripe_customer_id
-async function findProfileByCustomerId(supabase: any, customerId: string) {
-  const { data, error } = await supabase
+// Helper: find profile by stripe_customer_id, with email fallback (also backfills customer id).
+// Pass `stripe` so we can resolve the customer email when no profile matches the customer id.
+async function findProfile(supabase: any, stripe: any, customerId: string | null) {
+  if (customerId) {
+    const { data } = await supabase
+      .from("profiles")
+      .select("id, role, subscription_status, email")
+      .eq("stripe_customer_id", customerId)
+      .maybeSingle();
+    if (data) return data;
+    logStep("No profile by customer id, trying email fallback", { customerId });
+  }
+
+  // Email fallback — fetch the customer and look up the profile by email.
+  if (!customerId) return null;
+  let email: string | null = null;
+  try {
+    const customer = await stripe.customers.retrieve(customerId);
+    if (customer && !customer.deleted) {
+      email = ((customer as any).email || "").toLowerCase().trim() || null;
+    }
+  } catch (err) {
+    logStep("Failed to fetch customer for email fallback", { customerId, error: String(err) });
+    return null;
+  }
+  if (!email) {
+    logStep("Customer has no email, cannot match profile", { customerId });
+    return null;
+  }
+
+  const { data: byEmail } = await supabase
     .from("profiles")
-    .select("id, role, subscription_status")
-    .eq("stripe_customer_id", customerId)
+    .select("id, role, subscription_status, email, stripe_customer_id")
+    .ilike("email", email)
     .maybeSingle();
 
-  if (error) {
-    logStep("DB lookup error", { customerId, error: error.message });
+  if (!byEmail) {
+    logStep("No profile found by customer id or email", { customerId, email });
     return null;
   }
-  if (!data) {
-    logStep("No profile found for customer", { customerId });
-    return null;
+
+  // Backfill stripe_customer_id so future webhooks match directly.
+  if (byEmail.stripe_customer_id !== customerId) {
+    await supabase
+      .from("profiles")
+      .update({ stripe_customer_id: customerId })
+      .eq("id", byEmail.id);
+    logStep("Backfilled stripe_customer_id", { profileId: byEmail.id, customerId });
   }
-  return data;
+  return byEmail;
 }
 
-// Helper: update subscription_status on profile
-async function updateSubscriptionStatus(supabase: any, profileId: string, status: any) {
-  const { error } = await supabase
+// Maps a Stripe subscription status to our internal "active row should exist" flag.
+function isActiveStatus(status: string | null | undefined) {
+  return status === "active" || status === "trialing" || status === "past_due";
+}
+
+// Persist subscription state in BOTH places the app reads from:
+//  1. profiles.subscription_status (plain status string) + plan
+//  2. subscriptions table (active/canceled row keyed by user_id)
+async function syncSubscriptionState(
+  supabase: any,
+  profileId: string,
+  stripeStatus: string,
+) {
+  const active = isActiveStatus(stripeStatus);
+
+  const { error: profileErr } = await supabase
     .from("profiles")
-    .update({ subscription_status: JSON.stringify(status) })
+    .update({
+      subscription_status: stripeStatus,
+      plan: active ? "pro" : "free",
+    })
     .eq("id", profileId);
-
-  if (error) {
-    logStep("Failed to update subscription_status", { profileId, error: error.message });
-    throw error;
+  if (profileErr) {
+    logStep("Failed to update profile subscription fields", { profileId, error: profileErr.message });
   }
-  logStep("Updated subscription_status", { profileId, status });
+
+  if (active) {
+    const { error: upsertErr } = await supabase
+      .from("subscriptions")
+      .upsert(
+        { user_id: profileId, status: "active", updated_at: new Date().toISOString() },
+        { onConflict: "user_id" },
+      );
+    if (upsertErr) {
+      logStep("Failed to upsert subscriptions row", { profileId, error: upsertErr.message });
+    }
+  } else {
+    const { error: cancelErr } = await supabase
+      .from("subscriptions")
+      .update({ status: "canceled", updated_at: new Date().toISOString() })
+      .eq("user_id", profileId);
+    if (cancelErr) {
+      logStep("Failed to mark subscriptions row canceled", { profileId, error: cancelErr.message });
+    }
+  }
+
+  logStep("Synced subscription state", { profileId, stripeStatus, active });
 }
 
-async function handleSubscriptionCreated(supabase: any, subscription: any) {
+async function handleSubscriptionCreated(supabase: any, stripe: any, subscription: any) {
   const customerId = typeof subscription.customer === "string"
     ? subscription.customer
     : subscription.customer?.id;
 
   logStep("subscription.created", { customerId, status: subscription.status });
 
-  const profile = await findProfileByCustomerId(supabase, customerId);
+  const profile = await findProfile(supabase, stripe, customerId);
   if (!profile) return;
+
+  await syncSubscriptionState(supabase, profile.id, subscription.status || "active");
 
   const periodEnd = subscription.current_period_end
     ? new Date(subscription.current_period_end * 1000).toISOString()
     : null;
 
-  await updateSubscriptionStatus(supabase, profile.id, {
-    subscribed: true,
-    subscription_status: subscription.status || "active",
-    product_id: "pro",
-    current_period_end: periodEnd,
-    stripe_subscription_id: subscription.id,
-  });
-
-  // Notify GHL — new subscriber
   const { data: fullProfile } = await supabase
     .from("profiles")
     .select("email, first_name, last_name, phone")
@@ -258,10 +319,6 @@ async function handleSubscriptionCreated(supabase: any, subscription: any) {
     .maybeSingle();
 
   if (fullProfile) {
-    logStep("Calling notifyGHL for subscription_created", {
-      email: fullProfile.email,
-      first_name: fullProfile.first_name,
-    });
     notifyGHL({
       event: "subscription_created",
       email: fullProfile.email || "",
@@ -271,65 +328,33 @@ async function handleSubscriptionCreated(supabase: any, subscription: any) {
       trial_end: periodEnd,
       phone: fullProfile.phone || "",
     });
-  } else {
-    logStep("No fullProfile found, skipping GHL notification", { profileId: profile.id });
   }
 }
 
-async function handleSubscriptionUpdated(supabase: any, subscription: any) {
+async function handleSubscriptionUpdated(supabase: any, stripe: any, subscription: any) {
   const customerId = typeof subscription.customer === "string"
     ? subscription.customer
     : subscription.customer?.id;
 
   logStep("subscription.updated", { customerId, status: subscription.status });
 
-  const profile = await findProfileByCustomerId(supabase, customerId);
+  const profile = await findProfile(supabase, stripe, customerId);
   if (!profile) return;
 
-  const periodEnd = subscription.current_period_end
-    ? new Date(subscription.current_period_end * 1000).toISOString()
-    : null;
-
-  let subscribed = false;
-  let pastDue = false;
-  const subStatus = subscription.status;
-
-  if (subStatus === "active" || subStatus === "trialing") {
-    subscribed = true;
-  } else if (subStatus === "past_due") {
-    subscribed = true;
-    pastDue = true;
-  }
-  // canceled, unpaid, incomplete_expired → subscribed: false
-
-  const statusObj: any = {
-    subscribed,
-    subscription_status: subStatus,
-    product_id: subscribed ? "pro" : null,
-    current_period_end: periodEnd,
-    stripe_subscription_id: subscription.id,
-  };
-  if (pastDue) statusObj.past_due = true;
-
-  await updateSubscriptionStatus(supabase, profile.id, statusObj);
+  await syncSubscriptionState(supabase, profile.id, subscription.status || "canceled");
 }
 
-async function handleSubscriptionDeleted(supabase: any, subscription: any) {
+async function handleSubscriptionDeleted(supabase: any, stripe: any, subscription: any) {
   const customerId = typeof subscription.customer === "string"
     ? subscription.customer
     : subscription.customer?.id;
 
   logStep("subscription.deleted", { customerId });
 
-  const profile = await findProfileByCustomerId(supabase, customerId);
+  const profile = await findProfile(supabase, stripe, customerId);
   if (!profile) return;
 
-  await updateSubscriptionStatus(supabase, profile.id, {
-    subscribed: false,
-    subscription_status: "canceled",
-    product_id: null,
-    stripe_subscription_id: subscription.id,
-  });
+  await syncSubscriptionState(supabase, profile.id, "canceled");
 }
 
 async function handlePaymentSucceeded(supabase: any, stripe: any, invoice: any) {
@@ -339,30 +364,26 @@ async function handlePaymentSucceeded(supabase: any, stripe: any, invoice: any) 
 
   logStep("payment_succeeded", { customerId, subscription: invoice.subscription });
 
-  const profile = await findProfileByCustomerId(supabase, customerId);
+  const profile = await findProfile(supabase, stripe, customerId);
   if (!profile) return;
 
-  let periodEnd = null;
+  // Determine the most accurate status from the underlying subscription if present.
+  let status = "active";
+  let periodEnd: string | null = null;
   if (invoice.subscription) {
     try {
       const sub = await stripe.subscriptions.retrieve(invoice.subscription);
+      status = sub.status || "active";
       if (sub.current_period_end) {
         periodEnd = new Date(sub.current_period_end * 1000).toISOString();
       }
     } catch (err) {
-      logStep("Failed to retrieve subscription for period end", { error: String(err) });
+      logStep("Failed to retrieve subscription for payment_succeeded", { error: String(err) });
     }
   }
 
-  await updateSubscriptionStatus(supabase, profile.id, {
-    subscribed: true,
-    subscription_status: "active",
-    product_id: "pro",
-    current_period_end: periodEnd,
-    stripe_subscription_id: invoice.subscription,
-  });
+  await syncSubscriptionState(supabase, profile.id, status);
 
-  // Notify GHL — payment succeeded (new subscriber welcome)
   const { data: fullProfile } = await supabase
     .from("profiles")
     .select("email, first_name, last_name, phone")
@@ -370,10 +391,6 @@ async function handlePaymentSucceeded(supabase: any, stripe: any, invoice: any) 
     .maybeSingle();
 
   if (fullProfile) {
-    logStep("Calling notifyGHL for subscription_created (payment_succeeded)", {
-      email: fullProfile.email,
-      first_name: fullProfile.first_name,
-    });
     notifyGHL({
       event: "subscription_created",
       email: fullProfile.email || "",
@@ -383,39 +400,26 @@ async function handlePaymentSucceeded(supabase: any, stripe: any, invoice: any) 
       trial_end: periodEnd,
       phone: fullProfile.phone || "",
     });
-  } else {
-    logStep("No fullProfile found, skipping GHL notification (payment_succeeded)", { profileId: profile.id });
   }
 }
 
-async function handlePaymentFailed(supabase: any, invoice: any) {
+async function handlePaymentFailed(supabase: any, stripe: any, invoice: any) {
   const customerId = typeof invoice.customer === "string"
     ? invoice.customer
     : invoice.customer?.id;
 
   logStep("payment_failed", { customerId });
 
-  const profile = await findProfileByCustomerId(supabase, customerId);
+  const profile = await findProfile(supabase, stripe, customerId);
   if (!profile) return;
 
-  // Parse existing status to preserve fields, just add payment_failed flag
-  let existing: any = {};
-  try {
-    if (profile.subscription_status) {
-      existing = typeof profile.subscription_status === "string"
-        ? JSON.parse(profile.subscription_status)
-        : profile.subscription_status;
-    }
-  } catch {
-    existing = {};
-  }
+  // Don't downgrade access on a single failed payment — Stripe will retry. Just
+  // record the status flag on the profile so the UI can warn the user.
+  await supabase
+    .from("profiles")
+    .update({ subscription_status: "past_due" })
+    .eq("id", profile.id);
 
-  await updateSubscriptionStatus(supabase, profile.id, {
-    ...existing,
-    payment_failed: true,
-  });
-
-  // Notify GHL — payment failed
   const { data: fullProfile } = await supabase
     .from("profiles")
     .select("email, first_name")
@@ -423,7 +427,6 @@ async function handlePaymentFailed(supabase: any, invoice: any) {
     .maybeSingle();
 
   if (fullProfile) {
-    logStep("Calling notifyGHL for payment_failed", { email: fullProfile.email });
     notifyGHL({
       event: "payment_failed",
       email: fullProfile.email || "",
@@ -431,3 +434,4 @@ async function handlePaymentFailed(supabase: any, invoice: any) {
     });
   }
 }
+

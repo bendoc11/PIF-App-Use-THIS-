@@ -84,9 +84,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) {
       console.warn("[auth] subscription check failed", error);
       setHasActiveSubscription(false);
-      return;
+      return false;
     }
-    setHasActiveSubscription(!!data);
+    const active = !!data;
+    setHasActiveSubscription(active);
+    return active;
+  };
+
+  // Fallback: if our DB shows no active subscription, ask Stripe directly via
+  // the check-subscription edge function. That function persists the result
+  // back to Supabase, so the next page load resolves instantly.
+  const syncFromStripeIfMissing = async (userId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke("check-subscription");
+      if (error) {
+        console.warn("[auth] check-subscription invoke failed", error);
+        return;
+      }
+      if (data?.subscribed) {
+        await checkSubscription(userId);
+        await fetchProfile(userId);
+      }
+    } catch (e) {
+      console.warn("[auth] check-subscription threw", e);
+    }
   };
 
   const refreshProfile = async () => {
@@ -94,7 +115,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const refreshSubscription = async () => {
-    if (user) await checkSubscription(user.id);
+    if (!user) return;
+    const active = await checkSubscription(user.id);
+    if (!active) await syncFromStripeIfMissing(user.id);
   };
 
   useEffect(() => {
@@ -106,8 +129,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const uid = session.user.id;
           setTimeout(async () => {
             await fetchProfile(uid);
-            await checkSubscription(uid);
+            const active = await checkSubscription(uid);
             setLoading(false);
+            if (!active) syncFromStripeIfMissing(uid);
           }, 0);
         } else {
           setProfile(null);
@@ -121,10 +145,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(existingSession);
       setUser(existingSession?.user ?? null);
       if (existingSession?.user) {
-        await fetchProfile(existingSession.user.id);
-        await checkSubscription(existingSession.user.id);
+        const uid = existingSession.user.id;
+        await fetchProfile(uid);
+        const active = await checkSubscription(uid);
+        setLoading(false);
+        if (!active) syncFromStripeIfMissing(uid);
+      } else {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => authSub.unsubscribe();

@@ -149,6 +149,69 @@ Deno.serve(async (req) => {
       );
     }
 
+    if (body?.action === 'run-all-background') {
+      // Kick off a background task that processes all pending schools, then return immediately.
+      const task = (async () => {
+        try {
+          let safety = 5000;
+          while (safety-- > 0) {
+            const { data: rows } = await supabase
+              .from('college_coaches')
+              .select('school_name')
+              .eq('roster_url_status', 'pending')
+              .not('school_name', 'is', null)
+              .limit(10000);
+            const seen = new Set<string>();
+            const schools: string[] = [];
+            for (const r of rows ?? []) {
+              const n = (r as any).school_name?.trim();
+              if (!n || seen.has(n)) continue;
+              seen.add(n);
+              schools.push(n);
+              if (schools.length >= 10) break;
+            }
+            if (schools.length === 0) {
+              console.log('run-all-background: complete, no pending schools left');
+              break;
+            }
+            for (const school of schools) {
+              let foundUrl: string | null = null;
+              for (const candidate of urlPatterns(school)) {
+                if (await checkUrl(candidate)) { foundUrl = candidate; break; }
+              }
+              if (!foundUrl) {
+                const guessed = await aiGuessUrl(school);
+                if (guessed && (await firecrawlValidate(guessed))) foundUrl = guessed;
+              }
+              if (foundUrl) {
+                await supabase.from('college_coaches')
+                  .update({ roster_url: foundUrl, roster_url_status: 'confirmed' })
+                  .eq('school_name', school);
+                console.log('bg confirmed', school, foundUrl);
+              } else {
+                await supabase.from('college_coaches')
+                  .update({ roster_url_status: 'failed' })
+                  .eq('school_name', school);
+                console.log('bg failed', school);
+              }
+            }
+            await new Promise((r) => setTimeout(r, 1500));
+          }
+        } catch (e) {
+          console.error('run-all-background error', e);
+        }
+      })();
+      // @ts-ignore EdgeRuntime is available in Supabase edge runtime
+      if (typeof EdgeRuntime !== 'undefined' && (EdgeRuntime as any).waitUntil) {
+        // @ts-ignore
+        EdgeRuntime.waitUntil(task);
+      }
+      return new Response(
+        JSON.stringify({ success: true, started: true, message: 'Background processing started' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
     // Get distinct pending school names (limit 10).
     // distinct() isn't directly available — fetch with limit and dedupe.
     const { data: rows, error } = await supabase

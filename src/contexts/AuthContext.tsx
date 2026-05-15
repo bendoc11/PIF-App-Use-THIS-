@@ -115,7 +115,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const refreshSubscription = async () => {
-    if (user) await checkSubscription(user.id);
+    if (!user) return;
+    const active = await checkSubscription(user.id);
+    if (!active) await syncFromStripeIfMissing(user.id);
   };
 
   useEffect(() => {
@@ -127,8 +129,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const uid = session.user.id;
           setTimeout(async () => {
             await fetchProfile(uid);
-            await checkSubscription(uid);
+            const active = await checkSubscription(uid);
             setLoading(false);
+            if (!active) syncFromStripeIfMissing(uid);
           }, 0);
         } else {
           setProfile(null);
@@ -142,10 +145,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(existingSession);
       setUser(existingSession?.user ?? null);
       if (existingSession?.user) {
-        await fetchProfile(existingSession.user.id);
-        await checkSubscription(existingSession.user.id);
+        const uid = existingSession.user.id;
+        await fetchProfile(uid);
+        const active = await checkSubscription(uid);
+        setLoading(false);
+        if (!active) syncFromStripeIfMissing(uid);
+      } else {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => authSub.unsubscribe();

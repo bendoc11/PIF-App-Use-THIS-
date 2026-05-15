@@ -199,6 +199,7 @@ export type Database = {
           instagram_team: string | null
           last_name: string | null
           latitude: number | null
+          logo_url: string | null
           longitude: number | null
           phone: string | null
           public_private: string | null
@@ -229,6 +230,7 @@ export type Database = {
           instagram_team?: string | null
           last_name?: string | null
           latitude?: number | null
+          logo_url?: string | null
           longitude?: number | null
           phone?: string | null
           public_private?: string | null
@@ -259,6 +261,7 @@ export type Database = {
           instagram_team?: string | null
           last_name?: string | null
           latitude?: number | null
+          logo_url?: string | null
           longitude?: number | null
           phone?: string | null
           public_private?: string | null

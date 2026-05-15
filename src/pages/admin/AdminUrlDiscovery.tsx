@@ -326,6 +326,80 @@ export default function AdminUrlDiscovery() {
             </div>
           )}
         </Card>
+
+        <div className="pt-8 border-t border-border">
+          <h2 className="text-2xl font-bold mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            Roster Data Scraper
+          </h2>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <Card className="p-4 bg-card">
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">Schools With Roster Data</div>
+              <div className="text-3xl font-bold mt-1 text-green-500">{rosterStats.schools_with_data.toLocaleString()}</div>
+            </Card>
+            <Card className="p-4 bg-card">
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">Total Players in Database</div>
+              <div className="text-3xl font-bold mt-1">{rosterStats.total_players.toLocaleString()}</div>
+            </Card>
+            <Card className="p-4 bg-card">
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">Schools Remaining</div>
+              <div className="text-3xl font-bold mt-1 text-yellow-500">
+                {Math.max(stats.confirmed - rosterStats.schools_with_data, 0).toLocaleString()}
+              </div>
+            </Card>
+            <Card className="p-4 bg-card">
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">Last Scraped</div>
+              <div className="text-sm font-semibold mt-2">
+                {rosterStats.last_scraped ? new Date(rosterStats.last_scraped).toLocaleString() : "Never"}
+              </div>
+            </Card>
+          </div>
+
+          <div className="mb-4">
+            <div className="flex justify-between text-xs mb-1">
+              <span className="text-muted-foreground">Progress</span>
+              <span>
+                {rosterStats.schools_with_data} / {stats.confirmed} (
+                {stats.confirmed > 0 ? Math.round((rosterStats.schools_with_data / stats.confirmed) * 100) : 0}%)
+              </span>
+            </div>
+            <Progress value={stats.confirmed > 0 ? (rosterStats.schools_with_data / stats.confirmed) * 100 : 0} />
+          </div>
+
+          <div className="flex gap-3 mb-4">
+            <Button onClick={handleScrapeBatch} disabled={scrapingBatch || scrapingAll} className="bg-red-600 hover:bg-red-700 text-white">
+              {scrapingBatch ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Scraping…</> : "Scrape Batch (10)"}
+            </Button>
+            <Button onClick={handleScrapeAll} disabled={scrapingBatch || scrapingAll} variant="outline">
+              {scrapingAll ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Scraping All…</> : "Scrape All"}
+            </Button>
+          </div>
+
+          <Card className="p-4 bg-card">
+            <div className="font-semibold mb-3">Scrape Results Log</div>
+            {scrapeLog.length === 0 ? (
+              <div className="text-sm text-muted-foreground">No scrapes yet.</div>
+            ) : (
+              <div className="space-y-1 max-h-96 overflow-y-auto text-sm font-mono">
+                {scrapeLog.map((e, i) => (
+                  <div key={i} className="flex items-start gap-2 py-1 border-b border-border/40">
+                    {e.status === "ok" ? (
+                      <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
+                    ) : (
+                      <XCircle className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <span className="font-semibold">{e.school}</span>
+                      <span className="text-xs text-muted-foreground ml-2">
+                        {e.status === "ok" ? `${e.players_inserted} players` : e.error || "failed"}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+        </div>
       </div>
     </AdminLayout>
   );

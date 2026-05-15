@@ -91,19 +91,19 @@ serve(async (req) => {
   try {
     switch (event.type) {
       case "customer.subscription.created":
-        await handleSubscriptionCreated(supabase, event.data.object as any);
+        await handleSubscriptionCreated(supabase, stripe, event.data.object as any);
         break;
       case "customer.subscription.updated":
-        await handleSubscriptionUpdated(supabase, event.data.object as any);
+        await handleSubscriptionUpdated(supabase, stripe, event.data.object as any);
         break;
       case "customer.subscription.deleted":
-        await handleSubscriptionDeleted(supabase, event.data.object as any);
+        await handleSubscriptionDeleted(supabase, stripe, event.data.object as any);
         break;
       case "invoice.payment_succeeded":
         await handlePaymentSucceeded(supabase, stripe, event.data.object as any);
         break;
       case "invoice.payment_failed":
-        await handlePaymentFailed(supabase, event.data.object as any);
+        await handlePaymentFailed(supabase, stripe, event.data.object as any);
         break;
       case "customer.subscription.trial_will_end":
         logStep("trial_will_end received", { subscriptionId: (event.data.object as any).id });

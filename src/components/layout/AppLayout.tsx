@@ -13,7 +13,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
           <header
             className="flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30"
             style={{
-              height: 44,
+              height: 31,
               backgroundColor: "hsl(218 39% 5%)",
               borderBottom: "1px solid hsla(0, 0%, 100%, 0.10)",
             }}

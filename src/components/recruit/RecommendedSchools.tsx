@@ -4,6 +4,37 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const SF = "'Plus Jakarta Sans', system-ui, sans-serif";
 
+const CONFERENCE_ABBR: Record<string, string> = {
+  "California Community College Athletic Association": "CCCAA",
+  "Northwest Athletic Conference": "NWAC",
+  "National Junior College Athletic Association": "NJCAA",
+  "Atlantic Coast Conference": "ACC",
+  "Southeastern Conference": "SEC",
+  "Big Ten Conference": "Big Ten",
+  "Big 12 Conference": "Big 12",
+  "Pac-12 Conference": "Pac-12",
+  "American Athletic Conference": "AAC",
+  "Mountain West Conference": "MWC",
+  "Conference USA": "C-USA",
+  "Mid-American Conference": "MAC",
+  "Sun Belt Conference": "Sun Belt",
+  "Ivy League": "Ivy",
+};
+
+function abbreviateConference(name: string): string {
+  if (!name) return "";
+  if (CONFERENCE_ABBR[name]) return CONFERENCE_ABBR[name];
+  if (name.length <= 12) return name;
+  // Build an acronym from capitalized words if it produces something reasonable
+  const acronym = name
+    .split(/\s+/)
+    .filter((w) => /^[A-Z]/.test(w) && !["of", "the", "and", "for"].includes(w.toLowerCase()))
+    .map((w) => w[0])
+    .join("");
+  if (acronym.length >= 3 && acronym.length <= 6) return acronym;
+  return `${name.slice(0, 12)}...`;
+}
+
 const REGION_GROUPS: string[][] = [
   ["Maine","New Hampshire","Vermont","Massachusetts","Rhode Island","Connecticut","New York","New Jersey","Pennsylvania"],
   ["Virginia","West Virginia","Maryland","Delaware","North Carolina","South Carolina","Tennessee","Kentucky","Washington, D.C.","District of Columbia"],
@@ -269,7 +300,7 @@ export function RecommendedSchools({
                   color: "rgba(255,255,255,0.50)",
                 }}
               >
-                {featured.conference && <span>{featured.conference}</span>}
+                {featured.conference && <span>{abbreviateConference(featured.conference)}</span>}
                 {featured.conference && coachCount > 0 && <span>·</span>}
                 {coachCount > 0 && (
                   <span>

@@ -207,13 +207,21 @@ export default function AdminUrlDiscovery() {
   const handleRunAll = async () => {
     setRunningAll(true);
     try {
-      let pending = 1;
-      let safety = 500;
-      while (pending > 0 && safety-- > 0) {
-        pending = await runBatch();
-        if (pending > 0) await new Promise((r) => setTimeout(r, 2000));
-      }
-      toast({ title: "All schools processed" });
+      const { data, error } = await supabase.functions.invoke("discover-roster-urls", {
+        body: { action: "run-all-background" },
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Failed to start background job");
+      toast({
+        title: "Running in background",
+        description: "Processing continues even if you leave this page. Stats will update automatically.",
+      });
+      // Poll stats every 10s while this tab is open so the UI reflects progress.
+      const interval = setInterval(async () => {
+        await fetchStats();
+        await fetchFailed();
+        if (stats.pending === 0) clearInterval(interval);
+      }, 10000);
     } catch (e: any) {
       toast({ title: "Error", description: e.message, variant: "destructive" });
     } finally {

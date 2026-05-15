@@ -3,9 +3,23 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+
+interface RosterStats {
+  schools_with_data: number;
+  total_players: number;
+  last_scraped: string | null;
+}
+
+interface ScrapeLogEntry {
+  school: string;
+  players_inserted: number;
+  status: "ok" | "failed";
+  error?: string;
+}
 
 interface Stats {
   total: number;

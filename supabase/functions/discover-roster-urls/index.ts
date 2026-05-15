@@ -78,9 +78,11 @@ async function checkUrl(url: string): Promise<boolean> {
   }
 }
 
-async function aiGuessUrl(schoolName: string): Promise<string | null> {
+async function aiGuessUrl(schoolName: string, hard = false): Promise<string | null> {
   if (!LOVABLE_API_KEY) return null;
-  const prompt = `What is the official men's basketball roster page URL for ${schoolName}? This may be a small D2, D3, NAIA, or JUCO program. Check these common patterns: [school nickname]sports.com, [school abbreviation]athletics.com, go[school nickname].com. The page should end in /sports/mens-basketball/roster or /sports/mbkb/roster or similar. Return only the complete URL starting with https://, nothing else. If completely uncertain return null.`;
+  const prompt = hard
+    ? `Find the official men's basketball roster page for ${schoolName}. This is likely a smaller D2, D3, NAIA, or JUCO program. Search for their athletic department website. Common patterns include: the school's nickname followed by sports.com or athletics.com, or "go" followed by the nickname. Examples: Prairie View A&M → pvamu.edu/athletics, Mississippi College → mcchoctaws.com. Return only the full URL ending in /roster or similar. Return null if not found.`
+    : `What is the official men's basketball roster page URL for ${schoolName}? This may be a small D2, D3, NAIA, or JUCO program. Check these common patterns: [school nickname]sports.com, [school abbreviation]athletics.com, go[school nickname].com. The page should end in /sports/mens-basketball/roster or /sports/mbkb/roster or similar. Return only the complete URL starting with https://, nothing else. If completely uncertain return null.`;
   const res = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
     headers: {

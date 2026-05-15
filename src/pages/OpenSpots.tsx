@@ -258,7 +258,7 @@ export default function OpenSpots() {
 
         const bySchool = new Map<
           string,
-          { count: number; earliest: number | null; bestRank: number }
+          { counts: number[]; earliestByRank: Array<number | null>; bestRank: number }
         >();
         for (const r of rosterData || []) {
           if (!r.school_name) continue;
@@ -269,18 +269,22 @@ export default function OpenSpots() {
           const rank = rankClassYear(r.class_year);
           const cur = bySchool.get(r.school_name);
           if (cur) {
-            cur.count += 1;
+            cur.counts[rank] = (cur.counts[rank] || 0) + 1;
             cur.bestRank = Math.min(cur.bestRank, rank);
             if (r.graduation_year != null) {
-              cur.earliest =
-                cur.earliest == null
+              cur.earliestByRank[rank] =
+                cur.earliestByRank[rank] == null
                   ? r.graduation_year
-                  : Math.min(cur.earliest, r.graduation_year);
+                  : Math.min(cur.earliestByRank[rank], r.graduation_year);
             }
           } else {
+            const counts = [0, 0, 0, 0];
+            const earliestByRank: Array<number | null> = [null, null, null, null];
+            counts[rank] = 1;
+            earliestByRank[rank] = r.graduation_year ?? null;
             bySchool.set(r.school_name, {
-              count: 1,
-              earliest: r.graduation_year ?? null,
+              counts,
+              earliestByRank,
               bestRank: rank,
             });
           }
@@ -321,8 +325,8 @@ export default function OpenSpots() {
             logo_url: cc.logo_url,
             undergrad_enrollment: cc.undergrad_enrollment,
             roster_url: cc.roster_url,
-            graduating_count: agg.count,
-            earliest_graduation: agg.earliest,
+            graduating_count: agg.counts[agg.bestRank] || 0,
+            earliest_graduation: agg.earliestByRank[agg.bestRank],
             urgency: urgencyFor(agg.bestRank),
           });
         }

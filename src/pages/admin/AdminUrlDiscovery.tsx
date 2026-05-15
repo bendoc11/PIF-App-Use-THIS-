@@ -44,6 +44,7 @@ export default function AdminUrlDiscovery() {
   const [stats, setStats] = useState<Stats>({ total: 0, confirmed: 0, failed: 0, pending: 0 });
   const [running, setRunning] = useState(false);
   const [runningAll, setRunningAll] = useState(false);
+  const [retryingFailed, setRetryingFailed] = useState(false);
   const [log, setLog] = useState<LogEntry[]>([]);
   const [failedRows, setFailedRows] = useState<FailedRow[]>([]);
   const [savingSchools, setSavingSchools] = useState<Set<string>>(new Set());

@@ -263,8 +263,8 @@ export default function OpenSpots() {
         for (const r of rosterData || []) {
           if (!r.school_name) continue;
           if (athleteBucket) {
-            const rb = bucketPosition(r.position);
-            if (rb !== athleteBucket) continue;
+            const groups = positionGroups(r.position);
+            if (!groups.includes(athleteBucket)) continue;
           }
           const rank = rankClassYear(r.class_year);
           const cur = bySchool.get(r.school_name);

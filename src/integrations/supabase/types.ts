@@ -202,6 +202,8 @@ export type Database = {
           longitude: number | null
           phone: string | null
           public_private: string | null
+          roster_url: string | null
+          roster_url_status: string | null
           school_name: string | null
           school_size: string | null
           state: string | null
@@ -230,6 +232,8 @@ export type Database = {
           longitude?: number | null
           phone?: string | null
           public_private?: string | null
+          roster_url?: string | null
+          roster_url_status?: string | null
           school_name?: string | null
           school_size?: string | null
           state?: string | null
@@ -258,6 +262,8 @@ export type Database = {
           longitude?: number | null
           phone?: string | null
           public_private?: string | null
+          roster_url?: string | null
+          roster_url_status?: string | null
           school_name?: string | null
           school_size?: string | null
           state?: string | null

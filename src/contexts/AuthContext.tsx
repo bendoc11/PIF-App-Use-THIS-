@@ -84,9 +84,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) {
       console.warn("[auth] subscription check failed", error);
       setHasActiveSubscription(false);
-      return;
+      return false;
     }
-    setHasActiveSubscription(!!data);
+    const active = !!data;
+    setHasActiveSubscription(active);
+    return active;
+  };
+
+  // Fallback: if our DB shows no active subscription, ask Stripe directly via
+  // the check-subscription edge function. That function persists the result
+  // back to Supabase, so the next page load resolves instantly.
+  const syncFromStripeIfMissing = async (userId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke("check-subscription");
+      if (error) {
+        console.warn("[auth] check-subscription invoke failed", error);
+        return;
+      }
+      if (data?.subscribed) {
+        await checkSubscription(userId);
+        await fetchProfile(userId);
+      }
+    } catch (e) {
+      console.warn("[auth] check-subscription threw", e);
+    }
   };
 
   const refreshProfile = async () => {

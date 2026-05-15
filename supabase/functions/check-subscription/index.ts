@@ -102,10 +102,13 @@ Deno.serve(async (req) => {
     let subscriptionEnd = null;
     let productId = null;
     let trialEnd = null;
+    let stripeStatus: string | null = null;
+    let matchedCustomerId: string | null = null;
 
     if (hasActiveSub) {
       const sub = allSubs[0];
-      // Use safe timestamp conversion
+      stripeStatus = sub.status || "active";
+      matchedCustomerId = typeof sub.customer === "string" ? sub.customer : sub.customer?.id ?? null;
       if (sub.current_period_end && typeof sub.current_period_end === "number") {
         subscriptionEnd = new Date(sub.current_period_end * 1000).toISOString();
       }
@@ -116,6 +119,37 @@ Deno.serve(async (req) => {
       logStep("Active subscription found", { status: sub.status, subscriptionEnd, trialEnd });
     } else {
       logStep("No active subscription");
+    }
+
+    // ---------------------------------------------------------------
+    // Persist what we just learned so the rest of the app stays in sync
+    // even if the Stripe webhook never fired (or fired before signup).
+    // ---------------------------------------------------------------
+    try {
+      const profileUpdate: Record<string, unknown> = {
+        subscription_status: hasActiveSub ? (stripeStatus || "active") : "inactive",
+        plan: hasActiveSub ? "pro" : "free",
+        subscription_checked_at: new Date().toISOString(),
+      };
+      if (matchedCustomerId) profileUpdate.stripe_customer_id = matchedCustomerId;
+
+      await supabaseClient.from("profiles").update(profileUpdate).eq("id", userId);
+
+      if (hasActiveSub) {
+        await supabaseClient
+          .from("subscriptions")
+          .upsert(
+            { user_id: userId, status: "active", updated_at: new Date().toISOString() },
+            { onConflict: "user_id" },
+          );
+      } else {
+        await supabaseClient
+          .from("subscriptions")
+          .update({ status: "canceled", updated_at: new Date().toISOString() })
+          .eq("user_id", userId);
+      }
+    } catch (persistErr) {
+      logStep("Persist sync failed (non-fatal)", { error: String(persistErr) });
     }
 
     return new Response(

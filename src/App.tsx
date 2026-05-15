@@ -100,6 +100,7 @@ const App = () => (
             <Route path="/admin/coaches" element={<AdminGuard requiredRole="admin"><AdminCoaches /></AdminGuard>} />
             <Route path="/admin/users" element={<AdminGuard requiredRole="admin"><AdminUsers /></AdminGuard>} />
             <Route path="/admin/moderation" element={<AdminGuard requiredRole="admin"><AdminModeration /></AdminGuard>} />
+            <Route path="/admin/roster-scraper" element={<AdminGuard requiredRole="admin"><AdminRosterScraper /></AdminGuard>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

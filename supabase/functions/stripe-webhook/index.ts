@@ -195,37 +195,105 @@ serve(async (req) => {
   });
 });
 
-// Helper: find profile by stripe_customer_id
-async function findProfileByCustomerId(supabase: any, customerId: string) {
-  const { data, error } = await supabase
+// Helper: find profile by stripe_customer_id, with email fallback (also backfills customer id).
+// Pass `stripe` so we can resolve the customer email when no profile matches the customer id.
+async function findProfile(supabase: any, stripe: any, customerId: string | null) {
+  if (customerId) {
+    const { data } = await supabase
+      .from("profiles")
+      .select("id, role, subscription_status, email")
+      .eq("stripe_customer_id", customerId)
+      .maybeSingle();
+    if (data) return data;
+    logStep("No profile by customer id, trying email fallback", { customerId });
+  }
+
+  // Email fallback — fetch the customer and look up the profile by email.
+  if (!customerId) return null;
+  let email: string | null = null;
+  try {
+    const customer = await stripe.customers.retrieve(customerId);
+    if (customer && !customer.deleted) {
+      email = ((customer as any).email || "").toLowerCase().trim() || null;
+    }
+  } catch (err) {
+    logStep("Failed to fetch customer for email fallback", { customerId, error: String(err) });
+    return null;
+  }
+  if (!email) {
+    logStep("Customer has no email, cannot match profile", { customerId });
+    return null;
+  }
+
+  const { data: byEmail } = await supabase
     .from("profiles")
-    .select("id, role, subscription_status")
-    .eq("stripe_customer_id", customerId)
+    .select("id, role, subscription_status, email, stripe_customer_id")
+    .ilike("email", email)
     .maybeSingle();
 
-  if (error) {
-    logStep("DB lookup error", { customerId, error: error.message });
+  if (!byEmail) {
+    logStep("No profile found by customer id or email", { customerId, email });
     return null;
   }
-  if (!data) {
-    logStep("No profile found for customer", { customerId });
-    return null;
+
+  // Backfill stripe_customer_id so future webhooks match directly.
+  if (byEmail.stripe_customer_id !== customerId) {
+    await supabase
+      .from("profiles")
+      .update({ stripe_customer_id: customerId })
+      .eq("id", byEmail.id);
+    logStep("Backfilled stripe_customer_id", { profileId: byEmail.id, customerId });
   }
-  return data;
+  return byEmail;
 }
 
-// Helper: update subscription_status on profile
-async function updateSubscriptionStatus(supabase: any, profileId: string, status: any) {
-  const { error } = await supabase
-    .from("profiles")
-    .update({ subscription_status: JSON.stringify(status) })
-    .eq("id", profileId);
+// Maps a Stripe subscription status to our internal "active row should exist" flag.
+function isActiveStatus(status: string | null | undefined) {
+  return status === "active" || status === "trialing" || status === "past_due";
+}
 
-  if (error) {
-    logStep("Failed to update subscription_status", { profileId, error: error.message });
-    throw error;
+// Persist subscription state in BOTH places the app reads from:
+//  1. profiles.subscription_status (plain status string) + plan
+//  2. subscriptions table (active/canceled row keyed by user_id)
+async function syncSubscriptionState(
+  supabase: any,
+  profileId: string,
+  stripeStatus: string,
+) {
+  const active = isActiveStatus(stripeStatus);
+
+  const { error: profileErr } = await supabase
+    .from("profiles")
+    .update({
+      subscription_status: stripeStatus,
+      plan: active ? "pro" : "free",
+    })
+    .eq("id", profileId);
+  if (profileErr) {
+    logStep("Failed to update profile subscription fields", { profileId, error: profileErr.message });
   }
-  logStep("Updated subscription_status", { profileId, status });
+
+  if (active) {
+    const { error: upsertErr } = await supabase
+      .from("subscriptions")
+      .upsert(
+        { user_id: profileId, status: "active", updated_at: new Date().toISOString() },
+        { onConflict: "user_id" },
+      );
+    if (upsertErr) {
+      logStep("Failed to upsert subscriptions row", { profileId, error: upsertErr.message });
+    }
+  } else {
+    const { error: cancelErr } = await supabase
+      .from("subscriptions")
+      .update({ status: "canceled", updated_at: new Date().toISOString() })
+      .eq("user_id", profileId);
+    if (cancelErr) {
+      logStep("Failed to mark subscriptions row canceled", { profileId, error: cancelErr.message });
+    }
+  }
+
+  logStep("Synced subscription state", { profileId, stripeStatus, active });
 }
 
 async function handleSubscriptionCreated(supabase: any, subscription: any) {

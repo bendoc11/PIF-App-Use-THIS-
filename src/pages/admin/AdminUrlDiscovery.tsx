@@ -122,8 +122,8 @@ export default function AdminUrlDiscovery() {
       return;
     }
     toast({ title: `Saved URL for ${school}` });
+    setFailedRows((prev) => prev.filter((r) => r.school_name !== school));
     await fetchStats();
-    await fetchFailed();
   };
 
   return (

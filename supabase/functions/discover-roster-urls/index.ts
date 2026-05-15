@@ -29,6 +29,8 @@ function urlPatterns(school: string): string[] {
     `https://athletics.${slug}.edu/sports/mens-basketball/roster`,
     `https://${slugNoHyphen}athletics.com/sports/mbkb/2025-26/roster`,
     `https://${slug}.com/sports/mbkb/2025-26/roster`,
+    `https://${slugNoHyphen}sports.com/sports/mbkb/2025-26/roster`,
+    `https://${slug}.edu/sports/mbkb/2025-26/roster`,
   ];
 }
 

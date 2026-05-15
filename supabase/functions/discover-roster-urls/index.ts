@@ -37,17 +37,25 @@ function slugify(name: string): string {
 function urlPatterns(school: string): string[] {
   const slug = slugify(school);
   const slugNoHyphen = slug.replace(/-/g, '');
-  return [
+  const nicknames = ['hawks', 'tigers', 'eagles', 'warriors', 'knights', 'bulldogs', 'panthers'];
+  const patterns = [
     `https://${slugNoHyphen}athletics.com/sports/mens-basketball/roster`,
     `https://${slug}.com/sports/mens-basketball/roster`,
     `https://${slugNoHyphen}sports.com/sports/mens-basketball/roster`,
     `https://${slug}.edu/sports/mens-basketball/roster`,
     `https://athletics.${slug}.edu/sports/mens-basketball/roster`,
+    `https://go${slugNoHyphen}.com/sports/mens-basketball/roster`,
+  ];
+  for (const nick of nicknames) {
+    patterns.push(`https://${slugNoHyphen}${nick}.com/sports/mens-basketball/roster`);
+  }
+  patterns.push(
     `https://${slugNoHyphen}athletics.com/sports/mbkb/2025-26/roster`,
     `https://${slug}.com/sports/mbkb/2025-26/roster`,
     `https://${slugNoHyphen}sports.com/sports/mbkb/2025-26/roster`,
     `https://${slug}.edu/sports/mbkb/2025-26/roster`,
-  ];
+  );
+  return patterns;
 }
 
 async function checkUrl(url: string): Promise<boolean> {

@@ -44,6 +44,7 @@ export default function AdminUrlDiscovery() {
   const [stats, setStats] = useState<Stats>({ total: 0, confirmed: 0, failed: 0, pending: 0 });
   const [running, setRunning] = useState(false);
   const [runningAll, setRunningAll] = useState(false);
+  const [retryingFailed, setRetryingFailed] = useState(false);
   const [log, setLog] = useState<LogEntry[]>([]);
   const [failedRows, setFailedRows] = useState<FailedRow[]>([]);
   const [savingSchools, setSavingSchools] = useState<Set<string>>(new Set());
@@ -229,6 +230,31 @@ export default function AdminUrlDiscovery() {
     }
   };
 
+  const handleRetryFailed = async () => {
+    setRetryingFailed(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("discover-roster-urls", {
+        body: { action: "retry-failed" },
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Failed to start retry");
+      toast({
+        title: "Retry started",
+        description: `${data.reset_count ?? 0} failed schools reset to pending. Processing in background.`,
+      });
+      await Promise.all([fetchStats(), fetchFailed()]);
+      const interval = setInterval(async () => {
+        await fetchStats();
+        await fetchFailed();
+      }, 10000);
+      setTimeout(() => clearInterval(interval), 10 * 60 * 1000);
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setRetryingFailed(false);
+    }
+  };
+
   const saveManual = async (school: string, url: string) => {
     if (!url.trim()) return;
     setSavingSchools((prev) => new Set(prev).add(school));
@@ -274,12 +300,15 @@ export default function AdminUrlDiscovery() {
           ))}
         </div>
 
-        <div className="flex gap-3">
-          <Button onClick={handleRunBatch} disabled={running || runningAll} className="bg-red-600 hover:bg-red-700 text-white">
+        <div className="flex gap-3 flex-wrap">
+          <Button onClick={handleRunBatch} disabled={running || runningAll || retryingFailed} className="bg-red-600 hover:bg-red-700 text-white">
             {running ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Running…</> : "Run Batch (10)"}
           </Button>
-          <Button onClick={handleRunAll} disabled={running || runningAll} variant="outline">
+          <Button onClick={handleRunAll} disabled={running || runningAll || retryingFailed} variant="outline">
             {runningAll ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Running All…</> : "Run All Pending"}
+          </Button>
+          <Button onClick={handleRetryFailed} disabled={running || runningAll || retryingFailed || stats.failed === 0} className="bg-amber-500 hover:bg-amber-600 text-white">
+            {retryingFailed ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Retrying…</> : `Retry Failed (${stats.failed})`}
           </Button>
         </div>
 

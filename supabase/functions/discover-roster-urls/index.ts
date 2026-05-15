@@ -78,9 +78,11 @@ async function checkUrl(url: string): Promise<boolean> {
   }
 }
 
-async function aiGuessUrl(schoolName: string): Promise<string | null> {
+async function aiGuessUrl(schoolName: string, hard = false): Promise<string | null> {
   if (!LOVABLE_API_KEY) return null;
-  const prompt = `What is the official men's basketball roster page URL for ${schoolName}? This may be a small D2, D3, NAIA, or JUCO program. Check these common patterns: [school nickname]sports.com, [school abbreviation]athletics.com, go[school nickname].com. The page should end in /sports/mens-basketball/roster or /sports/mbkb/roster or similar. Return only the complete URL starting with https://, nothing else. If completely uncertain return null.`;
+  const prompt = hard
+    ? `Find the official men's basketball roster page for ${schoolName}. This is likely a smaller D2, D3, NAIA, or JUCO program. Search for their athletic department website. Common patterns include: the school's nickname followed by sports.com or athletics.com, or "go" followed by the nickname. Examples: Prairie View A&M → pvamu.edu/athletics, Mississippi College → mcchoctaws.com. Return only the full URL ending in /roster or similar. Return null if not found.`
+    : `What is the official men's basketball roster page URL for ${schoolName}? This may be a small D2, D3, NAIA, or JUCO program. Check these common patterns: [school nickname]sports.com, [school abbreviation]athletics.com, go[school nickname].com. The page should end in /sports/mens-basketball/roster or /sports/mbkb/roster or similar. Return only the complete URL starting with https://, nothing else. If completely uncertain return null.`;
   const res = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -153,6 +155,72 @@ Deno.serve(async (req) => {
 
       return new Response(
         JSON.stringify({ success: true, school, roster_url: url, roster_url_status: 'confirmed', affected_rows: affectedRows }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
+    if (body?.action === 'retry-failed') {
+      // Reset all 'failed' rows back to 'pending', then kick off background processing with the hard prompt.
+      const { data: failedRows, error: failErr } = await supabase
+        .from('college_coaches')
+        .select('school_name')
+        .eq('roster_url_status', 'failed')
+        .not('school_name', 'is', null)
+        .limit(20000);
+      if (failErr) throw new Error(failErr.message);
+      const failedSchools = Array.from(
+        new Set((failedRows ?? []).map((r: any) => r.school_name?.trim()).filter(Boolean)),
+      );
+      if (failedSchools.length === 0) {
+        return new Response(
+          JSON.stringify({ success: true, started: true, reset_count: 0, message: 'No failed schools to retry' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        );
+      }
+      const { error: resetErr } = await supabase
+        .from('college_coaches')
+        .update({ roster_url_status: 'pending' })
+        .eq('roster_url_status', 'failed');
+      if (resetErr) throw new Error(resetErr.message);
+
+      const task = (async () => {
+        try {
+          for (let i = 0; i < failedSchools.length; i += 10) {
+            const batch = failedSchools.slice(i, i + 10);
+            for (const school of batch) {
+              let foundUrl: string | null = null;
+              for (const candidate of urlPatterns(school)) {
+                if (await checkUrl(candidate)) { foundUrl = candidate; break; }
+              }
+              if (!foundUrl) {
+                const guessed = await aiGuessUrl(school, true);
+                if (guessed && (await firecrawlValidate(guessed))) foundUrl = guessed;
+              }
+              if (foundUrl) {
+                await supabase.from('college_coaches')
+                  .update({ roster_url: foundUrl, roster_url_status: 'confirmed' })
+                  .eq('school_name', school);
+                console.log('retry confirmed', school, foundUrl);
+              } else {
+                await supabase.from('college_coaches')
+                  .update({ roster_url_status: 'failed' })
+                  .eq('school_name', school);
+                console.log('retry failed', school);
+              }
+            }
+            await new Promise((r) => setTimeout(r, 1500));
+          }
+        } catch (e) {
+          console.error('retry-failed background error', e);
+        }
+      })();
+      // @ts-ignore
+      if (typeof EdgeRuntime !== 'undefined' && (EdgeRuntime as any).waitUntil) {
+        // @ts-ignore
+        EdgeRuntime.waitUntil(task);
+      }
+      return new Response(
+        JSON.stringify({ success: true, started: true, reset_count: failedSchools.length, message: 'Retry started' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       );
     }

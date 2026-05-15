@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MockSchool } from "@/data/mockSchools";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const SF = "'Plus Jakarta Sans', system-ui, sans-serif";
 
@@ -25,7 +26,6 @@ function abbreviateConference(name: string): string {
   if (!name) return "";
   if (CONFERENCE_ABBR[name]) return CONFERENCE_ABBR[name];
   if (name.length <= 12) return name;
-  // Build an acronym from capitalized words if it produces something reasonable
   const acronym = name
     .split(/\s+/)
     .filter((w) => /^[A-Z]/.test(w) && !["of", "the", "and", "for"].includes(w.toLowerCase()))
@@ -64,6 +64,37 @@ function regionLabel(state: string): string {
   return state;
 }
 
+// Position bucketing — mirrors OpenSpots logic
+type Bucket = "PG" | "SG" | "SF" | "PF" | "C";
+
+function athleteBucket(pos: string): Bucket | null {
+  const p = pos.toUpperCase().trim();
+  if (!p) return null;
+  if (p.includes("POINT GUARD") || p === "PG") return "PG";
+  if (p.includes("SHOOTING GUARD") || p === "SG") return "SG";
+  if (p.includes("SMALL FORWARD") || p === "SF" || p.includes("WING")) return "SF";
+  if (p.includes("POWER FORWARD") || p === "PF") return "PF";
+  if (p === "C" || p.includes("CENTER")) return "C";
+  if (p === "G" || p === "GUARD") return "PG";
+  if (p === "F" || p === "FORWARD") return "SF";
+  return null;
+}
+
+function rosterPositionGroups(pos: string | null): Bucket[] {
+  const p = (pos || "").toUpperCase().trim();
+  if (!p) return [];
+  if (p.includes("POINT GUARD") || p === "PG") return ["PG"];
+  if (p.includes("SHOOTING GUARD") || p === "SG") return ["SG"];
+  if (p.includes("SMALL FORWARD") || p === "SF" || p.includes("WING")) return ["SF"];
+  if (p.includes("POWER FORWARD") || p === "PF") return ["PF"];
+  if (p === "C" || p.includes("CENTER")) return ["C"];
+  if (p === "G/F" || p === "F/G") return ["SG", "SF"];
+  if (p === "F/C" || p === "C/F") return ["PF", "C"];
+  if (p === "G" || p === "GUARD") return ["PG", "SG"];
+  if (p === "F" || p === "FORWARD") return ["SF", "PF"];
+  return [];
+}
+
 interface Props {
   schools: MockSchool[];
   contactedNames: Set<string>;
@@ -82,6 +113,12 @@ const DIVISION_STYLE: Record<string, { bg: string; fg: string }> = {
 
 type Phase = "idle" | "exit-left" | "exit-right" | "enter";
 
+interface RosterIntel {
+  hasData: boolean;
+  seniors: number;
+  juniors: number;
+}
+
 export function RecommendedSchools({
   schools,
   contactedNames,
@@ -93,7 +130,51 @@ export function RecommendedSchools({
   const userState = ((profile as any)?.state as string | undefined) ?? "";
   const userPosition = ((profile as any)?.position as string | undefined) ?? "";
   const targetDivision = ((profile as any)?.target_division as string | undefined) ?? "";
-  const gradYear = ((profile as any)?.grad_year as number | undefined) ?? null;
+  const bucket = useMemo(() => athleteBucket(userPosition), [userPosition]);
+
+  // Load roster intelligence keyed by school_name (lowercased)
+  const [rosterMap, setRosterMap] = useState<Map<string, RosterIntel>>(new Map());
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!bucket) {
+        setRosterMap(new Map());
+        return;
+      }
+      const { data } = await supabase
+        .from("school_rosters")
+        .select("school_name, position, class_year")
+        .in("class_year", ["SR", "JR", "Senior", "Junior", "Sr", "Jr"]);
+      if (cancelled || !data) return;
+      const map = new Map<string, RosterIntel>();
+      const schoolsWithAnyData = new Set<string>();
+      for (const r of data as Array<{ school_name: string | null; position: string | null; class_year: string | null }>) {
+        if (!r.school_name) continue;
+        const key = r.school_name.toLowerCase().trim();
+        schoolsWithAnyData.add(key);
+        const groups = rosterPositionGroups(r.position);
+        if (!groups.includes(bucket)) continue;
+        const yr = (r.class_year || "").toUpperCase();
+        const isSr = yr === "SR" || yr === "SENIOR";
+        const isJr = yr === "JR" || yr === "JUNIOR";
+        if (!isSr && !isJr) continue;
+        const cur = map.get(key) ?? { hasData: true, seniors: 0, juniors: 0 };
+        cur.hasData = true;
+        if (isSr) cur.seniors += 1;
+        else cur.juniors += 1;
+        map.set(key, cur);
+      }
+      // Mark schools that have roster data but no opening at position (so we don't show stale tier-3 fallback as "no data")
+      for (const k of schoolsWithAnyData) {
+        if (!map.has(k)) map.set(k, { hasData: true, seniors: 0, juniors: 0 });
+      }
+      setRosterMap(map);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [bucket]);
 
   const ordered = useMemo(() => {
     const seen = new Set<string>();
@@ -105,31 +186,35 @@ export function RecommendedSchools({
 
     const matchesDivision = (s: MockSchool) =>
       !targetDivision || targetDivision === "Any" || s.division === targetDivision;
+    const region = neighborStates(userState);
+    const inRegion = (s: MockSchool) =>
+      !userState || s.state === userState || region.includes(s.state);
 
-    const eligible = pool.filter(matchesDivision);
-    const fallback = pool.filter((s) => s.division === "D3");
-    const base = eligible.length >= 5 ? eligible : fallback;
+    const tier1: MockSchool[] = []; // opening (SR/JR at position) + division + region
+    const tier2: MockSchool[] = []; // division + region (with roster data, no opening) — proxy for "any graduating"
+    const tier3: MockSchool[] = []; // division + region (no roster data)
+    const tier4: MockSchool[] = []; // anything else
 
-    const inState = base.filter((s) => s.state === userState);
-    const neighbors = neighborStates(userState);
-    const inRegion = base.filter(
-      (s) => s.state !== userState && neighbors.includes(s.state),
-    );
-    const rest = base.filter(
-      (s) => s.state !== userState && !neighbors.includes(s.state),
-    );
-
-    const out: MockSchool[] = [];
-    const added = new Set<string>();
-    for (const list of [inState, inRegion, rest]) {
-      for (const s of list) {
-        if (added.has(s.id)) continue;
-        added.add(s.id);
-        out.push(s);
-      }
+    for (const s of pool) {
+      const intel = rosterMap.get(s.name.toLowerCase().trim());
+      const opening = !!intel && (intel.seniors + intel.juniors) > 0;
+      const div = matchesDivision(s);
+      const reg = inRegion(s);
+      if (opening && div && reg) tier1.push(s);
+      else if (div && reg && intel) tier2.push(s);
+      else if (div && reg) tier3.push(s);
+      else tier4.push(s);
     }
-    return out;
-  }, [schools, userState, targetDivision]);
+
+    // Within tier1, sort by senior count desc then junior count desc
+    tier1.sort((a, b) => {
+      const ai = rosterMap.get(a.name.toLowerCase().trim())!;
+      const bi = rosterMap.get(b.name.toLowerCase().trim())!;
+      return (bi.seniors - ai.seniors) || (bi.juniors - ai.juniors);
+    });
+
+    return [...tier1, ...tier2, ...tier3, ...tier4];
+  }, [schools, userState, targetDivision, rosterMap]);
 
   const queue = useMemo(
     () => ordered.filter((s) => !contactedNames.has(s.name)),
@@ -154,12 +239,25 @@ export function RecommendedSchools({
   const hasReply = repliedNames?.has(featured.name) ?? false;
   const ds = DIVISION_STYLE[featured.division] ?? DIVISION_STYLE.D3;
 
-  const positionLabel = userPosition ? userPosition.toLowerCase() : "your position";
-  const locality = featured.conference || regionLabel(featured.state || userState);
-  const classBit = gradYear ? ` — ${gradYear} class` : "";
+  const intel = rosterMap.get(featured.name.toLowerCase().trim());
+  const opening = !!intel && (intel.seniors + intel.juniors) > 0;
+  const positionLabelRaw = userPosition || "your position";
+  const positionPlural = userPosition ? `${userPosition}s` : "players at your position";
+
+  let badgeText: string | null = null;
+  if (opening && intel) {
+    if (intel.seniors > 0) {
+      badgeText = `🏀 Opening at ${positionLabelRaw} — ${intel.seniors} senior${intel.seniors === 1 ? "" : "s"} graduating`;
+    } else if (intel.juniors > 0) {
+      badgeText = `🏀 Opening at ${positionLabelRaw} — ${intel.juniors} junior${intel.juniors === 1 ? "" : "s"} graduating next year`;
+    }
+  }
+
   const contextLine = hasReply
     ? `${featured.name} replied to your last message. Open the thread to continue.`
-    : `Actively recruiting ${positionLabel}s in ${locality}${classBit}.`;
+    : opening && intel
+    ? `${featured.name} has ${intel.seniors + intel.juniors} graduating ${positionPlural} — your class fits their recruiting timeline.`
+    : `Actively recruiting ${positionPlural} in ${regionLabel(featured.state || userState)} — ${featured.division} program.`;
 
   const coachCount = featured.coaches?.length ?? 0;
   const noStaff = coachCount === 0;
@@ -178,7 +276,6 @@ export function RecommendedSchools({
     window.setTimeout(() => setOverlay(null), 150);
     window.setTimeout(() => {
       action();
-      // snap card off-screen right (no transition), then animate to idle
       setPhase("enter");
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -245,6 +342,25 @@ export function RecommendedSchools({
           >
             {userState ? "Recruiting in your region" : "Recommended for you"}
           </div>
+
+          {badgeText && (
+            <div
+              style={{
+                background: "hsl(var(--pif-red) / 0.15)",
+                borderLeft: "3px solid hsl(var(--pif-red))",
+                color: "hsl(var(--pif-red))",
+                fontFamily: SF,
+                fontWeight: 600,
+                fontSize: 13,
+                padding: "8px 12px",
+                borderRadius: 4,
+                marginBottom: 10,
+                width: "100%",
+              }}
+            >
+              {badgeText}
+            </div>
+          )}
 
           <div style={{ minWidth: 0, flex: 1 }}>
             <div

@@ -47,6 +47,79 @@ export default function AdminUrlDiscovery() {
   const [log, setLog] = useState<LogEntry[]>([]);
   const [failedRows, setFailedRows] = useState<FailedRow[]>([]);
   const [savingSchools, setSavingSchools] = useState<Set<string>>(new Set());
+  const [rosterStats, setRosterStats] = useState<RosterStats>({ schools_with_data: 0, total_players: 0, last_scraped: null });
+  const [scrapeLog, setScrapeLog] = useState<ScrapeLogEntry[]>([]);
+  const [scrapingBatch, setScrapingBatch] = useState(false);
+  const [scrapingAll, setScrapingAll] = useState(false);
+
+  const fetchRosterStats = async () => {
+    const { count: total_players } = await supabase
+      .from("school_rosters")
+      .select("*", { count: "exact", head: true });
+    const PAGE = 1000;
+    const schoolSet = new Set<string>();
+    let f = 0;
+    while (true) {
+      const { data } = await supabase
+        .from("school_rosters")
+        .select("school_name")
+        .not("school_name", "is", null)
+        .range(f, f + PAGE - 1);
+      if (!data || data.length === 0) break;
+      for (const r of data as any[]) schoolSet.add(r.school_name);
+      if (data.length < PAGE) break;
+      f += PAGE;
+    }
+    const { data: lastData } = await supabase
+      .from("school_rosters")
+      .select("scraped_at")
+      .order("scraped_at", { ascending: false })
+      .limit(1);
+    setRosterStats({
+      schools_with_data: schoolSet.size,
+      total_players: total_players ?? 0,
+      last_scraped: (lastData?.[0] as any)?.scraped_at ?? null,
+    });
+  };
+
+  const runScrapeBatch = async (): Promise<{ remaining: number }> => {
+    const { data, error } = await supabase.functions.invoke("bulk-scrape-rosters", { body: { limit: 10 } });
+    if (error) throw error;
+    if (!data?.success) throw new Error(data?.error || "Bulk scrape failed");
+    setScrapeLog((prev) => [...(data.log ?? []), ...prev].slice(0, 300));
+    await fetchRosterStats();
+    return { remaining: data.remaining ?? 0 };
+  };
+
+  const handleScrapeBatch = async () => {
+    setScrapingBatch(true);
+    try {
+      const { remaining } = await runScrapeBatch();
+      toast({ title: "Batch scraped", description: `${remaining} schools remaining` });
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setScrapingBatch(false);
+    }
+  };
+
+  const handleScrapeAll = async () => {
+    setScrapingAll(true);
+    try {
+      let remaining = 1;
+      let safety = 1000;
+      while (remaining > 0 && safety-- > 0) {
+        const r = await runScrapeBatch();
+        remaining = r.remaining;
+        if (remaining > 0) await new Promise((res) => setTimeout(res, 3000));
+      }
+      toast({ title: "All rosters scraped" });
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setScrapingAll(false);
+    }
+  };
 
   const fetchStats = async () => {
     // Fetch all (school_name, status) and compute DISTINCT counts client-side.

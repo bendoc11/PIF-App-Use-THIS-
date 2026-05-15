@@ -37,17 +37,25 @@ function slugify(name: string): string {
 function urlPatterns(school: string): string[] {
   const slug = slugify(school);
   const slugNoHyphen = slug.replace(/-/g, '');
-  return [
+  const nicknames = ['hawks', 'tigers', 'eagles', 'warriors', 'knights', 'bulldogs', 'panthers'];
+  const patterns = [
     `https://${slugNoHyphen}athletics.com/sports/mens-basketball/roster`,
     `https://${slug}.com/sports/mens-basketball/roster`,
     `https://${slugNoHyphen}sports.com/sports/mens-basketball/roster`,
     `https://${slug}.edu/sports/mens-basketball/roster`,
     `https://athletics.${slug}.edu/sports/mens-basketball/roster`,
+    `https://go${slugNoHyphen}.com/sports/mens-basketball/roster`,
+  ];
+  for (const nick of nicknames) {
+    patterns.push(`https://${slugNoHyphen}${nick}.com/sports/mens-basketball/roster`);
+  }
+  patterns.push(
     `https://${slugNoHyphen}athletics.com/sports/mbkb/2025-26/roster`,
     `https://${slug}.com/sports/mbkb/2025-26/roster`,
     `https://${slugNoHyphen}sports.com/sports/mbkb/2025-26/roster`,
     `https://${slug}.edu/sports/mbkb/2025-26/roster`,
-  ];
+  );
+  return patterns;
 }
 
 async function checkUrl(url: string): Promise<boolean> {
@@ -72,7 +80,7 @@ async function checkUrl(url: string): Promise<boolean> {
 
 async function aiGuessUrl(schoolName: string): Promise<string | null> {
   if (!LOVABLE_API_KEY) return null;
-  const prompt = `What is the official men's basketball roster page URL for ${schoolName}? Return only the complete URL starting with https://, nothing else. If you are not certain, return null.`;
+  const prompt = `What is the official men's basketball roster page URL for ${schoolName}? This may be a small D2, D3, NAIA, or JUCO program. Check these common patterns: [school nickname]sports.com, [school abbreviation]athletics.com, go[school nickname].com. The page should end in /sports/mens-basketball/roster or /sports/mbkb/roster or similar. Return only the complete URL starting with https://, nothing else. If completely uncertain return null.`;
   const res = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
     headers: {

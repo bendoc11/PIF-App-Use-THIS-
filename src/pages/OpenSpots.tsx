@@ -183,13 +183,14 @@ export default function OpenSpots() {
     (async () => {
       setLoading(true);
       try {
-        // Pull rosters at relevant class years for athlete's position
-        const posQuery = athletePosition || "";
+        // Pull all SR/JR/SO rosters; filter by position bucket client-side so
+        // that "Point Guard" on profile matches "PG", "G", "Guard" on rosters.
         const { data: rosterData } = await supabase
           .from("school_rosters")
           .select("school_name, position, class_year, graduation_year")
-          .in("class_year", ["SR", "JR", "SO"])
-          .ilike("position", posQuery ? `%${posQuery}%` : "%");
+          .in("class_year", ["SR", "JR", "SO"]);
+
+        const athleteBucket = bucketPosition(athletePosition);
 
         const bySchool = new Map<
           string,
@@ -197,6 +198,10 @@ export default function OpenSpots() {
         >();
         for (const r of rosterData || []) {
           if (!r.school_name) continue;
+          if (athleteBucket) {
+            const rb = bucketPosition(r.position);
+            if (rb !== athleteBucket) continue;
+          }
           const rank = rankClassYear(r.class_year);
           const cur = bySchool.get(r.school_name);
           if (cur) {
@@ -644,15 +649,15 @@ const POSITIONS = ["PG", "SG", "SF", "PF", "C"] as const;
 const CLASS_YEARS = ["SR", "JR", "SO", "FR"] as const;
 
 function bucketPosition(pos: string | null): typeof POSITIONS[number] | null {
-  const p = (pos || "").toUpperCase();
+  const p = (pos || "").toUpperCase().trim();
   if (!p) return null;
-  if (p.includes("PG") || p === "G/PG") return "PG";
-  if (p.includes("SG")) return "SG";
-  if (p.includes("SF")) return "SF";
-  if (p.includes("PF")) return "PF";
-  if (p === "C" || p.includes("CENTER") || p === "C/F") return "C";
-  if (p === "G") return "PG";
-  if (p === "F") return "SF";
+  if (p.includes("POINT GUARD") || p.includes("PG")) return "PG";
+  if (p.includes("SHOOTING GUARD") || p.includes("SG")) return "SG";
+  if (p.includes("SMALL FORWARD") || p.includes("SF") || p.includes("WING")) return "SF";
+  if (p.includes("POWER FORWARD") || p.includes("PF")) return "PF";
+  if (p === "C" || p.includes("CENTER") || p === "C/F" || p.includes("F/C")) return "C";
+  if (p === "G" || p === "GUARD") return "PG";
+  if (p === "F" || p.includes("FORWARD")) return "SF";
   return null;
 }
 

@@ -94,7 +94,7 @@ export function YourSchoolsCard({ stats, schools }: Props) {
                   }}
                   className="truncate"
                 >
-                  {s.name}
+                  {s.name.length > 18 ? `${s.name.slice(0, 18)}...` : s.name}
                 </span>
                 <span
                   className="ml-2 shrink-0"

@@ -31,13 +31,17 @@ export function RecruitTopBar({ firstName, weeklySent, weeklyGoal, sendStreak = 
       <div
         style={{
           fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
-          fontSize: 28,
+          fontSize: 24,
           fontWeight: 700,
           color: "var(--text-primary)",
           letterSpacing: "-0.02em",
           lineHeight: 1.15,
-          maxWidth: 600,
           paddingRight: 16,
+          minWidth: 0,
+          flex: 1,
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
         }}
       >
         {recruitingGreeting(firstName, coachesMessaged)}

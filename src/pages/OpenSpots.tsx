@@ -183,13 +183,14 @@ export default function OpenSpots() {
     (async () => {
       setLoading(true);
       try {
-        // Pull rosters at relevant class years for athlete's position
-        const posQuery = athletePosition || "";
+        // Pull all SR/JR/SO rosters; filter by position bucket client-side so
+        // that "Point Guard" on profile matches "PG", "G", "Guard" on rosters.
         const { data: rosterData } = await supabase
           .from("school_rosters")
           .select("school_name, position, class_year, graduation_year")
-          .in("class_year", ["SR", "JR", "SO"])
-          .ilike("position", posQuery ? `%${posQuery}%` : "%");
+          .in("class_year", ["SR", "JR", "SO"]);
+
+        const athleteBucket = bucketPosition(athletePosition);
 
         const bySchool = new Map<
           string,
@@ -197,6 +198,10 @@ export default function OpenSpots() {
         >();
         for (const r of rosterData || []) {
           if (!r.school_name) continue;
+          if (athleteBucket) {
+            const rb = bucketPosition(r.position);
+            if (rb !== athleteBucket) continue;
+          }
           const rank = rankClassYear(r.class_year);
           const cur = bySchool.get(r.school_name);
           if (cur) {

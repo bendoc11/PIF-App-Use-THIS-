@@ -263,8 +263,8 @@ export default function OpenSpots() {
         for (const r of rosterData || []) {
           if (!r.school_name) continue;
           if (athleteBucket) {
-            const rb = bucketPosition(r.position);
-            if (rb !== athleteBucket) continue;
+            const groups = positionGroups(r.position);
+            if (!groups.includes(athleteBucket)) continue;
           }
           const rank = rankClassYear(r.class_year);
           const cur = bySchool.get(r.school_name);
@@ -724,6 +724,31 @@ function bucketPosition(pos: string | null): typeof POSITIONS[number] | null {
   if (p === "G" || p === "GUARD") return "PG";
   if (p === "F" || p.includes("FORWARD")) return "SF";
   return null;
+}
+
+// Maps a roster position string to the set of athlete buckets it could fill.
+// Specific labels ("PG") map to one bucket; ambiguous labels ("G", "Guard")
+// map to multiple ("G" → PG + SG) so a Point Guard athlete still matches a
+// roster row only labeled "G".
+function positionGroups(pos: string | null): Array<typeof POSITIONS[number]> {
+  const p = (pos || "").toUpperCase().trim();
+  if (!p) return [];
+  if (p.includes("POINT GUARD") || p === "PG") return ["PG"];
+  if (p.includes("SHOOTING GUARD") || p === "SG") return ["SG"];
+  if (p.includes("SMALL FORWARD") || p === "SF" || p.includes("WING")) return ["SF"];
+  if (p.includes("POWER FORWARD") || p === "PF") return ["PF"];
+  if (p === "C" || p.includes("CENTER")) return ["C"];
+  // Combo / ambiguous labels
+  if (p === "G/F" || p === "F/G" || p.includes("GUARD/FORWARD") || p.includes("FORWARD/GUARD"))
+    return ["SG", "SF"];
+  if (p === "F/C" || p === "C/F" || p.includes("FORWARD/CENTER") || p.includes("CENTER/FORWARD"))
+    return ["PF", "C"];
+  if (p === "G/PG" || p === "PG/SG") return ["PG", "SG"];
+  if (p === "SF/PF" || p === "PF/SF") return ["SF", "PF"];
+  // Single-letter / generic words → both sub-positions in that group
+  if (p === "G" || p === "GUARD") return ["PG", "SG"];
+  if (p === "F" || p === "FORWARD") return ["SF", "PF"];
+  return [];
 }
 
 function RosterGrid({ rows }: { rows: RosterRow[] }) {

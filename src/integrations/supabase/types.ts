@@ -1157,6 +1157,54 @@ export type Database = {
           },
         ]
       }
+      school_rosters: {
+        Row: {
+          class_year: string | null
+          graduation_year: number | null
+          height: string | null
+          high_school: string | null
+          hometown: string | null
+          id: string
+          jersey_number: string | null
+          player_name: string | null
+          position: string | null
+          school_name: string | null
+          scraped_at: string | null
+          source_url: string | null
+          weight: string | null
+        }
+        Insert: {
+          class_year?: string | null
+          graduation_year?: number | null
+          height?: string | null
+          high_school?: string | null
+          hometown?: string | null
+          id?: string
+          jersey_number?: string | null
+          player_name?: string | null
+          position?: string | null
+          school_name?: string | null
+          scraped_at?: string | null
+          source_url?: string | null
+          weight?: string | null
+        }
+        Update: {
+          class_year?: string | null
+          graduation_year?: number | null
+          height?: string | null
+          high_school?: string | null
+          hometown?: string | null
+          id?: string
+          jersey_number?: string | null
+          player_name?: string | null
+          position?: string | null
+          school_name?: string | null
+          scraped_at?: string | null
+          source_url?: string | null
+          weight?: string | null
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           created_at: string

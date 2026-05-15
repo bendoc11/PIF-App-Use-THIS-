@@ -228,14 +228,15 @@ export default function OpenSpots() {
           return;
         }
 
-        // Fetch college_coaches metadata (one row per school is enough; dedupe client-side)
+        // Fetch college_coaches metadata (one row per school is enough; dedupe client-side).
+        // Note: college_coaches is the men's table (women's coaches live in
+        // coaches_womens_basketball) and gender is mostly NULL, so don't filter on it.
         const { data: ccData } = await supabase
           .from("college_coaches")
           .select(
             "school_name, conference, division, city, state, logo_url, undergrad_enrollment, roster_url, gender",
           )
-          .in("school_name", schoolNames)
-          .eq("gender", sport);
+          .in("school_name", schoolNames);
 
         const ccBySchool = new Map<string, any>();
         for (const c of ccData || []) {

@@ -8,6 +8,22 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 const ROSTER_KEYWORDS = ['roster', 'player', 'height', 'position', 'guard', 'forward', 'center'];
 
+async function requireAdmin(req: Request, supabase: ReturnType<typeof createClient>) {
+  const authHeader = req.headers.get('Authorization') ?? '';
+  const token = authHeader.replace('Bearer ', '').trim();
+  if (!token) throw new Error('Not authenticated');
+
+  const { data: userData, error: userErr } = await supabase.auth.getUser(token);
+  if (userErr || !userData.user) throw new Error('Not authenticated');
+
+  const { data: profile, error: profileErr } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', userData.user.id)
+    .maybeSingle();
+  if (profileErr || profile?.role !== 'admin') throw new Error('Admin access required');
+}
+
 function slugify(name: string): string {
   return name
     .toLowerCase()
@@ -107,6 +123,31 @@ Deno.serve(async (req) => {
 
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    await requireAdmin(req, supabase);
+
+    const body = await req.json().catch(() => ({}));
+
+    if (body?.action === 'manual-save') {
+      const school = String(body.school ?? '').trim();
+      const url = String(body.url ?? '').trim();
+      if (!school || !url) throw new Error('School and URL are required');
+
+      const { data: updatedRows, error: updateErr } = await supabase
+        .from('college_coaches')
+        .update({ roster_url: url, roster_url_status: 'confirmed' })
+        .eq('school_name', school)
+        .select('id');
+
+      if (updateErr) throw new Error(updateErr.message);
+      const affectedRows = updatedRows?.length ?? 0;
+      console.log('manual roster URL save', { school, affectedRows, url });
+      if (affectedRows < 1) throw new Error(`No college_coaches rows updated for ${school}`);
+
+      return new Response(
+        JSON.stringify({ success: true, school, roster_url: url, roster_url_status: 'confirmed', affected_rows: affectedRows }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
 
     // Get distinct pending school names (limit 10).
     // distinct() isn't directly available — fetch with limit and dedupe.

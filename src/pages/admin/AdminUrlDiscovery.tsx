@@ -275,12 +275,15 @@ export default function AdminUrlDiscovery() {
           ))}
         </div>
 
-        <div className="flex gap-3">
-          <Button onClick={handleRunBatch} disabled={running || runningAll} className="bg-red-600 hover:bg-red-700 text-white">
+        <div className="flex gap-3 flex-wrap">
+          <Button onClick={handleRunBatch} disabled={running || runningAll || retryingFailed} className="bg-red-600 hover:bg-red-700 text-white">
             {running ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Running…</> : "Run Batch (10)"}
           </Button>
-          <Button onClick={handleRunAll} disabled={running || runningAll} variant="outline">
+          <Button onClick={handleRunAll} disabled={running || runningAll || retryingFailed} variant="outline">
             {runningAll ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Running All…</> : "Run All Pending"}
+          </Button>
+          <Button onClick={handleRetryFailed} disabled={running || runningAll || retryingFailed || stats.failed === 0} className="bg-amber-500 hover:bg-amber-600 text-white">
+            {retryingFailed ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Retrying…</> : `Retry Failed (${stats.failed})`}
           </Button>
         </div>
 

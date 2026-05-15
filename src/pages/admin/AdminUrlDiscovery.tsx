@@ -179,6 +179,7 @@ export default function AdminUrlDiscovery() {
   useEffect(() => {
     fetchStats();
     fetchFailed();
+    fetchRosterStats();
   }, []);
 
   const runBatch = async (): Promise<number> => {

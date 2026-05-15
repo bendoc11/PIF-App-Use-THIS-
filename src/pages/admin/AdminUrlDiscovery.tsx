@@ -34,19 +34,40 @@ export default function AdminUrlDiscovery() {
   const [failedRows, setFailedRows] = useState<FailedRow[]>([]);
 
   const fetchStats = async () => {
-    // Distinct school count via RPC-less approach: fetch all then dedupe (capped).
-    const [allRes, confRes, failRes, pendRes] = await Promise.all([
-      supabase.from("college_coaches").select("school_name").not("school_name", "is", null).limit(10000),
-      supabase.from("college_coaches").select("school_name", { count: "exact", head: true }).eq("roster_url_status", "confirmed"),
-      supabase.from("college_coaches").select("school_name", { count: "exact", head: true }).eq("roster_url_status", "failed"),
-      supabase.from("college_coaches").select("school_name", { count: "exact", head: true }).eq("roster_url_status", "pending"),
-    ]);
-    const distinct = new Set((allRes.data ?? []).map((r: any) => r.school_name));
+    // Fetch all (school_name, status) and compute DISTINCT counts client-side.
+    const all: { school_name: string; roster_url_status: string | null }[] = [];
+    const PAGE = 1000;
+    let from = 0;
+    // Page through in case of >1000 rows.
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const { data, error } = await supabase
+        .from("college_coaches")
+        .select("school_name, roster_url_status")
+        .not("school_name", "is", null)
+        .range(from, from + PAGE - 1);
+      if (error || !data || data.length === 0) break;
+      all.push(...(data as any));
+      if (data.length < PAGE) break;
+      from += PAGE;
+    }
+    const total = new Set<string>();
+    const confirmed = new Set<string>();
+    const failed = new Set<string>();
+    const pending = new Set<string>();
+    for (const r of all) {
+      const n = r.school_name?.trim();
+      if (!n) continue;
+      total.add(n);
+      if (r.roster_url_status === "confirmed") confirmed.add(n);
+      else if (r.roster_url_status === "failed") failed.add(n);
+      else if (r.roster_url_status === "pending") pending.add(n);
+    }
     setStats({
-      total: distinct.size,
-      confirmed: confRes.count ?? 0,
-      failed: failRes.count ?? 0,
-      pending: pendRes.count ?? 0,
+      total: total.size,
+      confirmed: confirmed.size,
+      failed: failed.size,
+      pending: pending.size,
     });
   };
 

@@ -115,7 +115,7 @@ Deno.serve(async (req) => {
       .select('school_name')
       .eq('roster_url_status', 'pending')
       .not('school_name', 'is', null)
-      .limit(500);
+      .limit(10000);
     if (error) throw new Error(error.message);
 
     const seen = new Set<string>();
@@ -170,11 +170,14 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Pending count remaining
-    const { count: pendingCount } = await supabase
+    // Distinct pending school count remaining
+    const { data: pendRows } = await supabase
       .from('college_coaches')
-      .select('school_name', { count: 'exact', head: true })
-      .eq('roster_url_status', 'pending');
+      .select('school_name')
+      .eq('roster_url_status', 'pending')
+      .not('school_name', 'is', null)
+      .limit(20000);
+    const pendingCount = new Set((pendRows ?? []).map((r: any) => r.school_name?.trim()).filter(Boolean)).size;
 
     return new Response(
       JSON.stringify({

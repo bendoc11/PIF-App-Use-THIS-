@@ -541,7 +541,7 @@ export default function OpenSpots() {
                       style={{ borderColor: "rgba(255,255,255,0.10)" }}
                     >
                       <div className="flex items-start gap-3">
-                        <LogoBlock url={card.logo_url} name={card.school_name} />
+                        <LogoBlock url={card.logo_url} name={card.school_name} rosterUrl={card.roster_url} />
                         <div className="min-w-0">
                           <h3
                             className="text-white truncate"
@@ -691,7 +691,7 @@ export default function OpenSpots() {
             <>
               <DialogHeader>
                 <div className="flex items-center gap-3">
-                  <LogoBlock url={rosterModal.logo_url} name={rosterModal.school_name} />
+                  <LogoBlock url={rosterModal.logo_url} name={rosterModal.school_name} rosterUrl={rosterModal.roster_url} />
                   <DialogTitle className="text-white">{rosterModal.school_name}</DialogTitle>
                 </div>
               </DialogHeader>

@@ -41,6 +41,7 @@ import AdminModeration from "./pages/admin/AdminModeration";
 import AdminFeatured from "./pages/admin/AdminFeatured";
 import AdminDrills from "./pages/admin/AdminDrills";
 import AdminBulkUpload from "./pages/admin/AdminBulkUpload";
+import AdminRosterScraper from "./pages/admin/AdminRosterScraper";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
 

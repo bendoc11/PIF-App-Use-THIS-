@@ -301,6 +301,7 @@ export default function AdminUrlDiscovery() {
     fetchRosterStats();
     fetchCronStatus();
     fetchRecentRuns();
+    fetchLogoStats();
     const interval = setInterval(() => {
       fetchCronStatus();
       fetchRecentRuns();

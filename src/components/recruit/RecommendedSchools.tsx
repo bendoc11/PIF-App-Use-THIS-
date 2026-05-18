@@ -1,8 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MockSchool } from "@/data/mockSchools";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { SchoolLogo } from "@/components/recruit/SchoolLogo";
+import { useSchoolScoringData } from "@/hooks/useSchoolScoringData";
+import {
+  athleteBucket,
+  describeSchool,
+  scoreSchool,
+  sortSchoolsByRelevance,
+} from "@/lib/schoolScoring";
 
 const SF = "'Plus Jakarta Sans', system-ui, sans-serif";
 

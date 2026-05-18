@@ -137,9 +137,15 @@ Deno.serve(async (req) => {
 
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-    await requireAdmin(req, supabase);
-
     const body = await req.json().catch(() => ({}));
+    const isAuto = body?.auto === true;
+    const authorized = await isAuthorized(req, supabase, isAuto);
+    if (!authorized) {
+      return new Response(JSON.stringify({ success: false, error: 'Not authorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     if (body?.action === 'manual-save') {
       const school = String(body.school ?? '').trim();

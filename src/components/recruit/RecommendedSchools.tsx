@@ -149,10 +149,10 @@ export function RecommendedSchools({
   const hasReply = repliedNames?.has(featured.name) ?? false;
   const ds = DIVISION_STYLE[featured.division] ?? DIVISION_STYLE.D3;
 
-  const intel = rosterMap.get(featured.name.toLowerCase().trim());
-  const opening = !!intel && (intel.seniors + intel.juniors) > 0;
+  const breakdown = scoreSchool(featured, ctx);
+  const intel = breakdown.intel;
+  const opening = breakdown.rosterOpening;
   const positionLabelRaw = userPosition || "your position";
-  const positionPlural = userPosition ? `${userPosition}s` : "players at your position";
 
   let badgeText: string | null = null;
   if (opening && intel) {
@@ -165,9 +165,8 @@ export function RecommendedSchools({
 
   const contextLine = hasReply
     ? `${featured.name} replied to your last message. Open the thread to continue.`
-    : opening && intel
-    ? `${featured.name} has ${intel.seniors + intel.juniors} graduating ${positionPlural} — your class fits their recruiting timeline.`
-    : `Actively recruiting ${positionPlural} in ${regionLabel(featured.state || userState)} — ${featured.division} program.`;
+    : describeSchool(featured, breakdown, ctx, userPosition);
+
 
   const coachCount = featured.coaches?.length ?? 0;
   const noStaff = coachCount === 0;

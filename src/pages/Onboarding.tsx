@@ -439,10 +439,11 @@ export default function Onboarding() {
               />
             )}
             {step === 6 && <StepPrefs initial={prefs} onNext={handlePrefs} />}
-            {step === 7 && (
+            {step === 7 && <StepMatchReveal prefs={prefs} onNext={advance} />}
+            {step === 8 && (
               <StepFilm initial={film} onNext={handleFilm} onSkip={advance} />
             )}
-            {step === 8 && (
+            {step === 9 && (
               <StepTerms
                 onAgree={async () => {
                   try {
@@ -455,22 +456,10 @@ export default function Onboarding() {
                 }}
               />
             )}
-            {step === 9 && (
-              <StepPreview
-                data={{
-                  firstName: basic.firstName,
-                  lastName: basic.lastName,
-                  position: athletic.positions[0] || "",
-                  height: athletic.feet && athletic.inches !== "" ? `${athletic.feet}'${athletic.inches}"` : "",
-                  city: basic.city,
-                  state: basic.state,
-                  gradYear: basic.gradYear,
-                  gpa: academic.gpa,
-                  avatarUrl,
-                  identifier,
-                  completion,
-                }}
-                onFinish={handleFinish}
+            {step === 10 && (
+              <StepFirstMessage
+                onSent={() => handleFinish(true)}
+                onSkip={() => handleFinish(false)}
               />
             )}
           </motion.div>

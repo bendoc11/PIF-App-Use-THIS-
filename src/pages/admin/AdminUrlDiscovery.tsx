@@ -40,6 +40,21 @@ interface FailedRow {
   manualUrl: string;
 }
 
+interface CronStatus {
+  jobname: string;
+  schedule: string;
+  active: boolean;
+}
+
+interface DiscoveryLog {
+  id: string;
+  run_at: string;
+  schools_processed: number;
+  confirmed: number;
+  failed: number;
+  mode: string;
+}
+
 export default function AdminUrlDiscovery() {
   const [stats, setStats] = useState<Stats>({ total: 0, confirmed: 0, failed: 0, pending: 0 });
   const [running, setRunning] = useState(false);
@@ -52,6 +67,54 @@ export default function AdminUrlDiscovery() {
   const [scrapeLog, setScrapeLog] = useState<ScrapeLogEntry[]>([]);
   const [scrapingBatch, setScrapingBatch] = useState(false);
   const [scrapingAll, setScrapingAll] = useState(false);
+  const [cronActive, setCronActive] = useState<boolean | null>(null);
+  const [cronSchedule, setCronSchedule] = useState<string>("");
+  const [togglingCron, setTogglingCron] = useState(false);
+  const [recentRuns, setRecentRuns] = useState<DiscoveryLog[]>([]);
+
+  const fetchCronStatus = async () => {
+    const { data } = await supabase.rpc("admin_get_cron_jobs", {
+      _names: ["roster-url-discovery", "weekly-roster-refresh"],
+    });
+    const job = (data as CronStatus[] | null)?.find((j) => j.jobname === "roster-url-discovery");
+    setCronActive(job?.active ?? false);
+    setCronSchedule(job?.schedule ?? "");
+  };
+
+  const fetchRecentRuns = async () => {
+    const { data } = await supabase
+      .from("discovery_logs")
+      .select("*")
+      .order("run_at", { ascending: false })
+      .limit(10);
+    setRecentRuns((data ?? []) as DiscoveryLog[]);
+  };
+
+  const handlePauseCron = async () => {
+    setTogglingCron(true);
+    try {
+      await supabase.rpc("admin_pause_discovery_cron");
+      await fetchCronStatus();
+      toast({ title: "Auto-discovery paused" });
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setTogglingCron(false);
+    }
+  };
+
+  const handleResumeCron = async () => {
+    setTogglingCron(true);
+    try {
+      await supabase.rpc("admin_resume_discovery_cron");
+      await fetchCronStatus();
+      toast({ title: "Auto-discovery resumed" });
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setTogglingCron(false);
+    }
+  };
 
   const fetchRosterStats = async () => {
     const { count: total_players } = await supabase

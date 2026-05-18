@@ -347,7 +347,7 @@ export default function Onboarding() {
     } catch {}
   };
 
-  const handleFinish = async () => {
+  const handleFinish = async (sentFirstMessage: boolean = false) => {
     if (!user || saving) return;
     setSaving(true);
     try {
@@ -356,13 +356,16 @@ export default function Onboarding() {
       setSaving(false);
       return;
     }
-    // CRITICAL: wait for the in-memory profile to reflect
-    // onboarding_completed=true BEFORE navigating. Otherwise AuthGuard sees
-    // stale state and bounces the user right back to /onboarding.
     try {
       await refreshProfile();
     } catch {}
-    navigate("/dashboard", { replace: true });
+    if (sentFirstMessage) {
+      const msg =
+        "Your first message is on its way. Coaches typically respond within 3-7 days — keep your inbox ready.";
+      navigate(`/recruit?welcome=${encodeURIComponent(msg)}`, { replace: true });
+    } else {
+      navigate("/recruit", { replace: true });
+    }
   };
 
   // Sport gate: shown before the normal onboarding flow whenever the

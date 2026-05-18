@@ -38,6 +38,8 @@ interface CoachRow {
   instagram_individual: string | null;
   twitter_team: string | null;
   instagram_team: string | null;
+  logo_url?: string | null;
+  roster_url?: string | null;
 }
 
 const PAGE_SIZE = 1000;
@@ -76,7 +78,7 @@ async function fetchAllCoaches(table: "college_coaches" | "coaches_womens_basket
     const { data, error } = await (supabase as any)
       .from(table)
       .select(
-        "school_name,city,state,conference,division,public_private,school_size,avg_gpa,acceptance_rate,yearly_cost,undergrad_enrollment,first_name,last_name,full_name,title,email,phone,gender,latitude,longitude,twitter_individual,instagram_individual,twitter_team,instagram_team"
+        "school_name,city,state,conference,division,public_private,school_size,avg_gpa,acceptance_rate,yearly_cost,undergrad_enrollment,first_name,last_name,full_name,title,email,phone,gender,latitude,longitude,twitter_individual,instagram_individual,twitter_team,instagram_team,logo_url,roster_url"
       )
       .order("school_name", { ascending: true })
       .order("state", { ascending: true })
@@ -133,9 +135,15 @@ function groupRowsToSchools(rows: CoachRow[]): MockSchool[] {
         coaches: [],
         teamTwitter: r.twitter_team || undefined,
         teamInstagram: r.instagram_team || undefined,
+        logoUrl: r.logo_url ?? null,
+        rosterUrl: r.roster_url ?? null,
       };
       map.set(key, school);
     }
+
+    // Backfill logo/roster on the school from any row that has them
+    if (!school.logoUrl && r.logo_url) school.logoUrl = r.logo_url;
+    if (!school.rosterUrl && r.roster_url) school.rosterUrl = r.roster_url;
 
     const rawName =
       r.full_name ||

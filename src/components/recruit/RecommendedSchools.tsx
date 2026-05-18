@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { MockSchool } from "@/data/mockSchools";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { SchoolLogo } from "@/components/recruit/SchoolLogo";
 
 const SF = "'Plus Jakarta Sans', system-ui, sans-serif";
 
@@ -362,81 +363,90 @@ export function RecommendedSchools({
             </div>
           )}
 
-          <div style={{ minWidth: 0, flex: 1 }}>
-            <div
-              style={{
-                fontSize: 26,
-                fontWeight: 700,
-                letterSpacing: "-0.02em",
-                color: "#FFFFFF",
-                lineHeight: 1.15,
-              }}
-            >
-              {featured.name}
-            </div>
-            <div
-              style={{
-                marginTop: 6,
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                flexWrap: "wrap",
-              }}
-            >
-              <span
-                style={{
-                  background: ds.bg,
-                  color: ds.fg,
-                  fontFamily: SF,
-                  fontSize: 11,
-                  fontWeight: 600,
-                  borderRadius: 6,
-                  padding: "4px 8px",
-                  lineHeight: 1,
-                }}
-              >
-                {featured.division}
-              </span>
-              <span style={{ fontSize: 13, color: "rgba(255,255,255,0.60)" }}>
-                {[featured.city, featured.state].filter(Boolean).join(", ")}
-              </span>
-            </div>
-
-            {(featured.conference || coachCount > 0) && (
+          <div style={{ minWidth: 0, flex: 1, display: "flex", gap: 14, alignItems: "flex-start" }}>
+            <SchoolLogo
+              logoUrl={featured.logoUrl ?? null}
+              rosterUrl={featured.rosterUrl ?? null}
+              name={featured.name}
+              size={48}
+              radius={8}
+            />
+            <div style={{ minWidth: 0, flex: 1 }}>
               <div
                 style={{
-                  marginTop: 8,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  flexWrap: "wrap",
-                  fontFamily: SF,
-                  fontSize: 11,
-                  fontWeight: 400,
-                  color: "rgba(255,255,255,0.50)",
+                  fontSize: 26,
+                  fontWeight: 700,
+                  letterSpacing: "-0.02em",
+                  color: "#FFFFFF",
+                  lineHeight: 1.15,
                 }}
               >
-                {featured.conference && <span>{abbreviateConference(featured.conference)}</span>}
-                {featured.conference && coachCount > 0 && <span>·</span>}
-                {coachCount > 0 && (
-                  <span>
-                    {coachCount} coach{coachCount === 1 ? "" : "es"}
-                  </span>
-                )}
+                {featured.name}
               </div>
-            )}
+              <div
+                style={{
+                  marginTop: 6,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  flexWrap: "wrap",
+                }}
+              >
+                <span
+                  style={{
+                    background: ds.bg,
+                    color: ds.fg,
+                    fontFamily: SF,
+                    fontSize: 11,
+                    fontWeight: 600,
+                    borderRadius: 6,
+                    padding: "4px 8px",
+                    lineHeight: 1,
+                  }}
+                >
+                  {featured.division}
+                </span>
+                <span style={{ fontSize: 13, color: "rgba(255,255,255,0.60)" }}>
+                  {[featured.city, featured.state].filter(Boolean).join(", ")}
+                </span>
+              </div>
 
-            <p
-              style={{
-                fontSize: 14,
-                color: "rgba(255,255,255,0.80)",
-                marginTop: 10,
-                lineHeight: 1.45,
-              }}
-            >
-              {noStaff ? "Coaching staff pending update." : contextLine}
-            </p>
+              {(featured.conference || coachCount > 0) && (
+                <div
+                  style={{
+                    marginTop: 8,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    flexWrap: "wrap",
+                    fontFamily: SF,
+                    fontSize: 11,
+                    fontWeight: 400,
+                    color: "rgba(255,255,255,0.50)",
+                  }}
+                >
+                  {featured.conference && <span>{abbreviateConference(featured.conference)}</span>}
+                  {featured.conference && coachCount > 0 && <span>·</span>}
+                  {coachCount > 0 && (
+                    <span>
+                      {coachCount} coach{coachCount === 1 ? "" : "es"}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
+
+          <p
+            style={{
+              fontSize: 14,
+              color: "rgba(255,255,255,0.80)",
+              marginTop: 10,
+              lineHeight: 1.45,
+            }}
+          >
+            {noStaff ? "Coaching staff pending update." : contextLine}
+          </p>
 
           <div
             style={{

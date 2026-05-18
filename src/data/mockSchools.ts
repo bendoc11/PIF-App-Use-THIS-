@@ -31,6 +31,8 @@ export interface MockSchool {
   coaches: MockCoach[];
   teamTwitter?: string;
   teamInstagram?: string;
+  logoUrl?: string | null;
+  rosterUrl?: string | null;
 }
 
 export const DIVISION_COLORS: Record<Division, string> = {

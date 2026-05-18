@@ -23,3 +23,7 @@ project_id = "feblgdfxkuegmjqsdycp"
     verify_jwt = false
   [functions.sendgrid-inbound]
     verify_jwt = false
+  [functions.discover-roster-urls]
+    verify_jwt = false
+  [functions.bulk-scrape-rosters]
+    verify_jwt = false

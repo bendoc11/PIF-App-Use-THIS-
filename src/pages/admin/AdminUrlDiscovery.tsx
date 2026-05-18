@@ -40,6 +40,21 @@ interface FailedRow {
   manualUrl: string;
 }
 
+interface CronStatus {
+  jobname: string;
+  schedule: string;
+  active: boolean;
+}
+
+interface DiscoveryLog {
+  id: string;
+  run_at: string;
+  schools_processed: number;
+  confirmed: number;
+  failed: number;
+  mode: string;
+}
+
 export default function AdminUrlDiscovery() {
   const [stats, setStats] = useState<Stats>({ total: 0, confirmed: 0, failed: 0, pending: 0 });
   const [running, setRunning] = useState(false);
@@ -52,6 +67,54 @@ export default function AdminUrlDiscovery() {
   const [scrapeLog, setScrapeLog] = useState<ScrapeLogEntry[]>([]);
   const [scrapingBatch, setScrapingBatch] = useState(false);
   const [scrapingAll, setScrapingAll] = useState(false);
+  const [cronActive, setCronActive] = useState<boolean | null>(null);
+  const [cronSchedule, setCronSchedule] = useState<string>("");
+  const [togglingCron, setTogglingCron] = useState(false);
+  const [recentRuns, setRecentRuns] = useState<DiscoveryLog[]>([]);
+
+  const fetchCronStatus = async () => {
+    const { data } = await supabase.rpc("admin_get_cron_jobs", {
+      _names: ["roster-url-discovery", "weekly-roster-refresh"],
+    });
+    const job = (data as CronStatus[] | null)?.find((j) => j.jobname === "roster-url-discovery");
+    setCronActive(job?.active ?? false);
+    setCronSchedule(job?.schedule ?? "");
+  };
+
+  const fetchRecentRuns = async () => {
+    const { data } = await supabase
+      .from("discovery_logs")
+      .select("*")
+      .order("run_at", { ascending: false })
+      .limit(10);
+    setRecentRuns((data ?? []) as DiscoveryLog[]);
+  };
+
+  const handlePauseCron = async () => {
+    setTogglingCron(true);
+    try {
+      await supabase.rpc("admin_pause_discovery_cron");
+      await fetchCronStatus();
+      toast({ title: "Auto-discovery paused" });
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setTogglingCron(false);
+    }
+  };
+
+  const handleResumeCron = async () => {
+    setTogglingCron(true);
+    try {
+      await supabase.rpc("admin_resume_discovery_cron");
+      await fetchCronStatus();
+      toast({ title: "Auto-discovery resumed" });
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setTogglingCron(false);
+    }
+  };
 
   const fetchRosterStats = async () => {
     const { count: total_players } = await supabase
@@ -181,6 +244,14 @@ export default function AdminUrlDiscovery() {
     fetchStats();
     fetchFailed();
     fetchRosterStats();
+    fetchCronStatus();
+    fetchRecentRuns();
+    const interval = setInterval(() => {
+      fetchCronStatus();
+      fetchRecentRuns();
+      fetchStats();
+    }, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const runBatch = async (): Promise<number> => {
@@ -285,6 +356,70 @@ export default function AdminUrlDiscovery() {
         <h1 className="text-3xl font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           Roster URL Discovery
         </h1>
+
+        <Card className="p-4 bg-card flex flex-wrap items-center gap-4 justify-between">
+          <div className="flex items-center gap-3">
+            <span className="relative flex h-3 w-3">
+              {cronActive && (
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75" />
+              )}
+              <span className={`relative inline-flex rounded-full h-3 w-3 ${cronActive ? "bg-green-500" : "bg-muted-foreground"}`} />
+            </span>
+            <div>
+              <div className="font-semibold">
+                {cronActive ? "Auto-Discovery" : "Discovery Complete"}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {cronActive
+                  ? `Running every 10 minutes${cronSchedule ? ` (${cronSchedule})` : ""}`
+                  : "Cron job is not scheduled"}
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            {cronActive ? (
+              <Button size="sm" variant="outline" onClick={handlePauseCron} disabled={togglingCron}>
+                {togglingCron ? <Loader2 className="h-4 w-4 animate-spin" /> : "Pause Auto-Discovery"}
+              </Button>
+            ) : (
+              <Button size="sm" onClick={handleResumeCron} disabled={togglingCron} className="bg-green-600 hover:bg-green-700 text-white">
+                {togglingCron ? <Loader2 className="h-4 w-4 animate-spin" /> : "Resume Auto-Discovery"}
+              </Button>
+            )}
+          </div>
+        </Card>
+
+        <Card className="p-4 bg-card">
+          <div className="font-semibold mb-3">Recent Runs</div>
+          {recentRuns.length === 0 ? (
+            <div className="text-sm text-muted-foreground">No runs logged yet.</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="text-xs text-muted-foreground uppercase">
+                  <tr className="border-b border-border/40">
+                    <th className="text-left py-2 pr-3">Run Time</th>
+                    <th className="text-left py-2 pr-3">Mode</th>
+                    <th className="text-right py-2 pr-3">Processed</th>
+                    <th className="text-right py-2 pr-3 text-green-500">Confirmed</th>
+                    <th className="text-right py-2 text-red-500">Failed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentRuns.map((r) => (
+                    <tr key={r.id} className="border-b border-border/20">
+                      <td className="py-2 pr-3">{new Date(r.run_at).toLocaleString()}</td>
+                      <td className="py-2 pr-3 capitalize text-muted-foreground">{r.mode}</td>
+                      <td className="py-2 pr-3 text-right">{r.schools_processed}</td>
+                      <td className="py-2 pr-3 text-right text-green-500">{r.confirmed}</td>
+                      <td className="py-2 text-right text-red-500">{r.failed}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[

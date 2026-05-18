@@ -187,7 +187,8 @@ export function HeroMetrics({
             ? "Coaches are responding to you. This is real recruiting interest — keep building on it."
             : "Your first reply will land here. Stay consistent — coaches respond to athletes who keep showing up."}
         </p>
-      </div>
+        </div>
+      )}
 
       {/* Secondary row — three smaller stats */}
       <div className="grid grid-cols-3 gap-2.5">

@@ -1,4 +1,4 @@
-import { LogOut, Shield, Crosshair, UserCircle, TrendingUp, Inbox, Lock, Target } from "lucide-react";
+import { LogOut, Shield, Crosshair, UserCircle, TrendingUp, Inbox, Lock, Target, Users } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -22,6 +22,7 @@ const navItems: { title: string; url: string; icon: any; tourId?: string; badgeK
   { title: "Get Recruited", url: "/recruit", icon: Crosshair },
   { title: "Replies", url: "/replies", icon: Inbox, badgeKey: "replies" },
   { title: "Open Spots", url: "/open-spots", icon: Target },
+  { title: "Our Team", url: "/coaches", icon: Users },
   { title: "My Profile", url: "/profile", icon: UserCircle },
   { title: "My Progress", url: "/progress", icon: TrendingUp, tourId: "nav-progress" },
 ];

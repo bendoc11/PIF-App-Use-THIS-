@@ -34,6 +34,8 @@ import { QuickSendSheet } from "@/components/recruit/QuickSendSheet";
 import { SocialProofTicker } from "@/components/recruit/SocialProofTicker";
 import { MilestoneCelebration } from "@/components/recruit/MilestoneCelebration";
 import { useMilestones, currentWeekKey } from "@/hooks/useMilestones";
+import { useSchoolScoringData } from "@/hooks/useSchoolScoringData";
+import { sortSchoolsByRelevance } from "@/lib/schoolScoring";
 
 const WEEKLY_GOAL = 10;
 const REPLY_TARGET = 20;

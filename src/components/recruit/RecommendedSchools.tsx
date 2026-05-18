@@ -72,36 +72,6 @@ function regionLabel(state: string): string {
 }
 
 // Position bucketing — mirrors OpenSpots logic
-type Bucket = "PG" | "SG" | "SF" | "PF" | "C";
-
-function athleteBucket(pos: string): Bucket | null {
-  const p = pos.toUpperCase().trim();
-  if (!p) return null;
-  if (p.includes("POINT GUARD") || p === "PG") return "PG";
-  if (p.includes("SHOOTING GUARD") || p === "SG") return "SG";
-  if (p.includes("SMALL FORWARD") || p === "SF" || p.includes("WING")) return "SF";
-  if (p.includes("POWER FORWARD") || p === "PF") return "PF";
-  if (p === "C" || p.includes("CENTER")) return "C";
-  if (p === "G" || p === "GUARD") return "PG";
-  if (p === "F" || p === "FORWARD") return "SF";
-  return null;
-}
-
-function rosterPositionGroups(pos: string | null): Bucket[] {
-  const p = (pos || "").toUpperCase().trim();
-  if (!p) return [];
-  if (p.includes("POINT GUARD") || p === "PG") return ["PG"];
-  if (p.includes("SHOOTING GUARD") || p === "SG") return ["SG"];
-  if (p.includes("SMALL FORWARD") || p === "SF" || p.includes("WING")) return ["SF"];
-  if (p.includes("POWER FORWARD") || p === "PF") return ["PF"];
-  if (p === "C" || p.includes("CENTER")) return ["C"];
-  if (p === "G/F" || p === "F/G") return ["SG", "SF"];
-  if (p === "F/C" || p === "C/F") return ["PF", "C"];
-  if (p === "G" || p === "GUARD") return ["PG", "SG"];
-  if (p === "F" || p === "FORWARD") return ["SF", "PF"];
-  return [];
-}
-
 interface Props {
   schools: MockSchool[];
   contactedNames: Set<string>;
@@ -120,12 +90,6 @@ const DIVISION_STYLE: Record<string, { bg: string; fg: string }> = {
 
 type Phase = "idle" | "exit-left" | "exit-right" | "enter";
 
-interface RosterIntel {
-  hasData: boolean;
-  seniors: number;
-  juniors: number;
-}
-
 export function RecommendedSchools({
   schools,
   contactedNames,
@@ -138,50 +102,19 @@ export function RecommendedSchools({
   const userPosition = ((profile as any)?.position as string | undefined) ?? "";
   const targetDivision = ((profile as any)?.target_division as string | undefined) ?? "";
   const bucket = useMemo(() => athleteBucket(userPosition), [userPosition]);
+  const { rosterMap, notInterestedNames } = useSchoolScoringData();
 
-  // Load roster intelligence keyed by school_name (lowercased)
-  const [rosterMap, setRosterMap] = useState<Map<string, RosterIntel>>(new Map());
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      if (!bucket) {
-        setRosterMap(new Map());
-        return;
-      }
-      const { data } = await supabase
-        .from("school_rosters")
-        .select("school_name, position, class_year")
-        .in("class_year", ["SR", "JR", "Senior", "Junior", "Sr", "Jr"]);
-      if (cancelled || !data) return;
-      const map = new Map<string, RosterIntel>();
-      const schoolsWithAnyData = new Set<string>();
-      for (const r of data as Array<{ school_name: string | null; position: string | null; class_year: string | null }>) {
-        if (!r.school_name) continue;
-        const key = r.school_name.toLowerCase().trim();
-        schoolsWithAnyData.add(key);
-        const groups = rosterPositionGroups(r.position);
-        if (!groups.includes(bucket)) continue;
-        const yr = (r.class_year || "").toUpperCase();
-        const isSr = yr === "SR" || yr === "SENIOR";
-        const isJr = yr === "JR" || yr === "JUNIOR";
-        if (!isSr && !isJr) continue;
-        const cur = map.get(key) ?? { hasData: true, seniors: 0, juniors: 0 };
-        cur.hasData = true;
-        if (isSr) cur.seniors += 1;
-        else cur.juniors += 1;
-        map.set(key, cur);
-      }
-      // Mark schools that have roster data but no opening at position (so we don't show stale tier-3 fallback as "no data")
-      for (const k of schoolsWithAnyData) {
-        if (!map.has(k)) map.set(k, { hasData: true, seniors: 0, juniors: 0 });
-      }
-      setRosterMap(map);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [bucket]);
+  const ctx = useMemo(
+    () => ({
+      userState,
+      targetDivision,
+      bucket,
+      contactedNames,
+      notInterestedNames,
+      rosterMap,
+    }),
+    [userState, targetDivision, bucket, contactedNames, notInterestedNames, rosterMap],
+  );
 
   const ordered = useMemo(() => {
     const seen = new Set<string>();
@@ -190,42 +123,12 @@ export function RecommendedSchools({
       seen.add(s.id);
       return true;
     });
-
-    const matchesDivision = (s: MockSchool) =>
-      !targetDivision || targetDivision === "Any" || s.division === targetDivision;
-    const region = neighborStates(userState);
-    const inRegion = (s: MockSchool) =>
-      !userState || s.state === userState || region.includes(s.state);
-
-    const tier1: MockSchool[] = []; // opening (SR/JR at position) + division + region
-    const tier2: MockSchool[] = []; // division + region (with roster data, no opening) — proxy for "any graduating"
-    const tier3: MockSchool[] = []; // division + region (no roster data)
-    const tier4: MockSchool[] = []; // anything else
-
-    for (const s of pool) {
-      const intel = rosterMap.get(s.name.toLowerCase().trim());
-      const opening = !!intel && (intel.seniors + intel.juniors) > 0;
-      const div = matchesDivision(s);
-      const reg = inRegion(s);
-      if (opening && div && reg) tier1.push(s);
-      else if (div && reg && intel) tier2.push(s);
-      else if (div && reg) tier3.push(s);
-      else tier4.push(s);
-    }
-
-    // Within tier1, sort by senior count desc then junior count desc
-    tier1.sort((a, b) => {
-      const ai = rosterMap.get(a.name.toLowerCase().trim())!;
-      const bi = rosterMap.get(b.name.toLowerCase().trim())!;
-      return (bi.seniors - ai.seniors) || (bi.juniors - ai.juniors);
-    });
-
-    return [...tier1, ...tier2, ...tier3, ...tier4];
-  }, [schools, userState, targetDivision, rosterMap]);
+    return sortSchoolsByRelevance(pool, ctx);
+  }, [schools, ctx]);
 
   const queue = useMemo(
-    () => ordered.filter((s) => !contactedNames.has(s.name)),
-    [ordered, contactedNames],
+    () => ordered.filter((s) => !contactedNames.has(s.name) && !notInterestedNames.has(s.name)),
+    [ordered, contactedNames, notInterestedNames],
   );
 
   const [index, setIndex] = useState(0);

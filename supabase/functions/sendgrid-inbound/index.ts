@@ -185,7 +185,7 @@ Deno.serve(async (req) => {
             body: JSON.stringify({
               personalizations: [{ to: [{ email: forwardTo }] }],
               from: { email: NOTIFICATION_FROM, name: "PIF Warmup" },
-              reply_to: fromAddress(from),
+              reply_to: { email: parseAddress(from).email || NOTIFICATION_FROM },
               subject: fwdSubject,
               content: fwdHtml
                 ? [{ type: "text/plain", value: fwdText }, { type: "text/html", value: fwdHtml }]

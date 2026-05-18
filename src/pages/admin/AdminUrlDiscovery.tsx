@@ -357,6 +357,70 @@ export default function AdminUrlDiscovery() {
           Roster URL Discovery
         </h1>
 
+        <Card className="p-4 bg-card flex flex-wrap items-center gap-4 justify-between">
+          <div className="flex items-center gap-3">
+            <span className="relative flex h-3 w-3">
+              {cronActive && (
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75" />
+              )}
+              <span className={`relative inline-flex rounded-full h-3 w-3 ${cronActive ? "bg-green-500" : "bg-muted-foreground"}`} />
+            </span>
+            <div>
+              <div className="font-semibold">
+                {cronActive ? "Auto-Discovery" : "Discovery Complete"}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {cronActive
+                  ? `Running every 10 minutes${cronSchedule ? ` (${cronSchedule})` : ""}`
+                  : "Cron job is not scheduled"}
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            {cronActive ? (
+              <Button size="sm" variant="outline" onClick={handlePauseCron} disabled={togglingCron}>
+                {togglingCron ? <Loader2 className="h-4 w-4 animate-spin" /> : "Pause Auto-Discovery"}
+              </Button>
+            ) : (
+              <Button size="sm" onClick={handleResumeCron} disabled={togglingCron} className="bg-green-600 hover:bg-green-700 text-white">
+                {togglingCron ? <Loader2 className="h-4 w-4 animate-spin" /> : "Resume Auto-Discovery"}
+              </Button>
+            )}
+          </div>
+        </Card>
+
+        <Card className="p-4 bg-card">
+          <div className="font-semibold mb-3">Recent Runs</div>
+          {recentRuns.length === 0 ? (
+            <div className="text-sm text-muted-foreground">No runs logged yet.</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="text-xs text-muted-foreground uppercase">
+                  <tr className="border-b border-border/40">
+                    <th className="text-left py-2 pr-3">Run Time</th>
+                    <th className="text-left py-2 pr-3">Mode</th>
+                    <th className="text-right py-2 pr-3">Processed</th>
+                    <th className="text-right py-2 pr-3 text-green-500">Confirmed</th>
+                    <th className="text-right py-2 text-red-500">Failed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentRuns.map((r) => (
+                    <tr key={r.id} className="border-b border-border/20">
+                      <td className="py-2 pr-3">{new Date(r.run_at).toLocaleString()}</td>
+                      <td className="py-2 pr-3 capitalize text-muted-foreground">{r.mode}</td>
+                      <td className="py-2 pr-3 text-right">{r.schools_processed}</td>
+                      <td className="py-2 pr-3 text-right text-green-500">{r.confirmed}</td>
+                      <td className="py-2 text-right text-red-500">{r.failed}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { label: "Total Schools", value: stats.total, color: "text-foreground" },

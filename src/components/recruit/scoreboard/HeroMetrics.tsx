@@ -101,8 +101,7 @@ export function HeroMetrics({
           </button>
         </div>
       ) : (
-      {/* HERO — Coach Interest. Dark card, red typographic hero. */}
-      <div
+        <div
         style={{
           background: "var(--bg-card)",
           border: "1px solid rgba(255,255,255,0.08)",

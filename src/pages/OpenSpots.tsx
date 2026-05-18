@@ -242,6 +242,20 @@ export default function OpenSpots() {
   const [rosterModal, setRosterModal] = useState<SpotCard | null>(null);
   const [rosterRows, setRosterRows] = useState<RosterRow[]>([]);
   const [rosterLoading, setRosterLoading] = useState(false);
+  const [quickSend, setQuickSend] = useState<MockSchool | null>(null);
+  const [contactedNames, setContactedNames] = useState<Set<string>>(new Set());
+
+  // Load names of schools the athlete has already contacted (for the
+  // "Messaged" badge + de-dupe), and refresh when QuickSendSheet sends.
+  const loadContacted = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("outreach_history")
+      .select("school_name")
+      .eq("user_id", user.id);
+    setContactedNames(new Set((data || []).map((r: any) => r.school_name).filter(Boolean)));
+  };
+  useEffect(() => { loadContacted(); }, [user?.id]);
 
   useEffect(() => {
     if (!user) return;

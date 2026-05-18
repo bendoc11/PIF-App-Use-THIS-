@@ -34,6 +34,8 @@ import { QuickSendSheet } from "@/components/recruit/QuickSendSheet";
 import { SocialProofTicker } from "@/components/recruit/SocialProofTicker";
 import { MilestoneCelebration } from "@/components/recruit/MilestoneCelebration";
 import { useMilestones, currentWeekKey } from "@/hooks/useMilestones";
+import { useSchoolScoringData } from "@/hooks/useSchoolScoringData";
+import { sortSchoolsByRelevance } from "@/lib/schoolScoring";
 
 const WEEKLY_GOAL = 10;
 const REPLY_TARGET = 20;
@@ -144,8 +146,23 @@ export default function Recruit() {
     // eslint-disable-next-line
   }, [user?.id]);
 
+  const contactedNames = useMemo(() => new Set(outreach.map((r) => r.school_name)), [outreach]);
+  const { rosterMap, notInterestedNames, bucket } = useSchoolScoringData();
+
+  const scoringCtx = useMemo(
+    () => ({
+      userState: (p?.state as string) || "",
+      targetDivision: (p?.target_division as string) || "",
+      bucket,
+      contactedNames,
+      notInterestedNames,
+      rosterMap,
+    }),
+    [p?.state, p?.target_division, bucket, contactedNames, notInterestedNames, rosterMap],
+  );
+
   const filtered = useMemo(() => {
-    return schools.filter((s) => {
+    const matched = schools.filter((s) => {
       if (filters.states.length > 0 && !filters.states.includes(s.state)) return false;
       if (!filters.divisions.includes(s.division)) return false;
       if (filters.size !== "All" && s.size !== filters.size) return false;
@@ -158,9 +175,9 @@ export default function Recruit() {
       }
       return true;
     });
-  }, [filters, schools]);
+    return sortSchoolsByRelevance(matched, scoringCtx);
+  }, [filters, schools, scoringCtx]);
 
-  const contactedNames = useMemo(() => new Set(outreach.map((r) => r.school_name)), [outreach]);
 
   const weeklySent = useMemo(() => outreach.filter((r) => daysAgo(r.sent_at) < 7).length, [outreach]);
 

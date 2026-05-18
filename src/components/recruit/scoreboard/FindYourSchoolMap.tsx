@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
 import { MockSchool, Division } from "@/data/mockSchools";
 import { ChevronRight, Star } from "lucide-react";
+import { SchoolLogo } from "@/components/recruit/SchoolLogo";
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
 
@@ -272,6 +273,13 @@ export function FindYourSchoolMap({
                   borderTop: "1px solid var(--border-light)",
                 }}
               >
+                <SchoolLogo
+                  logoUrl={s.logoUrl ?? null}
+                  rosterUrl={s.rosterUrl ?? null}
+                  name={s.name}
+                  size={32}
+                  radius={6}
+                />
                 <div className="flex-1 min-w-0">
                   <div
                     style={{

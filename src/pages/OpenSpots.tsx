@@ -408,8 +408,48 @@ export default function OpenSpots() {
     setRosterLoading(false);
   };
 
-  const messageCoach = (card: SpotCard) => {
-    navigate(`/recruit?school=${encodeURIComponent(card.school_name)}`);
+  const messageCoach = async (card: SpotCard) => {
+    // Fetch all coaches for this school from college_coaches so we can
+    // pre-populate the one-tap send sheet with the head coach.
+    const { data: rows } = await supabase
+      .from("college_coaches")
+      .select("full_name, first_name, last_name, title, email, phone, twitter_individual, instagram_individual")
+      .eq("school_name", card.school_name);
+    const coaches: MockCoach[] = (rows || [])
+      .filter((r: any) => r.email)
+      .map((r: any) => ({
+        name: (r.full_name || `${r.first_name ?? ""} ${r.last_name ?? ""}`).trim() || "Coach",
+        title: r.title || "Coach",
+        email: r.email,
+        phone: r.phone ?? undefined,
+        twitter: r.twitter_individual ?? undefined,
+        instagram: r.instagram_individual ?? undefined,
+      }));
+    // Sort head coaches first so QuickSendSheet's defaultCoach picks them.
+    coaches.sort((a, b) => {
+      const ah = /head/i.test(a.title) ? 0 : 1;
+      const bh = /head/i.test(b.title) ? 0 : 1;
+      return ah - bh;
+    });
+    const div = (normalizeDivision(card.division) || "D1").toUpperCase() as Division;
+    const school: MockSchool = {
+      id: card.school_name,
+      name: card.school_name,
+      city: card.city || "",
+      state: card.state || "",
+      stateCode: stateToCode(card.state || ""),
+      coordinates: [0, 0],
+      division: (["D1","D2","D3","JUCO","NAIA"].includes(div) ? div : "D1") as Division,
+      academicLevel: "Good",
+      enrollment: parseEnrollment(card.undergrad_enrollment) ?? 0,
+      size: "Medium",
+      avgGpa: null,
+      conference: card.conference,
+      coaches,
+      logoUrl: card.logo_url,
+      rosterUrl: card.roster_url,
+    };
+    setQuickSend(school);
   };
 
   return (

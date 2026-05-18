@@ -665,13 +665,31 @@ export default function OpenSpots() {
                       </div>
 
                       <div className="mt-4 space-y-2">
-                        <Button
-                          onClick={() => messageCoach(card)}
-                          className="w-full text-white border-0"
-                          style={{ background: "#dc2626" }}
-                        >
-                          Message Coach
-                        </Button>
+                        {contactedNames.has(card.school_name) ? (
+                          <div
+                            className="w-full inline-flex items-center justify-center gap-2 rounded-md"
+                            style={{
+                              background: "rgba(34,197,94,0.12)",
+                              border: "1px solid rgba(34,197,94,0.30)",
+                              color: "#4ade80",
+                              fontFamily: SF,
+                              fontWeight: 600,
+                              fontSize: 13,
+                              padding: "10px 14px",
+                            }}
+                          >
+                            <Check className="h-4 w-4" strokeWidth={2.5} />
+                            Messaged
+                          </div>
+                        ) : (
+                          <Button
+                            onClick={() => messageCoach(card)}
+                            className="w-full text-white border-0"
+                            style={{ background: "#dc2626" }}
+                          >
+                            Message Coach
+                          </Button>
+                        )}
                         <Button
                           onClick={() => openRoster(card)}
                           variant="ghost"

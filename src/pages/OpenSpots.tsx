@@ -18,7 +18,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { normalizeDivision } from "@/data/mockSchools";
+import { normalizeDivision, MockSchool, MockCoach, Division, stateToCode } from "@/data/mockSchools";
+import { QuickSendSheet } from "@/components/recruit/QuickSendSheet";
+import { Check } from "lucide-react";
 
 const SF = "'Plus Jakarta Sans', -apple-system, system-ui, sans-serif";
 

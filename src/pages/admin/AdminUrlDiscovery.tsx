@@ -445,6 +445,58 @@ export default function AdminUrlDiscovery() {
           </div>
         </Card>
 
+        <Card className="p-4 bg-card space-y-3">
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <div>
+              <div className="font-semibold">School Logos</div>
+              <div className="text-xs text-muted-foreground mt-1">
+                {logoStats
+                  ? `${logoStats.has_logo} of ${logoStats.total} schools have logos · ${logoStats.no_logo} missing`
+                  : "Loading coverage…"}
+              </div>
+            </div>
+            <Button
+              onClick={runLogoPopulation}
+              disabled={logoRunning || !logoStats || logoStats.no_logo === 0}
+              className="bg-pif-red hover:bg-pif-red/90 text-white"
+            >
+              {logoRunning ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Populating…</>
+              ) : (
+                "Populate Missing Logos"
+              )}
+            </Button>
+          </div>
+
+          {logoStats && (
+            <Progress value={(logoStats.has_logo / Math.max(1, logoStats.total)) * 100} />
+          )}
+
+          {logoProgress && (
+            <div className="text-sm text-muted-foreground">
+              Processed {logoProgress.processed} · Found logos for {logoProgress.updated} · {logoProgress.remaining} remaining
+            </div>
+          )}
+
+          {logoLog.length > 0 && (
+            <div className="max-h-64 overflow-y-auto border border-border/40 rounded text-sm">
+              {logoLog.map((r, i) => (
+                <div key={`${r.school}-${i}`} className="flex items-center gap-2 px-3 py-1.5 border-b border-border/20">
+                  {r.logo_url ? (
+                    <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                  ) : (
+                    <XCircle className="h-4 w-4 text-red-500 shrink-0" />
+                  )}
+                  <span className="truncate flex-1">{r.school}</span>
+                  {r.logo_url && (
+                    <img src={r.logo_url} alt="" className="h-5 w-5 object-contain" />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+
         <Card className="p-4 bg-card">
           <div className="font-semibold mb-3">Recent Runs</div>
           {recentRuns.length === 0 ? (

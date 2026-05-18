@@ -169,6 +169,39 @@ Deno.serve(async (req) => {
     }
     console.log(`[sendgrid-inbound:${reqId}] alias`, { alias });
 
+    // Warmup forwarding: forward warmup@mail.playitforward.app to a real inbox
+    if (alias === "warmup") {
+      const forwardTo = Deno.env.get("WARMUP_FORWARD_TO");
+      if (SENDGRID && forwardTo) {
+        const fwdSubject = `[warmup] ${subject || "(no subject)"}`;
+        const fwdText = `Forwarded warmup email\n\nFrom: ${from}\nTo: ${to}\nSubject: ${subject}\n\n---\n${text || "(no text body)"}`;
+        const fwdHtml = html
+          ? `<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;padding:16px;background:#f5f5f5;border-bottom:1px solid #ddd;font-size:13px;color:#555"><strong>Forwarded warmup email</strong><br/>From: ${from}<br/>To: ${to}<br/>Subject: ${subject}</div>${html}`
+          : undefined;
+        try {
+          const resp = await fetch("https://api.sendgrid.com/v3/mail/send", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${SENDGRID}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              personalizations: [{ to: [{ email: forwardTo }] }],
+              from: { email: NOTIFICATION_FROM, name: "PIF Warmup" },
+              reply_to: fromAddress(from),
+              subject: fwdSubject,
+              content: fwdHtml
+                ? [{ type: "text/plain", value: fwdText }, { type: "text/html", value: fwdHtml }]
+                : [{ type: "text/plain", value: fwdText }],
+            }),
+          });
+          console.log(`[sendgrid-inbound:${reqId}] warmup forwarded`, { status: resp.status, to: forwardTo });
+        } catch (e) {
+          console.error(`[sendgrid-inbound:${reqId}] warmup forward error`, e);
+        }
+      } else {
+        console.warn(`[sendgrid-inbound:${reqId}] warmup received but SENDGRID/WARMUP_FORWARD_TO missing`);
+      }
+      return new Response("ok", { status: 200 });
+    }
+
     const { data: profile, error: profileErr } = await admin
       .from("profiles")
       .select("id, email, first_name, last_name")

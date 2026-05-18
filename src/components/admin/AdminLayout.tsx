@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { BookOpen, Users, Shield, MessageSquare, ArrowLeft, Star, Zap, UserCircle, Upload, Search } from "lucide-react";
+import { BookOpen, Users, Shield, MessageSquare, ArrowLeft, Star, Zap, UserCircle, Upload, Search, Mail } from "lucide-react";
 
 const adminNavItems = [
   { title: "Bulk Upload", url: "/admin/bulk-upload", icon: Upload, roles: ["admin"] },
@@ -9,6 +9,7 @@ const adminNavItems = [
   { title: "Roster URLs", url: "/admin/url-discovery", icon: Search, roles: ["admin"] },
   { title: "Users", url: "/admin/users", icon: Users, roles: ["admin"] },
   { title: "Moderation", url: "/admin/moderation", icon: MessageSquare, roles: ["admin"] },
+  { title: "Deliverability", url: "/admin/deliverability", icon: Mail, roles: ["admin"] },
 ];
 
 export function AdminLayout({ children }: { children: ReactNode }) {

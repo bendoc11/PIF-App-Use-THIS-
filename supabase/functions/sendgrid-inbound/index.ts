@@ -226,6 +226,30 @@ Deno.serve(async (req) => {
 
     const fromAddr = parseAddress(from);
 
+    // Mark any matching test_contact (Deliverability tab) as replied
+    if (fromAddr.email) {
+      try {
+        const { data: tc } = await admin
+          .from("test_contacts")
+          .select("id")
+          .ilike("email", fromAddr.email)
+          .maybeSingle();
+        if (tc?.id) {
+          const now = new Date().toISOString();
+          await admin.from("test_contacts").update({ last_replied_at: now }).eq("id", tc.id);
+          await admin
+            .from("test_email_sends")
+            .update({ replied: true, replied_at: now })
+            .ilike("recipient_email", fromAddr.email)
+            .eq("replied", false);
+          console.log(`[sendgrid-inbound:${reqId}] test contact reply tracked`, { email: fromAddr.email });
+        }
+      } catch (e) {
+        console.error(`[sendgrid-inbound:${reqId}] test_contacts tracking error`, e);
+      }
+    }
+
+
     const { data: inserted, error: insErr } = await admin
       .from("coach_replies")
       .insert({

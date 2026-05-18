@@ -43,6 +43,7 @@ import AdminDrills from "./pages/admin/AdminDrills";
 import AdminBulkUpload from "./pages/admin/AdminBulkUpload";
 import AdminRosterScraper from "./pages/admin/AdminRosterScraper";
 import AdminUrlDiscovery from "./pages/admin/AdminUrlDiscovery";
+import AdminDeliverability from "./pages/admin/AdminDeliverability";
 import OpenSpots from "./pages/OpenSpots";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
@@ -105,6 +106,7 @@ const App = () => (
             <Route path="/admin/moderation" element={<AdminGuard requiredRole="admin"><AdminModeration /></AdminGuard>} />
             <Route path="/admin/roster-scraper" element={<AdminGuard requiredRole="admin"><AdminRosterScraper /></AdminGuard>} />
             <Route path="/admin/url-discovery" element={<AdminGuard requiredRole="admin"><AdminUrlDiscovery /></AdminGuard>} />
+            <Route path="/admin/deliverability" element={<AdminGuard requiredRole="admin"><AdminDeliverability /></AdminGuard>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

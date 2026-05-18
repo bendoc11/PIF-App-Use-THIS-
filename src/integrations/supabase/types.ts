@@ -1312,6 +1312,89 @@ export type Database = {
           },
         ]
       }
+      test_contacts: {
+        Row: {
+          added_by: string | null
+          created_at: string
+          email: string
+          id: string
+          last_replied_at: string | null
+          name: string
+          notes: string | null
+          times_emailed: number
+        }
+        Insert: {
+          added_by?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          last_replied_at?: string | null
+          name: string
+          notes?: string | null
+          times_emailed?: number
+        }
+        Update: {
+          added_by?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          last_replied_at?: string | null
+          name?: string
+          notes?: string | null
+          times_emailed?: number
+        }
+        Relationships: []
+      }
+      test_email_sends: {
+        Row: {
+          body_preview: string | null
+          contact_id: string | null
+          id: string
+          recipient_email: string
+          recipient_name: string | null
+          replied: boolean
+          replied_at: string | null
+          sent_at: string
+          sent_by: string | null
+          subject: string | null
+          template: string
+        }
+        Insert: {
+          body_preview?: string | null
+          contact_id?: string | null
+          id?: string
+          recipient_email: string
+          recipient_name?: string | null
+          replied?: boolean
+          replied_at?: string | null
+          sent_at?: string
+          sent_by?: string | null
+          subject?: string | null
+          template: string
+        }
+        Update: {
+          body_preview?: string | null
+          contact_id?: string | null
+          id?: string
+          recipient_email?: string
+          recipient_name?: string | null
+          replied?: boolean
+          replied_at?: string | null
+          sent_at?: string
+          sent_by?: string | null
+          subject?: string | null
+          template?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_email_sends_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "test_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       training_logs: {
         Row: {
           created_at: string

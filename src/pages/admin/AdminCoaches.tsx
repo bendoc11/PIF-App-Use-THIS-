@@ -145,6 +145,21 @@ export default function AdminCoaches() {
   const handleDelete = async () => {
     if (!deleteTarget) return;
     setDeleting(true);
+    // Detach references first so the FK constraints don't block deletion.
+    const detachCourses = await supabase
+      .from("courses")
+      .update({ coach_id: null } as any)
+      .eq("coach_id", deleteTarget.id);
+    const detachDrills = await supabase
+      .from("drills")
+      .update({ coach_id: null } as any)
+      .eq("coach_id", deleteTarget.id);
+    const refErr = detachCourses.error || detachDrills.error;
+    if (refErr) {
+      toast({ title: "Error deleting coach", description: refErr.message, variant: "destructive" });
+      setDeleting(false);
+      return;
+    }
     const { error } = await supabase.from("coaches").delete().eq("id", deleteTarget.id);
     if (error) {
       toast({ title: "Error deleting coach", description: error.message, variant: "destructive" });

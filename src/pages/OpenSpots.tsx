@@ -18,7 +18,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { normalizeDivision } from "@/data/mockSchools";
+import { normalizeDivision, MockSchool, MockCoach, Division, stateToCode } from "@/data/mockSchools";
+import { QuickSendSheet } from "@/components/recruit/QuickSendSheet";
+import { Check } from "lucide-react";
 
 const SF = "'Plus Jakarta Sans', -apple-system, system-ui, sans-serif";
 
@@ -240,6 +242,20 @@ export default function OpenSpots() {
   const [rosterModal, setRosterModal] = useState<SpotCard | null>(null);
   const [rosterRows, setRosterRows] = useState<RosterRow[]>([]);
   const [rosterLoading, setRosterLoading] = useState(false);
+  const [quickSend, setQuickSend] = useState<MockSchool | null>(null);
+  const [contactedNames, setContactedNames] = useState<Set<string>>(new Set());
+
+  // Load names of schools the athlete has already contacted (for the
+  // "Messaged" badge + de-dupe), and refresh when QuickSendSheet sends.
+  const loadContacted = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("outreach_history")
+      .select("school_name")
+      .eq("user_id", user.id);
+    setContactedNames(new Set((data || []).map((r: any) => r.school_name).filter(Boolean)));
+  };
+  useEffect(() => { loadContacted(); }, [user?.id]);
 
   useEffect(() => {
     if (!user) return;
@@ -392,8 +408,48 @@ export default function OpenSpots() {
     setRosterLoading(false);
   };
 
-  const messageCoach = (card: SpotCard) => {
-    navigate(`/recruit?school=${encodeURIComponent(card.school_name)}`);
+  const messageCoach = async (card: SpotCard) => {
+    // Fetch all coaches for this school from college_coaches so we can
+    // pre-populate the one-tap send sheet with the head coach.
+    const { data: rows } = await supabase
+      .from("college_coaches")
+      .select("full_name, first_name, last_name, title, email, phone, twitter_individual, instagram_individual")
+      .eq("school_name", card.school_name);
+    const coaches: MockCoach[] = (rows || [])
+      .filter((r: any) => r.email)
+      .map((r: any) => ({
+        name: (r.full_name || `${r.first_name ?? ""} ${r.last_name ?? ""}`).trim() || "Coach",
+        title: r.title || "Coach",
+        email: r.email,
+        phone: r.phone ?? undefined,
+        twitter: r.twitter_individual ?? undefined,
+        instagram: r.instagram_individual ?? undefined,
+      }));
+    // Sort head coaches first so QuickSendSheet's defaultCoach picks them.
+    coaches.sort((a, b) => {
+      const ah = /head/i.test(a.title) ? 0 : 1;
+      const bh = /head/i.test(b.title) ? 0 : 1;
+      return ah - bh;
+    });
+    const div = (normalizeDivision(card.division) || "D1").toUpperCase() as Division;
+    const school: MockSchool = {
+      id: card.school_name,
+      name: card.school_name,
+      city: card.city || "",
+      state: card.state || "",
+      stateCode: stateToCode(card.state || ""),
+      coordinates: [0, 0],
+      division: (["D1","D2","D3","JUCO","NAIA"].includes(div) ? div : "D1") as Division,
+      academicLevel: "Good",
+      enrollment: parseEnrollment(card.undergrad_enrollment) ?? 0,
+      size: "Medium",
+      avgGpa: null,
+      conference: card.conference,
+      coaches,
+      logoUrl: card.logo_url,
+      rosterUrl: card.roster_url,
+    };
+    setQuickSend(school);
   };
 
   return (
@@ -609,13 +665,31 @@ export default function OpenSpots() {
                       </div>
 
                       <div className="mt-4 space-y-2">
-                        <Button
-                          onClick={() => messageCoach(card)}
-                          className="w-full text-white border-0"
-                          style={{ background: "#dc2626" }}
-                        >
-                          Message Coach
-                        </Button>
+                        {contactedNames.has(card.school_name) ? (
+                          <div
+                            className="w-full inline-flex items-center justify-center gap-2 rounded-md"
+                            style={{
+                              background: "rgba(34,197,94,0.12)",
+                              border: "1px solid rgba(34,197,94,0.30)",
+                              color: "#4ade80",
+                              fontFamily: SF,
+                              fontWeight: 600,
+                              fontSize: 13,
+                              padding: "10px 14px",
+                            }}
+                          >
+                            <Check className="h-4 w-4" strokeWidth={2.5} />
+                            Messaged
+                          </div>
+                        ) : (
+                          <Button
+                            onClick={() => messageCoach(card)}
+                            className="w-full text-white border-0"
+                            style={{ background: "#dc2626" }}
+                          >
+                            Message Coach
+                          </Button>
+                        )}
                         <Button
                           onClick={() => openRoster(card)}
                           variant="ghost"
@@ -710,6 +784,21 @@ export default function OpenSpots() {
           )}
         </DialogContent>
       </Dialog>
+
+      <QuickSendSheet
+        open={!!quickSend}
+        school={quickSend}
+        onClose={() => setQuickSend(null)}
+        onSent={async () => { await loadContacted(); }}
+        onAdvance={() => null}
+        onEditFirst={() => {
+          // Editing from Open Spots routes to full composer on the Recruit page.
+          if (quickSend) {
+            navigate(`/recruit?school=${encodeURIComponent(quickSend.name)}`);
+          }
+          setQuickSend(null);
+        }}
+      />
     </AppLayout>
   );
 }

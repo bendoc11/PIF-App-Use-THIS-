@@ -141,6 +141,10 @@ function groupRowsToSchools(rows: CoachRow[]): MockSchool[] {
       map.set(key, school);
     }
 
+    // Backfill logo/roster on the school from any row that has them
+    if (!school.logoUrl && r.logo_url) school.logoUrl = r.logo_url;
+    if (!school.rosterUrl && r.roster_url) school.rosterUrl = r.roster_url;
+
     const rawName =
       r.full_name ||
       [r.first_name, r.last_name].filter(Boolean).join(" ") ||

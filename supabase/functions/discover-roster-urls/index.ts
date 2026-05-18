@@ -298,24 +298,35 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Get distinct pending school names (limit 10).
-    // distinct() isn't directly available — fetch with limit and dedupe.
-    const { data: rows, error } = await supabase
-      .from('college_coaches')
-      .select('school_name')
-      .eq('roster_url_status', 'pending')
-      .not('school_name', 'is', null)
-      .limit(10000);
-    if (error) throw new Error(error.message);
+    // Default batch processor. When auto=true, automatically falls back to
+    // retrying 'failed' schools once 'pending' is empty, and self-unschedules
+    // the cron job once both queues are drained.
+    const batchSize = Math.max(1, Math.min(Number(body?.batch_size ?? 10), 50));
 
-    const seen = new Set<string>();
-    const schools: string[] = [];
-    for (const r of rows ?? []) {
-      const n = (r as any).school_name?.trim();
-      if (!n || seen.has(n)) continue;
-      seen.add(n);
-      schools.push(n);
-      if (schools.length >= 10) break;
+    async function fetchDistinct(status: 'pending' | 'failed'): Promise<string[]> {
+      const { data } = await supabase
+        .from('college_coaches')
+        .select('school_name')
+        .eq('roster_url_status', status)
+        .not('school_name', 'is', null)
+        .limit(10000);
+      const seen = new Set<string>();
+      const out: string[] = [];
+      for (const r of data ?? []) {
+        const n = (r as any).school_name?.trim();
+        if (!n || seen.has(n)) continue;
+        seen.add(n);
+        out.push(n);
+        if (out.length >= batchSize) break;
+      }
+      return out;
+    }
+
+    let mode: 'pending' | 'failed' = 'pending';
+    let schools = await fetchDistinct('pending');
+    if (schools.length === 0 && isAuto) {
+      mode = 'failed';
+      schools = await fetchDistinct('failed');
     }
 
     const log: any[] = [];
@@ -335,7 +346,7 @@ Deno.serve(async (req) => {
       }
 
       if (!foundUrl) {
-        const guessed = await aiGuessUrl(school);
+        const guessed = await aiGuessUrl(school, mode === 'failed');
         if (guessed && (await firecrawlValidate(guessed))) {
           foundUrl = guessed;
           method = 'ai';
@@ -343,11 +354,10 @@ Deno.serve(async (req) => {
       }
 
       if (foundUrl) {
-        const { error: upErr } = await supabase
+        await supabase
           .from('college_coaches')
           .update({ roster_url: foundUrl, roster_url_status: 'confirmed' })
           .eq('school_name', school);
-        if (upErr) console.error('update err', school, upErr);
         confirmed++;
         log.push({ school, status: 'confirmed', url: foundUrl, method });
       } else {
@@ -360,7 +370,17 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Distinct pending school count remaining
+    // Log this run
+    if (isAuto || schools.length > 0) {
+      await supabase.from('discovery_logs').insert({
+        schools_processed: schools.length,
+        confirmed,
+        failed,
+        mode,
+      });
+    }
+
+    // Counts after this batch
     const { data: pendRows } = await supabase
       .from('college_coaches')
       .select('school_name')
@@ -369,13 +389,31 @@ Deno.serve(async (req) => {
       .limit(20000);
     const pendingCount = new Set((pendRows ?? []).map((r: any) => r.school_name?.trim()).filter(Boolean)).size;
 
+    const { data: failRows } = await supabase
+      .from('college_coaches')
+      .select('school_name')
+      .eq('roster_url_status', 'failed')
+      .not('school_name', 'is', null)
+      .limit(20000);
+    const failedCount = new Set((failRows ?? []).map((r: any) => r.school_name?.trim()).filter(Boolean)).size;
+
+    let cron_unscheduled = false;
+    if (isAuto && pendingCount === 0 && failedCount === 0) {
+      const { data: unsch } = await supabase.rpc('auto_unschedule_discovery');
+      cron_unscheduled = Boolean(unsch);
+      console.log('auto-discovery complete, cron unscheduled:', cron_unscheduled);
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
+        mode,
         schools_processed: schools.length,
         urls_confirmed: confirmed,
         urls_failed: failed,
-        urls_pending: pendingCount ?? 0,
+        urls_pending: pendingCount,
+        urls_failed_total: failedCount,
+        cron_unscheduled,
         log,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },

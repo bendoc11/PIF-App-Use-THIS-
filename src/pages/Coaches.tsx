@@ -40,8 +40,8 @@ export default function Coaches() {
     fetchCoaches();
   }, []);
 
-  const openCalendly = (url: string | null) => {
-    window.open(url || DEFAULT_CALENDLY, "_blank", "noopener,noreferrer");
+  const openCalendly = (_url?: string | null) => {
+    window.open(DEFAULT_CALENDLY, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -68,7 +68,7 @@ export default function Coaches() {
         <div>
           <h1 className="text-3xl font-heading text-foreground">OUR TEAM</h1>
           <p className="text-muted-foreground mt-1">
-            Former D1 players and coaches personally invested in your athlete's recruiting success.
+            Book a free assessment with our staff — we'll evaluate your athlete and match them with the right programs.
           </p>
         </div>
 
@@ -114,10 +114,10 @@ export default function Coaches() {
                     <p className="text-sm text-muted-foreground line-clamp-3 flex-1">{coach.bio}</p>
                   )}
                   <Button
-                    onClick={() => openCalendly(coach.calendly_url)}
+                    onClick={() => openCalendly()}
                     className="w-full bg-pif-red hover:bg-pif-red/90 text-white mt-auto"
                   >
-                    <Calendar className="h-4 w-4 mr-1.5" /> Book a Free Call
+                    <Calendar className="h-4 w-4 mr-1.5" /> Book a Free Assessment
                   </Button>
                 </CardContent>
               </Card>

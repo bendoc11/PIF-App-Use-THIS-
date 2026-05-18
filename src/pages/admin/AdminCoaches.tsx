@@ -23,6 +23,8 @@ interface Coach {
   bio: string | null;
   avatar_url: string | null;
   initials: string | null;
+  calendly_url?: string | null;
+  credential_badge?: string | null;
 }
 
 export default function AdminCoaches() {
@@ -30,7 +32,7 @@ export default function AdminCoaches() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Coach | null>(null);
   const [isNew, setIsNew] = useState(false);
-  const [form, setForm] = useState({ name: "", school: "", position: "", focus_area: "", bio: "" });
+  const [form, setForm] = useState({ name: "", school: "", position: "", focus_area: "", bio: "", calendly_url: "", credential_badge: "" });
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Coach | null>(null);
@@ -40,7 +42,7 @@ export default function AdminCoaches() {
     setLoading(true);
     const { data, error } = await supabase
       .from("coaches")
-      .select("id, name, school, position, focus_area, bio, avatar_url, initials, sort_order")
+      .select("id, name, school, position, focus_area, bio, avatar_url, initials, sort_order, calendly_url, credential_badge" as any)
       .order("sort_order")
       .order("name");
     if (error) {
@@ -71,6 +73,8 @@ export default function AdminCoaches() {
       position: coach.position || "",
       focus_area: coach.focus_area || "",
       bio: coach.bio || "",
+      calendly_url: coach.calendly_url || "",
+      credential_badge: coach.credential_badge || "",
     });
   };
 
@@ -87,7 +91,7 @@ export default function AdminCoaches() {
     };
     setIsNew(true);
     setEditing(blank);
-    setForm({ name: "", school: "", position: "", focus_area: "", bio: "" });
+    setForm({ name: "", school: "", position: "", focus_area: "", bio: "", calendly_url: "", credential_badge: "" });
   };
 
   const handleSave = async () => {
@@ -107,7 +111,9 @@ export default function AdminCoaches() {
         focus_area: form.focus_area || null,
         bio: form.bio || null,
         initials,
-      }).select().single();
+        calendly_url: form.calendly_url || null,
+        credential_badge: form.credential_badge || null,
+      } as any).select().single();
       if (error) {
         toast({ title: "Error creating coach", description: error.message, variant: "destructive" });
       } else {
@@ -123,7 +129,9 @@ export default function AdminCoaches() {
         position: form.position || null,
         focus_area: form.focus_area || null,
         bio: form.bio || null,
-      }).eq("id", editing.id);
+        calendly_url: form.calendly_url || null,
+        credential_badge: form.credential_badge || null,
+      } as any).eq("id", editing.id);
       if (error) {
         toast({ title: "Error saving", description: error.message, variant: "destructive" });
       } else {
@@ -310,6 +318,14 @@ export default function AdminCoaches() {
               <div className="space-y-1">
                 <label className="text-xs text-muted-foreground">Bio</label>
                 <Textarea value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} placeholder="Write a short bio..." rows={3} className="bg-muted border-border text-sm" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Credential Badge</label>
+                <Input value={form.credential_badge} onChange={(e) => setForm({ ...form, credential_badge: e.target.value })} placeholder="e.g. D1 Athlete · Notre Dame" className="bg-muted border-border text-sm" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Calendly URL</label>
+                <Input value={form.calendly_url} onChange={(e) => setForm({ ...form, calendly_url: e.target.value })} placeholder="https://calendly.com/..." className="bg-muted border-border text-sm" />
               </div>
 
               {isNew && (

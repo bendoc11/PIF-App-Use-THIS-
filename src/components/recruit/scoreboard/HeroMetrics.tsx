@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Star, Flame, Trophy, Mail } from "lucide-react";
+import { Star, Flame, Trophy, Mail, ArrowRight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface BookmarkedSchool {

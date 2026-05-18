@@ -18,7 +18,8 @@ import StepStory from "@/components/onboarding/recruit/StepStory";
 import StepPhoto from "@/components/onboarding/recruit/StepPhoto";
 import StepPrefs, { PrefsData } from "@/components/onboarding/recruit/StepPrefs";
 import StepFilm from "@/components/onboarding/recruit/StepFilm";
-import StepPreview from "@/components/onboarding/recruit/StepPreview";
+import StepMatchReveal from "@/components/onboarding/recruit/StepMatchReveal";
+import StepFirstMessage from "@/components/onboarding/recruit/StepFirstMessage";
 import StepTerms from "@/components/onboarding/recruit/StepTerms";
 
 const TOTAL_STEPS = 9;

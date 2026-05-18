@@ -22,7 +22,7 @@ import StepMatchReveal from "@/components/onboarding/recruit/StepMatchReveal";
 import StepFirstMessage from "@/components/onboarding/recruit/StepFirstMessage";
 import StepTerms from "@/components/onboarding/recruit/StepTerms";
 
-const TOTAL_STEPS = 11;
+const TOTAL_STEPS = 10;
 const TERMS_VERSION = "2026-05-14";
 
 // Field weights drive the live profile completion percentage.

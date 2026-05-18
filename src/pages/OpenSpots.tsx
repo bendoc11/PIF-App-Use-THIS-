@@ -784,6 +784,21 @@ export default function OpenSpots() {
           )}
         </DialogContent>
       </Dialog>
+
+      <QuickSendSheet
+        open={!!quickSend}
+        school={quickSend}
+        onClose={() => setQuickSend(null)}
+        onSent={async () => { await loadContacted(); }}
+        onAdvance={() => null}
+        onEditFirst={() => {
+          // Editing from Open Spots routes to full composer on the Recruit page.
+          if (quickSend) {
+            navigate(`/recruit?school=${encodeURIComponent(quickSend.name)}`);
+          }
+          setQuickSend(null);
+        }}
+      />
     </AppLayout>
   );
 }

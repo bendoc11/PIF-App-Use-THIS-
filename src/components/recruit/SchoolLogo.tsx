@@ -38,31 +38,89 @@ export function SchoolLogo({ logoUrl, rosterUrl, name, size = 48, radius = 8 }: 
   }, [logoUrl, rosterUrl, name]);
 
   const [idx, setIdx] = useState(0);
-  useEffect(() => setIdx(0), [candidates.join("|")]);
+  const [loaded, setLoaded] = useState(false);
 
-  const src = candidates[idx];
+  useEffect(() => {
+    setIdx(0);
+    setLoaded(false);
+  }, [candidates.join("|")]);
+
+  // 2-second timeout per candidate
+  useEffect(() => {
+    if (loaded) return;
+    if (idx >= candidates.length) return;
+    const t = window.setTimeout(() => {
+      setIdx((i) => (i === idx ? i + 1 : i));
+    }, 2000);
+    return () => window.clearTimeout(t);
+  }, [idx, loaded, candidates.length]);
+
   const dimStyle = { width: size, height: size, borderRadius: radius };
 
-  if (!src) {
-    return (
-      <div
-        className="flex items-center justify-center text-white font-semibold shrink-0"
-        style={{ ...dimStyle, fontFamily: SF, background: "#0F1A2E", fontSize: Math.round(size * 0.42) }}
+  const fallback = (
+    <div
+      className="shrink-0 flex items-center justify-center"
+      style={{
+        ...dimStyle,
+        background: "linear-gradient(135deg, #0B1220 0%, #1A2740 100%)",
+        border: "1px solid rgba(255,255,255,0.20)",
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
+      }}
+    >
+      <span
+        style={{
+          fontFamily: SF,
+          fontWeight: 700,
+          color: "#FFFFFF",
+          fontSize: Math.round(size * 0.46),
+          lineHeight: 1,
+        }}
       >
         {(name || "?").charAt(0).toUpperCase()}
-      </div>
-    );
-  }
+      </span>
+    </div>
+  );
+
+  const exhausted = idx >= candidates.length;
+  if (exhausted) return fallback;
+
+  const src = candidates[idx];
   return (
     <div
-      className="overflow-hidden shrink-0 flex items-center justify-center"
-      style={{ ...dimStyle, background: "rgba(255,255,255,0.05)" }}
+      className="shrink-0 relative overflow-hidden flex items-center justify-center"
+      style={{
+        ...dimStyle,
+        background: loaded
+          ? "rgba(255,255,255,0.05)"
+          : "linear-gradient(135deg, #0B1220 0%, #1A2740 100%)",
+        border: loaded ? "none" : "1px solid rgba(255,255,255,0.20)",
+      }}
     >
+      {!loaded && (
+        <span
+          aria-hidden
+          className="absolute inset-0 animate-pulse"
+          style={{
+            background:
+              "linear-gradient(90deg, rgba(255,255,255,0.00) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.00) 100%)",
+          }}
+        />
+      )}
       <img
         src={src}
         alt={`${name} logo`}
-        className="w-full h-full object-contain"
+        className="w-full h-full object-contain relative"
         loading="lazy"
+        style={{ opacity: loaded ? 1 : 0, transition: "opacity 200ms" }}
+        onLoad={(e) => {
+          const img = e.currentTarget;
+          // Some endpoints return a 1x1 transparent or tiny placeholder
+          if (img.naturalWidth < 8 || img.naturalHeight < 8) {
+            setIdx((i) => i + 1);
+            return;
+          }
+          setLoaded(true);
+        }}
         onError={() => setIdx((i) => i + 1)}
       />
     </div>

@@ -1523,6 +1523,7 @@ export type Database = {
       }
       admin_pause_discovery_cron: { Args: never; Returns: boolean }
       admin_resume_discovery_cron: { Args: never; Returns: boolean }
+      auto_unschedule_discovery: { Args: never; Returns: boolean }
       generate_email_alias: {
         Args: { _first: string; _grad: number; _last: string }
         Returns: string

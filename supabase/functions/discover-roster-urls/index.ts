@@ -7,21 +7,25 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 const ROSTER_KEYWORDS = ['roster', 'player', 'height', 'position', 'guard', 'forward', 'center'];
+const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? Deno.env.get('SUPABASE_PUBLISHABLE_KEY') ?? '';
 
-async function requireAdmin(req: Request, supabase: ReturnType<typeof createClient>) {
+async function isAuthorized(req: Request, supabase: ReturnType<typeof createClient>, auto: boolean): Promise<boolean> {
   const authHeader = req.headers.get('Authorization') ?? '';
   const token = authHeader.replace('Bearer ', '').trim();
-  if (!token) throw new Error('Not authenticated');
+  if (!token) return false;
 
+  // Allow cron/automated invocations using the service-role or anon key.
+  if (auto && (token === SUPABASE_SERVICE_ROLE_KEY || token === SUPABASE_ANON_KEY)) return true;
+
+  // Otherwise require an authenticated admin user.
   const { data: userData, error: userErr } = await supabase.auth.getUser(token);
-  if (userErr || !userData.user) throw new Error('Not authenticated');
-
-  const { data: profile, error: profileErr } = await supabase
+  if (userErr || !userData.user) return false;
+  const { data: profile } = await supabase
     .from('profiles')
     .select('role')
     .eq('id', userData.user.id)
     .maybeSingle();
-  if (profileErr || profile?.role !== 'admin') throw new Error('Admin access required');
+  return profile?.role === 'admin';
 }
 
 function slugify(name: string): string {

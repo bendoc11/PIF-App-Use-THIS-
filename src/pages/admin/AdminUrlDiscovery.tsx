@@ -244,6 +244,14 @@ export default function AdminUrlDiscovery() {
     fetchStats();
     fetchFailed();
     fetchRosterStats();
+    fetchCronStatus();
+    fetchRecentRuns();
+    const interval = setInterval(() => {
+      fetchCronStatus();
+      fetchRecentRuns();
+      fetchStats();
+    }, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const runBatch = async (): Promise<number> => {

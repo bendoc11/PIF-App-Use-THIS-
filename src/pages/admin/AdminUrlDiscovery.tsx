@@ -72,6 +72,61 @@ export default function AdminUrlDiscovery() {
   const [togglingCron, setTogglingCron] = useState(false);
   const [recentRuns, setRecentRuns] = useState<DiscoveryLog[]>([]);
 
+  // Logo population
+  const [logoStats, setLogoStats] = useState<{ has_logo: number; no_logo: number; total: number } | null>(null);
+  const [logoRunning, setLogoRunning] = useState(false);
+  const [logoProgress, setLogoProgress] = useState<{ processed: number; updated: number; remaining: number } | null>(null);
+  const [logoLog, setLogoLog] = useState<Array<{ school: string; logo_url: string | null }>>([]);
+
+  const fetchLogoStats = async () => {
+    const { data } = await supabase
+      .from("college_coaches")
+      .select("school_name, logo_url");
+    if (!data) return;
+    const map = new Map<string, string | null>();
+    for (const r of data as Array<{ school_name: string | null; logo_url: string | null }>) {
+      if (!r.school_name) continue;
+      if (!map.has(r.school_name)) map.set(r.school_name, r.logo_url);
+      else if (!map.get(r.school_name) && r.logo_url) map.set(r.school_name, r.logo_url);
+    }
+    let has = 0, no = 0;
+    for (const v of map.values()) (v && v.length > 0 ? has++ : no++);
+    setLogoStats({ has_logo: has, no_logo: no, total: map.size });
+  };
+
+  const runLogoPopulation = async () => {
+    setLogoRunning(true);
+    setLogoLog([]);
+    setLogoProgress(null);
+    try {
+      let totalProcessed = 0;
+      let totalUpdated = 0;
+      // Loop until backend reports nothing left or no progress in a batch
+      // Safety cap: 200 iterations
+      for (let i = 0; i < 200; i++) {
+        const { data, error } = await supabase.functions.invoke("populate-school-logos", {
+          body: { batch_size: 20 },
+        });
+        if (error) {
+          toast({ title: "Batch failed", description: error.message, variant: "destructive" });
+          break;
+        }
+        const res = data as { processed: number; updated: number; remaining: number; results: Array<{ school: string; logo_url: string | null }> };
+        totalProcessed += res.processed || 0;
+        totalUpdated += res.updated || 0;
+        setLogoProgress({ processed: totalProcessed, updated: totalUpdated, remaining: res.remaining });
+        setLogoLog((prev) => [...res.results, ...prev].slice(0, 100));
+        if (!res.processed || res.processed === 0) break;
+        if (res.remaining <= 0) break;
+        await new Promise((r) => setTimeout(r, 500));
+      }
+      toast({ title: "Logo population complete", description: `Updated ${totalUpdated} schools` });
+      await fetchLogoStats();
+    } finally {
+      setLogoRunning(false);
+    }
+  };
+
   const fetchCronStatus = async () => {
     const { data } = await supabase.rpc("admin_get_cron_jobs", {
       _names: ["roster-url-discovery", "weekly-roster-refresh"],

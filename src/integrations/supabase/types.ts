@@ -56,7 +56,9 @@ export type Database = {
           avatar_text_color: string | null
           avatar_url: string | null
           bio: string | null
+          calendly_url: string | null
           created_at: string
+          credential_badge: string | null
           focus_area: string | null
           id: string
           initials: string | null
@@ -70,7 +72,9 @@ export type Database = {
           avatar_text_color?: string | null
           avatar_url?: string | null
           bio?: string | null
+          calendly_url?: string | null
           created_at?: string
+          credential_badge?: string | null
           focus_area?: string | null
           id?: string
           initials?: string | null
@@ -84,7 +88,9 @@ export type Database = {
           avatar_text_color?: string | null
           avatar_url?: string | null
           bio?: string | null
+          calendly_url?: string | null
           created_at?: string
+          credential_badge?: string | null
           focus_area?: string | null
           id?: string
           initials?: string | null

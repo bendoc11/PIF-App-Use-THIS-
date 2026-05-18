@@ -18,10 +18,11 @@ import StepStory from "@/components/onboarding/recruit/StepStory";
 import StepPhoto from "@/components/onboarding/recruit/StepPhoto";
 import StepPrefs, { PrefsData } from "@/components/onboarding/recruit/StepPrefs";
 import StepFilm from "@/components/onboarding/recruit/StepFilm";
-import StepPreview from "@/components/onboarding/recruit/StepPreview";
+import StepMatchReveal from "@/components/onboarding/recruit/StepMatchReveal";
+import StepFirstMessage from "@/components/onboarding/recruit/StepFirstMessage";
 import StepTerms from "@/components/onboarding/recruit/StepTerms";
 
-const TOTAL_STEPS = 9;
+const TOTAL_STEPS = 10;
 const TERMS_VERSION = "2026-05-14";
 
 // Field weights drive the live profile completion percentage.
@@ -346,7 +347,7 @@ export default function Onboarding() {
     } catch {}
   };
 
-  const handleFinish = async () => {
+  const handleFinish = async (sentFirstMessage: boolean = false) => {
     if (!user || saving) return;
     setSaving(true);
     try {
@@ -355,13 +356,16 @@ export default function Onboarding() {
       setSaving(false);
       return;
     }
-    // CRITICAL: wait for the in-memory profile to reflect
-    // onboarding_completed=true BEFORE navigating. Otherwise AuthGuard sees
-    // stale state and bounces the user right back to /onboarding.
     try {
       await refreshProfile();
     } catch {}
-    navigate("/dashboard", { replace: true });
+    if (sentFirstMessage) {
+      const msg =
+        "Your first message is on its way. Coaches typically respond within 3-7 days — keep your inbox ready.";
+      navigate(`/recruit?welcome=${encodeURIComponent(msg)}`, { replace: true });
+    } else {
+      navigate("/recruit", { replace: true });
+    }
   };
 
   // Sport gate: shown before the normal onboarding flow whenever the
@@ -438,10 +442,11 @@ export default function Onboarding() {
               />
             )}
             {step === 6 && <StepPrefs initial={prefs} onNext={handlePrefs} />}
-            {step === 7 && (
+            {step === 7 && <StepMatchReveal prefs={prefs} onNext={advance} />}
+            {step === 8 && (
               <StepFilm initial={film} onNext={handleFilm} onSkip={advance} />
             )}
-            {step === 8 && (
+            {step === 9 && (
               <StepTerms
                 onAgree={async () => {
                   try {
@@ -454,22 +459,10 @@ export default function Onboarding() {
                 }}
               />
             )}
-            {step === 9 && (
-              <StepPreview
-                data={{
-                  firstName: basic.firstName,
-                  lastName: basic.lastName,
-                  position: athletic.positions[0] || "",
-                  height: athletic.feet && athletic.inches !== "" ? `${athletic.feet}'${athletic.inches}"` : "",
-                  city: basic.city,
-                  state: basic.state,
-                  gradYear: basic.gradYear,
-                  gpa: academic.gpa,
-                  avatarUrl,
-                  identifier,
-                  completion,
-                }}
-                onFinish={handleFinish}
+            {step === 10 && (
+              <StepFirstMessage
+                onSent={() => handleFinish(true)}
+                onSkip={() => handleFinish(false)}
               />
             )}
           </motion.div>

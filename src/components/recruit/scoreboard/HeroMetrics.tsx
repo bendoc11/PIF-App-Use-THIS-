@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Star, Flame, Trophy, Mail } from "lucide-react";
+import { Star, Flame, Trophy, Mail, ArrowRight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface BookmarkedSchool {
@@ -18,6 +18,7 @@ interface Props {
   weeklyGoal: number;
   weeklySent: number;
   bookmarkedSchools?: BookmarkedSchool[];
+  onSendFirstMessage?: () => void;
 }
 
 export function HeroMetrics({
@@ -28,6 +29,7 @@ export function HeroMetrics({
   weeklyGoal,
   weeklySent,
   bookmarkedSchools = [],
+  onSendFirstMessage,
 }: Props) {
   const [showList, setShowList] = useState(false);
   const remaining = Math.max(0, weeklyGoal - weeklySent);
@@ -37,8 +39,69 @@ export function HeroMetrics({
 
   return (
     <div className="mb-5">
-      {/* HERO — Coach Interest. Dark card, red typographic hero. */}
-      <div
+      {coachesMessaged === 0 ? (
+        // Zero-state prompt — replaces Coach Interest until first send
+        <div
+          style={{
+            background: "var(--bg-card)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderLeft: "4px solid hsl(var(--pif-red))",
+            borderRadius: 12,
+            padding: "22px 24px",
+            marginBottom: 12,
+            fontFamily: SF,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: "0.1em",
+              color: "hsl(var(--pif-red))",
+              textTransform: "uppercase",
+              marginBottom: 10,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <Mail className="h-3.5 w-3.5" /> Send Your First Message
+          </div>
+          <p
+            style={{
+              fontSize: 18,
+              fontWeight: 600,
+              color: "rgba(255,255,255,0.92)",
+              lineHeight: 1.35,
+              marginBottom: 18,
+            }}
+          >
+            Start your recruiting journey — send your first message to a coach today.
+          </p>
+          <button
+            onClick={onSendFirstMessage}
+            className="inline-flex items-center text-white"
+            style={{
+              padding: "11px 20px",
+              gap: 8,
+              fontFamily: SF,
+              fontWeight: 600,
+              fontSize: 14,
+              borderRadius: 10,
+              background: "linear-gradient(180deg, #FF3D2E 0%, #C8261A 100%)",
+              boxShadow:
+                "inset 0 1px 0 hsla(0, 0%, 100%, 0.20), 0 1px 2px hsla(0, 0%, 0%, 0.15)",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            <Mail strokeWidth={1.75} className="h-4 w-4" />
+            Message a Coach
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
+      ) : (
+        <div
         style={{
           background: "var(--bg-card)",
           border: "1px solid rgba(255,255,255,0.08)",
@@ -123,7 +186,8 @@ export function HeroMetrics({
             ? "Coaches are responding to you. This is real recruiting interest — keep building on it."
             : "Your first reply will land here. Stay consistent — coaches respond to athletes who keep showing up."}
         </p>
-      </div>
+        </div>
+      )}
 
       {/* Secondary row — three smaller stats */}
       <div className="grid grid-cols-3 gap-2.5">

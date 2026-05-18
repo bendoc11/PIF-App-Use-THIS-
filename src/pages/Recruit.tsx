@@ -424,6 +424,7 @@ export default function Recruit() {
                     weeklyGoal={WEEKLY_GOAL}
                     weeklySent={weeklySent}
                     bookmarkedSchools={bookmarkedSchools}
+                    onSendFirstMessage={() => guardMessage(() => setView({ kind: "compose-pick" }))}
                   />
 
                   {!loading && !error && (

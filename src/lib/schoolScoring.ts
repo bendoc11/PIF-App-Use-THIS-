@@ -91,9 +91,18 @@ export function scoreSchool(school: MockSchool, ctx: ScoringContext): ScoreBreak
 
 export function sortSchoolsByRelevance(schools: MockSchool[], ctx: ScoringContext): MockSchool[] {
   const scored = schools.map((s) => ({ s, b: scoreSchool(s, ctx) }));
+  const hasDivPref =
+    !!ctx.targetDivision &&
+    ctx.targetDivision !== "Any" &&
+    ctx.targetDivision !== "Open to all";
   scored.sort((a, b) => {
+    // PRIMARY: division match. When the athlete has selected a target division,
+    // matching programs always outrank non-matching, regardless of other signals.
+    // Guarantees a D1-preferring athlete never sees a NAIA/JUCO as #1.
+    if (hasDivPref && a.b.divisionMatch !== b.b.divisionMatch) {
+      return a.b.divisionMatch ? -1 : 1;
+    }
     if (b.b.total !== a.b.total) return b.b.total - a.b.total;
-    // Tiebreaker: more seniors graduating, then juniors, then alpha
     const ai = a.b.intel; const bi = b.b.intel;
     const aSr = ai?.seniors ?? 0; const bSr = bi?.seniors ?? 0;
     if (bSr !== aSr) return bSr - aSr;

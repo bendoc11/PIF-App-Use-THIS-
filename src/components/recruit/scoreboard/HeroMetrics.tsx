@@ -18,6 +18,7 @@ interface Props {
   weeklyGoal: number;
   weeklySent: number;
   bookmarkedSchools?: BookmarkedSchool[];
+  onSendFirstMessage?: () => void;
 }
 
 export function HeroMetrics({
@@ -28,6 +29,7 @@ export function HeroMetrics({
   weeklyGoal,
   weeklySent,
   bookmarkedSchools = [],
+  onSendFirstMessage,
 }: Props) {
   const [showList, setShowList] = useState(false);
   const remaining = Math.max(0, weeklyGoal - weeklySent);

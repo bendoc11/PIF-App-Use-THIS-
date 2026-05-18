@@ -464,6 +464,33 @@ export type Database = {
           },
         ]
       }
+      discovery_logs: {
+        Row: {
+          confirmed: number
+          failed: number
+          id: string
+          mode: string
+          run_at: string
+          schools_processed: number
+        }
+        Insert: {
+          confirmed?: number
+          failed?: number
+          id?: string
+          mode?: string
+          run_at?: string
+          schools_processed?: number
+        }
+        Update: {
+          confirmed?: number
+          failed?: number
+          id?: string
+          mode?: string
+          run_at?: string
+          schools_processed?: number
+        }
+        Relationships: []
+      }
       drill_shot_results: {
         Row: {
           completed_at: string
@@ -1486,6 +1513,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_get_cron_jobs: {
+        Args: { _names: string[] }
+        Returns: {
+          active: boolean
+          jobname: string
+          schedule: string
+        }[]
+      }
+      admin_pause_discovery_cron: { Args: never; Returns: boolean }
+      admin_resume_discovery_cron: { Args: never; Returns: boolean }
       generate_email_alias: {
         Args: { _first: string; _grad: number; _last: string }
         Returns: string

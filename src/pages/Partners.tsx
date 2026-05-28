@@ -424,7 +424,7 @@ function FAQ() {
     },
     {
       q: "How do I get paid?",
-      a: "Via direct deposit monthly. You receive 25% of every active subscription from athletes in your network.",
+      a: "Via direct deposit monthly. You earn a flat $50 per active subscriber every month from athletes in your network.",
     },
     {
       q: "What do I need to do?",

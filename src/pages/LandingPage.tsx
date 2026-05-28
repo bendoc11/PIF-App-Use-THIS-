@@ -31,8 +31,7 @@ function Navbar() {
     <header className="sticky top-0 z-50 bg-background border-b border-border/50">
       <nav className="flex items-center justify-between px-4 md:px-6 lg:px-12 h-16 max-w-[1200px] mx-auto">
         <div className="flex items-baseline gap-1">
-          <span className="font-sans text-lg text-foreground font-medium">Play it</span>
-          <span className="font-sans text-lg font-bold text-primary">Forward</span>
+          <span className="font-sans text-lg font-bold text-primary">Offered</span>
         </div>
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((l) => (
@@ -253,8 +252,7 @@ function Footer() {
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
         <div>
           <div className="flex items-baseline gap-1 mb-4">
-            <span className="font-sans text-lg text-foreground font-medium">Play it</span>
-            <span className="font-sans text-lg font-bold text-primary">Forward</span>
+            <span className="font-sans text-lg font-bold text-primary">Offered</span>
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
             The recruiting platform built for high school athletes. Build your profile, find your schools, and email college coaches directly.

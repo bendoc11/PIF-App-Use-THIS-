@@ -196,7 +196,7 @@ export function HeroSection() {
                 </div>
 
                 {/* Floating Profile Card */}
-                <RecruitingProfileCard />
+                <SchoolMatchCard />
               </div>
             </div>
           </div>

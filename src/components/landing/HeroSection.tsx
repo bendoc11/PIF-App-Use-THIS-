@@ -195,9 +195,16 @@ export function HeroSection() {
                   />
                 </div>
 
-                {/* Floating Profile Card */}
+                {/* Floating Match Card */}
                 <SchoolMatchCard />
               </div>
+              {/* Caption below card */}
+              <p
+                className="text-center font-sans mt-10 md:mt-12"
+                style={{ color: "rgba(255,255,255,0.5)", fontSize: "12px" }}
+              >
+                ↑ 847 more programs match your profile
+              </p>
             </div>
           </div>
         </div>

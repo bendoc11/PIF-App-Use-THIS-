@@ -12,7 +12,6 @@ const adminNavItems = [
   { title: "Moderation", url: "/admin/moderation", icon: MessageSquare, roles: ["admin"] },
   { title: "Deliverability", url: "/admin/deliverability", icon: Mail, roles: ["admin"] },
 ];
-];
 
 export function AdminLayout({ children }: { children: ReactNode }) {
   const location = useLocation();

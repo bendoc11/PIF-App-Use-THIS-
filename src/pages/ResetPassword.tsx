@@ -124,7 +124,7 @@ export default function ResetPassword() {
       <div className="w-full max-w-md space-y-8">
         <div>
           <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mb-6">
-            <span className="font-heading text-xl text-primary-foreground">PIF</span>
+            <span className="font-heading text-xl text-primary-foreground">OFF</span>
           </div>
           <h1 className="text-3xl font-heading text-foreground">Set New Password</h1>
           <p className="text-muted-foreground mt-1">Enter your new password below</p>

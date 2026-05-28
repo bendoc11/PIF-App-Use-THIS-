@@ -156,7 +156,7 @@ function PublicProfileView({ profile: p }: { profile: any }) {
         )}
 
         <p className="text-center text-xs text-muted-foreground py-4">
-          Powered by <span className="text-primary font-medium">Play it Forward Basketball</span>
+          Powered by <span className="text-primary font-medium">Offered</span>
         </p>
       </div>
     </div>
@@ -418,7 +418,7 @@ export default function RecruitProfile() {
           </div>
           <Field label="USERNAME">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">playitforward.app/profile/</span>
+              <span className="text-xs text-muted-foreground">offered.pro/profile/</span>
               <Input value={form.username || ""} onChange={(e) => updateField("username", e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ""))} className="bg-muted border-border flex-1" />
             </div>
           </Field>

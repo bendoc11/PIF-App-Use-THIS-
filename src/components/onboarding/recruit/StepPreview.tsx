@@ -25,7 +25,7 @@ export default function StepPreview({
   onFinish: () => void;
 }) {
   const [copied, setCopied] = useState(false);
-  const url = useMemo(() => `https://playitforward.app/p/${data.identifier}`, [data.identifier]);
+  const url = useMemo(() => `https://offered.pro/p/${data.identifier}`, [data.identifier]);
 
   const copy = async () => {
     try {

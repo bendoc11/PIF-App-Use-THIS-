@@ -50,7 +50,7 @@ export default function Coaches() {
         <div className="sticky top-0 z-30 bg-pif-red text-white px-4 py-3 shadow-lg">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-sm font-medium text-center sm:text-left">
-              Book a free call with our staff — included with every Play it Forward subscription.
+              Book a free call with our staff — included with every Offered subscription.
             </p>
             <a
               href={STRIPE_CHECKOUT_URL}

@@ -115,7 +115,7 @@ Deno.serve(async (req) => {
     }
 
     const fromEmail = `${alias}@${ALIAS_DOMAIN}`;
-    const fromName = `${profile.first_name ?? ""} ${profile.last_name ?? ""}`.trim() || "Play it Forward Athlete";
+    const fromName = `${profile.first_name ?? ""} ${profile.last_name ?? ""}`.trim() || "Offered Athlete";
 
     const sgRes = await fetch("https://api.sendgrid.com/v3/mail/send", {
       method: "POST",

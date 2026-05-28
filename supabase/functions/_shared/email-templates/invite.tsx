@@ -28,17 +28,17 @@ export const InviteEmail = ({
 }: InviteEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>You've been invited to Play It Forward</Preview>
+    <Preview>You've been invited to Offered</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
-          <Text style={logo}>PIF</Text>
+          <Text style={logo}>OFF</Text>
         </Section>
         <Heading style={h1}>YOU'RE INVITED</Heading>
         <Text style={text}>
           You've been invited to join{' '}
           <Link href={siteUrl} style={link}>
-            <strong>Play It Forward</strong>
+            <strong>Offered</strong>
           </Link>
           . Accept the invite below and start training like the best.
         </Text>

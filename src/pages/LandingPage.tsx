@@ -213,7 +213,7 @@ function TestimonialSection() {
       <div className={`px-4 md:px-6 lg:px-12 max-w-[900px] mx-auto ${fade.className}`}>
         <div className="relative border-l-4 border-secondary pl-8 md:pl-12">
           <p className="text-lg sm:text-xl lg:text-2xl text-foreground leading-relaxed font-medium italic">
-            "I sent emails to 40 coaches in one weekend. By the next week I had three schools fly out to watch me play. Play it Forward changed everything for me — I didn't need a $3,000 recruiting service. I just needed a profile and the coaches' emails."
+            "I sent emails to 40 coaches in one weekend. By the next week I had three schools fly out to watch me play. Offered changed everything for me — I didn't need a $3,000 recruiting service. I just needed a profile and the coaches' emails."
           </p>
           <p className="text-sm font-medium text-primary mt-6 uppercase tracking-wider">
             — D1 Commit, Class of 2025
@@ -278,7 +278,7 @@ function Footer() {
         ))}
       </div>
       <div className="border-t border-border mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p className="text-xs text-muted-foreground">© 2026 Play it Forward. All rights reserved.</p>
+        <p className="text-xs text-muted-foreground">© 2026 Offered. All rights reserved.</p>
         <div className="flex gap-6">
           <Link to="/privacy" className="text-xs text-muted-foreground hover:text-secondary">Privacy</Link>
           <Link to="/terms" className="text-xs text-muted-foreground hover:text-secondary">Terms</Link>

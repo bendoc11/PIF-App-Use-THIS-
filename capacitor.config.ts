@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.playitforward.basketball',
-  appName: 'Play It Forward',
+  appName: 'Offered',
   webDir: 'dist',
   server: {
     url: 'https://playitforward.app',

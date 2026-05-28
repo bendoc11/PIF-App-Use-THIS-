@@ -27,7 +27,7 @@ function getSteps(firstName: string, goalQuote: string): TourStep[] {
   return [
     {
       type: "center",
-      headline: `WELCOME TO PLAY IT FORWARD, ${firstName.toUpperCase()}. 🏀`,
+      headline: `WELCOME TO OFFERED, ${firstName.toUpperCase()}. 🏀`,
       body: "You made a great decision. In the next 60 seconds we'll show you exactly how to use your new training system.",
       nextLabel: "SHOW ME AROUND →",
     },
@@ -279,11 +279,11 @@ export default function ProductTour() {
             }`}
             style={{ boxShadow: "0 0 40px hsl(5 78% 55% / 0.15)" }}
           >
-            {/* PIF logo on welcome */}
+            {/* OFF logo on welcome */}
             {step === 0 && (
               <div className="flex justify-center mb-4">
                 <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
-                  <span className="font-heading text-lg text-primary-foreground">PIF</span>
+                  <span className="font-heading text-lg text-primary-foreground">OFF</span>
                 </div>
               </div>
             )}

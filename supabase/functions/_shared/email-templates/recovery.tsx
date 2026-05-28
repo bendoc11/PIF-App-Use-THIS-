@@ -25,15 +25,15 @@ export const RecoveryEmail = ({
 }: RecoveryEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Reset your Play It Forward password</Preview>
+    <Preview>Reset your Offered password</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
-          <Text style={logo}>PIF</Text>
+          <Text style={logo}>OFF</Text>
         </Section>
         <Heading style={h1}>RESET YOUR PASSWORD</Heading>
         <Text style={text}>
-          We got your request to reset your Play It Forward password. Hit the button below to set a new one and get back to training.
+          We got your request to reset your Offered password. Hit the button below to set a new one and get back to training.
         </Text>
         <Button style={button} href={confirmationUrl}>
           RESET PASSWORD

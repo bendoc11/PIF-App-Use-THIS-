@@ -16,12 +16,12 @@ export default function TermsOfUse() {
         <div className="space-y-8 text-sm leading-relaxed text-muted-foreground">
           <section>
             <h2 className="text-lg font-heading text-foreground mb-3">1. Acceptance of Terms</h2>
-            <p>By downloading, installing, or using the Play it Forward Basketball application ("App"), you agree to be bound by these Terms of Use ("Terms"). If you do not agree to these Terms, do not use the App.</p>
+            <p>By downloading, installing, or using the Offered application ("App"), you agree to be bound by these Terms of Use ("Terms"). If you do not agree to these Terms, do not use the App.</p>
           </section>
 
           <section>
             <h2 className="text-lg font-heading text-foreground mb-3">2. Description of Service</h2>
-            <p>Play it Forward Basketball provides basketball training content including video drills, workout programs, progress tracking, shooting statistics, community features, and personalized training plans. Access to certain features requires an active paid subscription.</p>
+            <p>Offered provides basketball training content including video drills, workout programs, progress tracking, shooting statistics, community features, and personalized training plans. Access to certain features requires an active paid subscription.</p>
           </section>
 
           <section>
@@ -70,12 +70,12 @@ export default function TermsOfUse() {
 
           <section>
             <h2 className="text-lg font-heading text-foreground mb-3">9. Intellectual Property</h2>
-            <p>All content in the App — including videos, images, text, graphics, logos, and software — is the property of Play it Forward Basketball or its licensors and is protected by copyright, trademark, and other intellectual property laws. You may not copy, modify, distribute, or create derivative works from any content without our prior written consent.</p>
+            <p>All content in the App — including videos, images, text, graphics, logos, and software — is the property of Offered or its licensors and is protected by copyright, trademark, and other intellectual property laws. You may not copy, modify, distribute, or create derivative works from any content without our prior written consent.</p>
           </section>
 
           <section>
             <h2 className="text-lg font-heading text-foreground mb-3">10. User-Generated Content</h2>
-            <p>By posting content in community features, you grant Play it Forward Basketball a non-exclusive, worldwide, royalty-free license to use, display, and distribute that content within the App. You retain ownership of your content but are responsible for ensuring it does not violate any third-party rights.</p>
+            <p>By posting content in community features, you grant Offered a non-exclusive, worldwide, royalty-free license to use, display, and distribute that content within the App. You retain ownership of your content but are responsible for ensuring it does not violate any third-party rights.</p>
           </section>
 
           <section>
@@ -85,7 +85,7 @@ export default function TermsOfUse() {
 
           <section>
             <h2 className="text-lg font-heading text-foreground mb-3">12. Limitation of Liability</h2>
-            <p>To the maximum extent permitted by law, Play it Forward Basketball shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, arising out of or related to your use of the App.</p>
+            <p>To the maximum extent permitted by law, Offered shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, arising out of or related to your use of the App.</p>
           </section>
 
           <section>
@@ -110,7 +110,7 @@ export default function TermsOfUse() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-border text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Play it Forward Basketball. All rights reserved.
+          © {new Date().getFullYear()} Offered. All rights reserved.
         </div>
       </div>
     </div>

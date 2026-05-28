@@ -35,7 +35,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
               <div className="h-6 w-px bg-border" />
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
-                  <span className="font-heading text-xs text-primary-foreground">PIF</span>
+                  <span className="font-heading text-xs text-primary-foreground">OFF</span>
                 </div>
                 <span className="font-heading text-base tracking-wider text-foreground">Admin</span>
               </div>

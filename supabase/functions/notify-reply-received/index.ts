@@ -7,8 +7,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const NOTIFICATION_FROM = "notifications@mail.playitforward.app";
-const APP_URL = "https://playitforward.app";
+const NOTIFICATION_FROM = "notifications@mail.offered.pro";
+const APP_URL = "https://offered.pro";
 
 function isPaid(profile: any): boolean {
   if (!profile) return false;
@@ -67,14 +67,14 @@ Deno.serve(async (req) => {
     const html = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; color: #1D1D1F;">
         <div style="text-align:center; margin-bottom: 28px;">
-          <div style="display:inline-block; width:48px; height:48px; border-radius:10px; background:#E8391D; color:#fff; font-weight:700; line-height:48px; font-size:18px;">PIF</div>
+          <div style="display:inline-block; width:48px; height:48px; border-radius:10px; background:#E8391D; color:#fff; font-weight:700; line-height:48px; font-size:18px;">OFF</div>
         </div>
         <h1 style="font-size:22px; line-height:1.25; margin:0 0 16px; color:#1D1D1F;">Hey ${firstName} —</h1>
         <p style="font-size:16px; line-height:1.6; color:#1D1D1F; margin:0 0 16px;">
           <strong>${coachName}</strong> from <strong>${schoolName}</strong> just responded to your recruiting outreach.
         </p>
         <p style="font-size:16px; line-height:1.6; color:#6E6E73; margin:0 0 28px;">
-          Subscribe to Play it Forward to read their message and keep the conversation going.
+          Subscribe to Offered to read their message and keep the conversation going.
         </p>
         <div style="text-align:center; margin: 24px 0 32px;">
           <a href="${APP_URL}/replies" style="display:inline-block; background:#E8391D; color:#fff; text-decoration:none; padding:14px 28px; border-radius:980px; font-weight:600; font-size:15px;">Read Their Reply</a>
@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
         </p>
       </div>`;
 
-    const text = `Hey ${firstName} — ${coachName} from ${schoolName} just responded to your recruiting outreach. Subscribe to Play it Forward to read their message and keep the conversation going. Read it here: ${APP_URL}/replies`;
+    const text = `Hey ${firstName} — ${coachName} from ${schoolName} just responded to your recruiting outreach. Subscribe to Offered to read their message and keep the conversation going. Read it here: ${APP_URL}/replies`;
 
     const sgRes = await fetch("https://api.sendgrid.com/v3/mail/send", {
       method: "POST",
@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         personalizations: [{ to: [{ email: profile.email }] }],
-        from: { email: NOTIFICATION_FROM, name: "Play it Forward" },
+        from: { email: NOTIFICATION_FROM, name: "Offered" },
         subject,
         content: [
           { type: "text/plain", value: text },

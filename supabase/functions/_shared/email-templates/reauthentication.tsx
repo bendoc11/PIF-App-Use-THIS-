@@ -20,11 +20,11 @@ interface ReauthenticationEmailProps {
 export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Your Play It Forward verification code</Preview>
+    <Preview>Your Offered verification code</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
-          <Text style={logo}>PIF</Text>
+          <Text style={logo}>OFF</Text>
         </Section>
         <Heading style={h1}>VERIFY YOUR IDENTITY</Heading>
         <Text style={text}>Use this code to confirm your identity:</Text>

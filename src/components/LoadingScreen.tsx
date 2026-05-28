@@ -10,7 +10,7 @@ export default function LoadingScreen() {
         className="w-14 h-14 rounded-xl flex items-center justify-center"
         style={{ backgroundColor: "#E8391D" }}
       >
-        <span className="font-heading text-xl text-white">PIF</span>
+        <span className="font-heading text-xl text-white">OFF</span>
       </div>
       <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#3B82F6" }} />
     </div>

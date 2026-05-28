@@ -124,7 +124,7 @@ export function RecruitingSection() {
             <span className="absolute -top-8 -left-2 sm:-left-6 text-7xl sm:text-9xl font-display leading-none select-none text-secondary/25">"</span>
             <span className="absolute -bottom-12 -right-2 sm:-right-6 text-7xl sm:text-9xl font-display leading-none select-none text-secondary/25">"</span>
             <p className="font-body italic text-xl sm:text-2xl lg:text-3xl text-foreground leading-snug font-semibold relative z-10">
-              NCSA charged us $1,500 and gave us a coordinator. Play it Forward gave us every coach's direct email.
+              NCSA charged us $1,500 and gave us a coordinator. Offered gave us every coach's direct email.
             </p>
           </div>
           <p className="font-heading text-xs tracking-widest text-primary mt-6">

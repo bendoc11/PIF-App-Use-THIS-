@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://playitforward.app/sitemap.xml
+Sitemap: https://offered.pro/sitemap.xml

@@ -49,7 +49,7 @@ export default function StepTerms({ onAgree }: Props) {
               onChange={(e) => setChecked(e.target.checked)}
             />
             <span className="text-sm leading-snug text-foreground">
-              I understand that Play it Forward does not guarantee coach responses or
+              I understand that Offered does not guarantee coach responses or
               recruiting outcomes, and I agree to the Terms of Service above.
             </span>
           </label>
@@ -61,14 +61,14 @@ export default function StepTerms({ onAgree }: Props) {
     >
       <div className="rounded-2xl border border-border bg-card p-5 max-h-[55vh] overflow-y-auto text-sm text-foreground/90 leading-relaxed space-y-4">
         <h2 className="font-heading text-base text-foreground">
-          Play it Forward — Terms of Service &amp; Disclaimer
+          Offered — Terms of Service &amp; Disclaimer
         </h2>
-        <p>By using Play it Forward, you agree to the following:</p>
+        <p>By using Offered, you agree to the following:</p>
 
         <div>
           <p className="font-semibold text-foreground">1. No Guarantee of Results.</p>
           <p>
-            Play it Forward provides tools to help student-athletes contact college coaches.
+            Offered provides tools to help student-athletes contact college coaches.
             We do not guarantee that any coach will respond to your outreach, that you will
             receive an offer of admission, an athletic scholarship, or any form of recruitment
             interest. Results vary significantly based on athletic ability, academic profile,
@@ -97,7 +97,7 @@ export default function StepTerms({ onAgree }: Props) {
         <div>
           <p className="font-semibold text-foreground">4. Accuracy of Information.</p>
           <p>
-            Play it Forward maintains a database of college coaching staff. Coaching personnel
+            Offered maintains a database of college coaching staff. Coaching personnel
             changes frequently. We do not guarantee that every contact in our database is
             current or accurate.
           </p>
@@ -107,7 +107,7 @@ export default function StepTerms({ onAgree }: Props) {
           <p className="font-semibold text-foreground">5. Your Responsibility.</p>
           <p>
             You are responsible for the content of any messages sent to coaches through this
-            platform. Play it Forward is not liable for any communications sent on your behalf.
+            platform. Offered is not liable for any communications sent on your behalf.
           </p>
         </div>
 

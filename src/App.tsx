@@ -48,8 +48,9 @@ import OpenSpots from "./pages/OpenSpots";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
 import Partners from "./pages/Partners";
-
-const queryClient = new QueryClient();
+import Partners from "./pages/Partners";
+import PartnerLanding from "./pages/PartnerLanding";
+import AdminPartners from "./pages/admin/AdminPartners";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

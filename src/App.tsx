@@ -47,6 +47,7 @@ import AdminDeliverability from "./pages/admin/AdminDeliverability";
 import OpenSpots from "./pages/OpenSpots";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
+import Partners from "./pages/Partners";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/partners" element={<Partners />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfUse />} />
             <Route path="/login" element={<Login />} />

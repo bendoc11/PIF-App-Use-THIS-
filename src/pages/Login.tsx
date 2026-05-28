@@ -126,14 +126,28 @@ export default function Login() {
       // metadata was missed. RLS allows users to update their own profile.
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       if (currentUser?.id) {
+        // Partner referral attribution
+        const referralSlug = localStorage.getItem("referral_slug");
+        let partner_id: string | null = null;
+        if (referralSlug) {
+          const { data: partner } = await supabase
+            .from("partners")
+            .select("id")
+            .eq("slug", referralSlug)
+            .eq("active", true)
+            .maybeSingle();
+          partner_id = partner?.id || null;
+        }
         await supabase
           .from("profiles")
           .update({
             first_name: trimmedFirst,
             last_name: trimmedLast,
             email: signupEmail.trim(),
+            ...(partner_id ? { partner_id, referral_slug: referralSlug } : {}),
           })
           .eq("id", currentUser.id);
+        if (partner_id) localStorage.removeItem("referral_slug");
       }
 
       // New user → send to dashboard. AuthGuard will render the paywall

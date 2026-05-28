@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { ArrowRight, Menu, X } from "lucide-react";
+import { usePartner } from "@/contexts/PartnerContext";
 
 /* ---- Fade-in hook ---- */
 function useFadeIn() {
@@ -21,6 +22,7 @@ function useFadeIn() {
 /* ━━━ NAVBAR ━━━ */
 function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { partner } = usePartner();
   const navLinks = [
     { label: "Platform", href: "#platform" },
     { label: "How It Works", href: "#how-it-works" },
@@ -31,13 +33,23 @@ function Navbar() {
     <header className="sticky top-0 z-50 bg-background border-b border-border/50">
       <nav className="flex items-center justify-between px-4 md:px-6 lg:px-12 h-16 max-w-[1200px] mx-auto">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center shrink-0">
-            <span className="text-white font-bold text-[10px] tracking-wide">OFF</span>
-          </div>
-          <div className="flex flex-col leading-none">
-            <span className="font-sans font-bold text-[22px] text-foreground tracking-tight">Offered</span>
-            <span className="text-[11px] text-white/40 font-normal mt-0.5">Basketball Recruiting</span>
-          </div>
+          {partner ? (
+            partner.logo_url ? (
+              <img src={partner.logo_url} alt={partner.partner_name} className="h-9 w-auto max-w-[180px] object-contain" />
+            ) : (
+              <span className="font-sans font-bold text-[20px] text-foreground tracking-tight">{partner.partner_name}</span>
+            )
+          ) : (
+            <>
+              <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center shrink-0">
+                <span className="text-white font-bold text-[10px] tracking-wide">OFF</span>
+              </div>
+              <div className="flex flex-col leading-none">
+                <span className="font-sans font-bold text-[22px] text-foreground tracking-tight">Offered</span>
+                <span className="text-[11px] text-white/40 font-normal mt-0.5">Basketball Recruiting</span>
+              </div>
+            </>
+          )}
         </div>
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((l) => (

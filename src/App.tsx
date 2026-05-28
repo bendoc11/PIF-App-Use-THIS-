@@ -111,6 +111,9 @@ const App = () => (
             <Route path="/admin/roster-scraper" element={<AdminGuard requiredRole="admin"><AdminRosterScraper /></AdminGuard>} />
             <Route path="/admin/url-discovery" element={<AdminGuard requiredRole="admin"><AdminUrlDiscovery /></AdminGuard>} />
             <Route path="/admin/deliverability" element={<AdminGuard requiredRole="admin"><AdminDeliverability /></AdminGuard>} />
+            <Route path="/admin/partners" element={<AdminGuard requiredRole="admin"><AdminPartners /></AdminGuard>} />
+            {/* Partner white-label slug routing — MUST be last before catch-all */}
+            <Route path="/:slug" element={<PartnerLanding />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

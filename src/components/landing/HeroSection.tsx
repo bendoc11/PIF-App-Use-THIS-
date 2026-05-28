@@ -128,7 +128,7 @@ export function HeroSection() {
                 </p>
 
                 <h1 className="font-sans text-4xl sm:text-5xl lg:text-[3.25rem] font-bold leading-[1.12] mb-6 text-foreground">
-                  Get Recruited. On Your Terms.
+                  Get Offered.
                 </h1>
 
                 <p className="text-muted-foreground text-base sm:text-lg max-w-xl mb-8 leading-relaxed">

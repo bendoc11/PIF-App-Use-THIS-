@@ -279,7 +279,7 @@ export default function ProductTour() {
             }`}
             style={{ boxShadow: "0 0 40px hsl(5 78% 55% / 0.15)" }}
           >
-            {/* PIF logo on welcome */}
+            {/* OFF logo on welcome */}
             {step === 0 && (
               <div className="flex justify-center mb-4">
                 <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">

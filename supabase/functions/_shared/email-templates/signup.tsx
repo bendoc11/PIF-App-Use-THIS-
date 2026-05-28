@@ -30,17 +30,17 @@ export const SignupEmail = ({
 }: SignupEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Welcome to Play It Forward — confirm your email</Preview>
+    <Preview>Welcome to Offered — confirm your email</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
-          <Text style={logo}>PIF</Text>
+          <Text style={logo}>OFF</Text>
         </Section>
         <Heading style={h1}>LET'S GET YOU ON THE COURT</Heading>
         <Text style={text}>
           Welcome to{' '}
           <Link href={siteUrl} style={link}>
-            <strong>Play It Forward</strong>
+            <strong>Offered</strong>
           </Link>
           ! You're one step away from elite training.
         </Text>
@@ -55,7 +55,7 @@ export const SignupEmail = ({
           CONFIRM EMAIL
         </Button>
         <Text style={footer}>
-          If you didn't sign up for Play It Forward, you can safely ignore this email.
+          If you didn't sign up for Offered, you can safely ignore this email.
         </Text>
       </Container>
     </Body>

@@ -71,7 +71,7 @@ async function checkUrl(url: string): Promise<boolean> {
       method: 'GET',
       redirect: 'follow',
       signal: ctrl.signal,
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; PIFRosterBot/1.0)' },
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; OFFRosterBot/1.0)' },
     });
     clearTimeout(t);
     // Drain to free socket

@@ -69,7 +69,7 @@ export default function Paywall() {
             className="w-14 h-14 rounded-xl flex items-center justify-center"
             style={{ backgroundColor: "#E8391D" }}
           >
-            <span className="font-heading text-xl text-white">PIF</span>
+            <span className="font-heading text-xl text-white">OFF</span>
           </div>
         </div>
 

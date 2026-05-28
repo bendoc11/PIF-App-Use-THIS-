@@ -22,7 +22,7 @@ export default function PrivacyPolicy() {
           <section>
             <h2 className="text-lg font-heading text-foreground mb-3">2. How We Use Your Information</h2>
             <ul className="list-disc pl-5 space-y-2">
-              <li>To provide and personalize the Play it Forward Basketball training platform</li>
+              <li>To provide and personalize the Offered training platform</li>
               <li>To track your progress, generate player ratings, and recommend workouts</li>
               <li>To process payments and manage your subscription</li>
               <li>To send important updates about your account or the service</li>
@@ -82,7 +82,7 @@ export default function PrivacyPolicy() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-border text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Play it Forward Basketball. All rights reserved.
+          © {new Date().getFullYear()} Offered. All rights reserved.
         </div>
       </div>
     </div>

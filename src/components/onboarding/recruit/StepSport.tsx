@@ -117,7 +117,7 @@ export default function StepSport({ initial, onNext }: Props) {
               textTransform: "uppercase",
             }}
           >
-            Play it Forward
+            Offered
           </div>
         </div>
 

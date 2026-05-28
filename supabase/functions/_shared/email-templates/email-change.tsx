@@ -30,15 +30,15 @@ export const EmailChangeEmail = ({
 }: EmailChangeEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Confirm your new email for Play It Forward</Preview>
+    <Preview>Confirm your new email for Offered</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
-          <Text style={logo}>PIF</Text>
+          <Text style={logo}>OFF</Text>
         </Section>
         <Heading style={h1}>CONFIRM YOUR NEW EMAIL</Heading>
         <Text style={text}>
-          You requested to change your Play It Forward email from{' '}
+          You requested to change your Offered email from{' '}
           <Link href={`mailto:${email}`} style={link}>{email}</Link>{' '}
           to{' '}
           <Link href={`mailto:${newEmail}`} style={link}>{newEmail}</Link>.

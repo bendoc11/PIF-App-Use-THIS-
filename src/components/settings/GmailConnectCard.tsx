@@ -87,7 +87,7 @@ export function GmailConnectCard() {
         headers: { Authorization: `Bearer ${session.access_token}` },
         body: {
           to: "bdaugherty216@gmail.com",
-          subject: "Test from Play it Forward",
+          subject: "Test from Offered",
           body: "Gmail send is working.",
         },
       });

@@ -1,5 +1,5 @@
 // Admin-only edge function for the Deliverability tab. Sends a one-off test
-// email via SendGrid from a mail.playitforward.app alias and logs the send to
+// email via SendGrid from a mail.offered.pro alias and logs the send to
 // test_email_sends. Increments times_emailed on any matching test_contacts row.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -8,7 +8,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const ALIAS_DOMAIN = "mail.playitforward.app";
+const ALIAS_DOMAIN = "mail.offered.pro";
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -31,7 +31,7 @@ I'd love the chance to share my highlights and stats with you. Quick snapshot:
 • Position: Combo guard
 • Height: 6'2"
 • GPA: 3.8 unweighted
-• Highlight film: https://playitforward.app/p/brendan-daugherty
+• Highlight film: https://offered.pro/p/brendan-daugherty
 
 If you'd be open to it, I'd love to stay in touch as the season progresses. Thanks for your time, coach.
 
@@ -47,7 +47,7 @@ Brendan`,
 
 Just wanted to circle back on my note from earlier this week. I have new game film up from this past weekend if you'd like to take a look:
 
-https://playitforward.app/p/brendan-daugherty
+https://offered.pro/p/brendan-daugherty
 
 Appreciate the time. Talk soon.
 
@@ -56,7 +56,7 @@ Brendan`,
   }
   return {
     subject: custom?.subject?.trim() || `A note for ${first}`,
-    body: custom?.body?.trim() || `Hi ${first},\n\nThanks for helping us with deliverability testing.\n\n— PIF Team`,
+    body: custom?.body?.trim() || `Hi ${first},\n\nThanks for helping us with deliverability testing.\n\n— Offered Team`,
   };
 }
 

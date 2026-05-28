@@ -1,5 +1,5 @@
 // SendGrid Inbound Parse webhook. Receives multipart/form-data when a coach
-// replies to <alias>@mail.playitforward.app. Stores reply and notifies athlete.
+// replies to <alias>@mail.offered.pro. Stores reply and notifies athlete.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
@@ -7,8 +7,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const ALIAS_DOMAIN = "mail.playitforward.app";
-const NOTIFICATION_FROM = "notifications@mail.playitforward.app";
+const ALIAS_DOMAIN = "mail.offered.pro";
+const NOTIFICATION_FROM = "notifications@mail.offered.pro";
 
 function parseAddress(raw: string | null): { email: string; name: string } {
   if (!raw) return { email: "", name: "" };
@@ -169,7 +169,7 @@ Deno.serve(async (req) => {
     }
     console.log(`[sendgrid-inbound:${reqId}] alias`, { alias });
 
-    // Warmup forwarding: forward warmup@mail.playitforward.app to a real inbox
+    // Warmup forwarding: forward warmup@mail.offered.pro to a real inbox
     if (alias === "warmup") {
       const forwardTo = Deno.env.get("WARMUP_FORWARD_TO");
       if (SENDGRID && forwardTo) {
@@ -184,7 +184,7 @@ Deno.serve(async (req) => {
             headers: { Authorization: `Bearer ${SENDGRID}`, "Content-Type": "application/json" },
             body: JSON.stringify({
               personalizations: [{ to: [{ email: forwardTo }] }],
-              from: { email: NOTIFICATION_FROM, name: "PIF Warmup" },
+              from: { email: NOTIFICATION_FROM, name: "Offered Warmup" },
               reply_to: { email: parseAddress(from).email || NOTIFICATION_FROM },
               subject: fwdSubject,
               content: fwdHtml
@@ -286,12 +286,12 @@ Deno.serve(async (req) => {
       const replied = repliedCount ?? 0;
       const rate = contacted > 0 ? Math.round((replied / contacted) * 100) : 0;
 
-      const text = `Hey ${firstName} — ${coachLabel} just replied to your recruiting outreach.\n\nThis is exactly how it starts. Log in to read their message and keep the conversation going.\n\nRead their reply: https://playitforward.app/recruit\n\n— Your stats so far —\nYou have contacted ${contacted} coach${contacted === 1 ? "" : "es"}. ${replied} ${replied === 1 ? "has" : "have"} replied. Your reply rate is ${rate}%.\nKeep going.`;
+      const text = `Hey ${firstName} — ${coachLabel} just replied to your recruiting outreach.\n\nThis is exactly how it starts. Log in to read their message and keep the conversation going.\n\nRead their reply: https://offered.pro/recruit\n\n— Your stats so far —\nYou have contacted ${contacted} coach${contacted === 1 ? "" : "es"}. ${replied} ${replied === 1 ? "has" : "have"} replied. Your reply rate is ${rate}%.\nKeep going.`;
       const html = `<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#0F172A">
-        <p style="font-size:14px;color:#64748B;margin:0 0 8px;letter-spacing:.06em;text-transform:uppercase">Play it Forward</p>
+        <p style="font-size:14px;color:#64748B;margin:0 0 8px;letter-spacing:.06em;text-transform:uppercase">Offered</p>
         <h1 style="font-size:26px;line-height:1.2;margin:0 0 16px">A college coach just replied to you.</h1>
         <p style="font-size:16px;line-height:1.5;margin:0 0 16px">Hey ${firstName} — <strong>${coachLabel}</strong> just replied to your recruiting outreach. This is exactly how it starts. Log in to read their message and keep the conversation going.</p>
-        <p style="margin:24px 0"><a href="https://playitforward.app/recruit" style="background:#080D14;color:#fff;text-decoration:none;padding:14px 22px;border-radius:10px;font-weight:600;display:inline-block">Read Their Reply</a></p>
+        <p style="margin:24px 0"><a href="https://offered.pro/recruit" style="background:#080D14;color:#fff;text-decoration:none;padding:14px 22px;border-radius:10px;font-weight:600;display:inline-block">Read Their Reply</a></p>
         <hr style="border:0;border-top:1px solid #E2E8F0;margin:28px 0" />
         <p style="font-size:13px;color:#475569;line-height:1.6;margin:0">You have contacted <strong>${contacted}</strong> coach${contacted === 1 ? "" : "es"}. <strong>${replied}</strong> ${replied === 1 ? "has" : "have"} replied. Your reply rate is <strong>${rate}%</strong>.<br/>Keep going.</p>
       </div>`;
@@ -305,7 +305,7 @@ Deno.serve(async (req) => {
           },
           body: JSON.stringify({
             personalizations: [{ to: [{ email: profile.email }] }],
-            from: { email: NOTIFICATION_FROM, name: "Play it Forward" },
+            from: { email: NOTIFICATION_FROM, name: "Offered" },
             subject: "A college coach just replied to you",
             content: [
               { type: "text/plain", value: text },

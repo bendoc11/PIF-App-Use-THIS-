@@ -92,7 +92,7 @@ function Hero() {
           className="mx-auto max-w-2xl mb-10 leading-relaxed"
           style={{ color: "rgba(255,255,255,0.75)", fontSize: "clamp(1rem, 2vw, 1.125rem)" }}
         >
-          Play it Forward partners with AAU programs, trainers, and youth basketball organizations to give their athletes a real recruiting edge — and share the revenue with you.
+          Offered partners with AAU programs, trainers, and youth basketball organizations to give their athletes a real recruiting edge — and share the revenue with you.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
           <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
@@ -340,7 +340,7 @@ function RevenueCalculator() {
 }
 
 function Testimonial() {
-  const quote = "We plugged Play it Forward into Philadelphia Basketball School and our players were immediately engaged. It took us maybe 20 minutes to set up and share the link — after that it ran itself. Our athletes were messaging college coaches the same day. For us it was a no-brainer upsell that added real recurring revenue to our program without adding any work. It changed how we think about our business model.";
+  const quote = "We plugged Offered into Philadelphia Basketball School and our players were immediately engaged. It took us maybe 20 minutes to set up and share the link — after that it ran itself. Our athletes were messaging college coaches the same day. For us it was a no-brainer upsell that added real recurring revenue to our program without adding any work. It changed how we think about our business model.";
 
   return (
     <section className="px-4 md:px-6 lg:px-12 py-20 md:py-28" style={{ background: "#0D1220" }}>
@@ -512,7 +512,7 @@ function Footer() {
           <span className="font-sans text-base text-foreground font-medium">Play it</span>
           <span className="font-sans text-base font-bold text-primary">Forward</span>
         </Link>
-        <p className="text-xs text-muted-foreground">© 2026 Play it Forward. All rights reserved.</p>
+        <p className="text-xs text-muted-foreground">© 2026 Offered. All rights reserved.</p>
         <div className="flex gap-5">
           <Link to="/privacy" className="text-xs text-muted-foreground hover:text-secondary">Privacy</Link>
           <Link to="/terms" className="text-xs text-muted-foreground hover:text-secondary">Terms</Link>

@@ -20,7 +20,7 @@ function CelebrationOverlay({ onDone }: { onDone: () => void }) {
           className="w-20 h-20 rounded-2xl mx-auto mb-6 flex items-center justify-center"
           style={{ backgroundColor: "#E8391D" }}
         >
-          <span className="font-heading text-3xl text-white">PIF</span>
+          <span className="font-heading text-3xl text-white">OFF</span>
         </div>
         <h1 className="font-display text-3xl sm:text-5xl text-white tracking-tight mb-3">
           You are now subscribed.

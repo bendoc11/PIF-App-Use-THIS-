@@ -156,12 +156,12 @@ export default function Login() {
         <div className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full opacity-[0.08]" style={{ background: 'radial-gradient(circle, #3B82F6 0%, transparent 70%)' }} />
         {/* Faint watermark */}
         <div className="absolute inset-0 flex items-center justify-center opacity-[0.03]">
-          <span className="font-display text-[20rem] leading-none text-white select-none">PIF</span>
+          <span className="font-display text-[20rem] leading-none text-white select-none">OFF</span>
         </div>
 
         <div className="relative z-10 px-12 space-y-8 max-w-lg">
           <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#E8391D' }}>
-            <span className="font-heading text-xl text-white">PIF</span>
+            <span className="font-heading text-xl text-white">OFF</span>
           </div>
 
           <h1 className="font-display text-5xl xl:text-6xl text-white leading-none tracking-tight">

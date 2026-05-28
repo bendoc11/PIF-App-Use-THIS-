@@ -101,7 +101,7 @@ function getInitials(p: PublicProfile): string {
   const f = (p.first_name || "").trim();
   const l = (p.last_name || "").trim();
   const i = (f[0] || "") + (l[0] || "");
-  return i.toUpperCase() || "PIF";
+  return i.toUpperCase() || "OFF";
 }
 
 /**
@@ -221,7 +221,7 @@ export default function PublicAthleteProfile() {
             to="/"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold"
           >
-            Visit Play it Forward
+            Visit Offered
           </Link>
         </div>
       </div>
@@ -241,10 +241,10 @@ export default function PublicAthleteProfile() {
         <div className="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-heading text-xs">PIF</span>
+              <span className="text-primary-foreground font-heading text-xs">OFF</span>
             </div>
             <span className="text-xs font-heading tracking-[0.2em] text-foreground uppercase">
-              Play it Forward
+              Offered
             </span>
           </Link>
           <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
@@ -553,7 +553,7 @@ export default function PublicAthleteProfile() {
             className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
           >
             <span>Built with</span>
-            <span className="font-heading tracking-[0.2em] text-foreground">Play it Forward</span>
+            <span className="font-heading tracking-[0.2em] text-foreground">Offered</span>
           </Link>
           <p className="text-[11px] text-muted-foreground/70 mt-1">
             The recruiting platform for serious high school athletes.

@@ -100,7 +100,7 @@ function WelcomeStep({ onNext }: { onNext: () => void }) {
     <div className="text-center">
       <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-900 text-white text-xs font-medium mb-8">
         <Sparkles className="h-3 w-3" />
-        Play it Forward · Recruiting
+        Offered · Recruiting
       </div>
       <h1 className="text-5xl sm:text-6xl font-semibold text-gray-900 tracking-tight leading-tight">
         Your recruiting journey

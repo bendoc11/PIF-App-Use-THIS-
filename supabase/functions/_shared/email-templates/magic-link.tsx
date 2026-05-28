@@ -25,15 +25,15 @@ export const MagicLinkEmail = ({
 }: MagicLinkEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Your Play It Forward login link</Preview>
+    <Preview>Your Offered login link</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
-          <Text style={logo}>PIF</Text>
+          <Text style={logo}>OFF</Text>
         </Section>
         <Heading style={h1}>YOUR LOGIN LINK</Heading>
         <Text style={text}>
-          Tap the button below to sign in to Play It Forward. This link expires shortly.
+          Tap the button below to sign in to Offered. This link expires shortly.
         </Text>
         <Button style={button} href={confirmationUrl}>
           SIGN IN

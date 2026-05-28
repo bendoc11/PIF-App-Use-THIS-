@@ -523,6 +523,11 @@ function Footer() {
 }
 
 export default function Partners() {
+  useEffect(() => {
+    const prev = document.title;
+    document.title = "Partner with Offered";
+    return () => { document.title = prev; };
+  }, []);
   return (
     <div className="min-h-screen bg-background text-foreground scroll-smooth">
       <Nav />

@@ -781,6 +781,47 @@ export type Database = {
           },
         ]
       }
+      monthly_commissions: {
+        Row: {
+          active_subscribers: number
+          commission_amount: number
+          created_at: string
+          id: string
+          month: string
+          paid: boolean
+          paid_at: string | null
+          partner_id: string | null
+        }
+        Insert: {
+          active_subscribers?: number
+          commission_amount?: number
+          created_at?: string
+          id?: string
+          month: string
+          paid?: boolean
+          paid_at?: string | null
+          partner_id?: string | null
+        }
+        Update: {
+          active_subscribers?: number
+          commission_amount?: number
+          created_at?: string
+          id?: string
+          month?: string
+          paid?: boolean
+          paid_at?: string | null
+          partner_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monthly_commissions_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       outreach_history: {
         Row: {
           body: string
@@ -829,6 +870,45 @@ export type Database = {
           subject?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      partners: {
+        Row: {
+          active: boolean
+          commission_per_subscriber: number
+          contact_email: string | null
+          contact_name: string | null
+          created_at: string
+          id: string
+          logo_url: string | null
+          partner_name: string
+          primary_color: string | null
+          slug: string
+        }
+        Insert: {
+          active?: boolean
+          commission_per_subscriber?: number
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          partner_name: string
+          primary_color?: string | null
+          slug: string
+        }
+        Update: {
+          active?: boolean
+          commission_per_subscriber?: number
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          partner_name?: string
+          primary_color?: string | null
+          slug?: string
         }
         Relationships: []
       }
@@ -966,6 +1046,7 @@ export type Database = {
           parent_email: string | null
           parent_name: string | null
           parent_phone: string | null
+          partner_id: string | null
           phone: string | null
           plan: string
           position: string | null
@@ -974,6 +1055,7 @@ export type Database = {
           product_tour_completed: boolean
           recruit_onboarding_completed: boolean
           recruiting_timeline: string | null
+          referral_slug: string | null
           role: string
           sat_score: number | null
           schedule_setup_completed: boolean
@@ -1039,6 +1121,7 @@ export type Database = {
           parent_email?: string | null
           parent_name?: string | null
           parent_phone?: string | null
+          partner_id?: string | null
           phone?: string | null
           plan?: string
           position?: string | null
@@ -1047,6 +1130,7 @@ export type Database = {
           product_tour_completed?: boolean
           recruit_onboarding_completed?: boolean
           recruiting_timeline?: string | null
+          referral_slug?: string | null
           role?: string
           sat_score?: number | null
           schedule_setup_completed?: boolean
@@ -1112,6 +1196,7 @@ export type Database = {
           parent_email?: string | null
           parent_name?: string | null
           parent_phone?: string | null
+          partner_id?: string | null
           phone?: string | null
           plan?: string
           position?: string | null
@@ -1120,6 +1205,7 @@ export type Database = {
           product_tour_completed?: boolean
           recruit_onboarding_completed?: boolean
           recruiting_timeline?: string | null
+          referral_slug?: string | null
           role?: string
           sat_score?: number | null
           schedule_setup_completed?: boolean
@@ -1144,7 +1230,15 @@ export type Database = {
           weight?: string | null
           wingspan?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       recruiting_offers: {
         Row: {

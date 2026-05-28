@@ -252,8 +252,7 @@ function Footer() {
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
         <div>
           <div className="flex items-baseline gap-1 mb-4">
-            <span className="font-sans text-lg text-foreground font-medium">Play it</span>
-            <span className="font-sans text-lg font-bold text-primary">Forward</span>
+            <span className="font-sans text-lg font-bold text-primary">Offered</span>
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
             The recruiting platform built for high school athletes. Build your profile, find your schools, and email college coaches directly.

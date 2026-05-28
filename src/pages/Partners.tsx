@@ -86,7 +86,7 @@ function Hero() {
           className="font-sans font-bold text-foreground leading-[1.1] mb-6"
           style={{ fontSize: "clamp(2rem, 5vw, 2.5rem)" }}
         >
-          Help Your Athletes Get Recruited. Earn Revenue Doing It.
+          Help Your Athletes Get Offered. Earn Revenue Doing It.
         </h1>
         <p
           className="mx-auto max-w-2xl mb-10 leading-relaxed"

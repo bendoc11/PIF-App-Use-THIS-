@@ -60,8 +60,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/partners" element={<Partners />} />
             <Route path="/partners" element={<Partners />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfUse />} />

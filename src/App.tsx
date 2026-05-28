@@ -47,6 +47,7 @@ import AdminDeliverability from "./pages/admin/AdminDeliverability";
 import OpenSpots from "./pages/OpenSpots";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
+import Partners from "./pages/Partners";
 
 const queryClient = new QueryClient();
 

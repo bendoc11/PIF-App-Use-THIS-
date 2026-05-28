@@ -155,7 +155,7 @@ function HowItWorks() {
     },
     {
       icon: DollarSign,
-      title: "You earn 25% of every subscription they generate — paid monthly, forever",
+      title: "You earn $50 per active subscriber every month — paid monthly, forever",
     },
   ];
   return (
@@ -340,6 +340,8 @@ function RevenueCalculator() {
 }
 
 function Testimonial() {
+  const quote = "We plugged Play it Forward into Philadelphia Basketball School and our players were immediately engaged. It took us maybe 20 minutes to set up and share the link — after that it ran itself. Our athletes were messaging college coaches the same day. For us it was a no-brainer upsell that added real recurring revenue to our program without adding any work. It changed how we think about our business model.";
+
   return (
     <section className="px-4 md:px-6 lg:px-12 py-20 md:py-28" style={{ background: "#0D1220" }}>
       <div className="max-w-[900px] mx-auto">
@@ -353,21 +355,59 @@ function Testimonial() {
             borderColor: "rgba(59,130,246,0.2)",
           }}
         >
-          <Quote className="w-10 h-10 text-primary/40 mb-4" />
-          <p className="text-lg md:text-xl text-foreground italic leading-relaxed mb-6">
-            Coming soon — be one of our founding partners.
+          {/* Founding Partner badge */}
+          <div
+            className="absolute top-4 right-4 md:top-6 md:right-6 px-2.5 py-1 text-[11px] font-semibold text-white uppercase tracking-wider"
+            style={{
+              background: "#7f1d1d",
+              borderRadius: "6px",
+            }}
+          >
+            Founding Partner
+          </div>
+
+          {/* Large opening quote mark in brand red */}
+          <span
+            className="block font-serif leading-none select-none"
+            style={{ color: "hsl(var(--primary))", fontSize: "4rem", marginBottom: "-0.5rem" }}
+          >
+            "
+          </span>
+
+          <p
+            className="leading-relaxed mb-8"
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: "16px",
+              fontWeight: 400,
+              color: "rgba(255,255,255,0.85)",
+            }}
+          >
+            {quote}
           </p>
+
+          {/* Red line separator */}
+          <div className="w-12 h-[2px] rounded-full mb-4" style={{ background: "hsl(var(--primary))" }} />
+
+          {/* Attribution with avatar */}
           <div className="flex items-center gap-3">
             <div
-              className="w-12 h-12 rounded-full border-2"
-              style={{
-                borderColor: "rgba(59,130,246,0.4)",
-                background: "linear-gradient(135deg, #0F1A35, #1A2A55)",
-              }}
-            />
+              className="w-12 h-12 rounded-full overflow-hidden border-2 flex items-center justify-center"
+              style={{ borderColor: "rgba(59,130,246,0.4)" }}
+            >
+              <img
+                src={alexWade}
+                alt="Alex Wade"
+                className="w-full h-full object-cover object-top"
+              />
+            </div>
             <div>
-              <p className="text-sm font-semibold text-foreground">Your program here</p>
-              <p className="text-xs text-muted-foreground">Founding partner spot open</p>
+              <p
+                className="text-[13px] font-semibold text-white"
+                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+              >
+                Alex Wade — Head Coach, Philadelphia Basketball School · Philadelphia, PA · Former D1 Player, Notre Dame
+              </p>
             </div>
           </div>
         </div>

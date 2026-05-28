@@ -260,8 +260,8 @@ function WhatAthletesGet() {
 
 function RevenueCalculator() {
   const [athletes, setAthletes] = useState(100);
-  const signups = Math.round(athletes * 0.1);
-  const monthly = signups * 19.99 * 0.25;
+  const subscribers = Math.round(athletes * 0.2);
+  const monthly = subscribers * 50;
   const annual = monthly * 12;
   const fmt = (n: number) =>
     n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
@@ -284,7 +284,7 @@ function RevenueCalculator() {
           <div className="flex items-center gap-4 mb-2">
             <Slider
               value={[athletes]}
-              min={25}
+              min={100}
               max={500}
               step={5}
               onValueChange={(v) => setAthletes(v[0])}
@@ -295,28 +295,45 @@ function RevenueCalculator() {
             </span>
           </div>
           <div className="flex justify-between text-xs text-muted-foreground mb-8">
-            <span>25</span>
+            <span>100</span>
             <span>500</span>
           </div>
 
           <div className="space-y-3">
             <div className="flex justify-between items-baseline border-b border-border/30 pb-3">
-              <span className="text-sm text-muted-foreground">Estimated monthly signups</span>
-              <span className="font-sans text-lg font-bold text-foreground">{signups}</span>
+              <span className="text-sm text-muted-foreground">Estimated monthly subscribers</span>
+              <span className="font-sans text-lg font-bold text-foreground">{subscribers}</span>
             </div>
             <div className="flex justify-between items-baseline border-b border-border/30 pb-3">
-              <span className="text-sm text-muted-foreground">Estimated monthly revenue</span>
+              <span className="text-sm text-muted-foreground">Estimated monthly revenue for you</span>
               <span className="font-sans text-lg font-bold text-secondary">{fmt(monthly)}</span>
             </div>
             <div className="flex justify-between items-baseline pt-1">
-              <span className="text-sm text-muted-foreground">Estimated annual revenue</span>
+              <span className="text-sm text-muted-foreground">Estimated annual revenue for you</span>
               <span className="font-sans text-2xl font-bold text-primary">{fmt(annual)}</span>
             </div>
           </div>
         </div>
         <p className="text-xs text-muted-foreground text-center mt-6">
-          Based on average conversion rates from current partner programs
+          Based on average conversion rates from current partner programs. Results vary based on program size and engagement.
         </p>
+
+        {/* Example box at default 100-athlete position */}
+        <div
+          className="mt-6 rounded-xl p-4 border text-center"
+          style={{
+            background: "rgba(255,255,255,0.02)",
+            borderColor: "rgba(255,255,255,0.08)",
+          }}
+        >
+          <p className="text-sm text-foreground/70">
+            Example: A program with{" "}
+            <span className="font-sans font-bold text-primary">100</span> athletes →{" "}
+            <span className="font-sans font-bold text-primary">20</span> subscribers →{" "}
+            <span className="font-sans font-bold text-primary">$1,000</span>/month →{" "}
+            <span className="font-sans font-bold text-primary">$12,000</span>/year
+          </p>
+        </div>
       </div>
     </section>
   );

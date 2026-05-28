@@ -1,112 +1,84 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, Eye } from "lucide-react";
+import { ArrowRight, Mail, TrendingUp, Award } from "lucide-react";
 import zacErvinHero from "@/assets/zac-ervin-hero.jpg";
 
-/**
- * SchoolMatchCard — hero overlay mock.
- * NOTE: "Duke University" and "Coach Williams" below are HARDCODED DEMO VALUES
- * for the marketing mock only. No real school logos or trademarked imagery are
- * used — schools are represented by a colored initial circle + name text only.
- */
-function SchoolMatchCard() {
-  // Demo school — fictional for marketing mock. Royal blue is a generic
-  // placeholder color, not tied to any specific institution.
-  const demo = {
-    name: "Duke University",
-    initial: "D",
-    color: "#1E40AF", // royal blue (generic)
-    division: "D1 · Southeast",
-    coach: "Coach Williams",
-  };
-
+function RecruitingProfileCard() {
   return (
     <div
-      className="absolute -bottom-4 right-4 md:-bottom-6 md:right-6 w-[320px] rounded-2xl z-20 overflow-hidden"
+      className="absolute -bottom-4 left-4 md:-bottom-6 md:left-6 w-[260px] md:w-[300px] rounded-2xl border p-4 z-20"
       style={{
         background: "rgb(10, 15, 30)",
-        border: "1px solid rgba(255,255,255,0.15)",
-        boxShadow: "0 12px 40px rgba(0,0,0,0.55), 0 0 60px rgba(59,130,246,0.08)",
+        borderColor: "rgba(59, 130, 246, 0.4)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 60px rgba(59,130,246,0.1)",
       }}
     >
-      <div className="p-4">
-        {/* Match header */}
-        <p
-          className="font-sans font-semibold text-primary uppercase mb-3"
-          style={{ fontSize: "10px", letterSpacing: "0.12em" }}
-        >
-          Match for You
-        </p>
-
-        <div className="flex items-center gap-3 mb-4">
-          <div
-            className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-            style={{ background: demo.color }}
-          >
-            <span className="font-sans font-bold text-white text-base">{demo.initial}</span>
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="font-sans font-bold text-foreground text-base leading-tight truncate">
-              {demo.name}
-            </p>
-            <span
-              className="inline-block mt-1 px-2 py-0.5 rounded-full font-sans font-medium text-foreground/80"
-              style={{
-                fontSize: "11px",
-                background: "rgba(255,255,255,0.08)",
-                border: "1px solid rgba(255,255,255,0.1)",
-              }}
-            >
-              {demo.division}
-            </span>
-          </div>
-        </div>
-
-        {/* Hook bar */}
+      {/* Profile Header */}
+      <div className="flex items-center gap-3 mb-4">
         <div
-          className="w-full rounded-lg mb-3"
-          style={{
-            background: "#0d2e1a",
-            padding: "8px",
-          }}
+          className="w-12 h-12 rounded-full border-2 overflow-hidden"
+          style={{ borderColor: "rgba(59, 130, 246, 0.5)" }}
         >
-          <p
-            className="font-sans font-semibold leading-snug"
-            style={{ color: "#4ade80", fontSize: "13px" }}
-          >
-            🏀 Open spot at Point Guard — 2 seniors graduating
-          </p>
+          <img
+            src={zacErvinHero}
+            alt="Zac Ervin"
+            className="w-full h-full object-cover object-top"
+          />
         </div>
-
-        {/* Coach viewed line */}
-        <div className="flex items-center gap-1.5 mb-4">
-          <Eye className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.7)" }} />
-          <p
-            className="font-sans"
-            style={{ color: "rgba(255,255,255,0.7)", fontSize: "12px" }}
-          >
-            {demo.coach} viewed your profile today
-          </p>
+        <div>
+          <p className="font-sans font-bold text-foreground text-sm">ZAC ERVIN</p>
+          <p className="text-xs text-muted-foreground">2025 · SG/SF · 6'5"</p>
         </div>
-
-        {/* Actions */}
-        <button
-          className="w-full bg-primary hover:bg-primary/90 text-foreground rounded-lg font-sans font-semibold py-2.5 text-sm transition-colors"
-          type="button"
-        >
-          Message Coach →
-        </button>
-        <p
-          className="text-center font-sans mt-2"
-          style={{ color: "rgba(255,255,255,0.5)", fontSize: "12px" }}
-        >
-          Next school →
-        </p>
       </div>
+
+      {/* Stat Badges */}
+      <div className="grid grid-cols-3 gap-2 mb-4">
+        <div
+          className="rounded-lg p-2 text-center"
+          style={{ background: "rgba(59, 130, 246, 0.2)" }}
+        >
+          <Award className="w-4 h-4 mx-auto mb-1" style={{ color: "#3B82F6" }} />
+          <p className="text-xs font-bold text-foreground">42</p>
+          <p className="text-[10px] text-muted-foreground">Offers</p>
+        </div>
+        <div
+          className="rounded-lg p-2 text-center"
+          style={{ background: "rgba(239, 68, 68, 0.2)" }}
+        >
+          <TrendingUp className="w-4 h-4 mx-auto mb-1" style={{ color: "#EF4444" }} />
+          <p className="text-xs font-bold text-foreground">#9</p>
+          <p className="text-[10px] text-muted-foreground">Player in VA</p>
+        </div>
+        <div
+          className="rounded-lg p-2 text-center border"
+          style={{ borderColor: "rgba(59, 130, 246, 0.3)", background: "rgba(10, 15, 30, 0.5)" }}
+        >
+          <Mail className="w-4 h-4 mx-auto mb-1" style={{ color: "#3B82F6" }} />
+          <p className="text-xs font-bold text-foreground">6</p>
+          <p className="text-[10px] text-muted-foreground">New Messages</p>
+        </div>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="mb-2">
+        <div className="flex justify-between text-[10px] mb-1">
+          <span className="text-muted-foreground">Profile Complete</span>
+          <span className="font-medium" style={{ color: "#3B82F6" }}>94%</span>
+        </div>
+        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.1)" }}>
+          <div
+            className="h-full rounded-full"
+            style={{ width: "94%", background: "linear-gradient(90deg, #3B82F6, #60A5FA)" }}
+          />
+        </div>
+      </div>
+
+      <p className="text-[10px] text-muted-foreground mt-2">
+        Last viewed by 3 coaches today
+      </p>
     </div>
   );
 }
-
 
 function StatsBar() {
   const stats = [
@@ -195,16 +167,9 @@ export function HeroSection() {
                   />
                 </div>
 
-                {/* Floating Match Card */}
-                <SchoolMatchCard />
+                {/* Floating Profile Card */}
+                <RecruitingProfileCard />
               </div>
-              {/* Caption below card */}
-              <p
-                className="text-center font-sans mt-10 md:mt-12"
-                style={{ color: "rgba(255,255,255,0.5)", fontSize: "12px" }}
-              >
-                ↑ 847 more programs match your profile
-              </p>
             </div>
           </div>
         </div>

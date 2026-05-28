@@ -155,7 +155,7 @@ function HowItWorks() {
     },
     {
       icon: DollarSign,
-      title: "You earn 25% of every subscription they generate — paid monthly, forever",
+      title: "You earn $50 per active subscriber every month — paid monthly, forever",
     },
   ];
   return (
@@ -260,8 +260,8 @@ function WhatAthletesGet() {
 
 function RevenueCalculator() {
   const [athletes, setAthletes] = useState(100);
-  const signups = Math.round(athletes * 0.1);
-  const monthly = signups * 19.99 * 0.25;
+  const subscribers = Math.round(athletes * 0.2);
+  const monthly = subscribers * 50;
   const annual = monthly * 12;
   const fmt = (n: number) =>
     n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
@@ -284,7 +284,7 @@ function RevenueCalculator() {
           <div className="flex items-center gap-4 mb-2">
             <Slider
               value={[athletes]}
-              min={25}
+              min={100}
               max={500}
               step={5}
               onValueChange={(v) => setAthletes(v[0])}
@@ -295,34 +295,53 @@ function RevenueCalculator() {
             </span>
           </div>
           <div className="flex justify-between text-xs text-muted-foreground mb-8">
-            <span>25</span>
+            <span>100</span>
             <span>500</span>
           </div>
 
           <div className="space-y-3">
             <div className="flex justify-between items-baseline border-b border-border/30 pb-3">
-              <span className="text-sm text-muted-foreground">Estimated monthly signups</span>
-              <span className="font-sans text-lg font-bold text-foreground">{signups}</span>
+              <span className="text-sm text-muted-foreground">Estimated monthly subscribers</span>
+              <span className="font-sans text-lg font-bold text-foreground">{subscribers}</span>
             </div>
             <div className="flex justify-between items-baseline border-b border-border/30 pb-3">
-              <span className="text-sm text-muted-foreground">Estimated monthly revenue</span>
+              <span className="text-sm text-muted-foreground">Estimated monthly revenue for you</span>
               <span className="font-sans text-lg font-bold text-secondary">{fmt(monthly)}</span>
             </div>
             <div className="flex justify-between items-baseline pt-1">
-              <span className="text-sm text-muted-foreground">Estimated annual revenue</span>
+              <span className="text-sm text-muted-foreground">Estimated annual revenue for you</span>
               <span className="font-sans text-2xl font-bold text-primary">{fmt(annual)}</span>
             </div>
           </div>
         </div>
         <p className="text-xs text-muted-foreground text-center mt-6">
-          Based on average conversion rates from current partner programs
+          Based on average conversion rates from current partner programs. Results vary based on program size and engagement.
         </p>
+
+        {/* Example box at default 100-athlete position */}
+        <div
+          className="mt-6 rounded-xl p-4 border text-center"
+          style={{
+            background: "rgba(255,255,255,0.02)",
+            borderColor: "rgba(255,255,255,0.08)",
+          }}
+        >
+          <p className="text-sm text-foreground/70">
+            Example: A program with{" "}
+            <span className="font-sans font-bold text-primary">100</span> athletes →{" "}
+            <span className="font-sans font-bold text-primary">20</span> subscribers →{" "}
+            <span className="font-sans font-bold text-primary">$1,000</span>/month →{" "}
+            <span className="font-sans font-bold text-primary">$12,000</span>/year
+          </p>
+        </div>
       </div>
     </section>
   );
 }
 
 function Testimonial() {
+  const quote = "We plugged Play it Forward into Philadelphia Basketball School and our players were immediately engaged. It took us maybe 20 minutes to set up and share the link — after that it ran itself. Our athletes were messaging college coaches the same day. For us it was a no-brainer upsell that added real recurring revenue to our program without adding any work. It changed how we think about our business model.";
+
   return (
     <section className="px-4 md:px-6 lg:px-12 py-20 md:py-28" style={{ background: "#0D1220" }}>
       <div className="max-w-[900px] mx-auto">
@@ -336,21 +355,59 @@ function Testimonial() {
             borderColor: "rgba(59,130,246,0.2)",
           }}
         >
-          <Quote className="w-10 h-10 text-primary/40 mb-4" />
-          <p className="text-lg md:text-xl text-foreground italic leading-relaxed mb-6">
-            Coming soon — be one of our founding partners.
+          {/* Founding Partner badge */}
+          <div
+            className="absolute top-4 right-4 md:top-6 md:right-6 px-2.5 py-1 text-[11px] font-semibold text-white uppercase tracking-wider"
+            style={{
+              background: "#7f1d1d",
+              borderRadius: "6px",
+            }}
+          >
+            Founding Partner
+          </div>
+
+          {/* Large opening quote mark in brand red */}
+          <span
+            className="block font-serif leading-none select-none"
+            style={{ color: "hsl(var(--primary))", fontSize: "4rem", marginBottom: "-0.5rem" }}
+          >
+            "
+          </span>
+
+          <p
+            className="leading-relaxed mb-8"
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: "16px",
+              fontWeight: 400,
+              color: "rgba(255,255,255,0.85)",
+            }}
+          >
+            {quote}
           </p>
+
+          {/* Red line separator */}
+          <div className="w-12 h-[2px] rounded-full mb-4" style={{ background: "hsl(var(--primary))" }} />
+
+          {/* Attribution with avatar */}
           <div className="flex items-center gap-3">
             <div
-              className="w-12 h-12 rounded-full border-2"
-              style={{
-                borderColor: "rgba(59,130,246,0.4)",
-                background: "linear-gradient(135deg, #0F1A35, #1A2A55)",
-              }}
-            />
+              className="w-12 h-12 rounded-full overflow-hidden border-2 flex items-center justify-center"
+              style={{ borderColor: "rgba(59,130,246,0.4)" }}
+            >
+              <img
+                src={alexWade}
+                alt="Alex Wade"
+                className="w-full h-full object-cover object-top"
+              />
+            </div>
             <div>
-              <p className="text-sm font-semibold text-foreground">Your program here</p>
-              <p className="text-xs text-muted-foreground">Founding partner spot open</p>
+              <p
+                className="text-[13px] font-semibold text-white"
+                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+              >
+                Alex Wade — Head Coach, Philadelphia Basketball School · Philadelphia, PA · Former D1 Player, Notre Dame
+              </p>
             </div>
           </div>
         </div>
@@ -367,7 +424,7 @@ function FAQ() {
     },
     {
       q: "How do I get paid?",
-      a: "Via direct deposit monthly. You receive 25% of every active subscription from athletes in your network.",
+      a: "Via direct deposit monthly. You earn a flat $50 per active subscriber every month from athletes in your network.",
     },
     {
       q: "What do I need to do?",

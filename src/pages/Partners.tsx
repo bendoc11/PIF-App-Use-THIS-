@@ -13,7 +13,7 @@ import alexWade from "@/assets/coaches/alex-wade.webp";
 import zacErvin from "@/assets/coaches/zac-ervin.webp";
 import torrenceWatson from "@/assets/coaches/torrence-watson.webp";
 
-const CALENDLY_URL = "https://calendly.com/playitforward/partnership";
+const CALENDLY_URL = "https://calendly.com/bdaugherty216/play-it-forward-intro-call";
 
 function CoachAvatar({ src, name, school }: { src?: string; name: string; school: string }) {
   const initial = name.charAt(0);

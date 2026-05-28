@@ -30,8 +30,14 @@ function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-background border-b border-border/50">
       <nav className="flex items-center justify-between px-4 md:px-6 lg:px-12 h-16 max-w-[1200px] mx-auto">
-        <div className="flex items-baseline gap-1">
-          <span className="font-sans text-lg font-bold text-primary">Offered</span>
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center shrink-0">
+            <span className="text-white font-bold text-[10px] tracking-wide">OFF</span>
+          </div>
+          <div className="flex flex-col leading-none">
+            <span className="font-sans font-bold text-[22px] text-foreground tracking-tight">Offered</span>
+            <span className="text-[11px] text-white/40 font-normal mt-0.5">Basketball Recruiting</span>
+          </div>
         </div>
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((l) => (

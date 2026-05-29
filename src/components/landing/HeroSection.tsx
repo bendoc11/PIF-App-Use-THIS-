@@ -1,10 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
 import { SchoolBrowser } from "./SchoolBrowser";
-
-
-
+import zacErvinHero from "@/assets/zac-ervin-hero.jpg";
 
 export function HeroSection() {
   return (
@@ -31,32 +26,65 @@ export function HeroSection() {
                 Coaches recruited 4,200 athletes last year who reached out first. We give every high school basketball player direct access to every college coach in the country — and show you exactly which programs need your position right now.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-5">
-                <Link to="/login?mode=signup" className="w-full sm:w-auto">
-                  <Button className="bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base font-semibold min-h-[52px] glow-red glow-red-hover">
-                    I'm Ready to Get Offered → <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
-                </Link>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-white/60" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 12 }}>
-                <span>✓ Free to start</span>
-                <span className="text-white/30">·</span>
-                <span>✓ No credit card required</span>
-                <span className="text-white/30">·</span>
-                <span>✓ 2-minute setup</span>
+              <div
+                className="flex items-center gap-3"
+                style={{
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  fontWeight: 500,
+                  fontSize: 16,
+                  color: "rgba(255,255,255,0.8)",
+                }}
+              >
+                <span>Browse real programs recruiting right now</span>
+                <span
+                  aria-hidden
+                  className="inline-block"
+                  style={{ animation: "nudgeRight 1.4s ease-in-out infinite" }}
+                >
+                  →
+                </span>
               </div>
             </div>
           </div>
 
           <div className="relative order-1 lg:order-2 flex items-center justify-center">
-            <div className="w-full">
-              <SchoolBrowser />
+            <div className="relative w-full rounded-2xl overflow-hidden lg:overflow-visible">
+              {/* Background photo */}
+              <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] lg:aspect-[3/4] rounded-2xl overflow-hidden">
+                <img
+                  src={zacErvinHero}
+                  alt="College basketball player dunking in front of a packed gym crowd"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loading="eager"
+                />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(180deg, rgba(10,15,30,0.15) 0%, rgba(10,15,30,0.55) 60%, rgba(10,15,30,0.9) 100%)",
+                  }}
+                />
+
+                {/* School card overlay - bottom right */}
+                <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 left-3 sm:left-auto sm:w-[380px] sm:max-w-[380px]">
+                  <SchoolBrowser />
+                </div>
+              </div>
             </div>
           </div>
-
         </div>
       </div>
+
+      <style>{`
+        @keyframes nudgeRight {
+          0%, 100% { transform: translateX(0); }
+          50% { transform: translateX(6px); }
+        }
+        @keyframes ctaPulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.0); }
+          50% { box-shadow: 0 0 24px 4px rgba(220,38,38,0.45); }
+        }
+      `}</style>
     </section>
   );
 }

@@ -53,7 +53,7 @@ export function LiveOpeningsTicker() {
       let lines: string[] = [];
       if (!error && Array.isArray(data)) {
         lines = data.map((r: any) =>
-          `${r.school_name} has ${r.graduating_count} ${expandPos(r.position)} spot${r.graduating_count > 1 ? "s" : ""} opening in ${r.graduation_year} — ${shortDiv(r.division)}`
+          `${r.school_name} has ${r.graduating_count} ${expandPos(r.pos)} spot${r.graduating_count > 1 ? "s" : ""} opening in ${r.graduation_year} — ${shortDiv(r.division)}`
         );
       }
       if (lines.length < 10) lines = FALLBACK;

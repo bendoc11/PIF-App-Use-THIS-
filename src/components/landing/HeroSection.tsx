@@ -93,15 +93,16 @@ function AthleteProfileCard() {
         boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
       }}
     >
-      <div className="relative w-full" style={{ height: 280 }}>
+      <div className="relative w-full" style={{ height: 360, background: "#ffffff" }}>
         <img
           src={ZAC_AVATAR_URL}
           alt="Zac Ervin, Elon University commit"
-          className="absolute inset-0 w-full h-full object-cover object-top"
+          className="absolute inset-0 w-full h-full object-contain"
+          style={{ objectPosition: "center top" }}
           loading="eager"
         />
         <div
-          className="absolute inset-x-0 bottom-0 h-20 pointer-events-none"
+          className="absolute inset-x-0 bottom-0 h-16 pointer-events-none"
           style={{ background: "linear-gradient(180deg, transparent, rgb(10,15,30))" }}
         />
       </div>

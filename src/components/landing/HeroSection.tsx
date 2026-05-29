@@ -14,6 +14,7 @@ export function HeroSection() {
           alt=""
           aria-hidden
           className="absolute inset-0 w-full h-full object-cover"
+          style={{ objectPosition: "top center" }}
           loading="eager"
         />
         <div className="absolute inset-0" style={{ background: "rgba(10,15,30,0.78)" }} />
@@ -42,7 +43,10 @@ export function HeroSection() {
               THE RECRUITING PLATFORM NCSA DOESN'T WANT YOU TO KNOW ABOUT
             </p>
 
-            <h1 className="font-sans text-5xl sm:text-6xl lg:text-[4rem] font-bold leading-[1.05] mb-6 text-foreground">
+            <h1
+              className="font-sans text-[3.5rem] sm:text-[4rem] lg:text-[4.5rem] font-bold leading-[1.05] mb-6 text-foreground"
+              style={{ textShadow: "0 2px 20px rgba(255,255,255,0.15)" }}
+            >
               Get Offered.
             </h1>
 
@@ -53,15 +57,15 @@ export function HeroSection() {
             </p>
 
             <p
-              className="mb-4"
+              className="mb-3"
               style={{
                 fontFamily: "'Plus Jakarta Sans', sans-serif",
                 fontWeight: 400,
-                fontSize: 13,
-                color: "rgba(255,255,255,0.55)",
+                fontSize: 12,
+                color: "rgba(255,255,255,0.45)",
               }}
             >
-              👇 Browse programs below — tap one to get started
+              Browse programs recruiting your position →
             </p>
 
             <div className="w-full max-w-[480px]">
@@ -118,7 +122,7 @@ function AthleteProfileCard() {
             color: "rgba(255,255,255,0.65)",
           }}
         >
-          SG/SF · 6'5" · Class of 2025
+          SG · 6'5" · Gate City HS · Gate City, VA
         </p>
         <p
           className="mt-1 text-primary"
@@ -129,7 +133,8 @@ function AthleteProfileCard() {
 
         <div className="my-4 h-px" style={{ background: "rgba(255,255,255,0.1)" }} />
 
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-4 gap-2">
+          <StatBox value="27" label="PPG Senior Season" valueColor="#ffffff" />
           <StatBox value="40+" label="Scholarship Offers" valueColor="hsl(var(--primary))" />
           <StatBox value="#9" label="Ranked in Virginia" valueColor="#ffffff" />
           <StatBox value="D1" label="Division" valueColor="#ffffff" />
@@ -154,7 +159,7 @@ function AthleteProfileCard() {
             lineHeight: 1.5,
           }}
         >
-          Zac used Offered to contact coaches directly — and got offered.
+          Former D1 player · Now helping the next generation get recruited.
         </p>
       </div>
     </div>

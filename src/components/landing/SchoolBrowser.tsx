@@ -52,18 +52,6 @@ export function SchoolBrowser() {
 
   return (
     <div className="relative w-full max-w-[440px] mx-auto">
-      {/* Permanent prompt */}
-      <div
-        className="text-center mb-2"
-        style={{
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
-          fontWeight: 400,
-          fontSize: 11,
-          color: "rgba(255,255,255,0.5)",
-        }}
-      >
-        👆 Tap a school to get started
-      </div>
 
       {/* Card with swipe animation */}
       <div className="relative overflow-hidden rounded-2xl">
@@ -125,7 +113,7 @@ export function SchoolBrowser() {
             onClick={next}
             className="w-full text-xs text-white/60 hover:text-white/90 py-2 transition-colors"
           >
-            Next school → ({index + 1} of {SCHOOLS.length})
+            Next school →
           </button>
         </div>
       </div>

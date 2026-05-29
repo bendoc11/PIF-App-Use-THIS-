@@ -1,180 +1,107 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, Mail, TrendingUp, Award } from "lucide-react";
+import { ArrowRight, Eye } from "lucide-react";
 import zacErvinHero from "@/assets/zac-ervin-hero.jpg";
 
-function RecruitingProfileCard() {
+function MatchForYouCard() {
   return (
     <div
-      className="absolute -bottom-4 left-4 md:-bottom-6 md:left-6 w-[260px] md:w-[300px] rounded-2xl border p-4 z-20"
+      className="absolute -bottom-4 left-4 md:-bottom-6 md:left-6 w-[280px] md:w-[320px] rounded-2xl p-5 z-20 border"
       style={{
         background: "rgb(10, 15, 30)",
-        borderColor: "rgba(59, 130, 246, 0.4)",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 60px rgba(59,130,246,0.1)",
+        borderColor: "rgba(255,255,255,0.15)",
+        boxShadow: "0 12px 40px rgba(0,0,0,0.6), 0 0 60px rgba(220,38,38,0.08)",
       }}
     >
-      {/* Profile Header */}
-      <div className="flex items-center gap-3 mb-4">
-        <div
-          className="w-12 h-12 rounded-full border-2 overflow-hidden"
-          style={{ borderColor: "rgba(59, 130, 246, 0.5)" }}
-        >
-          <img
-            src={zacErvinHero}
-            alt="Zac Ervin"
-            className="w-full h-full object-cover object-top"
-          />
-        </div>
-        <div>
-          <p className="font-sans font-bold text-foreground text-sm">ZAC ERVIN</p>
-          <p className="text-xs text-muted-foreground">2025 · SG/SF · 6'5"</p>
-        </div>
-      </div>
-
-      {/* Stat Badges */}
-      <div className="grid grid-cols-3 gap-2 mb-4">
-        <div
-          className="rounded-lg p-2 text-center"
-          style={{ background: "rgba(59, 130, 246, 0.2)" }}
-        >
-          <Award className="w-4 h-4 mx-auto mb-1" style={{ color: "#3B82F6" }} />
-          <p className="text-xs font-bold text-foreground">42</p>
-          <p className="text-[10px] text-muted-foreground">Offers</p>
-        </div>
-        <div
-          className="rounded-lg p-2 text-center"
-          style={{ background: "rgba(239, 68, 68, 0.2)" }}
-        >
-          <TrendingUp className="w-4 h-4 mx-auto mb-1" style={{ color: "#EF4444" }} />
-          <p className="text-xs font-bold text-foreground">#9</p>
-          <p className="text-[10px] text-muted-foreground">Player in VA</p>
-        </div>
-        <div
-          className="rounded-lg p-2 text-center border"
-          style={{ borderColor: "rgba(59, 130, 246, 0.3)", background: "rgba(10, 15, 30, 0.5)" }}
-        >
-          <Mail className="w-4 h-4 mx-auto mb-1" style={{ color: "#3B82F6" }} />
-          <p className="text-xs font-bold text-foreground">6</p>
-          <p className="text-[10px] text-muted-foreground">New Messages</p>
-        </div>
-      </div>
-
-      {/* Progress Bar */}
-      <div className="mb-2">
-        <div className="flex justify-between text-[10px] mb-1">
-          <span className="text-muted-foreground">Profile Complete</span>
-          <span className="font-medium" style={{ color: "#3B82F6" }}>94%</span>
-        </div>
-        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.1)" }}>
-          <div
-            className="h-full rounded-full"
-            style={{ width: "94%", background: "linear-gradient(90deg, #3B82F6, #60A5FA)" }}
-          />
-        </div>
-      </div>
-
-      <p className="text-[10px] text-muted-foreground mt-2">
-        Last viewed by 3 coaches today
+      <p className="font-sans font-semibold uppercase tracking-[0.15em] mb-3" style={{ fontSize: 10, color: "hsl(var(--primary))" }}>
+        MATCH FOR YOU
       </p>
-    </div>
-  );
-}
-
-function StatsBar() {
-  const stats = [
-    { value: "1,852+", label: "College Programs" },
-    { value: "7,819+", label: "Coach Contacts" },
-    { value: "All Divisions", label: "D1 · D2 · D3 · NAIA" },
-    { value: "Every Sport", label: "Full Athletic Department" },
-  ];
-
-  return (
-    <div className="border-t border-b border-border/50 bg-card/30">
-      <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-12 py-5">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-0">
-          {stats.map((s, i) => (
-            <div
-              key={s.label}
-              className={`text-center ${i < stats.length - 1 ? "md:border-r md:border-border/30" : ""}`}
-            >
-              <p className="font-sans text-lg md:text-xl font-semibold text-foreground">{s.value}</p>
-              <p className="text-[11px] font-medium tracking-wider text-muted-foreground uppercase">{s.label}</p>
-            </div>
-          ))}
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm" style={{ background: "#1e40af" }}>D</div>
+        <div className="flex-1 min-w-0">
+          <p className="font-sans font-bold text-foreground text-sm leading-tight">Duke University</p>
+          <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-medium" style={{ background: "rgba(59,130,246,0.15)", color: "#60a5fa" }}>
+            D1 · Southeast
+          </span>
         </div>
       </div>
+      <div className="rounded-lg px-3 py-2 mb-3 text-xs font-medium" style={{ background: "#0d2e1a", color: "#4ade80" }}>
+        🏀 Open spot at Point Guard — 2 seniors graduating
+      </div>
+      <div className="flex items-center gap-2 mb-3 text-xs text-white/70">
+        <Eye className="w-3.5 h-3.5" />
+        Coach Williams viewed your profile today
+      </div>
+      <Link to="/login?mode=signup">
+        <Button className="w-full bg-primary hover:bg-primary/90 text-white text-xs font-semibold py-2 h-auto">Message Coach →</Button>
+      </Link>
+      <button className="w-full text-xs text-white/60 hover:text-white/90 mt-2 py-1">Next school →</button>
+      <p className="text-[11px] text-white/50 text-center mt-2">↑ 847 more programs match your profile</p>
     </div>
   );
 }
 
 export function HeroSection() {
   return (
-    <>
-      <section className="relative overflow-hidden min-h-[90vh] lg:min-h-screen" style={{ background: "#0A0F1E" }}>
-        {/* Subtle grid pattern */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
-          style={{
-            backgroundImage: "radial-gradient(circle at 1px 1px, rgba(59,130,246,0.4) 1px, transparent 0)",
-            backgroundSize: "48px 48px",
-          }} />
+    <section className="relative overflow-hidden min-h-[90vh] lg:min-h-screen" style={{ background: "#0A0F1E" }}>
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
+        style={{
+          backgroundImage: "radial-gradient(circle at 1px 1px, rgba(59,130,246,0.4) 1px, transparent 0)",
+          backgroundSize: "48px 48px",
+        }} />
 
-        <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6 lg:px-12 h-full">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[90vh] lg:min-h-screen py-20 lg:py-0">
-            {/* Left side — Headline and CTA */}
-            <div className="flex flex-col justify-center order-2 lg:order-1">
-              <div className="animate-[fadeInUp_0.5s_ease-out_both]">
-                <p className="text-sm font-medium tracking-wider text-secondary uppercase mb-4">
-                  Built for High School Athletes Who Want to Play in College
-                </p>
+      <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6 lg:px-12 h-full">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[90vh] lg:min-h-screen py-16 lg:py-0">
+          <div className="flex flex-col justify-center order-2 lg:order-1">
+            <div className="animate-[fadeInUp_0.5s_ease-out_both]">
+              <p className="font-semibold tracking-[0.12em] text-primary uppercase mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}>
+                THE RECRUITING PLATFORM NCSA DOESN'T WANT YOU TO KNOW ABOUT
+              </p>
 
-                <h1 className="font-sans text-4xl sm:text-5xl lg:text-[3.25rem] font-bold leading-[1.12] mb-6 text-foreground">
-                  Get Offered.
-                </h1>
+              <h1 className="font-sans text-5xl sm:text-6xl lg:text-[4rem] font-bold leading-[1.05] mb-6 text-foreground">
+                Get Offered.
+              </h1>
 
-                <p className="text-muted-foreground text-base sm:text-lg max-w-xl mb-8 leading-relaxed">
-                  Build a recruiting profile coaches actually open. Contact every college program in the country — D1, D2, D3, NAIA — directly from your own email. Stop waiting to be discovered.
-                </p>
+              <p className="text-white/75 text-base sm:text-lg max-w-xl mb-8 leading-relaxed">
+                Coaches recruited 4,200 athletes last year who reached out first. We give every high school basketball player direct access to every college coach in the country — and show you exactly which programs need your position right now.
+              </p>
 
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                  <Link to="/login?mode=signup" className="w-full sm:w-auto">
-                    <Button
-                      className="bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base font-semibold min-h-[52px] glow-red glow-red-hover"
-                    >
-                      Build My Free Profile <ArrowRight className="h-4 w-4 ml-2" />
-                    </Button>
-                  </Link>
-                </div>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-5">
+                <Link to="/login?mode=signup" className="w-full sm:w-auto">
+                  <Button className="bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base font-semibold min-h-[52px] glow-red glow-red-hover">
+                    Build My Free Profile <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </Link>
               </div>
-            </div>
 
-            {/* Right side — Athlete photo with floating card */}
-            <div className="relative order-1 lg:order-2 flex items-center justify-center">
-              <div className="relative w-full max-w-[500px] lg:max-w-[580px]">
-                {/* Athlete Image */}
-                <div className="relative rounded-2xl overflow-hidden">
-                  <img
-                    src={zacErvinHero}
-                    alt="Basketball player going up for a layup"
-                    className="w-full h-auto object-cover object-top"
-                    style={{ aspectRatio: "3/4", maxHeight: "650px" }}
-                  />
-                  {/* Gradient overlay on left edge to blend into background */}
-                  <div
-                    className="absolute inset-y-0 left-0 w-1/3 pointer-events-none"
-                    style={{
-                      background: "linear-gradient(to right, rgba(10,15,30,0.9) 0%, rgba(10,15,30,0.4) 50%, transparent 100%)"
-                    }}
-                  />
-                </div>
-
-                {/* Floating Profile Card */}
-                <RecruitingProfileCard />
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-white/60" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 12 }}>
+                <span>✓ Free to start</span>
+                <span className="text-white/30">·</span>
+                <span>✓ No credit card required</span>
+                <span className="text-white/30">·</span>
+                <span>✓ 2-minute setup</span>
               </div>
             </div>
           </div>
+
+          <div className="relative order-1 lg:order-2 flex items-center justify-center">
+            <div className="relative w-full max-w-[500px] lg:max-w-[580px]">
+              <div className="relative rounded-2xl overflow-hidden">
+                <img
+                  src={zacErvinHero}
+                  alt="High school basketball player going up for a layup"
+                  className="w-full h-auto object-cover object-top"
+                  style={{ aspectRatio: "3/4", maxHeight: "650px" }}
+                  loading="eager"
+                />
+                <div className="absolute inset-y-0 left-0 w-1/3 pointer-events-none"
+                  style={{ background: "linear-gradient(to right, rgba(10,15,30,0.9) 0%, rgba(10,15,30,0.4) 50%, transparent 100%)" }} />
+              </div>
+              <MatchForYouCard />
+            </div>
+          </div>
         </div>
-      </section>
-      <StatsBar />
-    </>
+      </div>
+    </section>
   );
 }

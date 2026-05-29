@@ -1,8 +1,8 @@
 import { SchoolBrowser } from "./SchoolBrowser";
 import zacErvinHero from "@/assets/zac-ervin-hero.jpg";
+import zacErvinHeadshot from "@/assets/zac-ervin-headshot.png";
 
-const ZAC_AVATAR_URL =
-  "https://feblgdfxkuegmjqsdycp.supabase.co/storage/v1/object/public/course-thumbnails/coaches/5c232b53-0334-49cf-81dd-5d94841a3bc4.png";
+const ZAC_AVATAR_URL = zacErvinHeadshot;
 
 export function HeroSection() {
   return (

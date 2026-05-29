@@ -113,7 +113,7 @@ export function SchoolBrowser() {
             onClick={next}
             className="w-full text-xs text-white/60 hover:text-white/90 py-2 transition-colors"
           >
-            Next school → ({index + 1} of {SCHOOLS.length})
+            Next school →
           </button>
         </div>
       </div>

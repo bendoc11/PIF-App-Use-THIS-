@@ -52,20 +52,17 @@ export function SchoolBrowser() {
 
   return (
     <div className="relative w-full max-w-[440px] mx-auto">
-      {/* Animated prompt */}
+      {/* Permanent prompt */}
       <div
-        className="text-center mb-3 transition-opacity duration-500"
+        className="text-center mb-2"
         style={{
           fontFamily: "'Plus Jakarta Sans', sans-serif",
-          fontWeight: 500,
-          fontSize: 12,
-          color: "rgba(255,255,255,0.7)",
-          opacity: showPrompt ? 1 : 0,
-          animation: showPrompt ? "pulse 1.6s ease-in-out infinite" : undefined,
-          height: 18,
+          fontWeight: 400,
+          fontSize: 11,
+          color: "rgba(255,255,255,0.5)",
         }}
       >
-        👆 Browse real programs — tap Next school to explore
+        👆 Tap a school to get started
       </div>
 
       {/* Card with swipe animation */}
@@ -120,6 +117,7 @@ export function SchoolBrowser() {
           <Button
             onClick={() => setModalOpen(true)}
             className="w-full bg-primary hover:bg-primary/90 text-white text-sm font-semibold py-3 h-auto mb-2"
+            style={{ animation: "ctaPulse 3s ease-in-out infinite" }}
           >
             I would play here →
           </Button>
@@ -132,7 +130,7 @@ export function SchoolBrowser() {
         </div>
       </div>
 
-      {/* Status line */}
+      {/* Status lines */}
       <p
         className="text-center mt-3"
         style={{
@@ -144,6 +142,18 @@ export function SchoolBrowser() {
       >
         Browsing {school.display} · {index + 1} of {SCHOOLS.length} programs · 1,848 total programs in the database
       </p>
+      <p
+        className="text-center mt-1"
+        style={{
+          fontFamily: "'Plus Jakarta Sans', sans-serif",
+          fontWeight: 400,
+          fontSize: 11,
+          color: "rgba(255,255,255,0.4)",
+        }}
+      >
+        Find your fit — then message their coaches in one tap.
+      </p>
+
 
       {modalOpen && (
         <div

@@ -38,13 +38,7 @@ const DIV_COLORS: Record<School["division"], string> = {
 export function SchoolBrowser() {
   const [index, setIndex] = useState(0);
   const [dir, setDir] = useState<"in" | "out-right">("in");
-  const [showPrompt, setShowPrompt] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => setShowPrompt(false), 4000);
-    return () => clearTimeout(t);
-  }, []);
 
   const school = SCHOOLS[index];
 

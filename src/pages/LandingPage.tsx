@@ -398,7 +398,7 @@ function FinalCTA() {
             </p>
             <Link to="/login?mode=signup">
               <Button className="bg-primary hover:bg-primary/90 text-white font-semibold px-10 py-7 text-base h-auto glow-red glow-red-hover">
-                Build My Free Profile <ArrowRight className="h-4 w-4 ml-2" />
+                I'm Ready to Get Offered → <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             </Link>
             <p className="text-sm text-white/45 mt-5">Free to start · No credit card required · Cancel anytime</p>

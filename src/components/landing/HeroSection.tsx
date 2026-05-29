@@ -122,7 +122,7 @@ function AthleteProfileCard() {
             color: "rgba(255,255,255,0.65)",
           }}
         >
-          SG/SF · 6'5" · Class of 2025
+          SG · 6'5" · Gate City HS · Gate City, VA
         </p>
         <p
           className="mt-1 text-primary"

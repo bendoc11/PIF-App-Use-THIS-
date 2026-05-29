@@ -42,7 +42,13 @@ export default function Login() {
     return () => window.removeEventListener("account-banned", handleBanned);
   }, []);
 
-  if (loading || (user && !profile)) return null;
+  if (loading || (user && !profile)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
   if (user && profile) {
     // Always send signed-in users to /dashboard. AuthGuard will display
     // the paywall overlay if they don't have an active subscription.

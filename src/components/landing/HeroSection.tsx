@@ -14,6 +14,7 @@ export function HeroSection() {
           alt=""
           aria-hidden
           className="absolute inset-0 w-full h-full object-cover"
+          style={{ objectPosition: "top center" }}
           loading="eager"
         />
         <div className="absolute inset-0" style={{ background: "rgba(10,15,30,0.78)" }} />

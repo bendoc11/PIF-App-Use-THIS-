@@ -133,7 +133,8 @@ function AthleteProfileCard() {
 
         <div className="my-4 h-px" style={{ background: "rgba(255,255,255,0.1)" }} />
 
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-4 gap-2">
+          <StatBox value="27" label="PPG Senior Season" valueColor="#ffffff" />
           <StatBox value="40+" label="Scholarship Offers" valueColor="hsl(var(--primary))" />
           <StatBox value="#9" label="Ranked in Virginia" valueColor="#ffffff" />
           <StatBox value="D1" label="Division" valueColor="#ffffff" />

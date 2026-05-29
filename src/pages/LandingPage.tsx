@@ -75,7 +75,8 @@ function Navbar() {
         <div className="hidden md:flex items-center gap-4">
           <Link to="/login?mode=signup">
             <Button className="bg-primary hover:bg-primary/90 text-foreground rounded-lg px-5 py-2.5 text-sm font-semibold glow-red">
-              Build My Free Profile
+              I'm Ready to Get Offered →
+
             </Button>
           </Link>
         </div>

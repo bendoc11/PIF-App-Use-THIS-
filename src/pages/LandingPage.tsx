@@ -95,7 +95,7 @@ function Navbar() {
               )
             ))}
             <Link to="/login?mode=signup" onClick={() => setMobileOpen(false)}>
-              <Button className="bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full py-3 text-sm font-semibold glow-red">Build My Free Profile</Button>
+              <Button className="bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full py-3 text-sm font-semibold glow-red">I'm Ready to Get Offered →</Button>
             </Link>
           </div>
         </div>

@@ -50,21 +50,11 @@ export function HeroSection() {
           </div>
 
           <div className="relative order-1 lg:order-2 flex items-center justify-center">
-            <div className="relative w-full max-w-[500px] lg:max-w-[580px]">
-              <div className="relative rounded-2xl overflow-hidden">
-                <img
-                  src={zacErvinHero}
-                  alt="High school basketball player going up for a layup"
-                  className="w-full h-auto object-cover object-top"
-                  style={{ aspectRatio: "3/4", maxHeight: "650px" }}
-                  loading="eager"
-                />
-                <div className="absolute inset-y-0 left-0 w-1/3 pointer-events-none"
-                  style={{ background: "linear-gradient(to right, rgba(10,15,30,0.9) 0%, rgba(10,15,30,0.4) 50%, transparent 100%)" }} />
-              </div>
-              <MatchForYouCard />
+            <div className="w-full">
+              <SchoolBrowser />
             </div>
           </div>
+
         </div>
       </div>
     </section>

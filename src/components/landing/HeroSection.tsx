@@ -159,7 +159,7 @@ function AthleteProfileCard() {
             lineHeight: 1.5,
           }}
         >
-          Zac used Offered to contact coaches directly — and got offered.
+          Former D1 player · Now helping the next generation get recruited.
         </p>
       </div>
     </div>

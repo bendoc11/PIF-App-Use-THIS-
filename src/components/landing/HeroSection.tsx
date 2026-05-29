@@ -1,45 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, Eye } from "lucide-react";
-import zacErvinHero from "@/assets/zac-ervin-hero.jpg";
+import { ArrowRight } from "lucide-react";
+import { SchoolBrowser } from "./SchoolBrowser";
 
-function MatchForYouCard() {
-  return (
-    <div
-      className="absolute -bottom-4 left-4 md:-bottom-6 md:left-6 w-[280px] md:w-[320px] rounded-2xl p-5 z-20 border"
-      style={{
-        background: "rgb(10, 15, 30)",
-        borderColor: "rgba(255,255,255,0.15)",
-        boxShadow: "0 12px 40px rgba(0,0,0,0.6), 0 0 60px rgba(220,38,38,0.08)",
-      }}
-    >
-      <p className="font-sans font-semibold uppercase tracking-[0.15em] mb-3" style={{ fontSize: 10, color: "hsl(var(--primary))" }}>
-        MATCH FOR YOU
-      </p>
-      <div className="flex items-center gap-3 mb-3">
-        <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm" style={{ background: "#1e40af" }}>D</div>
-        <div className="flex-1 min-w-0">
-          <p className="font-sans font-bold text-foreground text-sm leading-tight">Duke University</p>
-          <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-medium" style={{ background: "rgba(59,130,246,0.15)", color: "#60a5fa" }}>
-            D1 · Southeast
-          </span>
-        </div>
-      </div>
-      <div className="rounded-lg px-3 py-2 mb-3 text-xs font-medium" style={{ background: "#0d2e1a", color: "#4ade80" }}>
-        🏀 Open spot at Point Guard — 2 seniors graduating
-      </div>
-      <div className="flex items-center gap-2 mb-3 text-xs text-white/70">
-        <Eye className="w-3.5 h-3.5" />
-        Coach Williams viewed your profile today
-      </div>
-      <Link to="/login?mode=signup">
-        <Button className="w-full bg-primary hover:bg-primary/90 text-white text-xs font-semibold py-2 h-auto">Message Coach →</Button>
-      </Link>
-      <button className="w-full text-xs text-white/60 hover:text-white/90 mt-2 py-1">Next school →</button>
-      <p className="text-[11px] text-white/50 text-center mt-2">↑ 847 more programs match your profile</p>
-    </div>
-  );
-}
+
+
 
 export function HeroSection() {
   return (
@@ -69,7 +34,7 @@ export function HeroSection() {
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-5">
                 <Link to="/login?mode=signup" className="w-full sm:w-auto">
                   <Button className="bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base font-semibold min-h-[52px] glow-red glow-red-hover">
-                    Build My Free Profile <ArrowRight className="h-4 w-4 ml-2" />
+                    I'm Ready to Get Offered → <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
                 </Link>
               </div>
@@ -85,21 +50,11 @@ export function HeroSection() {
           </div>
 
           <div className="relative order-1 lg:order-2 flex items-center justify-center">
-            <div className="relative w-full max-w-[500px] lg:max-w-[580px]">
-              <div className="relative rounded-2xl overflow-hidden">
-                <img
-                  src={zacErvinHero}
-                  alt="High school basketball player going up for a layup"
-                  className="w-full h-auto object-cover object-top"
-                  style={{ aspectRatio: "3/4", maxHeight: "650px" }}
-                  loading="eager"
-                />
-                <div className="absolute inset-y-0 left-0 w-1/3 pointer-events-none"
-                  style={{ background: "linear-gradient(to right, rgba(10,15,30,0.9) 0%, rgba(10,15,30,0.4) 50%, transparent 100%)" }} />
-              </div>
-              <MatchForYouCard />
+            <div className="w-full">
+              <SchoolBrowser />
             </div>
           </div>
+
         </div>
       </div>
     </section>

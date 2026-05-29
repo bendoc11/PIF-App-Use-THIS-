@@ -34,7 +34,7 @@ export function HeroSection() {
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-5">
                 <Link to="/login?mode=signup" className="w-full sm:w-auto">
                   <Button className="bg-primary hover:bg-primary/90 text-foreground rounded-lg w-full sm:w-auto px-8 py-6 text-base font-semibold min-h-[52px] glow-red glow-red-hover">
-                    Build My Free Profile <ArrowRight className="h-4 w-4 ml-2" />
+                    I'm Ready to Get Offered → <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
                 </Link>
               </div>

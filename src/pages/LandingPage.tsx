@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { HeroSection } from "@/components/landing/HeroSection";
-import { ArrowRight, Menu, X } from "lucide-react";
+import { LiveOpeningsTicker } from "@/components/landing/LiveOpeningsTicker";
+import { ArrowRight, Menu, X, Check, Star } from "lucide-react";
 import { usePartner } from "@/contexts/PartnerContext";
 
 /* ---- Fade-in hook ---- */
@@ -17,6 +18,17 @@ function useFadeIn() {
     return () => obs.disconnect();
   }, []);
   return { ref, className: `transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}` };
+}
+
+/* ━━━ TRUST BAR ━━━ */
+function TrustBar() {
+  return (
+    <div className="w-full border-b border-white/10" style={{ background: "#0A0F1E" }}>
+      <p className="text-center py-2.5 text-white/70" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 13, fontWeight: 400 }}>
+        🏀 Used by athletes in 38 states · 7,800+ college coaches · Former D1 players on staff
+      </p>
+    </div>
+  );
 }
 
 /* ━━━ NAVBAR ━━━ */
@@ -91,48 +103,22 @@ function Navbar() {
   );
 }
 
-/* ━━━ VALUE PROPS ━━━ */
-function ValueProps() {
+/* ━━━ SOCIAL PROOF STATS ━━━ */
+function SocialProofStats() {
   const fade = useFadeIn();
-  const props = [
-    {
-      title: "Reach Every College Coach",
-      desc: "Contact any D1, D2, D3, or NAIA coach in the country directly from your own email — not a recruiting platform inbox.",
-    },
-    {
-      title: "A Profile Coaches Actually Open",
-      desc: "Stats, film, academics, and intro video — packaged in a profile built for the way college coaches really evaluate.",
-    },
-    {
-      title: "Free for 7 Days. Everything Included.",
-      desc: "Start with full access to direct coach outreach, the profile builder, school database, and recruiting tools.",
-    },
+  const stats = [
+    { value: "7,800+", label: "College Coach Contacts" },
+    { value: "1,848", label: "Programs in Database" },
+    { value: "All Divisions", label: "D1 · D2 · D3 · NAIA · JUCO" },
   ];
-
   return (
-    <section id="platform" className="py-20 lg:py-28" style={{ background: "#0D1220" }} ref={fade.ref}>
-      <div className={`px-4 md:px-6 lg:px-12 max-w-[1200px] mx-auto ${fade.className}`}>
-        <div className="text-center mb-14">
-          <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Everything You Need to Get Recruited
-          </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            The same tools the top recruits use — built for every athlete who's serious about playing in college.
-          </p>
-        </div>
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-          {props.map((p) => (
-            <div
-              key={p.title}
-              className="rounded-xl p-6 border transition-colors hover:border-secondary/30"
-              style={{
-                background: "rgba(255,255,255,0.03)",
-                borderColor: "rgba(59,130,246,0.15)",
-              }}
-            >
-              <div className="h-[2px] w-12 bg-secondary rounded-full mb-5" />
-              <h3 className="font-sans text-lg font-semibold text-foreground mb-3">{p.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
+    <section className="px-4 md:px-6 lg:px-12 py-12 md:py-16" style={{ background: "#0D1220" }} ref={fade.ref}>
+      <div className={`max-w-[1200px] mx-auto rounded-2xl border border-white/10 ${fade.className}`} style={{ background: "rgba(255,255,255,0.02)" }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10">
+          {stats.map((s) => (
+            <div key={s.label} className="text-center py-10 px-6">
+              <p className="font-bold text-primary leading-none mb-3" style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "clamp(36px, 6vw, 48px)" }}>{s.value}</p>
+              <p className="text-white/60" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 14 }}>{s.label}</p>
             </div>
           ))}
         </div>
@@ -145,26 +131,25 @@ function ValueProps() {
 function HowItWorks() {
   const fade = useFadeIn();
   const steps = [
-    { num: "01", title: "Build Your Profile", desc: "Stats, academics, height, weight, position, hometown, intro video, and highlight tape — everything a coach needs to evaluate you." },
-    { num: "02", title: "Find Your Schools", desc: "Search every college program in the country. Filter by division, region, school size, and academics to build your target list." },
-    { num: "03", title: "Email Coaches Directly", desc: "Send personalized outreach to coaches from your own email. Replies come straight back to you. No middleman, no platform inbox." },
+    { num: "01", title: "Build Your Profile", desc: "Tell us your position, division, and where you want to play. Takes 2 minutes." },
+    { num: "02", title: "See Your Matches", desc: "We show you which programs have open spots at your position right now — based on real roster data." },
+    { num: "03", title: "Message Coaches Directly", desc: "Send personalized emails to coaches from your own profile. No middleman. No waiting." },
   ];
-
   return (
     <section id="how-it-works" className="px-4 md:px-6 lg:px-12 py-20 lg:py-28" ref={fade.ref}>
       <div className={`max-w-[1200px] mx-auto ${fade.className}`}>
         <div className="text-center mb-14">
+          <p className="text-primary uppercase tracking-[0.15em] font-semibold mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 12 }}>HOW IT WORKS</p>
           <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">
-            How It Works
+            From profile to coach reply in minutes.
           </h2>
         </div>
-        <div className="grid md:grid-cols-3 gap-8 relative">
-          <div className="hidden md:block absolute top-8 left-[16%] right-[16%] h-px" style={{ background: "linear-gradient(90deg, transparent, hsl(217 74% 57% / 0.25), hsl(217 74% 57% / 0.25), transparent)" }} />
+        <div className="grid md:grid-cols-3 gap-10">
           {steps.map((s) => (
-            <div key={s.num} className="text-center relative">
-              <p className="text-5xl font-bold text-secondary/30 mb-4">{s.num}</p>
-              <h3 className="font-sans text-base font-semibold text-foreground mb-3 uppercase tracking-wide">{s.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+            <div key={s.num} className="text-center md:text-left">
+              <p className="font-bold text-primary leading-none mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 56 }}>{s.num}</p>
+              <h3 className="font-sans text-xl font-bold text-foreground mb-3">{s.title}</h3>
+              <p className="text-white/65 leading-relaxed">{s.desc}</p>
             </div>
           ))}
         </div>
@@ -173,47 +158,182 @@ function HowItWorks() {
   );
 }
 
-/* ━━━ RECRUITING SECTION ━━━ */
-function RecruitingOverview() {
+/* ━━━ OPEN SPOTS PREVIEW ━━━ */
+function OpenSpotsPreview() {
   const fade = useFadeIn();
-  const features = [
-    { title: "Direct Coach Outreach", desc: "Email college coaches from your own inbox. Coaches see a real athlete — not a service. Their replies come straight to you." },
-    { title: "Complete School Database", desc: "Every program in the country, filterable by division, state, school size, and academics. Find your best fit before you reach out." },
-    { title: "Profile & Highlights", desc: "Stats, intro video, highlight tape, academics, and game log — packaged into one profile you can share with any coach in seconds." },
+  const cards = [
+    {
+      initial: "V", bg: "#1e40af",
+      name: "Villanova University", meta: "Big East · D1", loc: "Philadelphia, PA",
+      badge: "RECRUITING NOW", badgeBg: "hsl(var(--primary))",
+      spots: "2 open spots projected at Point Guard",
+      basis: "Based on 2 graduating Point Guards (Senior, 2026)",
+    },
+    {
+      initial: "G", bg: "#15803d",
+      name: "George Mason University", meta: "Atlantic 10 · D1", loc: "Fairfax, VA",
+      badge: "RECRUITING SOON", badgeBg: "#b45309",
+      spots: "1 open spot projected at Point Guard",
+      basis: "Based on 1 graduating Point Guard (Junior, 2027)",
+    },
+    {
+      initial: "H", bg: "#1e293b",
+      name: "Hofstra University", meta: "CAA · D1", loc: "Hempstead, NY",
+      badge: "RECRUITING NOW", badgeBg: "hsl(var(--primary))",
+      spots: "3 open spots projected at Point Guard",
+      basis: "Based on 3 graduating Point Guards (Senior, 2026)",
+    },
   ];
-
   return (
-    <section className="py-20 lg:py-28" style={{ background: "#0D1220" }} ref={fade.ref}>
-      <div className={`px-4 md:px-6 lg:px-12 max-w-[1200px] mx-auto ${fade.className}`}>
-        <div className="grid lg:grid-cols-2 gap-16 items-start">
-          <div>
-            <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground leading-tight mb-6">
-              Stop Waiting to Be Discovered
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-lg mb-10 leading-relaxed">
-              Most families spend thousands on showcases and recruiting services hoping a coach notices. Take control. Reach every college coach in the country yourself.
-            </p>
-            <div className="space-y-4">
-              {features.map((f) => (
-                <div key={f.title} className="rounded-xl p-5 border-l-[3px]" style={{ borderLeftColor: "hsl(217 74% 57%)", background: "rgba(255,255,255,0.03)" }}>
-                  <h3 className="font-sans text-sm font-semibold text-foreground uppercase tracking-wide">{f.title}</h3>
-                  <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{f.desc}</p>
-                </div>
+    <section className="px-4 md:px-6 lg:px-12 py-20 lg:py-28" style={{ background: "#0A0F1E" }} ref={fade.ref}>
+      <div className={`max-w-[1200px] mx-auto ${fade.className}`}>
+        <div className="text-center mb-12">
+          <p className="text-primary uppercase tracking-[0.15em] font-semibold mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 12 }}>YOUR COMPETITIVE EDGE</p>
+          <h2 className="font-sans text-3xl sm:text-4xl lg:text-[36px] font-bold text-foreground mb-4">
+            See exactly which programs need your position.
+          </h2>
+          <p className="text-white/65 max-w-2xl mx-auto" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 16 }}>
+            Offered is the only recruiting platform with real-time roster intelligence. We track graduation data and transfers across every program in the country — so you always know where the open spots are.
+          </p>
+        </div>
+
+        <div className="max-w-[900px] mx-auto rounded-xl border border-white/10 p-5 md:p-6" style={{ background: "rgba(255,255,255,0.02)" }}>
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <p className="font-sans font-bold text-foreground">Open Spots</p>
+            <div className="flex flex-wrap gap-2">
+              {["D1", "Northeast", "Point Guard", "All Urgency"].map((p) => (
+                <span key={p} className="px-3 py-1 rounded-full text-xs text-white/85 border border-white/15" style={{ background: "rgba(255,255,255,0.04)" }}>{p}</span>
               ))}
             </div>
           </div>
-          <div className="space-y-6">
-            <div className="bg-secondary/10 border border-secondary/20 rounded-2xl p-6">
-              <p className="text-4xl font-bold text-secondary">7,819</p>
-              <p className="text-sm font-medium text-muted-foreground mt-1 uppercase tracking-wider">Coach Contacts at Your Fingertips</p>
+          <p className="text-sm text-white/55 mb-5">47 programs likely recruiting your position</p>
+
+          <div className="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1 snap-x">
+            {cards.map((c, i) => (
+              <div
+                key={c.name}
+                className="shrink-0 w-[260px] md:w-[270px] rounded-xl border border-white/10 p-4 snap-start"
+                style={{ background: "#0D1220", opacity: i === 2 ? 0.7 : 1 }}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style={{ background: c.bg }}>{c.initial}</div>
+                  <span className="px-2 py-0.5 rounded text-[9px] font-bold text-white uppercase tracking-wider" style={{ background: c.badgeBg }}>{c.badge}</span>
+                </div>
+                <p className="font-bold text-foreground text-sm leading-tight">{c.name}</p>
+                <p className="text-[11px] text-white/55 mt-0.5">{c.meta}</p>
+                <p className="text-[11px] text-white/55">{c.loc}</p>
+                <p className="text-sm text-white/90 mt-3 font-medium">{c.spots}</p>
+                <p className="text-[11px] text-white/50 mt-1">{c.basis}</p>
+                <Button className="w-full mt-3 bg-primary hover:bg-primary/90 text-white text-xs h-9">Message Coach →</Button>
+                <button className="w-full text-xs text-white/55 hover:text-white/85 mt-2">View Roster</button>
+              </div>
+            ))}
+          </div>
+          <p className="text-center text-xs text-white/30 mt-3">← scroll to see more programs →</p>
+        </div>
+
+        <div className="text-center mt-8 space-y-1">
+          <p className="text-sm text-white/50 flex items-center justify-center gap-2">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+            Updated weekly from official athletic department rosters
+          </p>
+          <p className="text-sm text-white/50">Covering 1,848 programs across D1, D2, D3, NAIA, and JUCO</p>
+        </div>
+
+        <div className="text-center mt-8">
+          <Link to="/login?mode=signup">
+            <Button className="bg-primary hover:bg-primary/90 text-white font-semibold px-8 py-6 text-base h-auto glow-red">
+              See My Open Spots <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ━━━ NCSA COMPARISON ━━━ */
+function NcsaComparison() {
+  const fade = useFadeIn();
+  const rows = [
+    { label: "Price", us: "$19.99/month", them: "$1,500+" },
+    { label: "Coach contacts", us: "7,800+ direct emails", them: "Coaches contact you (maybe)" },
+    { label: "Roster intelligence", us: "✓ Open Spots feature", them: "✗" },
+    { label: "D1 staff assessments", us: "✓ Free", them: "✗" },
+    { label: "Sends from your profile", us: "✓", them: "✗" },
+    { label: "Response guarantee", us: "✓ 35 coaches or refund", them: "✗" },
+  ];
+  return (
+    <section className="px-4 md:px-6 lg:px-12 py-20 lg:py-28" ref={fade.ref}>
+      <div className={`max-w-[1000px] mx-auto ${fade.className}`}>
+        <div className="text-center mb-10">
+          <h2 className="font-sans text-2xl sm:text-3xl lg:text-[28px] font-bold text-foreground mb-3">
+            NCSA charges $1,500. We charge $19.99/month.
+          </h2>
+          <p className="text-primary font-semibold text-lg">And we get coaches to actually respond.</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 overflow-x-auto" style={{ background: "rgba(255,255,255,0.02)" }}>
+          <table className="w-full min-w-[600px]">
+            <thead>
+              <tr className="border-b border-white/10">
+                <th className="text-left p-4 text-sm text-white/50 font-medium"></th>
+                <th className="text-left p-4 text-base font-bold text-primary">Offered</th>
+                <th className="text-left p-4 text-base font-bold text-white/50">NCSA</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r, i) => (
+                <tr key={r.label} className={i < rows.length - 1 ? "border-b border-white/5" : ""}>
+                  <td className="p-4 text-sm font-medium text-white/80">{r.label}</td>
+                  <td className="p-4 text-sm text-foreground">
+                    {r.us.startsWith("✓") ? <span className="text-green-400">{r.us}</span> : r.us}
+                  </td>
+                  <td className="p-4 text-sm text-white/40">{r.them}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ━━━ TESTIMONIALS ━━━ */
+function Testimonials() {
+  const fade = useFadeIn();
+  const alexAvatar = "https://feblgdfxkuegmjqsdycp.supabase.co/storage/v1/object/public/course-thumbnails/coaches/2cdd9e3c-94c6-4636-bdbb-5824405fbd37.png";
+  return (
+    <section className="px-4 md:px-6 lg:px-12 py-20 lg:py-28" style={{ background: "#0D1220" }} ref={fade.ref}>
+      <div className={`max-w-[1100px] mx-auto ${fade.className}`}>
+        <h2 className="text-center font-sans text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-12">
+          What families are saying
+        </h2>
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="rounded-2xl border border-white/10 p-7" style={{ background: "rgba(255,255,255,0.02)" }}>
+            <div className="flex gap-1 mb-4">
+              {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />)}
             </div>
-            <div className="bg-secondary/10 border border-secondary/20 rounded-2xl p-6">
-              <p className="text-4xl font-bold text-secondary">1,852</p>
-              <p className="text-sm font-medium text-muted-foreground mt-1 uppercase tracking-wider">College Programs — All Divisions</p>
+            <p className="text-white/90 leading-relaxed mb-4">
+              "We had NCSA for a year and heard nothing back from coaches. Signed up for Offered and our son had three coaches respond in the first week."
+            </p>
+            <p className="text-sm text-white/55">— Basketball Parent · Philadelphia, PA</p>
+          </div>
+
+          <div className="relative rounded-2xl border border-primary/30 p-7" style={{ background: "linear-gradient(180deg, rgba(220,38,38,0.05), rgba(255,255,255,0.02))" }}>
+            <span className="absolute top-4 right-4 px-2 py-1 rounded text-[9px] font-bold uppercase tracking-wider text-white" style={{ background: "#7f1d1d" }}>FOUNDING PARTNER</span>
+            <div className="flex gap-1 mb-4">
+              {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />)}
             </div>
-            <div className="bg-secondary/10 border border-secondary/20 rounded-2xl p-6">
-              <p className="text-4xl font-bold text-secondary">50</p>
-              <p className="text-sm font-medium text-muted-foreground mt-1 uppercase tracking-wider">States Covered</p>
+            <p className="text-white/90 leading-relaxed mb-4">
+              "We plugged Offered into Philadelphia Basketball School and our players were immediately engaged. It took us maybe 20 minutes to set up. Our athletes were messaging college coaches the same day."
+            </p>
+            <div className="flex items-center gap-3 mt-4">
+              <img src={alexAvatar} alt="Alex Wade" className="w-12 h-12 rounded-full object-cover" loading="lazy" />
+              <div>
+                <p className="text-sm font-semibold text-foreground">Alex Wade</p>
+                <p className="text-xs text-white/55">Head Coach, Philadelphia Basketball School · Former D1, Notre Dame</p>
+              </div>
             </div>
           </div>
         </div>
@@ -222,42 +342,67 @@ function RecruitingOverview() {
   );
 }
 
-/* ━━━ TESTIMONIAL ━━━ */
-function TestimonialSection() {
+/* ━━━ MEET STAFF ━━━ */
+function MeetStaff() {
   const fade = useFadeIn();
+  const staff = [
+    { name: "Alex Wade", school: "Notre Dame", url: "https://feblgdfxkuegmjqsdycp.supabase.co/storage/v1/object/public/course-thumbnails/coaches/2cdd9e3c-94c6-4636-bdbb-5824405fbd37.png" },
+    { name: "Zac Ervin", school: "Elon University", url: "https://feblgdfxkuegmjqsdycp.supabase.co/storage/v1/object/public/course-thumbnails/coaches/5c232b53-0334-49cf-81dd-5d94841a3bc4.png" },
+    { name: "Ryan Langborg", school: "Northwestern", url: "https://feblgdfxkuegmjqsdycp.supabase.co/storage/v1/object/public/course-thumbnails/coaches/4954e19b-f525-4169-a759-500bbebee965.png" },
+    { name: "Torrence Watson", school: "Missouri", url: "https://feblgdfxkuegmjqsdycp.supabase.co/storage/v1/object/public/course-thumbnails/coaches/1519c8b9-8e74-4de7-8af9-35d65d27c4dc.png" },
+  ];
   return (
-    <section className="py-20 lg:py-28" ref={fade.ref}>
-      <div className={`px-4 md:px-6 lg:px-12 max-w-[900px] mx-auto ${fade.className}`}>
-        <div className="relative border-l-4 border-secondary pl-8 md:pl-12">
-          <p className="text-lg sm:text-xl lg:text-2xl text-foreground leading-relaxed font-medium italic">
-            "I sent emails to 40 coaches in one weekend. By the next week I had three schools fly out to watch me play. Offered changed everything for me — I didn't need a $3,000 recruiting service. I just needed a profile and the coaches' emails."
-          </p>
-          <p className="text-sm font-medium text-primary mt-6 uppercase tracking-wider">
-            — D1 Commit, Class of 2025
-          </p>
+    <section id="platform" className="px-4 md:px-6 lg:px-12 py-20 lg:py-28" ref={fade.ref}>
+      <div className={`max-w-[1100px] mx-auto text-center ${fade.className}`}>
+        <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+          Built by players who've been through it
+        </h2>
+        <p className="text-white/65 max-w-2xl mx-auto mb-12 leading-relaxed">
+          Our team includes former D1 players from Notre Dame, Northwestern, Missouri, and Elon — who personally assess every athlete's recruiting profile.
+        </p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+          {staff.map((s) => (
+            <div key={s.name} className="flex flex-col items-center">
+              <img src={s.url} alt={s.name} className="w-28 h-28 md:w-32 md:h-32 rounded-full object-cover mb-4 border-2 border-white/10" loading="lazy" />
+              <p className="font-semibold text-foreground">{s.name}</p>
+              <p className="text-xs text-white/55 mt-1">{s.school}</p>
+            </div>
+          ))}
         </div>
+        <a href="https://calendly.com/bdaugherty216/play-it-forward-intro-call" target="_blank" rel="noopener noreferrer">
+          <Button className="bg-primary hover:bg-primary/90 text-white font-semibold px-8 py-6 text-base h-auto glow-red">
+            Book a Free Assessment
+          </Button>
+        </a>
       </div>
     </section>
   );
 }
 
-/* ━━━ PRICING / CTA ━━━ */
-function PricingCTA() {
+/* ━━━ FINAL CTA ━━━ */
+function FinalCTA() {
   const fade = useFadeIn();
   return (
-    <section className="py-20 lg:py-28" style={{ background: "#0D1220" }} ref={fade.ref}>
-      <div className={`px-4 md:px-6 lg:px-12 max-w-[800px] mx-auto text-center ${fade.className}`}>
-        <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-          Your Recruiting Starts Today.
-        </h2>
-        <p className="text-muted-foreground text-lg max-w-xl mx-auto mb-6 leading-relaxed">
-          Build your free profile, find your schools, and start contacting coaches in the next 10 minutes.
-        </p>
-        <Link to="/login?mode=signup">
-          <Button className="bg-primary hover:bg-primary/90 text-foreground rounded-lg px-10 py-7 text-base font-semibold min-h-[56px] glow-red glow-red-hover">
-            Build My Free Profile <ArrowRight className="h-4 w-4 ml-2" />
-          </Button>
-        </Link>
+    <section className="px-4 md:px-6 lg:px-12 py-20 lg:py-28" ref={fade.ref}>
+      <div className={`max-w-[1100px] mx-auto ${fade.className}`}>
+        <div className="relative rounded-3xl border border-white/10 p-10 md:p-16 text-center overflow-hidden" style={{ background: "#0D1220" }}>
+          <div className="absolute inset-y-0 left-0 w-1" style={{ background: "linear-gradient(180deg, hsl(var(--primary)), transparent)" }} />
+          <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(circle at 0% 50%, rgba(220,38,38,0.08), transparent 60%)" }} />
+          <div className="relative">
+            <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight">
+              Your athlete's recruiting window is open right now.
+            </h2>
+            <p className="text-white/65 max-w-2xl mx-auto mb-8 text-base md:text-lg leading-relaxed">
+              Coaches are building their 2026 and 2027 rosters today. Every week you wait is a week another athlete takes your spot.
+            </p>
+            <Link to="/login?mode=signup">
+              <Button className="bg-primary hover:bg-primary/90 text-white font-semibold px-10 py-7 text-base h-auto glow-red glow-red-hover">
+                Build My Free Profile <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </Link>
+            <p className="text-sm text-white/45 mt-5">Free to start · No credit card required · Cancel anytime</p>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -307,21 +452,24 @@ function Footer() {
 /* ━━━ MAIN ━━━ */
 export default function LandingPage() {
   useEffect(() => {
-    // Chat widget removed — strip any previously injected instance
     document.getElementById("leadconnector-chat-widget")?.remove();
     document.querySelectorAll("chat-widget").forEach((el) => el.remove());
   }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground scroll-smooth">
+      <TrustBar />
       <Navbar />
+      <LiveOpeningsTicker />
       <main>
         <HeroSection />
-        <ValueProps />
-        <RecruitingOverview />
+        <SocialProofStats />
         <HowItWorks />
-        <TestimonialSection />
-        <PricingCTA />
+        <OpenSpotsPreview />
+        <NcsaComparison />
+        <Testimonials />
+        <MeetStaff />
+        <FinalCTA />
       </main>
       <Footer />
     </div>

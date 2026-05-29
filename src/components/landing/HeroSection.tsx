@@ -5,43 +5,6 @@ import { SchoolBrowser } from "./SchoolBrowser";
 
 
 
-function MatchForYouCard() {
-  return (
-    <div
-      className="absolute -bottom-4 left-4 md:-bottom-6 md:left-6 w-[280px] md:w-[320px] rounded-2xl p-5 z-20 border"
-      style={{
-        background: "rgb(10, 15, 30)",
-        borderColor: "rgba(255,255,255,0.15)",
-        boxShadow: "0 12px 40px rgba(0,0,0,0.6), 0 0 60px rgba(220,38,38,0.08)",
-      }}
-    >
-      <p className="font-sans font-semibold uppercase tracking-[0.15em] mb-3" style={{ fontSize: 10, color: "hsl(var(--primary))" }}>
-        MATCH FOR YOU
-      </p>
-      <div className="flex items-center gap-3 mb-3">
-        <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm" style={{ background: "#1e40af" }}>D</div>
-        <div className="flex-1 min-w-0">
-          <p className="font-sans font-bold text-foreground text-sm leading-tight">Duke University</p>
-          <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-medium" style={{ background: "rgba(59,130,246,0.15)", color: "#60a5fa" }}>
-            D1 · Southeast
-          </span>
-        </div>
-      </div>
-      <div className="rounded-lg px-3 py-2 mb-3 text-xs font-medium" style={{ background: "#0d2e1a", color: "#4ade80" }}>
-        🏀 Open spot at Point Guard — 2 seniors graduating
-      </div>
-      <div className="flex items-center gap-2 mb-3 text-xs text-white/70">
-        <Eye className="w-3.5 h-3.5" />
-        Coach Williams viewed your profile today
-      </div>
-      <Link to="/login?mode=signup">
-        <Button className="w-full bg-primary hover:bg-primary/90 text-white text-xs font-semibold py-2 h-auto">Message Coach →</Button>
-      </Link>
-      <button className="w-full text-xs text-white/60 hover:text-white/90 mt-2 py-1">Next school →</button>
-      <p className="text-[11px] text-white/50 text-center mt-2">↑ 847 more programs match your profile</p>
-    </div>
-  );
-}
 
 export function HeroSection() {
   return (

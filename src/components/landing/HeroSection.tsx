@@ -43,7 +43,10 @@ export function HeroSection() {
               THE RECRUITING PLATFORM NCSA DOESN'T WANT YOU TO KNOW ABOUT
             </p>
 
-            <h1 className="font-sans text-5xl sm:text-6xl lg:text-[4rem] font-bold leading-[1.05] mb-6 text-foreground">
+            <h1
+              className="font-sans text-[3.5rem] sm:text-[4rem] lg:text-[4.5rem] font-bold leading-[1.05] mb-6 text-foreground"
+              style={{ textShadow: "0 2px 20px rgba(255,255,255,0.15)" }}
+            >
               Get Offered.
             </h1>
 
@@ -54,15 +57,15 @@ export function HeroSection() {
             </p>
 
             <p
-              className="mb-4"
+              className="mb-3"
               style={{
                 fontFamily: "'Plus Jakarta Sans', sans-serif",
                 fontWeight: 400,
-                fontSize: 13,
-                color: "rgba(255,255,255,0.55)",
+                fontSize: 12,
+                color: "rgba(255,255,255,0.45)",
               }}
             >
-              👇 Browse programs below — tap one to get started
+              Browse programs recruiting your position →
             </p>
 
             <div className="w-full max-w-[480px]">

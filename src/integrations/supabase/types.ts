@@ -1729,6 +1729,16 @@ export type Database = {
         Args: { _identifier: string }
         Returns: Json
       }
+      get_ticker_openings: {
+        Args: never
+        Returns: {
+          division: string
+          graduating_count: number
+          graduation_year: number
+          pos: string
+          school_name: string
+        }[]
+      }
       is_user_banned: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {

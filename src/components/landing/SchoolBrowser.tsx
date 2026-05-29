@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 type School = {
   name: string;
@@ -10,22 +11,26 @@ type School = {
   conference: string;
   city: string;
   state: string;
+  logoUrl: string | null;
+  avgGpa: string | null;
+  acceptanceRate: string | null;
+  enrollment: number | null;
 };
 
 const SCHOOLS: School[] = [
-  { name: "College of William & Mary", display: "William & Mary", division: "D1", conference: "CAA", city: "Williamsburg", state: "VA" },
-  { name: "Bryant University", display: "Bryant University", division: "D1", conference: "NEC", city: "Smithfield", state: "RI" },
-  { name: "Hofstra University", display: "Hofstra University", division: "D1", conference: "CAA", city: "Hempstead", state: "NY" },
-  { name: "University of Toledo", display: "University of Toledo", division: "D1", conference: "MAC", city: "Toledo", state: "OH" },
-  { name: "Miami University", display: "Miami University (OH)", division: "D1", conference: "MAC", city: "Oxford", state: "OH" },
-  { name: "Florida Gulf Coast University", display: "Florida Gulf Coast (FGCU)", division: "D1", conference: "ASUN", city: "Fort Myers", state: "FL" },
-  { name: "Ursinus College", display: "Ursinus College", division: "D3", conference: "Centennial", city: "Collegeville", state: "PA" },
-  { name: "Pomona-Pitzer Colleges", display: "Pomona-Pitzer", division: "D3", conference: "SCIAC", city: "Claremont", state: "CA" },
-  { name: "Johns Hopkins University", display: "Johns Hopkins University", division: "D3", conference: "Centennial", city: "Baltimore", state: "MD" },
-  { name: "University of California - San Diego", display: "UC San Diego", division: "D1", conference: "Big West", city: "La Jolla", state: "CA" },
-  { name: "Williams College", display: "Williams College", division: "D3", conference: "NESCAC", city: "Williamstown", state: "MA" },
-  { name: "Massachusetts Institute of Technology - MIT", display: "MIT", division: "D3", conference: "NEWMAC", city: "Cambridge", state: "MA" },
-  { name: "Cleveland State University", display: "Cleveland State University", division: "D1", conference: "Horizon", city: "Cleveland", state: "OH" },
+  { name: "College of William & Mary", display: "William & Mary", division: "D1", conference: "CAA", city: "Williamsburg", state: "VA", logoUrl: "https://logo.clearbit.com/tribeathletics.com", avgGpa: "3.57", acceptanceRate: "32.7%", enrollment: 7359 },
+  { name: "Bryant University", display: "Bryant University", division: "D1", conference: "NEC", city: "Smithfield", state: "RI", logoUrl: "https://logo.clearbit.com/bryantbulldogs.com", avgGpa: "3.39", acceptanceRate: "65.7%", enrollment: 3306 },
+  { name: "Hofstra University", display: "Hofstra University", division: "D1", conference: "CAA", city: "Hempstead", state: "NY", logoUrl: "https://logo.clearbit.com/gohofstra.com", avgGpa: "3.67", acceptanceRate: "70.6%", enrollment: 6503 },
+  { name: "University of Toledo", display: "University of Toledo", division: "D1", conference: "MAC", city: "Toledo", state: "OH", logoUrl: "https://logo.clearbit.com/utrockets.com", avgGpa: "3.45", acceptanceRate: "94.8%", enrollment: 13499 },
+  { name: "Miami University", display: "Miami University (OH)", division: "D1", conference: "MAC", city: "Oxford", state: "OH", logoUrl: "https://logo.clearbit.com/miamiuniversityathletics.com", avgGpa: "3.78", acceptanceRate: "82.1%", enrollment: 17604 },
+  { name: "Florida Gulf Coast University", display: "Florida Gulf Coast (FGCU)", division: "D1", conference: "ASUN", city: "Fort Myers", state: "FL", logoUrl: "https://logo.clearbit.com/fgcuathletics.com", avgGpa: "3.93", acceptanceRate: "76.7%", enrollment: 15924 },
+  { name: "Ursinus College", display: "Ursinus College", division: "D3", conference: "Centennial", city: "Collegeville", state: "PA", logoUrl: "https://logo.clearbit.com/ursinusathletics.com", avgGpa: "3.21", acceptanceRate: "87.4%", enrollment: 1562 },
+  { name: "Pomona-Pitzer Colleges", display: "Pomona-Pitzer", division: "D3", conference: "SCIAC", city: "Claremont", state: "CA", logoUrl: null, avgGpa: "3.82", acceptanceRate: "6.8%", enrollment: 1814 },
+  { name: "Johns Hopkins University", display: "Johns Hopkins University", division: "D3", conference: "Centennial", city: "Baltimore", state: "MD", logoUrl: "https://logo.clearbit.com/johns-hopkins-university.com", avgGpa: "3.92", acceptanceRate: "7.6%", enrollment: 8654 },
+  { name: "University of California - San Diego", display: "UC San Diego", division: "D1", conference: "Big West", city: "La Jolla", state: "CA", logoUrl: "https://logo.clearbit.com/ucsdtritons.com", avgGpa: "4.07", acceptanceRate: "24.5%", enrollment: 34808 },
+  { name: "Williams College", display: "Williams College", division: "D3", conference: "NESCAC", city: "Williamstown", state: "MA", logoUrl: "https://logo.clearbit.com/ephsports.williams.edu", avgGpa: "4.04", acceptanceRate: "10.0%", enrollment: 2302 },
+  { name: "Massachusetts Institute of Technology - MIT", display: "MIT", division: "D3", conference: "NEWMAC", city: "Cambridge", state: "MA", logoUrl: "https://logo.clearbit.com/mitathletics.com", avgGpa: "4.19", acceptanceRate: "4.7%", enrollment: 4729 },
+  { name: "Cleveland State University", display: "Cleveland State University", division: "D1", conference: "Horizon", city: "Cleveland", state: "OH", logoUrl: "https://logo.clearbit.com/csuvikings.com", avgGpa: "3.37", acceptanceRate: "95.5%", enrollment: 11390 },
 ];
 
 const DIV_COLORS: Record<School["division"], string> = {
@@ -35,10 +40,62 @@ const DIV_COLORS: Record<School["division"], string> = {
   NAIA: "#d97706",
 };
 
+function enrollmentLabel(n: number | null): string | null {
+  if (n == null) return null;
+  if (n < 3000) return "Small School";
+  if (n <= 15000) return "Mid-Size";
+  return "Large University";
+}
+
+function academicLine(s: School): string | null {
+  const parts: string[] = [];
+  if (s.avgGpa) parts.push(`Avg GPA ${s.avgGpa}`);
+  if (s.acceptanceRate) parts.push(`Acceptance ${s.acceptanceRate}`);
+  const e = enrollmentLabel(s.enrollment);
+  if (e) parts.push(e);
+  return parts.length ? parts.join(" · ") : null;
+}
+
+function SchoolLogo({ school, size = 56, radius = 10 }: { school: School; size?: number; radius?: number }) {
+  const [failed, setFailed] = useState(false);
+  if (school.logoUrl && !failed) {
+    return (
+      <img
+        src={school.logoUrl}
+        alt={`${school.display} logo`}
+        onError={() => setFailed(true)}
+        className="shrink-0 object-contain bg-white/5"
+        style={{
+          width: size,
+          height: size,
+          borderRadius: radius,
+          border: "1px solid rgba(255,255,255,0.15)",
+          padding: 4,
+        }}
+      />
+    );
+  }
+  return (
+    <div
+      className="flex items-center justify-center text-white font-bold shrink-0"
+      style={{
+        width: size,
+        height: size,
+        borderRadius: 9999,
+        background: DIV_COLORS[school.division],
+        fontSize: size * 0.42,
+      }}
+    >
+      {school.display.charAt(0)}
+    </div>
+  );
+}
+
 export function SchoolBrowser() {
   const [index, setIndex] = useState(0);
   const [dir, setDir] = useState<"in" | "out-right">("in");
   const [modalOpen, setModalOpen] = useState(false);
+  const [rosterOpen, setRosterOpen] = useState(false);
 
   const school = SCHOOLS[index];
 
@@ -50,9 +107,10 @@ export function SchoolBrowser() {
     }, 250);
   }
 
+  const acad = academicLine(school);
+
   return (
     <div className="relative w-full max-w-[440px] mx-auto">
-
       {/* Card with swipe animation */}
       <div className="relative overflow-hidden rounded-2xl">
         <div
@@ -68,17 +126,12 @@ export function SchoolBrowser() {
             transition: dir === "out-right" ? "transform 250ms ease-out, opacity 250ms ease-out" : undefined,
           }}
         >
-          <div className="flex items-center gap-4 mb-4">
-            <div
-              className="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl shrink-0"
-              style={{ background: DIV_COLORS[school.division] }}
-            >
-              {school.display.charAt(0)}
-            </div>
+          <div className="flex items-center gap-4 mb-3">
+            <SchoolLogo school={school} size={56} radius={10} />
             <div className="flex-1 min-w-0">
               <p
                 className="text-white leading-tight"
-                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: 20 }}
+                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: 19 }}
               >
                 {school.display}
               </p>
@@ -88,6 +141,19 @@ export function SchoolBrowser() {
               <p className="text-white/50 text-xs mt-0.5">
                 {school.city}, {school.state}
               </p>
+              {acad && (
+                <p
+                  className="mt-1"
+                  style={{
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    fontWeight: 400,
+                    fontSize: 11,
+                    color: "rgba(255,255,255,0.5)",
+                  }}
+                >
+                  {acad}
+                </p>
+              )}
             </div>
           </div>
 
@@ -98,9 +164,12 @@ export function SchoolBrowser() {
             🏀 Actively recruiting guards and forwards — {school.division} program
           </div>
 
-          <div className="text-xs text-white/55 mb-4 flex items-center gap-1.5">
-            🔍 View their open spots inside the app
-          </div>
+          <button
+            onClick={() => setRosterOpen(true)}
+            className="text-xs text-white/60 hover:text-white hover:underline mb-4 flex items-center gap-1.5 transition-colors"
+          >
+            View their roster →
+          </button>
 
           <Button
             onClick={() => setModalOpen(true)}
@@ -142,60 +211,11 @@ export function SchoolBrowser() {
         Find your fit — then message their coaches in one tap.
       </p>
 
-
       {modalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 animate-in fade-in duration-200"
-          onClick={() => setModalOpen(false)}
-        >
-          <div
-            className="relative w-full max-w-md rounded-2xl p-6 border bg-[rgb(10,15,30)]"
-            style={{
-              borderColor: "rgba(255,255,255,0.15)",
-              borderLeft: "3px solid hsl(var(--primary))",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setModalOpen(false)}
-              className="absolute top-3 right-3 text-white/60 hover:text-white p-1"
-              aria-label="Close"
-            >
-              <X className="h-5 w-5" />
-            </button>
-
-            <div className="flex items-center gap-3 mb-5">
-              <div
-                className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg"
-                style={{ background: DIV_COLORS[school.division] }}
-              >
-                {school.display.charAt(0)}
-              </div>
-              <p className="text-white font-semibold text-base" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                {school.display}
-              </p>
-            </div>
-
-            <h3
-              className="text-white mb-3 leading-tight"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: 22 }}
-            >
-              Ready to message the coaches at {school.display}?
-            </h3>
-            <p className="text-white/70 text-sm mb-6 leading-relaxed">
-              Create your free profile in 2 minutes. We'll match you with the right coaches and help you send your first message today.
-            </p>
-
-            <Link to="/login?mode=signup" className="block">
-              <Button className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-4 h-auto text-base glow-red">
-                I'm Ready to Get Offered →
-              </Button>
-            </Link>
-            <p className="text-center text-white/50 text-xs mt-3">
-              Free to start · No credit card required · 2-minute setup
-            </p>
-          </div>
-        </div>
+        <SignupModal school={school} onClose={() => setModalOpen(false)} />
+      )}
+      {rosterOpen && (
+        <RosterModal school={school} onClose={() => setRosterOpen(false)} />
       )}
 
       <style>{`
@@ -204,6 +224,291 @@ export function SchoolBrowser() {
           to { transform: translateX(0); opacity: 1; }
         }
       `}</style>
+    </div>
+  );
+}
+
+function SignupModal({ school, onClose }: { school: School; onClose: () => void }) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-md rounded-2xl p-6 border bg-[rgb(10,15,30)]"
+        style={{
+          borderColor: "rgba(255,255,255,0.15)",
+          borderLeft: "3px solid hsl(var(--primary))",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-white/60 hover:text-white p-1"
+          aria-label="Close"
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        <div className="flex items-center gap-3 mb-5">
+          <SchoolLogo school={school} size={48} radius={8} />
+          <p
+            className="text-white font-semibold text-base"
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+          >
+            {school.display}
+          </p>
+        </div>
+
+        <h3
+          className="text-white mb-3 leading-tight"
+          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: 22 }}
+        >
+          Ready to message the coaches at {school.display}?
+        </h3>
+        <p className="text-white/70 text-sm mb-6 leading-relaxed">
+          Create your free profile in 2 minutes. We'll match you with the right coaches and help you send your first message today.
+        </p>
+
+        <Link to="/login?mode=signup" className="block">
+          <Button className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-4 h-auto text-base glow-red">
+            I'm Ready to Get Offered →
+          </Button>
+        </Link>
+        <p className="text-center text-white/50 text-xs mt-3">
+          Free to start · No credit card required · 2-minute setup
+        </p>
+      </div>
+    </div>
+  );
+}
+
+type RosterPlayer = {
+  player_name: string | null;
+  position: string | null;
+  class_year: string | null;
+};
+
+const POSITIONS = ["PG", "SG", "SF", "PF", "C", "G", "F"] as const;
+const CLASS_YEARS = ["SR", "JR", "SO", "FR"] as const;
+
+function normalizeClass(raw: string | null): string | null {
+  if (!raw) return null;
+  const v = raw.trim().toLowerCase();
+  if (v.startsWith("sr") || v.startsWith("sen")) return "SR";
+  if (v.startsWith("jr") || v.startsWith("jun")) return "JR";
+  if (v.startsWith("so") || v.startsWith("sop")) return "SO";
+  if (v.startsWith("fr") || v.startsWith("fre")) return "FR";
+  if (v.startsWith("gr") || v.startsWith("rs")) return "SR";
+  return null;
+}
+
+function normalizePosition(raw: string | null): string | null {
+  if (!raw) return null;
+  const v = raw.trim().toUpperCase().replace(/[^A-Z/]/g, "");
+  if (!v) return null;
+  if (v.includes("PG") || v === "POINT") return "PG";
+  if (v.includes("SG") || v === "SHOOTING") return "SG";
+  if (v.includes("SF") || v === "SMALL") return "SF";
+  if (v.includes("PF") || v === "POWER") return "PF";
+  if (v === "C" || v.includes("CENTER")) return "C";
+  if (v === "G" || v.includes("GUARD")) return "G";
+  if (v === "F" || v.includes("FORWARD")) return "F";
+  return null;
+}
+
+function RosterModal({ school, onClose }: { school: School; onClose: () => void }) {
+  const [loading, setLoading] = useState(true);
+  const [players, setPlayers] = useState<RosterPlayer[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("school_rosters")
+        .select("player_name, position, class_year")
+        .eq("school_name", school.name)
+        .limit(200);
+      if (!cancelled) {
+        setPlayers((data as RosterPlayer[]) || []);
+        setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [school.name]);
+
+  const grid: Record<string, Record<string, string[]>> = {};
+  POSITIONS.forEach((p) => {
+    grid[p] = {};
+    CLASS_YEARS.forEach((c) => (grid[p][c] = []));
+  });
+
+  for (const p of players) {
+    const pos = normalizePosition(p.position);
+    const cls = normalizeClass(p.class_year);
+    if (!pos || !cls || !p.player_name) continue;
+    grid[pos][cls].push(p.player_name);
+  }
+
+  const seniors = players.filter((p) => normalizeClass(p.class_year) === "SR").length;
+  const openingPositions = Array.from(
+    new Set(
+      players
+        .filter((p) => normalizeClass(p.class_year) === "SR")
+        .map((p) => normalizePosition(p.position))
+        .filter(Boolean)
+    )
+  ).join(", ");
+  const nextYear = new Date().getFullYear() + 1;
+
+  const hasData = players.length > 0;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-[600px] max-h-[90vh] overflow-y-auto rounded-2xl border bg-[rgb(10,15,30)]"
+        style={{ borderColor: "rgba(255,255,255,0.15)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 z-10 text-white/60 hover:text-white p-1 bg-black/40 rounded-full"
+          aria-label="Close"
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        <div className="p-5 border-b" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
+          <div className="flex items-center gap-3">
+            <SchoolLogo school={school} size={52} radius={8} />
+            <div className="flex-1 min-w-0">
+              <p
+                className="text-white leading-tight"
+                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: 17 }}
+              >
+                {school.display}
+              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <span
+                  className="inline-block px-1.5 py-0.5 rounded text-white text-[10px] font-semibold"
+                  style={{ background: DIV_COLORS[school.division] }}
+                >
+                  {school.division}
+                </span>
+                <span
+                  className="text-primary uppercase tracking-wider"
+                  style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: 10 }}
+                >
+                  Current Roster
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-5">
+          {loading ? (
+            <div className="py-12 text-center text-white/50 text-sm">Loading roster…</div>
+          ) : !hasData ? (
+            <div
+              className="py-8 px-4 text-center rounded-xl border"
+              style={{
+                borderColor: "rgba(255,255,255,0.1)",
+                background: "rgba(255,255,255,0.02)",
+              }}
+            >
+              <p className="text-white/70 text-sm mb-4">
+                Roster data updating — check back soon. Sign up to see all available rosters.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs" style={{ borderCollapse: "separate", borderSpacing: 0 }}>
+                  <thead>
+                    <tr>
+                      <th className="text-left p-2 text-white/40 font-medium text-[10px] uppercase tracking-wider">
+                        Pos
+                      </th>
+                      {CLASS_YEARS.map((c) => (
+                        <th
+                          key={c}
+                          className="text-left p-2 text-[10px] uppercase tracking-wider font-medium"
+                          style={{
+                            color: c === "SR" ? "#fca5a5" : "rgba(255,255,255,0.4)",
+                          }}
+                        >
+                          {c}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {POSITIONS.filter((p) =>
+                      CLASS_YEARS.some((c) => grid[p][c].length > 0)
+                    ).map((pos) => (
+                      <tr key={pos} style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                        <td className="p-2 align-top">
+                          <span className="text-white font-semibold">{pos}</span>
+                        </td>
+                        {CLASS_YEARS.map((c) => (
+                          <td
+                            key={c}
+                            className="p-2 align-top"
+                            style={
+                              c === "SR"
+                                ? {
+                                    background: "rgba(220,38,38,0.07)",
+                                    borderLeft: "2px solid rgba(220,38,38,0.5)",
+                                  }
+                                : undefined
+                            }
+                          >
+                            {grid[pos][c].length === 0 ? (
+                              <span className="text-white/20">—</span>
+                            ) : (
+                              grid[pos][c].map((name, i) => (
+                                <div
+                                  key={i}
+                                  className="text-white/85 leading-snug"
+                                  style={{ fontSize: 11 }}
+                                >
+                                  {name}
+                                </div>
+                              ))
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {seniors > 0 && (
+                <div
+                  className="mt-4 rounded-lg px-4 py-3 text-sm font-medium"
+                  style={{ background: "#0d2e1a", color: "#4ade80" }}
+                >
+                  🏀 {seniors} {seniors === 1 ? "spot" : "spots"} opening in {nextYear}
+                  {openingPositions ? ` at ${openingPositions}` : ""}
+                </div>
+              )}
+            </>
+          )}
+
+          <Link to="/login?mode=signup" className="block mt-5">
+            <Button className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-4 h-auto text-base">
+              Message Their Coaches →
+            </Button>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

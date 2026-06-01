@@ -45,14 +45,18 @@ export function HeroSection() {
             </p>
 
             <h1
-              className="font-sans text-[3.5rem] sm:text-[4rem] lg:text-[4.5rem] font-bold leading-[1.05] mb-6 text-foreground flex flex-wrap items-baseline gap-x-4"
-              style={{ textShadow: "0 2px 20px rgba(255,255,255,0.15)" }}
+              className="text-[3.5rem] sm:text-[4rem] lg:text-[4.5rem] font-bold leading-[1.05] mb-6 text-foreground flex flex-wrap items-center gap-x-3"
+              style={{
+                fontFamily: "'Sora', 'Plus Jakarta Sans', sans-serif",
+                letterSpacing: "-0.03em",
+                textShadow: "0 2px 20px rgba(255,255,255,0.15)",
+              }}
             >
               <span>Get</span>
               <img
                 src={offeredLogo.url}
                 alt="Offered"
-                className="inline-block h-[0.95em] w-auto align-baseline translate-y-[0.08em]"
+                className="inline-block h-[0.95em] w-auto"
               />
               <span aria-hidden>.</span>
             </h1>

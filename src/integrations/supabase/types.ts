@@ -1739,6 +1739,7 @@ export type Database = {
           school_name: string
         }[]
       }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_user_banned: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {

@@ -411,8 +411,8 @@ function Footer() {
     <footer className="border-t border-border px-4 md:px-6 lg:px-12 py-12 md:py-16 max-w-[1200px] mx-auto">
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
         <div>
-          <div className="flex items-baseline gap-1 mb-4">
-            <span className="font-sans text-lg font-bold text-primary">Offered</span>
+          <div className="flex items-center mb-4">
+            <img src={offeredLogo.url} alt="Offered" className="h-6 w-auto" />
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
             The recruiting platform built for high school athletes. Build your profile, find your schools, and email college coaches directly.

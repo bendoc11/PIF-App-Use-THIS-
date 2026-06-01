@@ -1,9 +1,9 @@
 import { SchoolBrowser } from "./SchoolBrowser";
 import zacErvinHero from "@/assets/zac-ervin-hero.jpg";
-import zacErvinHeadshot from "@/assets/zac-ervin-headshot.png";
+import zacErvinHeadshot from "@/assets/zac-ervin-headshot.png.asset.json";
 import offeredLogo from "@/assets/offered-logo.png.asset.json";
 
-const ZAC_AVATAR_URL = zacErvinHeadshot;
+const ZAC_AVATAR_URL = zacErvinHeadshot.url;
 
 export function HeroSection() {
   return (

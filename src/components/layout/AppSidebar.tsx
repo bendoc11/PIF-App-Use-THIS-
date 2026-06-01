@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useUnreadReplies } from "@/hooks/useUnreadReplies";
 import { isPaidSubscriber } from "@/lib/subscription";
 import { useOutreachGating, getLockedBannerCopy } from "@/hooks/useOutreachGating";
+import offeredLogo from "@/assets/offered-logo.svg.asset.json";
 
 import {
   Sidebar,
@@ -69,22 +70,8 @@ export function AppSidebar() {
         {/* Logo — more breathing room */}
         <div className="px-4 pt-6 pb-8">
           {!collapsed ? (
-            <div className="flex items-center gap-3">
-              <div
-                className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shrink-0"
-                style={{
-                  boxShadow:
-                    "0 0 0 1px hsla(0, 0%, 100%, 0.06), 0 0 18px hsl(var(--pif-red) / 0.45), 0 4px 14px hsl(var(--pif-red) / 0.25)",
-                }}
-              >
-                <span className="font-heading text-base text-primary-foreground">OFF</span>
-              </div>
-              <span
-                className="font-heading text-[13px] text-foreground uppercase"
-                style={{ letterSpacing: "0.09em" }}
-              >
-                Offered
-              </span>
+            <div className="flex items-center">
+              <img src={offeredLogo.url} alt="Offered" className="h-8 w-auto" />
             </div>
           ) : (
             <div
@@ -94,7 +81,7 @@ export function AppSidebar() {
                   "0 0 0 1px hsla(0, 0%, 100%, 0.06), 0 0 18px hsl(var(--pif-red) / 0.45), 0 4px 14px hsl(var(--pif-red) / 0.25)",
               }}
             >
-              <span className="font-heading text-base text-primary-foreground">OFF</span>
+              <span className="font-heading text-base text-primary-foreground">O</span>
             </div>
           )}
         </div>

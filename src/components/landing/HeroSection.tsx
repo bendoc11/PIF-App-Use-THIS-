@@ -1,6 +1,7 @@
 import { SchoolBrowser } from "./SchoolBrowser";
 import zacErvinHero from "@/assets/zac-ervin-hero.jpg";
 import zacErvinHeadshot from "@/assets/zac-ervin-headshot.png";
+import offeredLogo from "@/assets/offered-logo.svg.asset.json";
 
 const ZAC_AVATAR_URL = zacErvinHeadshot;
 
@@ -44,10 +45,16 @@ export function HeroSection() {
             </p>
 
             <h1
-              className="font-sans text-[3.5rem] sm:text-[4rem] lg:text-[4.5rem] font-bold leading-[1.05] mb-6 text-foreground"
+              className="font-sans text-[3.5rem] sm:text-[4rem] lg:text-[4.5rem] font-bold leading-[1.05] mb-6 text-foreground flex flex-wrap items-baseline gap-x-4"
               style={{ textShadow: "0 2px 20px rgba(255,255,255,0.15)" }}
             >
-              Get Offered.
+              <span>Get</span>
+              <img
+                src={offeredLogo.url}
+                alt="Offered"
+                className="inline-block h-[0.95em] w-auto align-baseline translate-y-[0.08em]"
+              />
+              <span aria-hidden>.</span>
             </h1>
 
             <p className="text-white/75 text-base sm:text-lg max-w-xl mb-5 leading-relaxed">

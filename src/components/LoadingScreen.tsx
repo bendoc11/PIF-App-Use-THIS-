@@ -1,4 +1,5 @@
 import { Loader2 } from "lucide-react";
+import offeredLogo from "@/assets/offered-logo.svg.asset.json";
 
 export default function LoadingScreen() {
   return (
@@ -6,12 +7,7 @@ export default function LoadingScreen() {
       className="min-h-screen w-full flex flex-col items-center justify-center gap-6"
       style={{ backgroundColor: "#080D14" }}
     >
-      <div
-        className="w-14 h-14 rounded-xl flex items-center justify-center"
-        style={{ backgroundColor: "#E8391D" }}
-      >
-        <span className="font-heading text-xl text-white">OFF</span>
-      </div>
+      <img src={offeredLogo.url} alt="Offered" className="h-10 w-auto" />
       <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#3B82F6" }} />
     </div>
   );

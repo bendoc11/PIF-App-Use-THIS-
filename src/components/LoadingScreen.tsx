@@ -1,5 +1,5 @@
 import { Loader2 } from "lucide-react";
-import offeredLogo from "@/assets/offered-logo.svg.asset.json";
+import offeredLogo from "@/assets/offered-logo.png.asset.json";
 
 export default function LoadingScreen() {
   return (

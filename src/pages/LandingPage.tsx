@@ -5,7 +5,7 @@ import { HeroSection } from "@/components/landing/HeroSection";
 import { LiveOpeningsTicker } from "@/components/landing/LiveOpeningsTicker";
 import { ArrowRight, Menu, X, Check, Star } from "lucide-react";
 import { usePartner } from "@/contexts/PartnerContext";
-import offeredLogo from "@/assets/offered-logo.svg.asset.json";
+import offeredLogo from "@/assets/offered-logo.png.asset.json";
 
 /* ---- Fade-in hook ---- */
 function useFadeIn() {

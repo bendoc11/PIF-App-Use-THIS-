@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useUnreadReplies } from "@/hooks/useUnreadReplies";
 import { isPaidSubscriber } from "@/lib/subscription";
 import { useOutreachGating, getLockedBannerCopy } from "@/hooks/useOutreachGating";
-import offeredLogo from "@/assets/offered-logo.svg.asset.json";
+import offeredLogo from "@/assets/offered-logo.png.asset.json";
 
 import {
   Sidebar,

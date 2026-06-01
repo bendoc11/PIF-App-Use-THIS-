@@ -54,13 +54,8 @@ function Navbar() {
             )
           ) : (
             <>
-              <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center shrink-0">
-                <span className="text-white font-bold text-[10px] tracking-wide">OFF</span>
-              </div>
-              <div className="flex flex-col leading-none">
-                <span className="font-sans font-bold text-[22px] text-foreground tracking-tight">Offered</span>
-                <span className="text-[11px] text-white/40 font-normal mt-0.5">Basketball Recruiting</span>
-              </div>
+              <img src={offeredLogo.url} alt="Offered" className="h-7 w-auto" />
+              <span className="text-[11px] text-white/40 font-normal hidden sm:inline-block ml-1">Basketball Recruiting</span>
             </>
           )}
         </div>

@@ -1,6 +1,7 @@
 import { SchoolBrowser } from "./SchoolBrowser";
 import zacErvinHero from "@/assets/zac-ervin-hero.jpg";
 import zacErvinHeadshot from "@/assets/zac-ervin-headshot.png";
+import offeredLogo from "@/assets/offered-logo.svg.asset.json";
 
 const ZAC_AVATAR_URL = zacErvinHeadshot;
 

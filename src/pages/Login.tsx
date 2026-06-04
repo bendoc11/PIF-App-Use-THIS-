@@ -101,7 +101,7 @@ export default function Login() {
     // If successful, the browser redirects — no further action needed.
   };
 
-    e.preventDefault();
+  const handleSignUp = async (e: React.FormEvent) => {
     if (!signupEmail.trim() || !signupPassword.trim() || !firstName.trim()) return;
     setIsLoading(true);
 

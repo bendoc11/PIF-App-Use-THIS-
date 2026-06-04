@@ -89,7 +89,18 @@ export default function Login() {
     navigate("/dashboard", { replace: true });
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+    });
+    setIsLoading(false);
+    if (result.error) {
+      toast.error(result.error.message || "Google sign-in failed");
+    }
+    // If successful, the browser redirects — no further action needed.
+  };
+
     e.preventDefault();
     if (!signupEmail.trim() || !signupPassword.trim() || !firstName.trim()) return;
     setIsLoading(true);

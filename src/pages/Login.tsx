@@ -89,6 +89,9 @@ export default function Login() {
     navigate("/dashboard", { replace: true });
   };
 
+  // Google sign-in temporarily disabled. Flip this flag to re-enable.
+  const SHOW_GOOGLE_SIGNIN = false;
+
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     const result = await lovable.auth.signInWithOAuth("google", {

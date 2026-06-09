@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, GraduationCap, MapPin, Users, Twitter, Instagram, Phone, Mail } from "lucide-react";
 import { MockCoach, MockSchool, DIVISION_COLORS } from "@/data/mockSchools";
+import { fbPixel } from "@/lib/fbpixel";
 
 interface Props {
   school: MockSchool;
@@ -48,6 +49,17 @@ function buildSocialUrl(handle: string | undefined, platform: "twitter" | "insta
 
 export function SchoolDetail({ school, onBack, onCompose }: Props) {
   const [picked, setPicked] = useState<Set<string>>(new Set());
+
+  // Meta Pixel — viewing a school/coach profile
+  useEffect(() => {
+    try {
+      fbPixel.viewContent({
+        content_name: school.name,
+        content_category: "school",
+        content_ids: [String(school.id ?? school.name)],
+      });
+    } catch {}
+  }, [school?.id, school?.name]);
 
   const toggle = (email: string) => {
     setPicked((prev) => {

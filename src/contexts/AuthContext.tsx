@@ -65,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
       fbPixel.purchase();
+      fbPixel.subscribe();
       purchaseFiredFor.current.add(userId);
       if (typeof localStorage !== "undefined") localStorage.setItem(key, "1");
     } catch {

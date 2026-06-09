@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { US_STATES } from "@/data/mockSchools";
 import { Loader2, UserCheck } from "lucide-react";
+import { fbPixel } from "@/lib/fbpixel";
 
 interface Props {
   missing: string[];
@@ -68,6 +69,15 @@ export function ProfileCompletionCard({ missing, onSaved }: Props) {
     }
     await refreshProfile();
     toast({ title: "Profile updated" });
+    // Meta Pixel — athlete recruiting profile fully completed.
+    // Fire once per user (deduped via localStorage).
+    try {
+      const key = `fb_complete_registration_fired:${user.id}`;
+      if (typeof localStorage !== "undefined" && !localStorage.getItem(key)) {
+        fbPixel.completeRegistration();
+        localStorage.setItem(key, "1");
+      }
+    } catch {}
     onSaved();
   };
 

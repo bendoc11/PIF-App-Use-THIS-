@@ -172,8 +172,8 @@ export default function Login() {
         if (partner_id) localStorage.removeItem("referral_slug");
       }
 
-      // Meta Pixel — user completed signup & profile created
-      try { fbPixel.completeRegistration(); } catch {}
+      // Meta Pixel — user completed signup (account created)
+      try { fbPixel.lead(); } catch {}
 
       // New user → send to dashboard. AuthGuard will render the paywall
       // since they don't have an active subscription yet. They click the

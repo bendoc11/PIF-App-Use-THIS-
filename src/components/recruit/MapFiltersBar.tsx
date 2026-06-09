@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Division, SchoolSize, US_STATES, DIVISION_COLORS } from "@/data/mockSchools";
 import { Check, ChevronDown, X } from "lucide-react";
+import { fbPixel } from "@/lib/fbpixel";
 
 export type GpaBand = "All" | "3.7+" | "3.3-3.7" | "<3.3";
 
@@ -33,6 +34,16 @@ export function MapFiltersBar({ value: rawValue, onChange }: Props) {
   };
   const [stateSearch, setStateSearch] = useState("");
   const [stateOpen, setStateOpen] = useState(false);
+
+  // Meta Pixel Search event — fire after user pauses typing in state search.
+  useEffect(() => {
+    const q = stateSearch.trim();
+    if (!q) return;
+    const t = setTimeout(() => {
+      try { fbPixel.search(q); } catch {}
+    }, 600);
+    return () => clearTimeout(t);
+  }, [stateSearch]);
 
   const toggleDiv = (d: Division) => {
     const has = value.divisions.includes(d);

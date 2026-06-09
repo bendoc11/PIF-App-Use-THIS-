@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { SubscriptionGuard } from "@/components/auth/SubscriptionGuard";
 import { AdminGuard } from "@/components/admin/AdminGuard";
+import { MetaPixelTracker } from "@/components/analytics/MetaPixelTracker";
 import LandingPage from "./pages/LandingPage";
 import Coaches from "./pages/Coaches";
 import Login from "./pages/Login";
@@ -60,6 +61,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <MetaPixelTracker />
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/partners" element={<Partners />} />

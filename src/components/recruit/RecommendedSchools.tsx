@@ -3,6 +3,7 @@ import { MockSchool } from "@/data/mockSchools";
 import { useAuth } from "@/contexts/AuthContext";
 import { SchoolLogo } from "@/components/recruit/SchoolLogo";
 import { useSchoolScoringData } from "@/hooks/useSchoolScoringData";
+import { fbPixel } from "@/lib/fbpixel";
 import {
   athleteBucket,
   describeSchool,

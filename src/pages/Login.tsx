@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { fbPixel } from "@/lib/fbpixel";
 
 
 export default function Login() {
@@ -170,6 +171,9 @@ export default function Login() {
           .eq("id", currentUser.id);
         if (partner_id) localStorage.removeItem("referral_slug");
       }
+
+      // Meta Pixel — user completed signup & profile created
+      try { fbPixel.completeRegistration(); } catch {}
 
       // New user → send to dashboard. AuthGuard will render the paywall
       // since they don't have an active subscription yet. They click the

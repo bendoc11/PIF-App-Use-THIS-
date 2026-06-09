@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { fbPixel } from "@/lib/fbpixel";
 import wmLogo from "@/assets/schools/wm-logo.png.asset.json";
 import bryantLogo from "@/assets/schools/bryant-logo.png.asset.json";
 import pomonaLogo from "@/assets/schools/pomona-logo.png.asset.json";
@@ -176,7 +177,7 @@ export function SchoolBrowser() {
           </button>
 
           <Button
-            onClick={() => setModalOpen(true)}
+            onClick={() => { try { fbPixel.lead(); } catch {} setModalOpen(true); }}
             className="w-full bg-primary hover:bg-primary/90 text-white text-sm font-semibold py-3 h-auto mb-2"
             style={{ animation: "ctaPulse 3s ease-in-out infinite" }}
           >

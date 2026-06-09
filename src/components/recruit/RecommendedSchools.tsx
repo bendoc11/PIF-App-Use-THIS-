@@ -3,6 +3,7 @@ import { MockSchool } from "@/data/mockSchools";
 import { useAuth } from "@/contexts/AuthContext";
 import { SchoolLogo } from "@/components/recruit/SchoolLogo";
 import { useSchoolScoringData } from "@/hooks/useSchoolScoringData";
+import { fbPixel } from "@/lib/fbpixel";
 import {
   athleteBucket,
   describeSchool,
@@ -196,6 +197,8 @@ export function RecommendedSchools({
   };
 
   const handlePlayHere = () => {
+    // Meta Pixel — "I would play here" landing/recruit card tap
+    try { fbPixel.lead(); } catch {}
     trigger("left", "rgba(74,222,128,0.20)", () => {
       onMessage(featured);
       advance();

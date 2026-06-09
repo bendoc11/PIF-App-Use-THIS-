@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { fbPixel } from "@/lib/fbpixel";
 
 const CHECKOUT_URL =
   "https://subscribe.playitforward.app/b/dRmfZgdt55BSg2wgOPcEw06";
@@ -23,6 +24,13 @@ export default function Paywall() {
   const { user, profile, loading, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [checking, setChecking] = useState(false);
+
+  // Meta Pixel — user hit the paywall (locked content / subscribe required)
+  useEffect(() => {
+    if (!loading && user && !isSubscribed(profile)) {
+      fbPixel.initiateCheckout();
+    }
+  }, [loading, user, profile]);
 
   if (loading || (user && !profile)) return null;
   if (!user) return <Navigate to="/login" replace />;

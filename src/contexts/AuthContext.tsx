@@ -52,6 +52,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  // Track which users we've already fired the Meta Pixel Purchase event for,
+  // so we don't double-count on every refresh/poll.
+  const purchaseFiredFor = useRef<Set<string>>(new Set());
+
+  const markPurchaseIfNew = (userId: string) => {
+    try {
+      const key = `fb_purchase_fired:${userId}`;
+      if (purchaseFiredFor.current.has(userId)) return;
+      if (typeof localStorage !== "undefined" && localStorage.getItem(key)) {
+        purchaseFiredFor.current.add(userId);
+        return;
+      }
+      fbPixel.purchase();
+      purchaseFiredFor.current.add(userId);
+      if (typeof localStorage !== "undefined") localStorage.setItem(key, "1");
+    } catch {
+      // ignore
+    }
+  };
 
   const fetchProfile = async (userId: string): Promise<boolean> => {
     const { data } = await supabase

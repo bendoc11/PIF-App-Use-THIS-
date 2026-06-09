@@ -171,6 +171,9 @@ export default function Login() {
         if (partner_id) localStorage.removeItem("referral_slug");
       }
 
+      // Meta Pixel — user completed signup & profile created
+      try { fbPixel.completeRegistration(); } catch {}
+
       // New user → send to dashboard. AuthGuard will render the paywall
       // since they don't have an active subscription yet. They click the
       // CTA themselves to go to Stripe.

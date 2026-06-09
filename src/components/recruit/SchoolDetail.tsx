@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, GraduationCap, MapPin, Users, Twitter, Instagram, Phone, Mail } from "lucide-react";
 import { MockCoach, MockSchool, DIVISION_COLORS } from "@/data/mockSchools";
+import { fbPixel } from "@/lib/fbpixel";
 
 interface Props {
   school: MockSchool;

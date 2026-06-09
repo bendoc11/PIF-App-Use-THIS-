@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Division, SchoolSize, US_STATES, DIVISION_COLORS } from "@/data/mockSchools";
 import { Check, ChevronDown, X } from "lucide-react";
+import { fbPixel } from "@/lib/fbpixel";
 
 export type GpaBand = "All" | "3.7+" | "3.3-3.7" | "<3.3";
 

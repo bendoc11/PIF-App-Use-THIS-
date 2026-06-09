@@ -197,6 +197,8 @@ export function RecommendedSchools({
   };
 
   const handlePlayHere = () => {
+    // Meta Pixel — "I would play here" landing/recruit card tap
+    try { fbPixel.lead(); } catch {}
     trigger("left", "rgba(74,222,128,0.20)", () => {
       onMessage(featured);
       advance();

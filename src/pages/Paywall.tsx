@@ -25,6 +25,13 @@ export default function Paywall() {
   const navigate = useNavigate();
   const [checking, setChecking] = useState(false);
 
+  // Meta Pixel — user hit the paywall (locked content / subscribe required)
+  useEffect(() => {
+    if (!loading && user && !isSubscribed(profile)) {
+      fbPixel.initiateCheckout();
+    }
+  }, [loading, user, profile]);
+
   if (loading || (user && !profile)) return null;
   if (!user) return <Navigate to="/login" replace />;
   if (isSubscribed(profile)) {

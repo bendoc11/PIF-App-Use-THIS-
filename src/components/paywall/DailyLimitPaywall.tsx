@@ -29,6 +29,12 @@ export function DailyLimitPaywall({
   const { refreshSubscription } = useAuth();
   const [checking, setChecking] = useState(false);
 
+  // Meta Pixel — user is seeing the paywall (locked sends)
+  useEffect(() => {
+    fbPixel.initiateCheckout();
+  }, []);
+
+
   const handleStartTrial = () => {
     window.location.href = STRIPE_CHECKOUT_URL;
   };

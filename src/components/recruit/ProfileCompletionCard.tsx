@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { US_STATES } from "@/data/mockSchools";
 import { Loader2, UserCheck } from "lucide-react";
+import { fbPixel } from "@/lib/fbpixel";
 
 interface Props {
   missing: string[];

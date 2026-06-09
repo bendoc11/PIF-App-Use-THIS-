@@ -61,6 +61,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <MetaPixelTracker />
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/partners" element={<Partners />} />

@@ -177,7 +177,7 @@ export function SchoolBrowser() {
           </button>
 
           <Button
-            onClick={() => setModalOpen(true)}
+            onClick={() => { try { fbPixel.lead(); } catch {} setModalOpen(true); }}
             className="w-full bg-primary hover:bg-primary/90 text-white text-sm font-semibold py-3 h-auto mb-2"
             style={{ animation: "ctaPulse 3s ease-in-out infinite" }}
           >

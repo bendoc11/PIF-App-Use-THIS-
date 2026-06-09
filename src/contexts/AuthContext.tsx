@@ -108,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     const active = !!data;
     setHasActiveSubscription(active);
+    if (active) markPurchaseIfNew(userId);
     return active;
   };
 

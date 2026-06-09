@@ -22,10 +22,6 @@ type School = {
 };
 
 const SCHOOLS: School[] = [
-  { name: "College of William & Mary", display: "William & Mary", division: "D1", conference: "CAA", city: "Williamsburg", state: "VA", logoUrl: "https://icons.duckduckgo.com/ip3/tribeathletics.com.ico", avgGpa: "3.57", acceptanceRate: "32.7%", enrollment: 7359 },
-  { name: "Bryant University", display: "Bryant University", division: "D1", conference: "NEC", city: "Smithfield", state: "RI", logoUrl: "https://icons.duckduckgo.com/ip3/bryantbulldogs.com.ico", avgGpa: "3.39", acceptanceRate: "65.7%", enrollment: 3306 },
-  { name: "Hofstra University", display: "Hofstra University", division: "D1", conference: "CAA", city: "Hempstead", state: "NY", logoUrl: "https://icons.duckduckgo.com/ip3/gohofstra.com.ico", avgGpa: "3.67", acceptanceRate: "70.6%", enrollment: 6503 },
-  { name: "University of Toledo", display: "University of Toledo", division: "D1", conference: "MAC", city: "Toledo", state: "OH", logoUrl: "https://icons.duckduckgo.com/ip3/utrockets.com.ico", avgGpa: "3.45", acceptanceRate: "94.8%", enrollment: 13499 },
   { name: "College of William & Mary", display: "William & Mary", division: "D1", conference: "CAA", city: "Williamsburg", state: "VA", logoUrl: wmLogo.url, avgGpa: "3.57", acceptanceRate: "32.7%", enrollment: 7359 },
   { name: "Bryant University", display: "Bryant University", division: "D1", conference: "NEC", city: "Smithfield", state: "RI", logoUrl: bryantLogo.url, avgGpa: "3.39", acceptanceRate: "65.7%", enrollment: 3306 },
   { name: "Hofstra University", display: "Hofstra University", division: "D1", conference: "CAA", city: "Hempstead", state: "NY", logoUrl: "https://icons.duckduckgo.com/ip3/gohofstra.com.ico", avgGpa: "3.67", acceptanceRate: "70.6%", enrollment: 6503 },

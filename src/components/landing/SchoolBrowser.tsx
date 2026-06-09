@@ -3,6 +3,10 @@ import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import wmLogo from "@/assets/schools/wm-logo.png.asset.json";
+import bryantLogo from "@/assets/schools/bryant-logo.png.asset.json";
+import pomonaLogo from "@/assets/schools/pomona-logo.png.asset.json";
+import mitLogo from "@/assets/schools/mit-logo.png.asset.json";
 
 type School = {
   name: string;

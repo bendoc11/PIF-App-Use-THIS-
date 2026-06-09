@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { fbPixel } from "@/lib/fbpixel";
 
 const CHECKOUT_URL =
   "https://subscribe.playitforward.app/b/dRmfZgdt55BSg2wgOPcEw06";
@@ -15,6 +16,11 @@ const CHECKOUT_URL =
 export default function PaywallOverlay() {
   const { refreshProfile } = useAuth();
   const [checking, setChecking] = useState(false);
+
+  // Meta Pixel — user is seeing the paywall (locked replies)
+  useEffect(() => {
+    fbPixel.initiateCheckout();
+  }, []);
 
   const handleStartTrial = () => {
     window.location.href = CHECKOUT_URL;

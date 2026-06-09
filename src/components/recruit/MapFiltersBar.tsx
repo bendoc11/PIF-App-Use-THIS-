@@ -35,6 +35,16 @@ export function MapFiltersBar({ value: rawValue, onChange }: Props) {
   const [stateSearch, setStateSearch] = useState("");
   const [stateOpen, setStateOpen] = useState(false);
 
+  // Meta Pixel Search event — fire after user pauses typing in state search.
+  useEffect(() => {
+    const q = stateSearch.trim();
+    if (!q) return;
+    const t = setTimeout(() => {
+      try { fbPixel.search(q); } catch {}
+    }, 600);
+    return () => clearTimeout(t);
+  }, [stateSearch]);
+
   const toggleDiv = (d: Division) => {
     const has = value.divisions.includes(d);
     onChange({ ...value, divisions: has ? value.divisions.filter((x) => x !== d) : [...value.divisions, d] });

@@ -498,6 +498,8 @@ function Footer() {
 
 /* ━━━ MAIN ━━━ */
 export default function LandingPage() {
+  const finalCtaRef = useRef<HTMLElement>(null);
+
   useEffect(() => {
     document.getElementById("leadconnector-chat-widget")?.remove();
     document.querySelectorAll("chat-widget").forEach((el) => el.remove());
@@ -516,9 +518,10 @@ export default function LandingPage() {
         <NcsaComparison />
         <Testimonials />
         <MeetStaff />
-        <FinalCTA />
+        <FinalCTA innerRef={finalCtaRef} />
       </main>
       <Footer />
+      <MobileStickyCta hideWhenVisibleRef={finalCtaRef} />
     </div>
   );
 }

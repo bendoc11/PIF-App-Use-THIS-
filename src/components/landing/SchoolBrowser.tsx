@@ -275,7 +275,8 @@ export function SchoolBrowser() {
           </div>
         </div>
       </div>
-      </div>
+
+
 
       {/* Status line */}
       <p

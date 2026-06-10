@@ -508,7 +508,9 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground scroll-smooth">
       <TrustBar />
-      <Navbar />
+      <div className="hidden md:block">
+        <Navbar />
+      </div>
       <LiveOpeningsTicker />
       <main>
         <HeroSection />

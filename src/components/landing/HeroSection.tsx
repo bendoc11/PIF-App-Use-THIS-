@@ -38,8 +38,8 @@ export function HeroSection() {
           {/* Headline + subhead — mobile order 1, desktop left top */}
           <div className="order-1 lg:order-none lg:col-start-1 lg:row-start-1 animate-[fadeInUp_0.5s_ease-out_both]">
             <p
-              className="font-semibold tracking-[0.12em] text-primary uppercase mb-4"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}
+              className="font-semibold tracking-[0.12em] max-md:tracking-[0.08em] text-primary uppercase mb-4 text-[11px] max-md:text-[14px]"
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
               THE RECRUITING PLATFORM NCSA DOESN'T WANT YOU TO KNOW ABOUT
             </p>
@@ -58,13 +58,15 @@ export function HeroSection() {
                 alt="Offered"
                 className="inline-block h-[0.95em] w-auto"
               />
-              <span aria-hidden>.</span>
             </h1>
 
-            <p className="text-white/75 text-base sm:text-lg max-w-xl mb-5 leading-relaxed">
+            <p className="text-white/75 text-base sm:text-lg max-w-xl mb-5 leading-relaxed max-md:hidden">
               Coaches recruited 4,200 athletes last year who reached out first. We give every high
               school basketball player direct access to every college coach in the country — and
               show you exactly which programs need your position right now.
+            </p>
+            <p className="text-white/75 text-base max-w-xl mb-5 leading-relaxed hidden max-md:block">
+              Direct access to every college coach in the country. Free to start.
             </p>
           </div>
 

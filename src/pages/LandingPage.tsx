@@ -26,7 +26,7 @@ function TrustBar() {
   return (
     <div className="w-full border-b border-white/10" style={{ background: "#0A0F1E" }}>
       <p className="text-center py-2.5 text-white/70" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 13, fontWeight: 400 }}>
-        🏀 Used by athletes in 38 states · 7,800+ college coaches · Former D1 players on staff
+        🏀 Used by athletes in 38 states · 7,800+ college coaches · Daily roster openings and updates
       </p>
     </div>
   );

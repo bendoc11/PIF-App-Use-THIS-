@@ -67,19 +67,24 @@ function SchoolLogo({ school, size = 56, radius = 10, className }: { school: Sch
   const [failed, setFailed] = useState(false);
   if (school.logoUrl && !failed) {
     return (
-      <img
-        src={school.logoUrl}
-        alt={`${school.display} logo`}
-        onError={() => setFailed(true)}
-        className={`shrink-0 object-contain bg-white/5 ${className || ""}`}
+      <div
+        className={`shrink-0 flex items-center justify-center ${className || ""}`}
         style={{
           width: size,
           height: size,
           borderRadius: radius,
-          border: "1px solid rgba(255,255,255,0.15)",
-          padding: 4,
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.06)",
+          padding: 6,
         }}
-      />
+      >
+        <img
+          src={school.logoUrl}
+          alt={`${school.display} logo`}
+          onError={() => setFailed(true)}
+          className="w-full h-full object-contain"
+        />
+      </div>
     );
   }
   return (
@@ -88,7 +93,7 @@ function SchoolLogo({ school, size = 56, radius = 10, className }: { school: Sch
       style={{
         width: size,
         height: size,
-        borderRadius: 9999,
+        borderRadius: radius,
         background: DIV_COLORS[school.division],
         fontSize: size * 0.42,
       }}

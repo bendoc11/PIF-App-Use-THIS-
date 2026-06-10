@@ -67,19 +67,24 @@ function SchoolLogo({ school, size = 56, radius = 10, className }: { school: Sch
   const [failed, setFailed] = useState(false);
   if (school.logoUrl && !failed) {
     return (
-      <img
-        src={school.logoUrl}
-        alt={`${school.display} logo`}
-        onError={() => setFailed(true)}
-        className={`shrink-0 object-contain bg-white/5 ${className || ""}`}
+      <div
+        className={`shrink-0 flex items-center justify-center ${className || ""}`}
         style={{
           width: size,
           height: size,
           borderRadius: radius,
-          border: "1px solid rgba(255,255,255,0.15)",
-          padding: 4,
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.06)",
+          padding: 6,
         }}
-      />
+      >
+        <img
+          src={school.logoUrl}
+          alt={`${school.display} logo`}
+          onError={() => setFailed(true)}
+          className="w-full h-full object-contain"
+        />
+      </div>
     );
   }
   return (
@@ -88,7 +93,7 @@ function SchoolLogo({ school, size = 56, radius = 10, className }: { school: Sch
       style={{
         width: size,
         height: size,
-        borderRadius: 9999,
+        borderRadius: radius,
         background: DIV_COLORS[school.division],
         fontSize: size * 0.42,
       }}
@@ -122,153 +127,156 @@ export function SchoolBrowser() {
       <div className="relative overflow-hidden rounded-2xl">
         <div
           key={index}
-          className="rounded-2xl p-6 max-md:p-7 border"
+          className="rounded-2xl p-7 max-md:p-7"
           style={{
-            background: "linear-gradient(180deg, rgb(12, 18, 34) 0%, rgb(8, 12, 24) 100%)",
-            borderColor: "rgba(255,255,255,0.12)",
-            boxShadow: "0 20px 50px rgba(0,0,0,0.7), 0 0 80px rgba(220,38,38,0.06), inset 0 1px 0 rgba(255,255,255,0.04)",
+            background: "linear-gradient(180deg, rgb(14, 20, 36) 0%, rgb(10, 14, 26) 100%)",
+            border: "1px solid rgba(255,255,255,0.06)",
+            boxShadow: "0 20px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03)",
             transform: dir === "out-right" ? "translateX(110%)" : "translateX(0)",
             opacity: dir === "out-right" ? 0 : 1,
             animation: dir === "in" ? "slideInLeft 250ms ease-out" : undefined,
             transition: dir === "out-right" ? "transform 250ms ease-out, opacity 250ms ease-out" : undefined,
           }}
         >
-          {/* 1. Recruiting signal — top hook */}
-          <div
-            className="flex items-center gap-2 mb-4 px-3 py-2 rounded-full max-md:py-2.5"
-            style={{
-              background: "rgba(34, 197, 94, 0.08)",
-              border: "1px solid rgba(34, 197, 94, 0.22)",
-            }}
-          >
-            <span className="relative flex h-2 w-2 shrink-0">
-              <span
-                className="absolute inline-flex h-full w-full rounded-full opacity-75"
-                style={{ background: "#22c55e", animation: "livePing 1.6s cubic-bezier(0,0,0.2,1) infinite" }}
-              />
-              <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: "#4ade80" }} />
-            </span>
+          {/* 1. Recruiting signal — inline live tag */}
+          <div className="flex items-center gap-2 mb-5">
+            <span
+              className="inline-block h-2 w-2 rounded-full shrink-0"
+              style={{ background: "#22c55e", boxShadow: "0 0 6px rgba(34,197,94,0.6)" }}
+            />
             <span
               className="text-[12px] max-md:text-[13px] leading-none truncate"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 600, color: "#86efac", letterSpacing: "0.01em" }}
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 400, color: "rgba(134, 239, 172, 0.85)", letterSpacing: "0.005em" }}
             >
               {school.recruitingNeed}
             </span>
           </div>
 
           {/* 2. School identity */}
-          <div className="flex items-center gap-4 mb-3">
+          <div className="flex items-center gap-4 mb-5">
             <SchoolLogo school={school} size={64} radius={12} className="school-logo-mobile" />
             <div className="flex-1 min-w-0">
               <p
-                className="text-white leading-tight text-[20px] max-md:text-[22px]"
-                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700 }}
+                className="text-white leading-tight text-[22px] max-md:text-[24px]"
+                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 600, letterSpacing: "-0.01em" }}
               >
                 {school.display}
               </p>
-              <p className="text-white/55 text-[12px] mt-1 max-md:text-[13px]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                <span className="font-semibold text-white/80">{school.division}</span> · {school.conference} · {school.city}, {school.state}
+              <p
+                className="text-[11px] max-md:text-[12px] mt-1.5"
+                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "rgba(255,255,255,0.42)", letterSpacing: "0.01em" }}
+              >
+                {school.division} · {school.conference} · {school.city}, {school.state}
               </p>
             </div>
           </div>
 
-          {/* Stat pills */}
+          {/* 3. Stats — plain text, divider separated */}
           {(school.avgGpa || school.acceptanceRate) && (
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex items-center gap-4 mb-5">
               {school.avgGpa && (
-                <span
-                  className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] max-md:text-[12px]"
-                  style={{
-                    background: "rgba(255,255,255,0.04)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    color: "rgba(255,255,255,0.75)",
-                    fontFamily: "'Plus Jakarta Sans', sans-serif",
-                    fontWeight: 600,
-                  }}
-                >
-                  GPA {school.avgGpa}
-                </span>
+                <div className="flex items-baseline gap-2">
+                  <span
+                    className="text-[10px] uppercase tracking-wider"
+                    style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 500, color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em" }}
+                  >
+                    GPA
+                  </span>
+                  <span
+                    className="text-white text-[14px] max-md:text-[15px]"
+                    style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 600 }}
+                  >
+                    {school.avgGpa}
+                  </span>
+                </div>
+              )}
+              {school.avgGpa && school.acceptanceRate && (
+                <span className="h-3.5 w-px" style={{ background: "rgba(255,255,255,0.12)" }} />
               )}
               {school.acceptanceRate && (
-                <span
-                  className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] max-md:text-[12px]"
-                  style={{
-                    background: "rgba(255,255,255,0.04)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    color: "rgba(255,255,255,0.75)",
-                    fontFamily: "'Plus Jakarta Sans', sans-serif",
-                    fontWeight: 600,
-                  }}
-                >
-                  Accepts {school.acceptanceRate}
-                </span>
+                <div className="flex items-baseline gap-2">
+                  <span
+                    className="text-[10px] uppercase tracking-wider"
+                    style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 500, color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em" }}
+                  >
+                    Accepts
+                  </span>
+                  <span
+                    className="text-white text-[14px] max-md:text-[15px]"
+                    style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 600 }}
+                  >
+                    {school.acceptanceRate}
+                  </span>
+                </div>
               )}
             </div>
           )}
 
-          {/* 3. Open spots intelligence */}
-          <div
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg mb-4 max-md:py-3"
-            style={{
-              background: "rgba(245, 158, 11, 0.07)",
-              border: "1px solid rgba(245, 158, 11, 0.2)",
-            }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0" style={{ color: "#fbbf24" }}>
-              <path d="M12 8v4l2.5 2.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          {/* 4. Open spots — inline insider data point */}
+          <div className="flex items-center gap-2 mb-7">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0" style={{ color: "#f59e0b" }}>
+              <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M22 11h-6M9 11a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             <span
               className="text-[12px] max-md:text-[13px] leading-snug"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 500, color: "#fcd34d" }}
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 500, color: "#f5b754" }}
             >
               {school.openSpots}
             </span>
           </div>
 
-          {/* 4. Secondary — roster link */}
-          <div className="mb-3">
+          {/* 5. Main CTA */}
+          <Button
+            onClick={() => { try { fbPixel.lead(); } catch {} setModalOpen(true); }}
+            className="w-full text-white text-[15px] max-md:text-[16px] py-4 max-md:py-[18px] h-auto border-0"
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontWeight: 500,
+              letterSpacing: "0.005em",
+              borderRadius: 11,
+              background: "linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.88) 100%)",
+              boxShadow: "0 6px 18px rgba(220, 38, 38, 0.28), inset 0 1px 0 rgba(255,255,255,0.12)",
+            }}
+          >
+            Get in front of this coach<span style={{ marginLeft: 8 }}>→</span>
+          </Button>
+
+          {/* 6. Secondary — roster link */}
+          <div className="mt-4 text-center">
             <button
               onClick={() => setRosterOpen(true)}
-              className="text-[12px] max-md:text-[13px] text-white/50 hover:text-white/80 underline underline-offset-2 transition-colors"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+              className="text-[11px] max-md:text-[12px] transition-colors"
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "rgba(255,255,255,0.4)" }}
             >
               View their roster →
             </button>
           </div>
 
-          {/* 5. Main CTA */}
-          <Button
-            onClick={() => { try { fbPixel.lead(); } catch {} setModalOpen(true); }}
-            className="w-full bg-primary hover:bg-primary/90 text-white text-[15px] max-md:text-[16px] font-bold py-4 max-md:py-[18px] h-auto rounded-xl"
-            style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              letterSpacing: "0.005em",
-              animation: "ctaPulse 2.6s ease-in-out infinite",
-            }}
-          >
-            Get in front of this coach →
-          </Button>
-
-          {/* 6. Demoted skip */}
+          {/* 7. Demoted skip */}
           <button
             onClick={next}
-            className="w-full text-[11px] max-md:text-[12px] text-white/35 hover:text-white/60 pt-3 pb-1 transition-colors text-center"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            className="w-full text-[11px] max-md:text-[12px] pt-2 pb-1 transition-colors text-center"
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "rgba(255,255,255,0.32)" }}
           >
             Next school →
           </button>
 
           {/* 8. Swipe affordance */}
-          <div className="flex items-center justify-center gap-1.5 mt-3 pt-3 border-t" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
+          <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
+            <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 11 }}>←</span>
             <span
-              className="text-[10px] max-md:text-[11px] tracking-wider uppercase"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 500, color: "rgba(255,255,255,0.28)" }}
+              className="text-[11px] max-md:text-[12px]"
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 400 }}
             >
-              ← swipe to browse {SCHOOLS.length}+ programs →
+              <span style={{ color: "rgba(255,255,255,0.85)", fontWeight: 500 }}>{SCHOOLS.length}+</span>
+              <span style={{ color: "rgba(255,255,255,0.4)" }}> programs</span>
             </span>
+            <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 11 }}>→</span>
           </div>
         </div>
       </div>
+
+
 
       {/* Status line */}
       <p

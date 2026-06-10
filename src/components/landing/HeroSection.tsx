@@ -34,9 +34,9 @@ export function HeroSection() {
       </div>
 
       <div className="relative z-10 max-w-[1240px] mx-auto px-4 md:px-6 lg:px-12 py-16 lg:py-20">
-        <div className="grid lg:grid-cols-[55fr_45fr] gap-8 lg:gap-12 items-start">
-          {/* Headline + subhead — mobile order 1, desktop left top */}
-          <div className="order-1 lg:order-none lg:col-start-1 lg:row-start-1 animate-[fadeInUp_0.5s_ease-out_both]">
+        <div className="hero-grid-mobile grid lg:grid-cols-[55fr_45fr] gap-8 lg:gap-12 items-start">
+          {/* Headline + subhead — mobile first, desktop left top */}
+          <div className="lg:col-start-1 lg:row-start-1 animate-[fadeInUp_0.5s_ease-out_both]">
             <p
               className="font-semibold tracking-[0.12em] max-md:tracking-[0.08em] text-primary uppercase mb-4 text-[11px] max-md:text-[14px]"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
@@ -70,8 +70,8 @@ export function HeroSection() {
             </p>
           </div>
 
-          {/* School browser — mobile order 2 (above profile card), desktop left bottom */}
-          <div className="order-2 lg:order-none lg:col-start-1 lg:row-start-2 animate-[fadeInUp_0.55s_ease-out_both]">
+          {/* School browser — mobile second, desktop left bottom */}
+          <div className="lg:col-start-1 lg:row-start-2 animate-[fadeInUp_0.55s_ease-out_both]">
             <p
               className="mb-3"
               style={{
@@ -88,11 +88,18 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Athlete profile card — mobile order 3, desktop right column spanning both rows */}
-          <div className="order-3 lg:order-none lg:col-start-2 lg:row-start-1 lg:row-span-2 animate-[fadeInUp_0.6s_ease-out_both]">
+          {/* Athlete profile card — mobile third, desktop right column spanning both rows */}
+          <div className="lg:col-start-2 lg:row-start-1 lg:row-span-2 animate-[fadeInUp_0.6s_ease-out_both]">
             <AthleteProfileCard />
           </div>
         </div>
+        <style>{`
+          @media (max-width: 1023px) {
+            .hero-grid-mobile > :nth-child(1) { order: 1 !important; }
+            .hero-grid-mobile > :nth-child(2) { order: 2 !important; }
+            .hero-grid-mobile > :nth-child(3) { order: 3 !important; }
+          }
+        `}</style>
       </div>
     </section>
   );

@@ -115,12 +115,12 @@ export function SchoolBrowser() {
   const acad = academicLine(school);
 
   return (
-    <div className="relative w-full max-w-[440px] mx-auto">
+    <div className="relative w-full max-w-[440px] mx-auto max-md:max-w-none">
       {/* Card with swipe animation */}
       <div className="relative overflow-hidden rounded-2xl">
         <div
           key={index}
-          className="rounded-2xl p-6 border"
+          className="rounded-2xl p-6 max-md:p-8 border"
           style={{
             background: "rgb(10, 15, 30)",
             borderColor: "rgba(255,255,255,0.15)",
@@ -132,27 +132,26 @@ export function SchoolBrowser() {
           }}
         >
           <div className="flex items-center gap-4 mb-3">
-            <SchoolLogo school={school} size={56} radius={10} />
+            <SchoolLogo school={school} size={56} radius={10} className="school-logo-mobile" />
             <div className="flex-1 min-w-0">
               <p
-                className="text-white leading-tight"
-                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: 19 }}
+                className="text-white leading-tight text-[19px] max-md:text-[22px]"
+                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700 }}
               >
                 {school.display}
               </p>
-              <p className="text-white/60 text-xs mt-1">
+              <p className="text-white/60 text-xs mt-1 max-md:text-sm">
                 <span className="font-semibold text-white/80">{school.division}</span> · {school.conference}
               </p>
-              <p className="text-white/50 text-xs mt-0.5">
+              <p className="text-white/50 text-xs mt-0.5 max-md:text-sm">
                 {school.city}, {school.state}
               </p>
               {acad && (
                 <p
-                  className="mt-1"
+                  className="mt-1 text-[11px] max-md:text-[13px]"
                   style={{
                     fontFamily: "'Plus Jakarta Sans', sans-serif",
                     fontWeight: 400,
-                    fontSize: 11,
                     color: "rgba(255,255,255,0.5)",
                   }}
                 >
@@ -163,7 +162,7 @@ export function SchoolBrowser() {
           </div>
 
           <div
-            className="rounded-lg px-3 py-2 mb-3 text-xs font-medium"
+            className="rounded-lg px-3 py-2 mb-3 text-xs font-medium max-md:text-sm max-md:px-4 max-md:py-3 max-md:mb-4"
             style={{ background: "#0d2e1a", color: "#4ade80" }}
           >
             🏀 Actively recruiting guards and forwards — {school.division} program
@@ -171,21 +170,21 @@ export function SchoolBrowser() {
 
           <button
             onClick={() => setRosterOpen(true)}
-            className="text-xs text-white/60 hover:text-white hover:underline mb-4 flex items-center gap-1.5 transition-colors"
+            className="text-xs text-white/60 hover:text-white hover:underline mb-4 flex items-center gap-1.5 transition-colors max-md:text-sm max-md:mb-5"
           >
             View their roster →
           </button>
 
           <Button
             onClick={() => { try { fbPixel.lead(); } catch {} setModalOpen(true); }}
-            className="w-full bg-primary hover:bg-primary/90 text-white text-sm font-semibold py-3 h-auto mb-2"
+            className="w-full bg-primary hover:bg-primary/90 text-white text-sm font-semibold py-3 h-auto mb-2 max-md:text-base max-md:py-4"
             style={{ animation: "ctaPulse 3s ease-in-out infinite" }}
           >
             I would play here →
           </Button>
           <button
             onClick={next}
-            className="w-full text-xs text-white/60 hover:text-white/90 py-2 transition-colors"
+            className="w-full text-xs text-white/60 hover:text-white/90 py-2 transition-colors max-md:text-sm max-md:py-3"
           >
             Next school →
           </button>
@@ -194,22 +193,20 @@ export function SchoolBrowser() {
 
       {/* Status lines */}
       <p
-        className="text-center mt-3"
+        className="text-center mt-3 text-[11px] max-md:text-[13px]"
         style={{
           fontFamily: "'Plus Jakarta Sans', sans-serif",
           fontWeight: 400,
-          fontSize: 11,
           color: "rgba(255,255,255,0.4)",
         }}
       >
         Browsing {school.display} · {index + 1} of {SCHOOLS.length} programs · 1,848 total programs in the database
       </p>
       <p
-        className="text-center mt-1"
+        className="text-center mt-1 text-[11px] max-md:text-[13px]"
         style={{
           fontFamily: "'Plus Jakarta Sans', sans-serif",
           fontWeight: 400,
-          fontSize: 11,
           color: "rgba(255,255,255,0.4)",
         }}
       >
@@ -227,6 +224,13 @@ export function SchoolBrowser() {
         @keyframes slideInLeft {
           from { transform: translateX(-110%); opacity: 0; }
           to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes ctaPulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.35); }
+          50% { box-shadow: 0 0 24px 6px rgba(220, 38, 38, 0.15); }
+        }
+        @media (max-width: 768px) {
+          .school-logo-mobile { width: 72px !important; height: 72px !important; }
         }
       `}</style>
     </div>

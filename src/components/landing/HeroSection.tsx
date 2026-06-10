@@ -89,18 +89,11 @@ export function HeroSection() {
           </div>
         </div>
 
-        {/* Mobile layout — headline → school browser → zac card */}
-        <div className="lg:hidden flex flex-col gap-8">
-          <div className="animate-[fadeInUp_0.5s_ease-out_both]">
-            <p
-              className="font-semibold tracking-[0.08em] text-primary uppercase mb-4 text-[14px]"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-            >
-              THE RECRUITING PLATFORM NCSA DOESN'T WANT YOU TO KNOW ABOUT
-            </p>
-
+        {/* Mobile layout — compact headline → school browser centered → zac card */}
+        <div className="lg:hidden flex flex-col gap-5">
+          <div className="animate-[fadeInUp_0.5s_ease-out_both] text-center pt-2">
             <h1
-              className="text-[3.5rem] font-bold leading-[1.05] mb-6 text-foreground flex flex-wrap items-center gap-x-3"
+              className="text-[2.5rem] font-bold leading-[1.05] mb-3 text-foreground inline-flex flex-wrap items-center justify-center gap-x-2"
               style={{
                 fontFamily: "'Sora', 'Plus Jakarta Sans', sans-serif",
                 letterSpacing: "-0.03em",
@@ -115,7 +108,7 @@ export function HeroSection() {
               />
             </h1>
 
-            <p className="text-white/75 text-base max-w-xl mb-5 leading-relaxed">
+            <p className="text-white/75 text-[15px] leading-snug px-2">
               Direct access to every college coach in the country. Free to start.
             </p>
           </div>
@@ -130,6 +123,7 @@ export function HeroSection() {
             <AthleteProfileCard />
           </div>
         </div>
+
       </div>
     </section>
   );

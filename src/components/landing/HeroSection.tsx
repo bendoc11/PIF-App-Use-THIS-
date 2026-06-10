@@ -33,7 +33,7 @@ export function HeroSection() {
         />
       </div>
 
-      <div className="relative z-10 max-w-[1240px] mx-auto px-4 md:px-6 lg:px-12 py-16 lg:py-20">
+      <div className="relative z-10 max-w-[1240px] mx-auto px-4 md:px-6 lg:px-12 py-16 lg:py-20 max-md:py-6">
         {/* Desktop layout — unchanged */}
         <div className="hidden lg:grid lg:grid-cols-[55fr_45fr] gap-12 items-start">
           <div className="lg:col-start-1 lg:row-start-1 animate-[fadeInUp_0.5s_ease-out_both]">

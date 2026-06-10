@@ -114,7 +114,7 @@ export function SchoolBrowser() {
     }, 250);
   }
 
-  const acad = academicLine(school);
+  void academicLine;
 
   return (
     <div className="relative w-full max-w-[440px] mx-auto max-md:max-w-none">

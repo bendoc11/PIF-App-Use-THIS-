@@ -129,9 +129,9 @@ export function SchoolBrowser() {
           key={index}
           className="rounded-2xl p-7 max-md:p-7"
           style={{
-            background: "linear-gradient(180deg, rgb(14, 20, 36) 0%, rgb(10, 14, 26) 100%)",
-            border: "1px solid rgba(255,255,255,0.06)",
-            boxShadow: "0 20px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03)",
+            background: "linear-gradient(180deg, #1a2336 0%, #131a2a 60%, #0f1524 100%)",
+            border: "1px solid rgba(255,255,255,0.09)",
+            boxShadow: "0 30px 70px -10px rgba(0,0,0,0.7), 0 10px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)",
             transform: dir === "out-right" ? "translateX(110%)" : "translateX(0)",
             opacity: dir === "out-right" ? 0 : 1,
             animation: dir === "in" ? "slideInLeft 250ms ease-out" : undefined,
@@ -145,7 +145,7 @@ export function SchoolBrowser() {
               style={{ background: "#22c55e", boxShadow: "0 0 6px rgba(34,197,94,0.6)" }}
             />
             <span
-              className="text-[12px] max-md:text-[13px] leading-none truncate"
+              className="text-[11px] max-md:text-[12px] leading-none truncate"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 400, color: "rgba(134, 239, 172, 0.85)", letterSpacing: "0.005em" }}
             >
               {school.recruitingNeed}
@@ -153,12 +153,12 @@ export function SchoolBrowser() {
           </div>
 
           {/* 2. School identity */}
-          <div className="flex items-center gap-4 mb-5">
+          <div className="flex items-center gap-3 mb-5">
             <SchoolLogo school={school} size={64} radius={12} className="school-logo-mobile" />
             <div className="flex-1 min-w-0">
               <p
-                className="text-white leading-tight text-[22px] max-md:text-[24px]"
-                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 600, letterSpacing: "-0.01em" }}
+                className="text-white leading-tight text-[23px] max-md:text-[26px]"
+                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, letterSpacing: "-0.015em" }}
               >
                 {school.display}
               </p>
@@ -172,48 +172,9 @@ export function SchoolBrowser() {
           </div>
 
           {/* 3. Stats — plain text, divider separated */}
-          {(school.avgGpa || school.acceptanceRate) && (
-            <div className="flex items-center gap-4 mb-5">
-              {school.avgGpa && (
-                <div className="flex items-baseline gap-2">
-                  <span
-                    className="text-[10px] uppercase tracking-wider"
-                    style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 500, color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em" }}
-                  >
-                    GPA
-                  </span>
-                  <span
-                    className="text-white text-[14px] max-md:text-[15px]"
-                    style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 600 }}
-                  >
-                    {school.avgGpa}
-                  </span>
-                </div>
-              )}
-              {school.avgGpa && school.acceptanceRate && (
-                <span className="h-3.5 w-px" style={{ background: "rgba(255,255,255,0.12)" }} />
-              )}
-              {school.acceptanceRate && (
-                <div className="flex items-baseline gap-2">
-                  <span
-                    className="text-[10px] uppercase tracking-wider"
-                    style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 500, color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em" }}
-                  >
-                    Accepts
-                  </span>
-                  <span
-                    className="text-white text-[14px] max-md:text-[15px]"
-                    style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 600 }}
-                  >
-                    {school.acceptanceRate}
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
-
+...
           {/* 4. Open spots — inline insider data point */}
-          <div className="flex items-center gap-2 mb-7">
+          <div className="flex items-center gap-2 mb-8">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0" style={{ color: "#f59e0b" }}>
               <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M22 11h-6M9 11a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -225,24 +186,8 @@ export function SchoolBrowser() {
             </span>
           </div>
 
-          {/* 5. Main CTA */}
-          <Button
-            onClick={() => { try { fbPixel.lead(); } catch {} setModalOpen(true); }}
-            className="w-full text-white text-[15px] max-md:text-[16px] py-4 max-md:py-[18px] h-auto border-0"
-            style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              fontWeight: 500,
-              letterSpacing: "0.005em",
-              borderRadius: 11,
-              background: "linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.88) 100%)",
-              boxShadow: "0 6px 18px rgba(220, 38, 38, 0.28), inset 0 1px 0 rgba(255,255,255,0.12)",
-            }}
-          >
-            Get in front of this coach<span style={{ marginLeft: 8 }}>→</span>
-          </Button>
-
-          {/* 6. Secondary — roster link */}
-          <div className="mt-4 text-center">
+          {/* 6. Secondary — roster link (between open spots and CTA) */}
+          <div className="mb-4 text-center">
             <button
               onClick={() => setRosterOpen(true)}
               className="text-[11px] max-md:text-[12px] transition-colors"
@@ -252,24 +197,48 @@ export function SchoolBrowser() {
             </button>
           </div>
 
-          {/* 7. Demoted skip */}
+          {/* 5. Main CTA */}
+          <Button
+            onClick={() => { try { fbPixel.lead(); } catch {} setModalOpen(true); }}
+            className="w-full text-white text-[15px] max-md:text-[16px] py-4 max-md:py-[18px] h-auto border-0"
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontWeight: 600,
+              letterSpacing: "0.005em",
+              borderRadius: 11,
+              background: "linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.88) 100%)",
+              boxShadow: "0 6px 18px rgba(220, 38, 38, 0.28), inset 0 1px 0 rgba(255,255,255,0.12)",
+            }}
+          >
+            I would play here<span style={{ marginLeft: 8 }}>→</span>
+          </Button>
+
+          {/* 7. Next school — visible ghost button */}
           <button
             onClick={next}
-            className="w-full text-[11px] max-md:text-[12px] pt-2 pb-1 transition-colors text-center"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "rgba(255,255,255,0.32)" }}
+            className="w-full mt-4 text-[14px] max-md:text-[15px] transition-colors text-center"
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontWeight: 500,
+              color: "rgba(255,255,255,0.72)",
+              border: "1px solid rgba(255,255,255,0.18)",
+              borderRadius: 11,
+              padding: "13px 16px",
+              background: "transparent",
+            }}
           >
             Next school →
           </button>
 
           {/* 8. Swipe affordance */}
-          <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
+          <div className="flex items-center justify-center gap-2 mt-5 pt-4 border-t" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
             <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 11 }}>←</span>
             <span
               className="text-[11px] max-md:text-[12px]"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 400 }}
             >
               <span style={{ color: "rgba(255,255,255,0.85)", fontWeight: 500 }}>{SCHOOLS.length}+</span>
-              <span style={{ color: "rgba(255,255,255,0.4)" }}> programs</span>
+              <span style={{ color: "rgba(255,255,255,0.4)" }}> programs · swipe to browse</span>
             </span>
             <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 11 }}>→</span>
           </div>

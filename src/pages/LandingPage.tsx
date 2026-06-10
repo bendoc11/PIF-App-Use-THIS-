@@ -448,7 +448,7 @@ function MobileStickyCta({ hideWhenVisibleRef }: { hideWhenVisibleRef: React.Ref
             letterSpacing: "0.01em",
           }}
         >
-          I'm Ready to Get Offered →
+          See All Open Spots →
         </Link>
       </div>
     </div>

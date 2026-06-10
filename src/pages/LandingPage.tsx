@@ -377,11 +377,11 @@ function MeetStaff() {
 }
 
 /* ━━━ FINAL CTA ━━━ */
-function FinalCTA() {
+function FinalCTA({ innerRef }: { innerRef?: React.RefObject<HTMLElement> }) {
   const fade = useFadeIn();
   return (
-    <section className="px-4 md:px-6 lg:px-12 py-20 lg:py-28" ref={fade.ref}>
-      <div className={`max-w-[1100px] mx-auto ${fade.className}`}>
+    <section ref={innerRef} className="px-4 md:px-6 lg:px-12 py-20 lg:py-28">
+      <div ref={fade.ref} className={`max-w-[1100px] mx-auto ${fade.className}`}>
         <div className="relative rounded-3xl border border-white/10 p-10 md:p-16 text-center overflow-hidden" style={{ background: "#0D1220" }}>
           <div className="absolute inset-y-0 left-0 w-1" style={{ background: "linear-gradient(180deg, hsl(var(--primary)), transparent)" }} />
           <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(circle at 0% 50%, rgba(220,38,38,0.08), transparent 60%)" }} />
@@ -402,6 +402,56 @@ function FinalCTA() {
         </div>
       </div>
     </section>
+  );
+}
+
+/* ━━━ MOBILE STICKY CTA ━━━ */
+function MobileStickyCta({ hideWhenVisibleRef }: { hideWhenVisibleRef: React.RefObject<HTMLElement> }) {
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    const el = hideWhenVisibleRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => setHidden(e.isIntersecting),
+      { threshold: 0.05 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [hideWhenVisibleRef]);
+
+  return (
+    <div
+      className={`md:hidden fixed inset-x-0 bottom-0 z-50 pointer-events-none transition-opacity duration-300 ${hidden ? "opacity-0" : "opacity-100"}`}
+      aria-hidden={hidden}
+    >
+      <div
+        className="h-8 w-full"
+        style={{ background: "linear-gradient(180deg, rgba(10,15,30,0), rgba(10,15,30,0.95))" }}
+      />
+      <div
+        className="px-3 pt-2"
+        style={{
+          background: "rgba(10,15,30,0.95)",
+          paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)",
+        }}
+      >
+        <Link
+          to="/login?mode=signup"
+          className="pointer-events-auto flex items-center justify-center w-full rounded-xl glow-red"
+          style={{
+            height: 52,
+            background: "hsl(var(--primary))",
+            color: "#ffffff",
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            fontWeight: 600,
+            fontSize: 16,
+            letterSpacing: "0.01em",
+          }}
+        >
+          I'm Ready to Get Offered →
+        </Link>
+      </div>
+    </div>
   );
 }
 

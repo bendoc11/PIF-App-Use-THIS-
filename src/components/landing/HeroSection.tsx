@@ -34,11 +34,11 @@ export function HeroSection() {
       </div>
 
       <div className="relative z-10 max-w-[1240px] mx-auto px-4 md:px-6 lg:px-12 py-16 lg:py-20">
-        <div className="grid lg:grid-cols-[55fr_45fr] gap-8 lg:gap-12 items-start">
-          {/* Headline + subhead — mobile order 1, desktop left top */}
-          <div className="order-1 lg:order-none lg:col-start-1 lg:row-start-1 animate-[fadeInUp_0.5s_ease-out_both]">
+        {/* Desktop layout — unchanged */}
+        <div className="hidden lg:grid lg:grid-cols-[55fr_45fr] gap-12 items-start">
+          <div className="lg:col-start-1 lg:row-start-1 animate-[fadeInUp_0.5s_ease-out_both]">
             <p
-              className="font-semibold tracking-[0.12em] max-md:tracking-[0.08em] text-primary uppercase mb-4 text-[11px] max-md:text-[14px]"
+              className="font-semibold tracking-[0.12em] text-primary uppercase mb-4 text-[11px]"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
               THE RECRUITING PLATFORM NCSA DOESN'T WANT YOU TO KNOW ABOUT
@@ -60,18 +60,14 @@ export function HeroSection() {
               />
             </h1>
 
-            <p className="text-white/75 text-base sm:text-lg max-w-xl mb-5 leading-relaxed max-md:hidden">
+            <p className="text-white/75 text-base sm:text-lg max-w-xl mb-5 leading-relaxed">
               Coaches recruited 4,200 athletes last year who reached out first. We give every high
               school basketball player direct access to every college coach in the country — and
               show you exactly which programs need your position right now.
             </p>
-            <p className="text-white/75 text-base max-w-xl mb-5 leading-relaxed hidden max-md:block">
-              Direct access to every college coach in the country. Free to start.
-            </p>
           </div>
 
-          {/* School browser — mobile order 2 (above profile card), desktop left bottom */}
-          <div className="order-2 lg:order-none lg:col-start-1 lg:row-start-2 animate-[fadeInUp_0.55s_ease-out_both]">
+          <div className="lg:col-start-1 lg:row-start-2 animate-[fadeInUp_0.55s_ease-out_both]">
             <p
               className="mb-3"
               style={{
@@ -88,8 +84,60 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Athlete profile card — mobile order 3, desktop right column spanning both rows */}
-          <div className="order-3 lg:order-none lg:col-start-2 lg:row-start-1 lg:row-span-2 animate-[fadeInUp_0.6s_ease-out_both]">
+          <div className="lg:col-start-2 lg:row-start-1 lg:row-span-2 animate-[fadeInUp_0.6s_ease-out_both]">
+            <AthleteProfileCard />
+          </div>
+        </div>
+
+        {/* Mobile layout — headline → school browser → zac card */}
+        <div className="lg:hidden flex flex-col gap-8">
+          <div className="animate-[fadeInUp_0.5s_ease-out_both]">
+            <p
+              className="font-semibold tracking-[0.08em] text-primary uppercase mb-4 text-[14px]"
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            >
+              THE RECRUITING PLATFORM NCSA DOESN'T WANT YOU TO KNOW ABOUT
+            </p>
+
+            <h1
+              className="text-[3.5rem] font-bold leading-[1.05] mb-6 text-foreground flex flex-wrap items-center gap-x-3"
+              style={{
+                fontFamily: "'Sora', 'Plus Jakarta Sans', sans-serif",
+                letterSpacing: "-0.03em",
+                textShadow: "0 2px 20px rgba(255,255,255,0.15)",
+              }}
+            >
+              <span>Get</span>
+              <img
+                src={offeredLogo.url}
+                alt="Offered"
+                className="inline-block h-[0.95em] w-auto"
+              />
+            </h1>
+
+            <p className="text-white/75 text-base max-w-xl mb-5 leading-relaxed">
+              Direct access to every college coach in the country. Free to start.
+            </p>
+          </div>
+
+          <div className="animate-[fadeInUp_0.55s_ease-out_both]">
+            <p
+              className="mb-3"
+              style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontWeight: 400,
+                fontSize: 12,
+                color: "rgba(255,255,255,0.45)",
+              }}
+            >
+              Browse programs recruiting your position →
+            </p>
+            <div className="w-full max-w-[480px]">
+              <SchoolBrowser />
+            </div>
+          </div>
+
+          <div className="animate-[fadeInUp_0.6s_ease-out_both]">
             <AthleteProfileCard />
           </div>
         </div>

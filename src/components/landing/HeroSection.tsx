@@ -35,8 +35,8 @@ export function HeroSection() {
 
       <div className="relative z-10 max-w-[1240px] mx-auto px-4 md:px-6 lg:px-12 py-16 lg:py-20">
         <div className="grid lg:grid-cols-[55fr_45fr] gap-8 lg:gap-12 items-start">
-          {/* LEFT COLUMN — product demonstration */}
-          <div className="order-2 lg:order-1 animate-[fadeInUp_0.5s_ease-out_both]">
+          {/* Headline + subhead — mobile order 1, desktop left top */}
+          <div className="order-1 lg:order-none lg:col-start-1 lg:row-start-1 animate-[fadeInUp_0.5s_ease-out_both]">
             <p
               className="font-semibold tracking-[0.12em] text-primary uppercase mb-4"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}
@@ -66,7 +66,10 @@ export function HeroSection() {
               school basketball player direct access to every college coach in the country — and
               show you exactly which programs need your position right now.
             </p>
+          </div>
 
+          {/* School browser — mobile order 2 (above profile card), desktop left bottom */}
+          <div className="order-2 lg:order-none lg:col-start-1 lg:row-start-2 animate-[fadeInUp_0.55s_ease-out_both]">
             <p
               className="mb-3"
               style={{
@@ -78,14 +81,13 @@ export function HeroSection() {
             >
               Browse programs recruiting your position →
             </p>
-
             <div className="w-full max-w-[480px]">
               <SchoolBrowser />
             </div>
           </div>
 
-          {/* RIGHT COLUMN — athlete profile / social proof */}
-          <div className="order-1 lg:order-2 animate-[fadeInUp_0.6s_ease-out_both]">
+          {/* Athlete profile card — mobile order 3, desktop right column spanning both rows */}
+          <div className="order-3 lg:order-none lg:col-start-2 lg:row-start-1 lg:row-span-2 animate-[fadeInUp_0.6s_ease-out_both]">
             <AthleteProfileCard />
           </div>
         </div>

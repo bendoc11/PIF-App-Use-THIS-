@@ -61,7 +61,7 @@ function academicLine(s: School): string | null {
   return parts.length ? parts.join(" · ") : null;
 }
 
-function SchoolLogo({ school, size = 56, radius = 10 }: { school: School; size?: number; radius?: number }) {
+function SchoolLogo({ school, size = 56, radius = 10, className }: { school: School; size?: number; radius?: number; className?: string }) {
   const [failed, setFailed] = useState(false);
   if (school.logoUrl && !failed) {
     return (
@@ -69,7 +69,7 @@ function SchoolLogo({ school, size = 56, radius = 10 }: { school: School; size?:
         src={school.logoUrl}
         alt={`${school.display} logo`}
         onError={() => setFailed(true)}
-        className="shrink-0 object-contain bg-white/5"
+        className={`shrink-0 object-contain bg-white/5 ${className || ""}`}
         style={{
           width: size,
           height: size,
@@ -82,7 +82,7 @@ function SchoolLogo({ school, size = 56, radius = 10 }: { school: School; size?:
   }
   return (
     <div
-      className="flex items-center justify-center text-white font-bold shrink-0"
+      className={`flex items-center justify-center text-white font-bold shrink-0 ${className || ""}`}
       style={{
         width: size,
         height: size,

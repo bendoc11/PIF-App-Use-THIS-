@@ -18,7 +18,7 @@ export function HeroSection() {
           style={{ objectPosition: "top center" }}
           loading="eager"
         />
-        <div className="absolute inset-0" style={{ background: "rgba(10,15,30,0.78)" }} />
+        <div className="absolute inset-0 bg-[rgba(10,15,30,0.78)] max-md:bg-[rgba(10,15,30,0.92)]" />
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.04]"
           style={{

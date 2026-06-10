@@ -120,19 +120,8 @@ export function HeroSection() {
             </p>
           </div>
 
-          <div className="animate-[fadeInUp_0.55s_ease-out_both]">
-            <p
-              className="mb-3"
-              style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                fontWeight: 400,
-                fontSize: 12,
-                color: "rgba(255,255,255,0.45)",
-              }}
-            >
-              Browse programs recruiting your position →
-            </p>
-            <div className="w-full max-w-[480px]">
+          <div className="animate-[fadeInUp_0.55s_ease-out_both] -mx-4">
+            <div className="w-full">
               <SchoolBrowser />
             </div>
           </div>
